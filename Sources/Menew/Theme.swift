@@ -17,8 +17,12 @@ enum Theme {
         f > 0.9 ? .red : f > 0.75 ? .orange : base
     }
 
-    static let cardFill = Color.primary.opacity(0.045)
-    static let cardStroke = Color.primary.opacity(0.07)
+    static let windowFill = Color(nsColor: .windowBackgroundColor)
+    static let cardFill = Color(nsColor: NSColor(name: nil) { a in
+        a.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+            ? NSColor(white: 1, alpha: 0.06) : NSColor(white: 1, alpha: 0.85)
+    })
+    static let cardStroke = Color.primary.opacity(0.08)
 }
 
 struct CardModifier: ViewModifier {

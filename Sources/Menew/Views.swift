@@ -50,6 +50,7 @@ struct MainView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 400, height: 600)
+        .background(Theme.windowFill)
         .overlay(alignment: .bottom) {
             if let t = toolbox.toast {
                 Label(t, systemImage: "checkmark.circle.fill")
@@ -541,28 +542,37 @@ struct ActionTile: View {
         Button(action: action) {
             VStack(spacing: 7) {
                 ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous)
-                        .fill(on ? AnyShapeStyle(color.gradient) : AnyShapeStyle(color.opacity(0.15)))
-                    Image(systemName: icon).font(.system(size: 16, weight: .semibold))
-                        .foregroundStyle(on ? Color.white : color)
+                    RoundedRectangle(cornerRadius: 10, style: .continuous).fill(color.gradient)
+                    Image(systemName: icon).font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
                 }
                 .frame(width: 38, height: 38)
-                .shadow(color: on ? color.opacity(0.4) : .clear, radius: 6, y: 2)
+                .shadow(color: color.opacity(on ? 0.5 : 0.25), radius: on ? 7 : 3, y: 2)
+                .overlay(alignment: .topTrailing) {
+                    if on {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 14, weight: .bold))
+                            .foregroundStyle(.white, .green)
+                            .background(Circle().fill(Theme.windowFill).padding(1))
+                            .offset(x: 6, y: -6)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
                 VStack(spacing: 1) {
                     Text(title).font(.system(size: 11, weight: .medium)).lineLimit(1).minimumScaleFactor(0.85)
                     if let subtitle {
-                        Text(subtitle).font(.system(size: 9.5)).foregroundStyle(on ? color : .secondary).lineLimit(1)
+                        Text(subtitle).font(.system(size: 9.5)).foregroundStyle(.secondary).lineLimit(1)
                     }
                 }
             }
             .frame(maxWidth: .infinity, minHeight: 88)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.primary.opacity(hover ? 0.08 : 0.045))
+                    .fill(on ? AnyShapeStyle(color.opacity(0.12)) : AnyShapeStyle(Theme.cardFill))
+                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(hover ? 0.05 : 0)))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(on ? color.opacity(0.6) : Theme.cardStroke, lineWidth: on ? 1 : 0.5)
+                    .strokeBorder(on ? color.opacity(0.7) : Theme.cardStroke, lineWidth: on ? 1.5 : 0.5)
             )
             .scaleEffect(pressed ? 0.96 : 1)
             .contentShape(Rectangle())
@@ -620,6 +630,7 @@ struct NotesView: View {
 struct SettingsView: View {
     @ObservedObject var clipboard: ClipboardManager
     @AppStorage("menuBarStyle") private var style = MenuBarStyle.cpuRam.rawValue
+    @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("autoPaste") private var autoPaste = true
     @AppStorage("maxItems") private var maxItems = 300
     @AppStorage("ignoreConcealed") private var ignoreConcealed = true
@@ -631,6 +642,12 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            Section("Aparência") {
+                Picker("Tema", selection: $appearance) {
+                    ForEach(AppAppearance.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
+                }
+                .pickerStyle(.segmented)
+            }
             Section("Barra de menus") {
                 Picker("Mostrar", selection: $style) {
                     ForEach(MenuBarStyle.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
@@ -683,6 +700,24 @@ struct SettingsView: View {
         .formStyle(.grouped)
         .scrollContentBackground(.hidden)
         .onAppear { axTrusted = AXIsProcessTrusted() }
+    }
+}
+
+enum AppAppearance: String, CaseIterable {
+    case system, light, dark
+    var label: String {
+        switch self {
+        case .system: "Automático"
+        case .light: "Claro"
+        case .dark: "Escuro"
+        }
+    }
+    var nsAppearance: NSAppearance? {
+        switch self {
+        case .system: nil
+        case .light: NSAppearance(named: .aqua)
+        case .dark: NSAppearance(named: .darkAqua)
+        }
     }
 }
 

@@ -10,6 +10,7 @@ enum Snapshot {
         let monitor = SystemMonitor()
         let clipboard = ClipboardManager.demo()
         let toolbox = Toolbox()
+        toolbox.keepAwake = true
         let internet = InternetInfo()
         internet.speed = .done(SpeedResult(down: 224, up: 146, latency: 21, rpm: 425))
         internet.publicIP = "189.0.113.42"

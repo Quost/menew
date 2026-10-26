@@ -63,8 +63,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         clipboard.start()
         updateStatusItem()
 
+        applyAppearance()
         NotificationCenter.default.addObserver(forName: UserDefaults.didChangeNotification, object: nil, queue: .main) { [weak self] _ in
-            MainActor.assumeIsolated { self?.updateStatusItem() }
+            MainActor.assumeIsolated {
+                self?.updateStatusItem()
+                self?.applyAppearance()
+            }
         }
 
         hotKeys = [
@@ -75,6 +79,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 MainActor.assumeIsolated { self?.togglePopover() }
             },
         ]
+    }
+
+    /// Automático segue o sistema; Claro/Escuro forçam o tema em todas as janelas do app
+    private func applyAppearance() {
+        let choice = AppAppearance(rawValue: UserDefaults.standard.string(forKey: "appearance") ?? "") ?? .system
+        if NSApp.appearance?.name != choice.nsAppearance?.name { NSApp.appearance = choice.nsAppearance }
     }
 
     // MARK: Barra de menus
