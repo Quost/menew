@@ -8,6 +8,7 @@ final class Toolbox: ObservableObject {
     @Published var hiddenFiles = false
     @Published var desktopIconsHidden = false
     @Published var toast: String?
+    let cleaning = CleaningController()
 
     private var assertionID: IOPMAssertionID = 0
     private var awakeUntil: Timer?

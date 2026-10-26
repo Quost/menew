@@ -20,6 +20,18 @@ struct ClipItem: Codable, Identifiable, Equatable {
         return String(collapsed.prefix(300))
     }
 
+    /// Primeira linha com conteúdo, para a lista
+    var title: String {
+        guard let t = text else { return "" }
+        let line = t.split(whereSeparator: \.isNewline).first { !$0.trimmingCharacters(in: .whitespaces).isEmpty } ?? ""
+        return String(line.trimmingCharacters(in: .whitespaces).prefix(200))
+    }
+
+    var isCode: Bool {
+        guard kind == .text, let t = text, t.contains("\n") else { return false }
+        return ["{", "=>", "func ", "def ", "</", "import ", "const ", "SELECT "].contains { t.contains($0) }
+    }
+
     var url: URL? {
         guard kind == .text, let t = text?.trimmingCharacters(in: .whitespacesAndNewlines),
               !t.contains(" "), let u = URL(string: t), let s = u.scheme, ["http", "https"].contains(s) else { return nil }
@@ -37,6 +49,40 @@ struct ClipItem: Codable, Identifiable, Equatable {
 
     func sameContent(as o: ClipItem) -> Bool {
         kind == o.kind && (kind == .image ? imageFile == o.imageFile : text == o.text)
+    }
+}
+
+enum ClipFilter: String, CaseIterable {
+    case all, text, link, image, file, pinned
+    var label: String {
+        switch self {
+        case .all: "Tudo"
+        case .text: "Texto"
+        case .link: "Links"
+        case .image: "Imagens"
+        case .file: "Arquivos"
+        case .pinned: "Fixados"
+        }
+    }
+    var icon: String {
+        switch self {
+        case .all: "square.stack"
+        case .text: "text.alignleft"
+        case .link: "link"
+        case .image: "photo"
+        case .file: "doc"
+        case .pinned: "pin"
+        }
+    }
+    func matches(_ i: ClipItem) -> Bool {
+        switch self {
+        case .all: true
+        case .text: i.kind == .text && i.url == nil
+        case .link: i.url != nil
+        case .image: i.kind == .image
+        case .file: i.kind == .file
+        case .pinned: i.pinned
+        }
     }
 }
 
@@ -61,6 +107,24 @@ final class ClipboardManager: ObservableObject {
     private let thumbCache = NSCache<NSString, NSImage>()
 
     var defaults: UserDefaults { .standard }
+    private var isDemo = false
+
+    /// Histórico fictício, usado só para gerar capturas de tela da interface
+    static func demo() -> ClipboardManager {
+        let m = ClipboardManager()
+        m.isDemo = true
+        let now = Date()
+        m.items = [
+            ClipItem(kind: .text, text: "Reunião de alinhamento movida para quinta às 14h, sala 3.", date: now.addingTimeInterval(-40), sourceApp: "Microsoft Teams", sourceBundle: "com.microsoft.teams2"),
+            ClipItem(kind: .text, text: "https://github.com/Quost/meumenu", date: now.addingTimeInterval(-300), sourceApp: "Safari", sourceBundle: "com.apple.Safari"),
+            ClipItem(kind: .text, text: "#6C5CE7", date: now.addingTimeInterval(-900), sourceApp: "Figma", sourceBundle: "com.figma.Desktop"),
+            ClipItem(kind: .text, text: "func greet(_ name: String) -> String {\n    return \"Olá, \\(name)!\"\n}", date: now.addingTimeInterval(-1800), sourceApp: "Xcode", sourceBundle: "com.apple.dt.Xcode", pinned: true),
+            ClipItem(kind: .file, text: "/System/Applications/Calculator.app", date: now.addingTimeInterval(-3600), sourceApp: "Finder", sourceBundle: "com.apple.finder"),
+            ClipItem(kind: .text, text: "matheus@exemplo.com", date: now.addingTimeInterval(-7200), sourceApp: "Mail", sourceBundle: "com.apple.mail"),
+            ClipItem(kind: .text, text: "Lista de compras: café, pão, queijo, frutas", date: now.addingTimeInterval(-86400), sourceApp: "Notas", sourceBundle: "com.apple.Notes"),
+        ]
+        return m
+    }
 
     init() {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
@@ -149,9 +213,10 @@ final class ClipboardManager: ObservableObject {
 
     // MARK: Busca
 
-    func filtered(_ query: String) -> [ClipItem] {
+    func filtered(_ query: String, _ filter: ClipFilter = .all) -> [ClipItem] {
         let q = query.trimmingCharacters(in: .whitespaces)
-        let matches = q.isEmpty ? items : items.filter { item in
+        let base = items.filter(filter.matches)
+        let matches = q.isEmpty ? base : base.filter { item in
             [item.text, item.sourceApp].compactMap { $0 }.contains {
                 $0.range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             }
@@ -265,6 +330,7 @@ final class ClipboardManager: ObservableObject {
     }
 
     private func save() {
+        guard !isDemo else { return }
         guard let data = try? JSONEncoder().encode(items) else { return }
         try? data.write(to: historyURL, options: .atomic)
     }

@@ -6,7 +6,19 @@ App de barra de menus para macOS 14+, feito em Swift/SwiftUI, sem dependências.
 - **Clipboard**: histórico de texto, imagens e arquivos, com busca, itens fixados, ícone do app de origem e amostra de cor para hex
 - **⌘⇧V**: painel flutuante (↑↓ ↩ colar, ⌥↩ texto puro, ⌘1–9, ⌘P fixar, ⌘⌫ apagar, esc)
 - **⌥⌘M**: abre o menu principal
+- **Notas rápidas** que salvam sozinhas
+- **Internet**: velocidade em tempo real, IP local e público, teste de velocidade (networkQuality)
+- **Dispositivos**: bateria de AirPods, Magic Mouse/Keyboard/Trackpad
+- **Limpeza**: trava o teclado por 2 min ou apaga a tela para limpar
 - **Ações**: manter acordado, bloquear tela, arquivos ocultos, ocultar mesa, ejetar discos, esvaziar lixeira, modo escuro, print → clipboard, conta-gotas, limpar formatação
+
+## Capturas de tela
+
+```bash
+.build/release/MeuMenu --snapshot /caminho/da/pasta
+```
+
+Gera PNGs de todas as telas (claro e escuro) usando um histórico fictício.
 
 ## Compilar
 

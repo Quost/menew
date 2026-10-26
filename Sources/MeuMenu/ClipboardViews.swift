@@ -4,97 +4,207 @@ import SwiftUI
 @MainActor
 final class ClipListState: ObservableObject {
     @Published var query = "" { didSet { if query != oldValue { selection = 0 } } }
+    @Published var filter: ClipFilter = .all { didSet { if filter != oldValue { selection = 0 } } }
     @Published var selection = 0
     @Published var focusToken = 0
 }
 
-/// Lista com busca, usada tanto no painel flutuante (⌘⇧V) quanto no popover
-struct ClipboardListView: View {
-    @ObservedObject var manager: ClipboardManager
-    @ObservedObject var state: ClipListState
-    var compact = false
-    var onActivate: (ClipItem, Bool) -> Void   // (item, textoPuro)
+// MARK: Peças compartilhadas
 
-    @FocusState private var searchFocused: Bool
+struct SearchField: View {
+    @ObservedObject var state: ClipListState
+    var large = false
+    @FocusState private var focused: Bool
 
     var body: some View {
-        let list = manager.filtered(state.query)
-        VStack(spacing: 0) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField("Buscar no histórico…", text: $state.query)
-                    .textFieldStyle(.plain)
-                    .font(.system(size: compact ? 13 : 16))
-                    .focused($searchFocused)
-                if !state.query.isEmpty {
-                    Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
-                        .buttonStyle(.plain).foregroundStyle(.secondary)
+        HStack(spacing: 10) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: large ? 17 : 13, weight: .medium))
+                .foregroundStyle(.secondary)
+            TextField("Buscar no histórico", text: $state.query)
+                .textFieldStyle(.plain)
+                .font(.system(size: large ? 19 : 13))
+                .focused($focused)
+            if !state.query.isEmpty {
+                Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
+                    .buttonStyle(.plain).foregroundStyle(.tertiary)
+            }
+            if UserDefaults.standard.bool(forKey: "paused") {
+                Label("Pausado", systemImage: "pause.circle.fill")
+                    .font(.system(size: 11, weight: .medium)).foregroundStyle(.orange)
+            }
+        }
+        .padding(.horizontal, large ? 4 : 10)
+        .padding(.vertical, large ? 0 : 7)
+        .background {
+            if !large { RoundedRectangle(cornerRadius: 9).fill(Color.primary.opacity(0.06)) }
+        }
+        .onAppear { focused = true }
+        .onChange(of: state.focusToken) { _, _ in focused = true }
+    }
+}
+
+struct FilterChips: View {
+    @ObservedObject var state: ClipListState
+    var iconsOnly = false
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ForEach(ClipFilter.allCases, id: \.self) { f in
+                let on = state.filter == f
+                Button { state.filter = f } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: f.icon).font(.system(size: 10, weight: .semibold))
+                        if !iconsOnly || on { Text(f.label) }
+                    }
+                    .font(.system(size: 11, weight: .medium))
+                    .padding(.horizontal, 9).padding(.vertical, 4.5)
+                    .background(Capsule().fill(on ? AnyShapeStyle(Theme.brand) : AnyShapeStyle(Color.primary.opacity(0.06))))
+                    .foregroundStyle(on ? Color.white : Color.secondary)
+                    .contentShape(Capsule())
                 }
-                if UserDefaults.standard.bool(forKey: "paused") {
-                    Label("Pausado", systemImage: "pause.circle.fill").font(.caption).foregroundStyle(.orange)
+                .buttonStyle(.plain)
+            }
+        }
+    }
+}
+
+struct ClipThumb: View {
+    let item: ClipItem
+    let manager: ClipboardManager
+    var size: CGFloat = 32
+
+    var body: some View {
+        Group {
+            switch item.kind {
+            case .image:
+                if let img = manager.thumbnail(for: item) {
+                    Image(nsImage: img).resizable().aspectRatio(contentMode: .fill)
+                } else {
+                    tile("photo", .teal)
+                }
+            case .file:
+                if let p = item.text?.split(separator: "\n").first {
+                    Image(nsImage: NSWorkspace.shared.icon(forFile: String(p))).resizable().padding(1)
+                }
+            case .text:
+                if let c = item.hexColor {
+                    Color(nsColor: c)
+                } else if item.url != nil {
+                    tile("link", .blue)
+                } else if let icon = AppIcons.icon(for: item.sourceBundle) {
+                    Image(nsImage: icon).resizable().padding(1)
+                } else {
+                    tile("text.alignleft", .gray)
                 }
             }
-            .padding(.horizontal, 12).padding(.vertical, compact ? 8 : 12)
+        }
+        .frame(width: size, height: size)
+        .clipShape(RoundedRectangle(cornerRadius: size * 0.24, style: .continuous))
+        .overlay {
+            if item.hexColor != nil || item.kind == .image {
+                RoundedRectangle(cornerRadius: size * 0.24, style: .continuous).strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5)
+            }
+        }
+    }
 
-            Divider()
+    private func tile(_ icon: String, _ color: Color) -> some View {
+        ZStack {
+            Rectangle().fill(color.gradient)
+            Image(systemName: icon).font(.system(size: size * 0.42, weight: .semibold)).foregroundStyle(.white)
+        }
+    }
+}
 
-            if list.isEmpty {
-                VStack(spacing: 8) {
-                    Image(systemName: "doc.on.clipboard").font(.largeTitle).foregroundStyle(.tertiary)
-                    Text(state.query.isEmpty ? "Copie algo para começar" : "Nada encontrado")
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-            } else {
-                ScrollViewReader { proxy in
-                    ScrollView {
-                        LazyVStack(spacing: 2) {
-                            ForEach(Array(list.enumerated()), id: \.element.id) { idx, item in
-                                ClipRow(item: item, index: idx, selected: idx == state.selection, manager: manager)
-                                    .id(item.id)
-                                    .contentShape(Rectangle())
-                                    .onTapGesture { onActivate(item, false) }
-                                    .onHover { if $0 { state.selection = idx } }
-                                    .contextMenu { contextMenu(for: item) }
-                            }
+struct ClipRow: View {
+    let item: ClipItem
+    let index: Int
+    let selected: Bool
+    let manager: ClipboardManager
+
+    var body: some View {
+        HStack(spacing: 10) {
+            ClipThumb(item: item, manager: manager)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.kind == .file ? fileTitle : item.title)
+                    .font(.system(size: 13, weight: .medium))
+                    .lineLimit(1)
+                Text(meta)
+                    .font(.system(size: 11))
+                    .opacity(0.65)
+                    .lineLimit(1)
+            }
+            Spacer(minLength: 4)
+            if item.pinned {
+                Image(systemName: "pin.fill").font(.system(size: 10)).rotationEffect(.degrees(35))
+                    .foregroundStyle(selected ? Color.white : Color.orange)
+            }
+            if index < 9 {
+                Text("⌘\(index + 1)").font(.system(size: 10.5, weight: .medium, design: .rounded)).opacity(0.5)
+            }
+        }
+        .foregroundStyle(selected ? Color.white : Color.primary)
+        .padding(.horizontal, 8).padding(.vertical, 6)
+        .background {
+            if selected { RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Theme.brand) }
+        }
+        .contentShape(Rectangle())
+    }
+
+    private var fileTitle: String {
+        let paths = (item.text ?? "").split(separator: "\n")
+        let first = (paths.first.map { String($0) } ?? "") as NSString
+        return paths.count > 1 ? "\(first.lastPathComponent) e mais \(paths.count - 1)" : first.lastPathComponent
+    }
+
+    private var meta: String {
+        [item.sourceApp, RelDate.string(item.date)].compactMap { $0 }.joined(separator: " · ")
+    }
+}
+
+struct ClipList: View {
+    @ObservedObject var manager: ClipboardManager
+    @ObservedObject var state: ClipListState
+    let list: [ClipItem]
+    var onActivate: (ClipItem, Bool) -> Void
+
+    var body: some View {
+        if list.isEmpty {
+            VStack(spacing: 10) {
+                Image(systemName: state.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass")
+                    .font(.system(size: 30, weight: .light)).foregroundStyle(.tertiary)
+                Text(state.query.isEmpty ? "Copie algo para começar" : "Nada encontrado")
+                    .font(.system(size: 13)).foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            ScrollViewReader { proxy in
+                ScrollView {
+                    LazyVStack(spacing: 1) {
+                        ForEach(Array(list.enumerated()), id: \.element.id) { idx, item in
+                            ClipRow(item: item, index: idx, selected: idx == state.selection, manager: manager)
+                                .id(item.id)
+                                .onTapGesture { onActivate(item, false) }
+                                .onHover { if $0 { state.selection = idx } }
+                                .contextMenu { ClipContextMenu(item: item, manager: manager, onActivate: onActivate) }
                         }
-                        .padding(6)
                     }
-                    .onChange(of: state.selection) { _, new in
-                        if list.indices.contains(new) { proxy.scrollTo(list[new].id) }
-                    }
+                    .padding(6)
+                }
+                .onChange(of: state.selection) { _, new in
+                    if list.indices.contains(new) { proxy.scrollTo(list[new].id) }
                 }
             }
-
-            if !compact {
-                Divider()
-                HStack(spacing: 14) {
-                    hint("↩", "colar")
-                    hint("⌥↩", "texto puro")
-                    hint("⌘1-9", "rápido")
-                    hint("⌘P", "fixar")
-                    hint("⌘⌫", "apagar")
-                    Spacer()
-                    Text("\(manager.items.count) itens").foregroundStyle(.tertiary)
-                }
-                .font(.caption)
-                .padding(.horizontal, 12).padding(.vertical, 7)
-            }
-        }
-        .onAppear { searchFocused = true }
-        .onChange(of: state.focusToken) { _, _ in searchFocused = true }
-    }
-
-    private func hint(_ key: String, _ label: String) -> some View {
-        HStack(spacing: 4) {
-            Text(key).font(.caption.monospaced()).padding(.horizontal, 4).padding(.vertical, 1)
-                .background(RoundedRectangle(cornerRadius: 4).fill(.quaternary))
-            Text(label).foregroundStyle(.secondary)
         }
     }
+}
 
-    @ViewBuilder
-    private func contextMenu(for item: ClipItem) -> some View {
+struct ClipContextMenu: View {
+    let item: ClipItem
+    let manager: ClipboardManager
+    var onActivate: (ClipItem, Bool) -> Void
+
+    var body: some View {
         Button("Colar") { onActivate(item, false) }
         if item.kind == .text { Button("Colar como texto puro") { onActivate(item, true) } }
         Button("Só copiar") { manager.copy(item) }
@@ -106,10 +216,6 @@ struct ClipboardListView: View {
                 Button("Primeira Letra Maiúscula") { manager.copyText(t.capitalized) }
                 Button("Remover espaços extras") {
                     manager.copyText(t.split(whereSeparator: \.isWhitespace).joined(separator: " "))
-                }
-                Button("Contar caracteres") {
-                    let words = t.split(whereSeparator: \.isWhitespace).count
-                    manager.copyText("\(t.count) caracteres, \(words) palavras")
                 }
             }
         }
@@ -127,61 +233,191 @@ struct ClipboardListView: View {
     }
 }
 
-struct ClipRow: View {
+// MARK: Pré-visualização
+
+struct ClipPreview: View {
     let item: ClipItem
-    let index: Int
-    let selected: Bool
-    let manager: ClipboardManager
+    @ObservedObject var manager: ClipboardManager
+    var onActivate: (ClipItem, Bool) -> Void
 
     var body: some View {
-        HStack(spacing: 10) {
-            leading.frame(width: 30, height: 30)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(item.preview)
-                    .lineLimit(2)
-                    .font(.system(size: 12.5))
-                HStack(spacing: 6) {
-                    if let app = item.sourceApp { Text(app) }
-                    Text(item.date, style: .relative)
+        VStack(alignment: .leading, spacing: 0) {
+            ScrollView {
+                content
+                    .frame(maxWidth: .infinity, alignment: .topLeading)
+                    .padding(18)
+            }
+            .frame(maxHeight: .infinity)
+
+            Divider().opacity(0.5)
+
+            VStack(alignment: .leading, spacing: 7) {
+                infoRow("Origem") {
+                    HStack(spacing: 5) {
+                        if let icon = AppIcons.icon(for: item.sourceBundle) {
+                            Image(nsImage: icon).resizable().frame(width: 14, height: 14)
+                        }
+                        Text(item.sourceApp ?? "Desconhecido")
+                    }
                 }
-                .font(.caption2)
-                .foregroundStyle(.secondary)
+                infoRow("Copiado") { Text(item.date.formatted(.dateTime.day().month().hour().minute().locale(Locale(identifier: "pt_BR")))) }
+                infoRow("Conteúdo") { Text(stats) }
             }
-            Spacer(minLength: 4)
-            if item.pinned { Image(systemName: "pin.fill").font(.caption).foregroundStyle(.orange) }
-            if index < 9 {
-                Text("⌘\(index + 1)").font(.caption2.monospaced()).foregroundStyle(.tertiary)
+            .font(.system(size: 11.5))
+            .padding(.horizontal, 18).padding(.vertical, 12)
+
+            HStack(spacing: 8) {
+                PillButton(title: "Colar", icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
+                PillButton(title: "Copiar", icon: "doc.on.doc") { manager.copy(item) }
+                PillButton(title: item.pinned ? "Desafixar" : "Fixar", icon: item.pinned ? "pin.slash" : "pin") { manager.togglePin(item) }
+                Spacer()
+                IconButton(icon: "trash", help: "Apagar") { manager.delete(item) }
             }
+            .padding(.horizontal, 14).padding(.bottom, 14)
         }
-        .padding(.horizontal, 8).padding(.vertical, 5)
-        .background(RoundedRectangle(cornerRadius: 7).fill(selected ? Color.accentColor.opacity(0.22) : .clear))
     }
 
-    @ViewBuilder private var leading: some View {
+    @ViewBuilder private var content: some View {
         switch item.kind {
         case .image:
             if let img = manager.thumbnail(for: item) {
-                Image(nsImage: img).resizable().aspectRatio(contentMode: .fill)
-                    .frame(width: 30, height: 30).clipShape(RoundedRectangle(cornerRadius: 5))
-            } else {
-                Image(systemName: "photo")
+                Image(nsImage: img).resizable().aspectRatio(contentMode: .fit)
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .frame(maxHeight: 260)
+                    .frame(maxWidth: .infinity)
             }
         case .file:
-            if let p = item.text?.split(separator: "\n").first {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: String(p))).resizable()
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach((item.text ?? "").split(separator: "\n").prefix(20).map(String.init), id: \.self) { path in
+                    HStack(spacing: 10) {
+                        Image(nsImage: NSWorkspace.shared.icon(forFile: path)).resizable().frame(width: 40, height: 40)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text((path as NSString).lastPathComponent).font(.system(size: 13, weight: .medium))
+                            Text((path as NSString).deletingLastPathComponent).font(.system(size: 11)).foregroundStyle(.secondary)
+                                .lineLimit(1).truncationMode(.middle)
+                        }
+                    }
+                }
             }
         case .text:
-            if let c = item.hexColor {
-                RoundedRectangle(cornerRadius: 6).fill(Color(nsColor: c))
-                    .overlay(RoundedRectangle(cornerRadius: 6).stroke(.quaternary))
-            } else if item.url != nil {
-                Image(systemName: "link").font(.system(size: 15)).foregroundStyle(.blue)
-            } else if let icon = AppIcons.icon(for: item.sourceBundle) {
-                Image(nsImage: icon).resizable()
+            if let c = item.hexColor?.usingColorSpace(.sRGB) {
+                VStack(alignment: .leading, spacing: 12) {
+                    RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color(nsColor: c)).frame(height: 140)
+                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(Color.primary.opacity(0.1)))
+                    Text(item.text?.trimmingCharacters(in: .whitespacesAndNewlines).uppercased() ?? "")
+                        .font(.system(size: 20, weight: .semibold, design: .monospaced))
+                    Text("RGB \(Int(c.redComponent * 255)), \(Int(c.greenComponent * 255)), \(Int(c.blueComponent * 255))")
+                        .font(.system(size: 12, design: .monospaced)).foregroundStyle(.secondary)
+                }
+            } else if let u = item.url {
+                VStack(alignment: .leading, spacing: 8) {
+                    Label(u.host() ?? "Link", systemImage: "globe").font(.system(size: 15, weight: .semibold))
+                    Text(u.absoluteString).font(.system(size: 13)).foregroundStyle(.blue).textSelection(.enabled)
+                    PillButton(title: "Abrir no navegador", icon: "arrow.up.right") { NSWorkspace.shared.open(u) }
+                        .padding(.top, 4)
+                }
             } else {
-                Image(systemName: "text.alignleft").foregroundStyle(.secondary)
+                Text(String((item.text ?? "").prefix(20_000)))
+                    .font(.system(size: 13, design: item.isCode ? .monospaced : .default))
+                    .lineSpacing(3)
+                    .textSelection(.enabled)
             }
         }
+    }
+
+    private var stats: String {
+        switch item.kind {
+        case .image: return item.text ?? "Imagem"
+        case .file:
+            let n = (item.text ?? "").split(separator: "\n").count
+            return n == 1 ? "1 arquivo" : "\(n) arquivos"
+        case .text:
+            let t = item.text ?? ""
+            let words = t.split(whereSeparator: \.isWhitespace).count
+            let lines = t.split(separator: "\n", omittingEmptySubsequences: false).count
+            return "\(t.count) caracteres · \(words) palavras · \(lines) \(lines == 1 ? "linha" : "linhas")"
+        }
+    }
+
+    private func infoRow<V: View>(_ label: String, @ViewBuilder _ value: () -> V) -> some View {
+        HStack {
+            Text(label).foregroundStyle(.secondary).frame(width: 70, alignment: .leading)
+            value()
+            Spacer()
+        }
+    }
+}
+
+// MARK: Painel flutuante (⌘⇧V)
+
+struct ClipboardPanelView: View {
+    @ObservedObject var manager: ClipboardManager
+    @ObservedObject var state: ClipListState
+    var onActivate: (ClipItem, Bool) -> Void
+
+    var body: some View {
+        let list = manager.filtered(state.query, state.filter)
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 12) {
+                SearchField(state: state, large: true)
+                FilterChips(state: state)
+            }
+            .padding(.horizontal, 18).padding(.top, 18).padding(.bottom, 12)
+
+            Divider().opacity(0.6)
+
+            HStack(spacing: 0) {
+                ClipList(manager: manager, state: state, list: list, onActivate: onActivate)
+                    .frame(width: 330)
+                Divider().opacity(0.6)
+                Group {
+                    if list.indices.contains(state.selection) {
+                        ClipPreview(item: list[state.selection], manager: manager, onActivate: onActivate)
+                    } else {
+                        Color.clear
+                    }
+                }
+                .frame(maxWidth: .infinity)
+            }
+
+            Divider().opacity(0.6)
+            HStack(spacing: 14) {
+                hint("↩", "colar")
+                hint("⌥↩", "texto puro")
+                hint("⌘1–9", "rápido")
+                hint("⌘P", "fixar")
+                hint("⌘⌫", "apagar")
+                Spacer()
+                Text("\(manager.items.count) itens").foregroundStyle(.tertiary)
+            }
+            .font(.system(size: 11))
+            .padding(.horizontal, 16).padding(.vertical, 9)
+        }
+    }
+
+    private func hint(_ key: String, _ label: String) -> some View {
+        HStack(spacing: 5) {
+            Keycap(text: key)
+            Text(label).foregroundStyle(.secondary)
+        }
+    }
+}
+
+/// Versão compacta, dentro do popover
+struct ClipboardTabView: View {
+    @ObservedObject var manager: ClipboardManager
+    @ObservedObject var state: ClipListState
+    var onActivate: (ClipItem, Bool) -> Void
+
+    var body: some View {
+        VStack(spacing: 10) {
+            SearchField(state: state)
+            FilterChips(state: state, iconsOnly: true)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            ClipList(manager: manager, state: state, list: manager.filtered(state.query, state.filter), onActivate: onActivate)
+                .padding(.horizontal, -6)
+        }
+        .padding(.horizontal, 12).padding(.top, 4)
     }
 }
 
@@ -196,9 +432,21 @@ enum AppIcons {
         cache[bundle] = img
         return img
     }
+
+    private static var byName: [String: NSImage?] = [:]
+    /// Ícone de um processo pelo nome do executável (para a lista de processos)
+    static func icon(forProcess name: String) -> NSImage? {
+        if let c = byName[name] { return c }
+        let app = NSWorkspace.shared.runningApplications.first {
+            $0.executableURL?.lastPathComponent == name || $0.localizedName == name
+        }
+        let img = app?.icon
+        byName[name] = img
+        return img
+    }
 }
 
-// MARK: Painel flutuante (⌘⇧V)
+// MARK: Janela do painel
 
 final class KeyPanel: NSPanel {
     override var canBecomeKey: Bool { true }
@@ -224,15 +472,18 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
         let panel = self.panel ?? makePanel()
         self.panel = panel
         state.query = ""
+        state.filter = .all
         state.selection = 0
 
         let mouse = NSEvent.mouseLocation
         let screen = NSScreen.screens.first { NSMouseInRect(mouse, $0.frame, false) } ?? NSScreen.main
         if let vf = screen?.visibleFrame {
             let size = panel.frame.size
-            panel.setFrameOrigin(NSPoint(x: vf.midX - size.width / 2, y: vf.minY + vf.height * 0.62 - size.height / 2))
+            panel.setFrameOrigin(NSPoint(x: vf.midX - size.width / 2, y: vf.minY + vf.height * 0.6 - size.height / 2))
         }
+        panel.alphaValue = 0
         panel.makeKeyAndOrderFront(nil)
+        NSAnimationContext.runAnimationGroup { $0.duration = 0.12; panel.animator().alphaValue = 1 }
         state.focusToken += 1
         installMonitor()
     }
@@ -246,26 +497,27 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     func windowDidResignKey(_ notification: Notification) { close() }
 
     private func makePanel() -> KeyPanel {
-        let p = KeyPanel(contentRect: NSRect(x: 0, y: 0, width: 600, height: 470),
-                         styleMask: [.titled, .fullSizeContentView, .nonactivatingPanel],
+        let p = KeyPanel(contentRect: NSRect(x: 0, y: 0, width: 780, height: 500),
+                         styleMask: [.borderless, .nonactivatingPanel, .fullSizeContentView],
                          backing: .buffered, defer: false)
-        p.titleVisibility = .hidden
-        p.titlebarAppearsTransparent = true
+        p.isOpaque = false
+        p.backgroundColor = .clear
+        p.hasShadow = true
         p.isMovableByWindowBackground = true
         p.level = .floating
         p.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         p.hidesOnDeactivate = false
         p.isReleasedWhenClosed = false
         p.delegate = self
-        [.closeButton, .miniaturizeButton, .zoomButton].forEach { p.standardWindowButton($0)?.isHidden = true }
 
-        let root = ClipboardListView(manager: manager, state: state) { [weak self] item, plain in
+        let root = ClipboardPanelView(manager: manager, state: state) { [weak self] item, plain in
             self?.activate(item, plain: plain)
         }
-        .frame(minWidth: 600, minHeight: 470)
-        .background(VisualEffect(material: .hudWindow))
-        let host = NSHostingView(rootView: root)
-        p.contentView = host
+        .frame(width: 780, height: 500)
+        .background(VisualEffect(material: .popover))
+        .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).strokeBorder(Color.primary.opacity(0.12), lineWidth: 0.5))
+        p.contentView = NSHostingView(rootView: root)
         return p
     }
 
@@ -277,22 +529,28 @@ final class ClipboardPanelController: NSObject, NSWindowDelegate {
     private func installMonitor() {
         if monitor != nil { return }
         monitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            MainActor.assumeIsolated {
-                guard let self, event.window === self.panel else { return event }
-                return self.handle(event) ? nil : event
+            nonisolated(unsafe) let e = event
+            return MainActor.assumeIsolated {
+                guard let self, e.window === self.panel else { return e }
+                return self.handle(e) ? nil : e
             }
         }
     }
 
     /// true = evento consumido
     private func handle(_ e: NSEvent) -> Bool {
-        let list = manager.filtered(state.query)
+        let list = manager.filtered(state.query, state.filter)
         let cmd = e.modifierFlags.contains(.command)
         let opt = e.modifierFlags.contains(.option)
         switch e.keyCode {
         case 53: close(); return true                                       // esc
         case 125: state.selection = min(state.selection + 1, max(list.count - 1, 0)); return true // ↓
         case 126: state.selection = max(state.selection - 1, 0); return true // ↑
+        case 48:                                                             // tab: próximo filtro
+            let all = ClipFilter.allCases
+            let i = all.firstIndex(of: state.filter) ?? 0
+            state.filter = all[(i + (e.modifierFlags.contains(.shift) ? all.count - 1 : 1)) % all.count]
+            return true
         case 36, 76:                                                         // return / enter
             if list.indices.contains(state.selection) { activate(list[state.selection], plain: opt) }
             return true

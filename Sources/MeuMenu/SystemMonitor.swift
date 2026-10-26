@@ -27,6 +27,8 @@ final class SystemMonitor: ObservableObject {
     @Published var battery: BatteryInfo?
     @Published var netIn: Double = 0
     @Published var netOut: Double = 0
+    @Published var netInHistory: [Double] = Array(repeating: 0, count: 40)
+    @Published var netOutHistory: [Double] = Array(repeating: 0, count: 40)
     @Published var localIP: String = "—"
     @Published var uptime: TimeInterval = 0
     @Published var thermal: ProcessInfo.ThermalState = .nominal
@@ -40,6 +42,7 @@ final class SystemMonitor: ObservableObject {
     private var prevNet: (rx: UInt64, tx: UInt64, at: Date)?
     private var tickCount = 0
 
+    let cores = ProcessInfo.processInfo.activeProcessorCount
     var memFraction: Double { memTotal == 0 ? 0 : Double(memUsed) / Double(memTotal) }
     var diskFraction: Double { diskTotal == 0 ? 0 : 1 - Double(diskFree) / Double(diskTotal) }
 
@@ -143,6 +146,8 @@ final class SystemMonitor: ObservableObject {
             if dt > 0 {
                 netIn = rx >= p.rx ? Double(rx - p.rx) / dt : 0
                 netOut = tx >= p.tx ? Double(tx - p.tx) / dt : 0
+                netInHistory.removeFirst(); netInHistory.append(netIn)
+                netOutHistory.removeFirst(); netOutHistory.append(netOut)
             }
         }
         prevNet = (rx, tx, now)
@@ -229,6 +234,11 @@ enum Fmt {
     }
     static func mem(_ b: UInt64) -> String {
         ByteCountFormatter.string(fromByteCount: Int64(b), countStyle: .memory)
+    }
+    /// "12,3 GB" / "16 GB"
+    static func memShort(_ b: UInt64) -> String {
+        let gb = Double(b) / 1_073_741_824
+        return (gb >= 10 || gb.rounded() == gb ? String(format: "%.0f", gb) : String(format: "%.1f", gb).replacingOccurrences(of: ".", with: ",")) + " GB"
     }
     static func rate(_ bps: Double) -> String {
         ByteCountFormatter.string(fromByteCount: Int64(bps), countStyle: .file) + "/s"
