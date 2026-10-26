@@ -299,6 +299,13 @@ private let table: [String: [String]] = [
     "Use #tags no texto para organizar e **negrito**, listas e - [ ] tarefas em Markdown.": ["Use #tags in the text to organize, and Markdown for **bold**, lists and - [ ] tasks.", "Nutze #Tags im Text zum Ordnen und Markdown für **fett**, Listen und - [ ] Aufgaben.", "Usa #etiquetas en el texto para organizar y Markdown para **negrita**, listas y - [ ] tareas.", "在文字中使用 #标签 整理，并用 Markdown 写 **粗体**、列表和 - [ ] 任务。"],
     "Título na primeira linha…\nUse #tags, **negrito**, listas e - [ ] tarefas.": ["Title on the first line…\nUse #tags, **bold**, lists and - [ ] tasks.", "Titel in der ersten Zeile…\nNutze #Tags, **fett**, Listen und - [ ] Aufgaben.", "Título en la primera línea…\nUsa #etiquetas, **negrita**, listas y - [ ] tareas.", "第一行是标题…\n可使用 #标签、**粗体**、列表和 - [ ] 任务。"],
 
+    // Ajuda
+    "Ajuda": ["Help", "Hilfe", "Ayuda", "帮助"],
+    "Reportar um problema…": ["Report a problem…", "Problem melden…", "Informar de un problema…", "报告问题…"],
+    "Sugerir uma ideia…": ["Suggest an idea…", "Idee vorschlagen…", "Sugerir una idea…", "提出建议…"],
+    "Ver no GitHub": ["View on GitHub", "Auf GitHub ansehen", "Ver en GitHub", "在 GitHub 上查看"],
+    "Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar.": ["Opens GitHub with the app and macOS versions filled in. You review it before sending.", "Öffnet GitHub mit bereits ausgefüllter App- und macOS-Version. Du prüfst alles vor dem Senden.", "Abre GitHub con las versiones de la app y de macOS ya rellenas. Lo revisas antes de enviar.", "打开 GitHub 并自动填好应用和 macOS 版本，发送前你可以检查。"],
+
     // Ajustes
     "Aparência": ["Appearance", "Erscheinungsbild", "Apariencia", "外观"],
     "Tema": ["Theme", "Design", "Tema", "主题"],

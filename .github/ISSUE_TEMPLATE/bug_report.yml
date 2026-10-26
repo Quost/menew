@@ -1,0 +1,52 @@
+name: 🐞 Bug report
+description: Something isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this! Tip: use **Report a problem…** in Menew's right-click menu and the version fields below are filled in for you.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: A clear description of the problem. Screenshots help a lot.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the clipboard history (⌘⇧V)
+        2. …
+  - type: input
+    id: version
+    attributes:
+      label: Menew version
+      placeholder: "1.4.0"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version
+      placeholder: "macOS 15.1"
+    validations:
+      required: true
+  - type: input
+    id: mac
+    attributes:
+      label: Mac
+      placeholder: "Apple Silicon (MacBookPro18,3)"
+  - type: input
+    id: language
+    attributes:
+      label: Menew language
+      placeholder: "English"

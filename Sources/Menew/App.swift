@@ -126,6 +126,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
         add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())
+        add(L("Reportar um problema…"), "", "ladybug", #selector(reportBug))
+        add(L("Sugerir uma ideia…"), "", "lightbulb", #selector(suggestIdea))
+        menu.addItem(.separator())
         add(L("Procurar atualizações…"), "", "arrow.down.circle", #selector(checkForUpdates))
         add(L("Ajustes…"), ",", "gearshape", #selector(openSettings))
         add(L("Sair do Menew"), "q", "power", #selector(quit))
@@ -138,6 +141,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
     @objc private func checkForUpdates() { updater.checkForUpdates() }
+    @objc private func reportBug() { popover.performClose(nil); Feedback.reportBug() }
+    @objc private func suggestIdea() { popover.performClose(nil); Feedback.suggestIdea() }
     @objc private func openSettings() { nav.tab = .settings; showPopover() }
     @objc private func quit() { NSApp.terminate(nil) }
 

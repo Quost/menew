@@ -84,6 +84,14 @@ The `Release` workflow builds a universal app, signs and notarizes it (when the 
 
 Without them, the release is still published, just unsigned. Each release also uploads `appcast.xml` (the Sparkle update feed) and bumps `Casks/menew.rb` for Homebrew.
 
+## Numbers
+
+```bash
+scripts/stats.sh
+```
+
+Downloads per version, update checks and repo traffic, all from GitHub's public stats. Menew itself never phones home.
+
 ## Reporting bugs
 
-Open an [issue](https://github.com/Quost/menew/issues) with your macOS version, Mac model (Apple Silicon or Intel), what you expected and what happened.
+Use **Report a problem…** in Menew's right-click menu: it opens a GitHub issue with your versions filled in. Or open an [issue](https://github.com/Quost/menew/issues/new/choose) directly.

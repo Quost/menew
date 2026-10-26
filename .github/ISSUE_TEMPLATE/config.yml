@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 🌐 Website
+    url: https://menew.web.app
+    about: Download, features and keyboard shortcuts.
+  - name: ☕ Support the project
+    url: https://buymeacoffee.com/quost
+    about: Menew is free; a coffee keeps it going.

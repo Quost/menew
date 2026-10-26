@@ -679,6 +679,17 @@ struct SettingsView: View {
                     ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
                 }
             }
+            Section(L("Ajuda")) {
+                HStack(spacing: 8) {
+                    Button { Feedback.reportBug() } label: { Label(L("Reportar um problema…"), systemImage: "ladybug") }
+                    Button { Feedback.suggestIdea() } label: { Label(L("Sugerir uma ideia…"), systemImage: "lightbulb") }
+                    Spacer()
+                    Button { Feedback.openRepo() } label: { Image(systemName: "arrow.up.right.square") }
+                        .buttonStyle(.borderless).help(L("Ver no GitHub"))
+                }
+                Text(L("Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar."))
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section(L("Atualizações")) {
                 Toggle(L("Procurar atualizações automaticamente"), isOn: $updater.automaticallyChecks)
                 HStack {
