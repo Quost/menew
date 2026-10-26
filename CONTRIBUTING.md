@@ -43,6 +43,13 @@ swift build -c release
 
 This renders every screen in light and dark mode using fake data, never your real clipboard. Copy the ones you need into `docs/assets/`.
 
+## Good first contributions
+
+No Swift needed for these:
+
+- **GIFs for the README and website.** Short screen recordings (5–10 s) of the ⌘⇧V panel, the quick actions and the cleaning mode. Keep them under 3 MB and add them to `docs/assets/`.
+- **Translations.** Spot something awkward in your language? All strings live in `Sources/Menew/L10n.swift`. New languages are welcome too.
+
 ## Guidelines
 
 - **Keep it native and light.** No third-party dependencies unless there's a very good reason.

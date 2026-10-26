@@ -100,6 +100,7 @@ Menew has **no telemetry, no analytics and no account**. Clipboard history and n
 - [ ] Disk cleaner (basic and deep modes)
 - [ ] Custom keyboard shortcuts
 - [ ] Text snippets
+- [ ] Auto-delete clipboard items older than X days
 - [ ] Auto-updates with Sparkle
 - [ ] Homebrew cask
 
