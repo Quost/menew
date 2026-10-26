@@ -53,7 +53,7 @@ jobs:
           APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
         run: |
           xcrun notarytool submit build/Menew.dmg --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
-            --password "$APPLE_APP_PASSWORD" --wait --timeout 30m
+            --password "$APPLE_APP_PASSWORD" --wait --timeout 2h
           xcrun stapler staple build/Menew.dmg
           xcrun stapler staple build/Menew.app || true
 
