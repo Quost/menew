@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "menew-prd"
+  },
+  "targets": {
+    "menew-prd": {
+      "hosting": {
+        "menew": ["menew"]
+      }
+    }
+  }
+}

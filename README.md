@@ -19,7 +19,7 @@
 </p>
 
 <p align="center">
-  <a href="https://quost.github.io/menew"><b>Website</b></a> ·
+  <a href="https://menew.web.app"><b>Website</b></a> ·
   <a href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg"><b>Download</b></a> ·
   <a href="CONTRIBUTING.md"><b>Contribute</b></a>
 </p>

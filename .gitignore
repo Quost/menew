@@ -5,3 +5,5 @@ build/
 .swiftpm/
 .claude/
 .signing-identity
+.firebase/
+firebase-debug.log

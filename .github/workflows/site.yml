@@ -1,0 +1,30 @@
+name: Site
+
+# Publica docs/ no Firebase Hosting (menew.web.app) a cada push na main que mexa no site.
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", "firebase.json", ".firebaserc", ".github/workflows/site.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: site
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    # Só roda depois que a credencial do Firebase for cadastrada
+    if: ${{ vars.FIREBASE_READY == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENEW_PRD }}
+          projectId: menew-prd
+          target: menew
+          channelId: live
