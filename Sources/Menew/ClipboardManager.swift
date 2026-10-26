@@ -13,6 +13,8 @@ struct ClipItem: Codable, Identifiable, Equatable {
     var sourceApp: String?
     var sourceBundle: String?
     var pinned = false
+    /// Preenchido só para snippets (não vão para o histórico)
+    var snippetTitle: String?
 
     var preview: String {
         guard let t = text else { return "" }
@@ -53,7 +55,7 @@ struct ClipItem: Codable, Identifiable, Equatable {
 }
 
 enum ClipFilter: String, CaseIterable {
-    case all, text, link, image, file, pinned
+    case all, text, link, image, file, pinned, snippets
     var label: String {
         switch self {
         case .all: L("Tudo")
@@ -62,6 +64,7 @@ enum ClipFilter: String, CaseIterable {
         case .image: L("Imagens")
         case .file: L("Arquivos")
         case .pinned: L("Fixados")
+        case .snippets: L("Snippets")
         }
     }
     var icon: String {
@@ -72,6 +75,7 @@ enum ClipFilter: String, CaseIterable {
         case .image: "photo"
         case .file: "doc"
         case .pinned: "pin"
+        case .snippets: "text.badge.star"
         }
     }
     func matches(_ i: ClipItem) -> Bool {
@@ -82,6 +86,7 @@ enum ClipFilter: String, CaseIterable {
         case .image: i.kind == .image
         case .file: i.kind == .file
         case .pinned: i.pinned
+        case .snippets: false
         }
     }
 }
@@ -104,10 +109,12 @@ final class ClipboardManager: ObservableObject {
     private var historyURL: URL { dir.appendingPathComponent("history.json") }
     private var lastChange = NSPasteboard.general.changeCount
     private var timer: Timer?
+    private var cleanupTimer: Timer?
     private let thumbCache = NSCache<NSString, NSImage>()
 
     var defaults: UserDefaults { .standard }
     private var isDemo = false
+    lazy var snippets = SnippetStore(dir: isDemo ? nil : dir)
 
     /// Histórico fictício, usado só para gerar capturas de tela da interface
     static func demo() -> ClipboardManager {
@@ -136,10 +143,22 @@ final class ClipboardManager: ObservableObject {
 
     func start() {
         load()
+        pruneAndSaveIfNeeded()
         lastChange = NSPasteboard.general.changeCount
         timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
         }
+        // Itens vencidos saem mesmo sem nada novo ser copiado
+        cleanupTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.pruneAndSaveIfNeeded() }
+        }
+    }
+
+    /// Chamado também quando o ajuste de dias muda
+    func pruneAndSaveIfNeeded() {
+        let before = items.count
+        prune()
+        if items.count != before { save() }
     }
 
     // MARK: Captura
@@ -191,14 +210,17 @@ final class ClipboardManager: ObservableObject {
         save()
     }
 
+    /// Limite de quantidade e, se configurado, de idade. Fixados nunca saem.
     private func prune() {
         let maxItems = max(defaults.integer(forKey: "maxItems"), 20)
+        let days = defaults.integer(forKey: "autoDeleteDays")
+        let cutoff = days > 0 ? Date().addingTimeInterval(-Double(days) * 86_400) : nil
         var unpinned = 0
         var removed: [ClipItem] = []
         items.removeAll { item in
             guard !item.pinned else { return false }
             unpinned += 1
-            if unpinned > maxItems { removed.append(item); return true }
+            if unpinned > maxItems || cutoff.map({ item.date < $0 }) == true { removed.append(item); return true }
             return false
         }
         removed.forEach(deleteImageIfOrphan)
@@ -218,6 +240,7 @@ final class ClipboardManager: ObservableObject {
     // MARK: Busca
 
     func filtered(_ query: String, _ filter: ClipFilter = .all) -> [ClipItem] {
+        if filter == .snippets { return snippets.items(matching: query) }
         let q = query.trimmingCharacters(in: .whitespaces)
         let base = items.filter(filter.matches)
         let matches = q.isEmpty ? base : base.filter { item in
@@ -235,7 +258,8 @@ final class ClipboardManager: ObservableObject {
         pb.clearContents()
         switch item.kind {
         case .text:
-            pb.setString(item.text ?? "", forType: .string)
+            let text = item.text ?? ""
+            pb.setString(item.snippetTitle != nil ? SnippetStore.expand(text) : text, forType: .string)
         case .file:
             let urls = (item.text ?? "").split(separator: "\n").map { URL(fileURLWithPath: String($0)) as NSURL }
             pb.writeObjects(urls)
@@ -265,7 +289,7 @@ final class ClipboardManager: ObservableObject {
     /// Copia e simula ⌘V no app que estava na frente
     func paste(_ item: ClipItem, plainText: Bool = false) {
         if plainText, let t = item.text {
-            copyText(t)
+            copyText(item.snippetTitle != nil ? SnippetStore.expand(t) : t)
             lastChange = NSPasteboard.general.changeCount
         } else {
             copy(item)

@@ -4,6 +4,7 @@ import ApplicationServices
 
 enum Tab: String, CaseIterable {
     case system = "Sistema", clipboard = "Clipboard", actions = "Ações", notes = "Notas", settings = "Ajustes"
+    case cleaner = "Liberar espaço"
     static let visible: [Tab] = [.system, .clipboard, .actions, .notes]
     var icon: String {
         switch self {
@@ -12,6 +13,7 @@ enum Tab: String, CaseIterable {
         case .actions: "bolt.fill"
         case .notes: "note.text"
         case .settings: "gearshape"
+        case .cleaner: "sparkles"
         }
     }
 }
@@ -28,6 +30,8 @@ struct MainView: View {
     @ObservedObject var toolbox: Toolbox
     @ObservedObject var internet: InternetInfo
     @ObservedObject var notes: NotesStore
+    @ObservedObject var cleaner: Cleaner
+    @ObservedObject var updater: UpdaterModel
     let clipState: ClipListState
     var onPickClip: (ClipItem, Bool) -> Void
 
@@ -37,15 +41,16 @@ struct MainView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            if nav.tab != .settings { tabBar }
+            if !isSubpage { tabBar }
 
             Group {
                 switch nav.tab {
                 case .system: SystemView(m: monitor, net: internet)
                 case .clipboard: ClipboardTabView(manager: clipboard, state: clipState, onActivate: onPickClip)
-                case .actions: ActionsView(tb: toolbox, clipboard: clipboard)
+                case .actions: ActionsView(tb: toolbox, clipboard: clipboard) { nav.tab = .cleaner }
+                case .cleaner: CleanerView(cleaner: cleaner, monitor: monitor)
                 case .notes: NotesView(store: notes)
-                case .settings: SettingsView(clipboard: clipboard)
+                case .settings: SettingsView(clipboard: clipboard, updater: updater)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -66,11 +71,14 @@ struct MainView: View {
         .animation(.spring(duration: 0.3), value: toolbox.toast)
     }
 
+    /// Telas abertas por botão (com "voltar"), fora da barra de abas
+    private var isSubpage: Bool { nav.tab == .settings || nav.tab == .cleaner }
+
     private var header: some View {
         HStack(spacing: 10) {
-            if nav.tab == .settings {
-                IconButton(icon: "chevron.left", help: L("Voltar")) { nav.tab = .system }
-                Text(L("Ajustes")).font(.system(size: 15, weight: .semibold))
+            if isSubpage {
+                IconButton(icon: "chevron.left", help: L("Voltar")) { nav.tab = nav.tab == .cleaner ? .actions : .system }
+                Text(L(nav.tab.rawValue)).font(.system(size: 15, weight: .semibold))
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.brand)
@@ -87,7 +95,7 @@ struct MainView: View {
                 }
             }
             Spacer()
-            if nav.tab != .settings {
+            if !isSubpage {
                 IconButton(icon: "gearshape", help: L("Ajustes")) { nav.tab = .settings }
             }
         }
@@ -462,11 +470,13 @@ struct ActionsView: View {
     @ObservedObject var tb: Toolbox
     @ObservedObject var cleaning: CleaningController
     let clipboard: ClipboardManager
+    var openCleaner: () -> Void
 
-    init(tb: Toolbox, clipboard: ClipboardManager) {
+    init(tb: Toolbox, clipboard: ClipboardManager, openCleaner: @escaping () -> Void) {
         self.tb = tb
         self.cleaning = tb.cleaning
         self.clipboard = clipboard
+        self.openCleaner = openCleaner
     }
 
     private let cols = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
@@ -475,6 +485,7 @@ struct ActionsView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 group(L("Limpeza")) {
+                    ActionTile(icon: "sparkles", color: .blue, title: L("Liberar espaço"), subtitle: L("caches e mais"), action: openCleaner)
                     ActionTile(icon: "keyboard", color: .teal, title: L("Limpar teclado"), subtitle: L("trava por 2 min"),
                                on: cleaning.keyboardLocked) {
                         if !cleaning.lockKeyboard() { tb.show(L("Libere o Menew em Acessibilidade")) }
@@ -482,7 +493,6 @@ struct ActionsView: View {
                     ActionTile(icon: "sparkles.tv", color: .cyan, title: L("Limpar tela"), subtitle: L("tela preta")) {
                         cleaning.blackScreen()
                     }
-                    ActionTile(icon: "trash", color: .red, title: L("Esvaziar lixeira")) { tb.emptyTrash() }
                 }
                 group(L("Energia")) {
                     ActionTile(icon: "cup.and.saucer.fill", color: .orange, title: L("Manter acordado"),
@@ -499,6 +509,7 @@ struct ActionsView: View {
                     ActionTile(icon: "menubar.dock.rectangle", color: .indigo, title: L("Ocultar mesa"),
                                on: tb.desktopIconsHidden) { tb.toggleDesktopIcons() }
                     ActionTile(icon: "eject.fill", color: .mint, title: L("Ejetar discos")) { tb.ejectAll() }
+                    ActionTile(icon: "trash", color: .red, title: L("Esvaziar lixeira")) { tb.emptyTrash() }
                 }
                 group(L("Ferramentas")) {
                     ActionTile(icon: "circle.lefthalf.filled", color: .purple, title: L("Modo escuro")) { tb.toggleDarkMode() }
@@ -631,11 +642,13 @@ struct NotesView: View {
 
 struct SettingsView: View {
     @ObservedObject var clipboard: ClipboardManager
+    @ObservedObject var updater: UpdaterModel
     @AppStorage("menuBarStyle") private var style = MenuBarStyle.cpuRam.rawValue
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
     @AppStorage("maxItems") private var maxItems = 300
+    @AppStorage("autoDeleteDays") private var autoDeleteDays = 0
     @AppStorage("ignoreConcealed") private var ignoreConcealed = true
     @AppStorage("paused") private var paused = false
     @AppStorage("ignoredApps") private var ignoredApps = ""
@@ -686,6 +699,13 @@ struct SettingsView: View {
                 Toggle(L("Pausar captura"), isOn: $paused)
                 Toggle(L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
                 Stepper(L("Guardar %d itens", maxItems), value: $maxItems, in: 50...2000, step: 50)
+                Picker(L("Apagar itens com mais de"), selection: $autoDeleteDays) {
+                    Text(L("Nunca")).tag(0)
+                    ForEach([1, 7, 30, 90], id: \.self) { d in
+                        Text(d == 1 ? L("1 dia") : L("%d dias", d)).tag(d)
+                    }
+                }
+                .onChange(of: autoDeleteDays) { _, _ in clipboard.pruneAndSaveIfNeeded() }
                 TextField(L("Ignorar apps"), text: $ignoredApps, prompt: Text(L("bundle IDs separados por vírgula")))
                 Button(L("Limpar histórico (mantém fixados)"), role: .destructive) { confirmClear = true }
                     .confirmationDialog(L("Apagar todo o histórico não fixado?"), isPresented: $confirmClear) {
@@ -693,13 +713,24 @@ struct SettingsView: View {
                     }
             }
             Section(L("Atalhos")) {
-                LabeledContent(L("Histórico do clipboard")) { Keycap(text: "⌘⇧V") }
-                LabeledContent(L("Abrir este menu")) { Keycap(text: "⌥⌘M") }
+                LabeledContent(L("Histórico do clipboard")) {
+                    ShortcutRecorder(name: HotKeyCenter.clipboardKey, fallback: .clipboardDefault)
+                }
+                LabeledContent(L("Abrir este menu")) {
+                    ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
+                }
             }
-            Section {
+            Section(L("Atualizações")) {
+                Toggle(L("Procurar atualizações automaticamente"), isOn: $updater.automaticallyChecks)
                 HStack {
                     Text("Menew \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
                         .foregroundStyle(.secondary)
+                    Spacer()
+                    Button(L("Procurar agora")) { updater.checkForUpdates() }
+                }
+            }
+            Section {
+                HStack {
                     Spacer()
                     Button(L("Sair do Menew")) { NSApp.terminate(nil) }
                 }

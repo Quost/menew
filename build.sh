@@ -34,17 +34,28 @@ cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cp -R Resources/*.lproj "$APP/Contents/Resources/"
 
+# Sparkle (atualização automática). App sem sandbox: os serviços XPC não são necessários.
+mkdir -p "$APP/Contents/Frameworks"
+cp -R "$BIN_DIR/Sparkle.framework" "$APP/Contents/Frameworks/"
+rm -rf "$APP/Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices" \
+       "$APP/Contents/Frameworks/Sparkle.framework/XPCServices"
+
 if [ -n "${VERSION:-}" ]; then
   plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
   plutil -replace CFBundleVersion -string "$(git rev-list --count HEAD 2>/dev/null || echo 1)" "$APP/Contents/Info.plist"
 fi
 
+# Assina de dentro para fora: partes do Sparkle, o framework e por fim o app
 if [ -n "${SIGN_IDENTITY:-}" ]; then
-  codesign --force --options runtime --timestamp \
-    --entitlements Resources/Menew.entitlements --sign "$SIGN_IDENTITY" "$APP"
+  SIGN=(codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY")
 else
-  codesign --force --sign - "$APP"
+  SIGN=(codesign --force --sign -)
 fi
+FW="$APP/Contents/Frameworks/Sparkle.framework"
+"${SIGN[@]}" "$FW/Versions/B/Autoupdate"
+"${SIGN[@]}" "$FW/Versions/B/Updater.app"
+"${SIGN[@]}" "$FW"
+"${SIGN[@]}" --entitlements Resources/Menew.entitlements "$APP"
 codesign --verify --strict "$APP"
 echo "Pronto: $APP"
 

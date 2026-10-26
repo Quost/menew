@@ -25,6 +25,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let clipboard = ClipboardManager()
     let toolbox = Toolbox()
     let internet = InternetInfo()
+    let cleaner = Cleaner()
+    let updater = UpdaterModel(enabled: true)
     lazy var notes = NotesStore(dir: clipboard.dir)
     let nav = PopoverState()
     let popoverClipState = ClipListState()
@@ -32,7 +34,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private var statusItem: NSStatusItem!
     private let popover = NSPopover()
-    private var hotKeys: [HotKey] = []
     private var previousApp: NSRunningApplication?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -54,7 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         popover.animates = true
         popover.contentViewController = NSHostingController(rootView: MainView(
             nav: nav, monitor: monitor, clipboard: clipboard, toolbox: toolbox, internet: internet, notes: notes,
-            clipState: popoverClipState,
+            cleaner: cleaner, updater: updater, clipState: popoverClipState,
             onPickClip: { [weak self] item, plain in self?.pickFromPopover(item, plain: plain) }
         ))
 
@@ -71,14 +72,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        hotKeys = [
-            HotKey(keyCode: UInt32(kVK_ANSI_V), modifiers: UInt32(cmdKey | shiftKey), id: 1) { [weak self] in
-                MainActor.assumeIsolated { self?.clipPanel.toggle() }
-            },
-            HotKey(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey), id: 2) { [weak self] in
-                MainActor.assumeIsolated { self?.togglePopover() }
-            },
-        ]
+        HotKeyCenter.shared.onClipboard = { [weak self] in self?.clipPanel.toggle() }
+        HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
+        HotKeyCenter.shared.register()
     }
 
     /// Automático segue o sistema; Claro/Escuro forçam o tema em todas as janelas do app
@@ -130,6 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
         add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())
+        add(L("Procurar atualizações…"), "", "arrow.down.circle", #selector(checkForUpdates))
         add(L("Ajustes…"), ",", "gearshape", #selector(openSettings))
         add(L("Sair do Menew"), "q", "power", #selector(quit))
         statusItem.menu = menu
@@ -140,6 +137,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     @objc private func openClipPanel() { clipPanel.show() }
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
+    @objc private func checkForUpdates() { updater.checkForUpdates() }
     @objc private func openSettings() { nav.tab = .settings; showPopover() }
     @objc private func quit() { NSApp.terminate(nil) }
 

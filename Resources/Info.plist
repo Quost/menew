@@ -16,6 +16,10 @@
     <key>CFBundleDevelopmentRegion</key><string>en</string>
     <key>CFBundleLocalizations</key>
     <array><string>en</string><string>pt</string><string>de</string><string>es</string><string>zh-Hans</string></array>
+    <key>SUFeedURL</key><string>https://github.com/Quost/menew/releases/latest/download/appcast.xml</string>
+    <key>SUPublicEDKey</key><string>2DSpKOddrdVfdSl5KAcyYc2TS8n8xEVOMQ4BEQn/8U0=</string>
+    <key>SUEnableAutomaticChecks</key><true/>
+    <key>SUScheduledCheckInterval</key><integer>86400</integer>
     <key>NSAppleEventsUsageDescription</key><string>Menew uses Finder and System Events for quick actions (dark mode, empty trash).</string>
 </dict>
 </plist>

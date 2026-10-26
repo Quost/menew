@@ -89,7 +89,9 @@ struct ClipThumb: View {
                     Image(nsImage: NSWorkspace.shared.icon(forFile: String(p))).resizable().padding(1)
                 }
             case .text:
-                if let c = item.hexColor {
+                if item.snippetTitle != nil {
+                    tile("text.badge.star", .purple)
+                } else if let c = item.hexColor {
                     Color(nsColor: c)
                 } else if item.url != nil {
                     tile("link", .blue)
@@ -127,7 +129,7 @@ struct ClipRow: View {
         HStack(spacing: 10) {
             ClipThumb(item: item, manager: manager)
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.kind == .file ? fileTitle : item.kind == .image ? item.title.replacingOccurrences(of: "Imagem", with: L("Imagem")) : item.title)
+                Text(item.snippetTitle ?? (item.kind == .file ? fileTitle : item.kind == .image ? item.title.replacingOccurrences(of: "Imagem", with: L("Imagem")) : item.title))
                     .font(.system(size: 13, weight: .medium))
                     .lineLimit(1)
                 Text(meta)
@@ -159,7 +161,8 @@ struct ClipRow: View {
     }
 
     private var meta: String {
-        [item.sourceApp, RelDate.string(item.date)].compactMap { $0 }.joined(separator: " · ")
+        if item.snippetTitle != nil { return item.preview }
+        return [item.sourceApp, RelDate.string(item.date)].compactMap { $0 }.joined(separator: " · ")
     }
 }
 
@@ -174,7 +177,8 @@ struct ClipList: View {
             VStack(spacing: 10) {
                 Image(systemName: state.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass")
                     .font(.system(size: 30, weight: .light)).foregroundStyle(.tertiary)
-                Text(state.query.isEmpty ? L("Copie algo para começar") : L("Nada encontrado"))
+                Text(!state.query.isEmpty ? L("Nada encontrado")
+                     : state.filter == .snippets ? L("Nenhum snippet ainda") : L("Copie algo para começar"))
                     .font(.system(size: 13)).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -209,7 +213,9 @@ struct ClipContextMenu: View {
         Button(L("Colar")) { onActivate(item, false) }
         if item.kind == .text { Button(L("Colar como texto puro")) { onActivate(item, true) } }
         Button(L("Só copiar")) { manager.copy(item) }
-        Button(item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
+        if item.snippetTitle == nil {
+            Button(item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
+        }
         if item.kind == .text, let t = item.text {
             Menu(L("Transformar e copiar")) {
                 Button(L("MAIÚSCULAS")) { manager.copyText(t.uppercased()) }
@@ -229,8 +235,10 @@ struct ClipContextMenu: View {
         if item.kind == .image, let u = manager.imageURL(for: item) {
             Button(L("Abrir imagem")) { NSWorkspace.shared.open(u) }
         }
-        Divider()
-        Button(L("Apagar"), role: .destructive) { manager.delete(item) }
+        if item.snippetTitle == nil {
+            Divider()
+            Button(L("Apagar"), role: .destructive) { manager.delete(item) }
+        }
     }
 }
 
@@ -253,6 +261,9 @@ struct ClipPreview: View {
             Divider().opacity(0.5)
 
             VStack(alignment: .leading, spacing: 7) {
+                if let title = item.snippetTitle {
+                    infoRow(L("Snippet")) { Text(title) }
+                } else {
                 infoRow(L("Origem")) {
                     HStack(spacing: 5) {
                         if let icon = AppIcons.icon(for: item.sourceBundle) {
@@ -262,6 +273,7 @@ struct ClipPreview: View {
                     }
                 }
                 infoRow(L("Copiado")) { Text(item.date.formatted(.dateTime.day().month().hour().minute().locale(L10n.locale))) }
+                }
                 infoRow(L("Conteúdo")) { Text(stats) }
             }
             .font(.system(size: 11.5))
@@ -270,9 +282,13 @@ struct ClipPreview: View {
             HStack(spacing: 8) {
                 PillButton(title: L("Colar"), icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
                 PillButton(title: L("Copiar"), icon: "doc.on.doc") { manager.copy(item) }
-                PillButton(title: item.pinned ? L("Desafixar") : L("Fixar"), icon: item.pinned ? "pin.slash" : "pin") { manager.togglePin(item) }
+                if item.snippetTitle == nil {
+                    PillButton(title: item.pinned ? L("Desafixar") : L("Fixar"), icon: item.pinned ? "pin.slash" : "pin") { manager.togglePin(item) }
+                }
                 Spacer()
-                IconButton(icon: "trash", help: L("Apagar")) { manager.delete(item) }
+                if item.snippetTitle == nil {
+                    IconButton(icon: "trash", help: L("Apagar")) { manager.delete(item) }
+                }
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
@@ -418,16 +434,28 @@ struct ClipboardTabView: View {
     @ObservedObject var manager: ClipboardManager
     @ObservedObject var state: ClipListState
     var onActivate: (ClipItem, Bool) -> Void
+    @State private var managingSnippets = false
 
     var body: some View {
         VStack(spacing: 10) {
-            SearchField(state: state)
-            FilterChips(state: state, iconsOnly: true)
-                .frame(maxWidth: .infinity, alignment: .leading)
-            ClipList(manager: manager, state: state, list: manager.filtered(state.query, state.filter), onActivate: onActivate)
-                .padding(.horizontal, -6)
+            Picker("", selection: $managingSnippets) {
+                Text(L("Histórico")).tag(false)
+                Text(L("Snippets")).tag(true)
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+
+            if managingSnippets {
+                SnippetsView(store: manager.snippets)
+            } else {
+                SearchField(state: state)
+                FilterChips(state: state, iconsOnly: true)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                ClipList(manager: manager, state: state, list: manager.filtered(state.query, state.filter), onActivate: onActivate)
+                    .padding(.horizontal, -6)
+            }
         }
-        .padding(.horizontal, 12).padding(.top, 4)
+        .padding(.horizontal, 12).padding(.top, 4).padding(.bottom, managingSnippets ? 12 : 0)
     }
 }
 

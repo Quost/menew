@@ -28,6 +28,10 @@ You can also open `Package.swift` in Xcode and run the `Menew` scheme.
 | `Toolbox.swift` | Quick actions |
 | `Cleaning.swift` | Keyboard lock and screen cleaning |
 | `Extras.swift` | Bluetooth devices, public IP, speed test, notes |
+| `Cleaner.swift` | Free up space: scans and cleaning |
+| `Snippets.swift` | Saved texts and placeholders |
+| `Updater.swift` | Auto-updates (Sparkle) |
+| `L10n.swift` | All UI strings and translations |
 | `Theme.swift` | Colors and shared UI components |
 | `HotKey.swift` | Global shortcuts (Carbon) |
 | `Snapshot.swift` | Renders screenshots of every screen |
@@ -37,8 +41,8 @@ You can also open `Package.swift` in Xcode and run the `Menew` scheme.
 Changed something visual? Regenerate the screenshots used by the README and website:
 
 ```bash
-swift build -c release
-.build/release/Menew --snapshot /tmp/menew-shots
+./build.sh
+build/Menew.app/Contents/MacOS/Menew --snapshot /tmp/menew-shots -language en
 ```
 
 This renders every screen in light and dark mode using fake data, never your real clipboard. Copy the ones you need into `docs/assets/`.
@@ -76,8 +80,9 @@ The `Release` workflow builds a universal app, signs and notarizes it (when the 
 | `APPLE_ID` | Apple ID email of the developer account |
 | `APPLE_TEAM_ID` | Team ID (10 characters) |
 | `APPLE_APP_PASSWORD` | App-specific password from appleid.apple.com |
+| `SPARKLE_PRIVATE_KEY` | EdDSA key that signs updates (`generate_keys --account menew -x key.txt`) |
 
-Without them, the release is still published, just unsigned.
+Without them, the release is still published, just unsigned. Each release also uploads `appcast.xml` (the Sparkle update feed) and bumps `Casks/menew.rb` for Homebrew.
 
 ## Reporting bugs
 

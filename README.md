@@ -41,6 +41,8 @@
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
+| 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads and large files. You review everything, and your files go to the Trash. |
+| ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. |
 | 📝 **Notes** | A scratchpad that saves itself. |
 | 🌍 **5 languages** | English, Português, Deutsch, Español and 中文. Follows your Mac, or pick one in Settings. |
 
@@ -63,7 +65,14 @@
 
 ## Install
 
-**Download** the latest [`Menew.dmg`](https://github.com/Quost/menew/releases/latest/download/Menew.dmg), open it and drag Menew to Applications.
+**Homebrew:**
+
+```bash
+brew tap quost/menew https://github.com/Quost/menew
+brew install --cask menew
+```
+
+Or **download** the latest [`Menew.dmg`](https://github.com/Quost/menew/releases/latest/download/Menew.dmg), open it and drag Menew to Applications.
 
 Or **build from source** (needs Xcode 16+ or the Swift toolchain):
 
@@ -84,8 +93,8 @@ cd menew
 
 | Shortcut | Action |
 |---|---|
-| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> | Open clipboard history |
-| <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>M</kbd> | Open the Menew menu |
+| <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> | Open clipboard history (customizable) |
+| <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>M</kbd> | Open the Menew menu (customizable) |
 | <kbd>↩</kbd> / <kbd>⌥</kbd> <kbd>↩</kbd> | Paste / paste as plain text |
 | <kbd>⌘</kbd> <kbd>1</kbd>…<kbd>9</kbd> | Quick paste |
 | <kbd>⇥</kbd> | Next filter |
@@ -93,16 +102,17 @@ cd menew
 
 ## Privacy
 
-Menew has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. The only network calls are the ones you can see: your public IP (`api.ipify.org`) and the speed test you start yourself.
+Menew has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, and a daily update check against this repo's releases (you can turn it off).
 
 ## Roadmap
 
-- [ ] Disk cleaner (basic and deep modes)
-- [ ] Custom keyboard shortcuts
-- [ ] Text snippets
-- [ ] Auto-delete clipboard items older than X days
-- [ ] Auto-updates with Sparkle
-- [ ] Homebrew cask
+- [x] Disk cleaner (quick and deep scans)
+- [x] Custom keyboard shortcuts
+- [x] Text snippets
+- [x] Auto-delete clipboard items older than X days
+- [x] Auto-updates with Sparkle
+- [x] Homebrew cask
+- [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).
 

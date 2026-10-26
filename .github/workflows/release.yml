@@ -15,6 +15,7 @@ jobs:
     env:
       HAS_CERT: ${{ secrets.DEVELOPER_ID_P12 != '' }}
       HAS_NOTARY: ${{ secrets.APPLE_ID != '' }}
+      HAS_SPARKLE: ${{ secrets.SPARKLE_PRIVATE_KEY != '' }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -60,6 +61,36 @@ jobs:
       - name: Zip
         run: ditto -c -k --keepParent build/Menew.app build/Menew.zip
 
+      # Feed do Sparkle: o app consulta releases/latest/download/appcast.xml
+      - name: Appcast (atualização automática)
+        if: env.HAS_SPARKLE == 'true'
+        env:
+          SPARKLE_KEY: ${{ secrets.SPARKLE_PRIVATE_KEY }}
+        run: |
+          KEY="$RUNNER_TEMP/sparkle.key"
+          printf '%s' "$SPARKLE_KEY" > "$KEY"
+          SIG=$(.build/artifacts/sparkle/Sparkle/bin/sign_update --ed-key-file "$KEY" build/Menew.zip)
+          rm "$KEY"
+          BUILD=$(git rev-list --count HEAD)
+          cat > build/appcast.xml <<XML
+          <?xml version="1.0" encoding="utf-8"?>
+          <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
+            <channel>
+              <title>Menew</title>
+              <item>
+                <title>Menew $VERSION</title>
+                <pubDate>$(date -u "+%a, %d %b %Y %H:%M:%S +0000")</pubDate>
+                <sparkle:version>$BUILD</sparkle:version>
+                <sparkle:shortVersionString>$VERSION</sparkle:shortVersionString>
+                <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+                <sparkle:releaseNotesLink>https://github.com/Quost/menew/releases/tag/$GITHUB_REF_NAME</sparkle:releaseNotesLink>
+                <enclosure url="https://github.com/Quost/menew/releases/download/$GITHUB_REF_NAME/Menew.zip" type="application/octet-stream" $SIG />
+              </item>
+            </channel>
+          </rss>
+          XML
+          cat build/appcast.xml
+
       - name: Publicar Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -68,5 +99,20 @@ jobs:
           if [ -z "$SIGN_IDENTITY" ]; then
             NOTE=$'> **Build sem assinatura da Apple.** Na primeira vez, clique com o botão direito no Menew e escolha **Abrir**.\n\n'
           fi
-          gh release create "$GITHUB_REF_NAME" build/Menew.dmg build/Menew.zip \
+          ASSETS=(build/Menew.dmg build/Menew.zip)
+          [ -f build/appcast.xml ] && ASSETS+=(build/appcast.xml)
+          gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
             --title "Menew $VERSION" --notes "$NOTE" --generate-notes
+
+      # Mantém Casks/menew.rb (tap do Homebrew neste repo) na versão nova
+      - name: Atualizar Homebrew
+        run: |
+          SHA=$(shasum -a 256 build/Menew.dmg | cut -d' ' -f1)
+          git fetch -q origin main
+          git checkout -q -B main origin/main
+          sed -i '' -E "s/^  version \".*\"/  version \"$VERSION\"/; s/^  sha256 .*/  sha256 \"$SHA\"/" Casks/menew.rb
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -qam "Homebrew: Menew $VERSION"
+          git push -q origin main

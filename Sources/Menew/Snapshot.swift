@@ -23,6 +23,9 @@ enum Snapshot {
             ? "Ideias pro Menew\n- snippets de texto\n- atalhos configuráveis\n\nLigar pro João às 16h"
             : "Menew ideas\n- text snippets\n- custom shortcuts\n\nCall Anna at 4 PM"
         monitor.start()
+        // Só lê o disco: nada é apagado em modo captura
+        let scanned = Cleaner()
+        if CommandLine.arguments.contains("--scan") { scanned.scan(deep: false) }
 
         // Espera alguns ciclos para CPU/rede terem dados
         DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
@@ -42,9 +45,17 @@ enum Snapshot {
                     let nav = PopoverState()
                     nav.tab = tab
                     let v = MainView(nav: nav, monitor: monitor, clipboard: clipboard, toolbox: toolbox, internet: internet,
-                                     notes: notes, clipState: ClipListState(), onPickClip: { _, _ in })
+                                     notes: notes, cleaner: Cleaner(), updater: UpdaterModel(enabled: false), clipState: ClipListState(), onPickClip: { _, _ in })
                     render(v, size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("popover-\(tab)-\(suffix).png"))
+                }
+                if CommandLine.arguments.contains("--scan") {
+                    let nav = PopoverState()
+                    nav.tab = .cleaner
+                    render(MainView(nav: nav, monitor: monitor, clipboard: clipboard, toolbox: toolbox, internet: internet,
+                                    notes: notes, cleaner: scanned, updater: UpdaterModel(enabled: false), clipState: ClipListState(), onPickClip: { _, _ in }),
+                           size: NSSize(width: 400, height: 600), dark: dark,
+                           to: dir.appendingPathComponent("cleaner-results-\(suffix).png"))
                 }
                 let state = ClipListState()
                 for (i, sel) in [0, 2, 3].enumerated() {
