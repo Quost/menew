@@ -35,6 +35,8 @@ final class SystemMonitor: ObservableObject {
     @Published var topProcesses: [ProcInfo] = []
 
     var wantsProcesses = false
+    /// Modo captura de tela: não sobrescreve IP e processos fictícios
+    var isDemo = false
     var onTick: (() -> Void)?
 
     private var timer: Timer?
@@ -64,7 +66,7 @@ final class SystemMonitor: ObservableObject {
         if tickCount % 5 == 1 {
             readDisk()
             battery = Self.readBattery()
-            localIP = Self.readLocalIP() ?? "—"
+            if !isDemo { localIP = Self.readLocalIP() ?? "—" }
         }
         if wantsProcesses { refreshProcesses() }
         onTick?()
@@ -196,6 +198,7 @@ final class SystemMonitor: ObservableObject {
     // MARK: Processos
 
     func refreshProcesses() {
+        guard !isDemo else { return }
         Task {
             let list = await Task.detached { Self.readTopProcesses() }.value
             self.topProcesses = list

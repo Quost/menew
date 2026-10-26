@@ -1,7 +1,7 @@
 import AppKit
 import SwiftUI
 
-/// `MeuMenu --snapshot <pasta>`: renderiza as telas em PNG (claro e escuro) e sai.
+/// `Menew --snapshot <pasta>`: renderiza as telas em PNG (claro e escuro) e sai.
 /// Usa um histórico fictício, nunca o clipboard real.
 @MainActor
 enum Snapshot {
@@ -18,13 +18,21 @@ enum Snapshot {
             BTDevice(name: "Magic Mouse", kind: .mouse, levels: [("", 17)]),
         ]
         let notes = NotesStore(dir: FileManager.default.temporaryDirectory)
-        notes.text = "Ideias pro MeuMenu\n- snippets de texto\n- atalhos configuráveis\n\nLigar pro João às 16h"
+        notes.text = "Ideias pro Menew\n- snippets de texto\n- atalhos configuráveis\n\nLigar pro João às 16h"
         monitor.start()
 
         // Espera alguns ciclos para CPU/rede terem dados
         DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
-            monitor.topProcesses = monitor.topProcesses.isEmpty
-                ? [ProcInfo(name: "WindowServer", cpu: 12, memKB: 400_000)] : monitor.topProcesses
+            // Dados fictícios onde a máquina real apareceria (rede, processos)
+            monitor.isDemo = true
+            monitor.localIP = "192.168.0.12"
+            monitor.topProcesses = [
+                ProcInfo(name: "Safari", cpu: 18.4, memKB: 1_450_000),
+                ProcInfo(name: "WindowServer", cpu: 9.2, memKB: 420_000),
+                ProcInfo(name: "Xcode", cpu: 6.1, memKB: 2_100_000),
+                ProcInfo(name: "Music", cpu: 2.3, memKB: 310_000),
+                ProcInfo(name: "Finder", cpu: 0.8, memKB: 160_000),
+            ]
             for dark in [false, true] {
                 let suffix = dark ? "dark" : "light"
                 for tab in Tab.allCases {

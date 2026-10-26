@@ -4,11 +4,12 @@ import SwiftUI
 
 @main
 @MainActor
-enum MeuMenuMain {
+enum MenewMain {
     static let delegate = AppDelegate()
     static func main() {
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
+        Migration.run()
         if let i = CommandLine.arguments.firstIndex(of: "--snapshot"), CommandLine.arguments.count > i + 1 {
             Snapshot.run(into: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
         } else {
@@ -120,7 +121,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         add("Limpar tela", "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())
         add("Ajustes…", ",", "gearshape", #selector(openSettings))
-        add("Sair do MeuMenu", "q", "power", #selector(quit))
+        add("Sair do Menew", "q", "power", #selector(quit))
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil

@@ -76,7 +76,7 @@ struct MainView: View {
                 .frame(width: 30, height: 30)
                 .shadow(color: Theme.violet.opacity(0.35), radius: 6, y: 2)
                 VStack(alignment: .leading, spacing: 1) {
-                    Text("MeuMenu").font(.system(size: 14, weight: .bold, design: .rounded))
+                    Text("Menew").font(.system(size: 14, weight: .bold, design: .rounded))
                     TimelineView(.periodic(from: .now, by: 30)) { ctx in
                         Text(ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Locale(identifier: "pt_BR"))).prefix(1).uppercased() + ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Locale(identifier: "pt_BR"))).dropFirst())
                             .font(.system(size: 11)).foregroundStyle(.secondary)
@@ -474,7 +474,7 @@ struct ActionsView: View {
                 group("Limpeza") {
                     ActionTile(icon: "keyboard", color: .teal, title: "Limpar teclado", subtitle: "trava por 2 min",
                                on: cleaning.keyboardLocked) {
-                        if !cleaning.lockKeyboard() { tb.show("Libere o MeuMenu em Acessibilidade") }
+                        if !cleaning.lockKeyboard() { tb.show("Libere o Menew em Acessibilidade") }
                     }
                     ActionTile(icon: "sparkles.tv", color: .cyan, title: "Limpar tela", subtitle: "tela preta") {
                         cleaning.blackScreen()
@@ -673,10 +673,10 @@ struct SettingsView: View {
             }
             Section {
                 HStack {
-                    Text("MeuMenu \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
+                    Text("Menew \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Button("Sair do MeuMenu") { NSApp.terminate(nil) }
+                    Button("Sair do Menew") { NSApp.terminate(nil) }
                 }
             }
         }

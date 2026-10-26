@@ -2,12 +2,12 @@
 import PackageDescription
 
 let package = Package(
-    name: "MeuMenu",
+    name: "Menew",
     platforms: [.macOS(.v14)],
     targets: [
         .executableTarget(
-            name: "MeuMenu",
-            path: "Sources/MeuMenu",
+            name: "Menew",
+            path: "Sources/Menew",
             linkerSettings: [
                 .linkedFramework("Carbon"),
                 .linkedFramework("IOKit"),

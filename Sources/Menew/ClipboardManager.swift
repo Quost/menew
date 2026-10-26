@@ -116,7 +116,7 @@ final class ClipboardManager: ObservableObject {
         let now = Date()
         m.items = [
             ClipItem(kind: .text, text: "Reunião de alinhamento movida para quinta às 14h, sala 3.", date: now.addingTimeInterval(-40), sourceApp: "Microsoft Teams", sourceBundle: "com.microsoft.teams2"),
-            ClipItem(kind: .text, text: "https://github.com/Quost/meumenu", date: now.addingTimeInterval(-300), sourceApp: "Safari", sourceBundle: "com.apple.Safari"),
+            ClipItem(kind: .text, text: "https://github.com/Quost/menew", date: now.addingTimeInterval(-300), sourceApp: "Safari", sourceBundle: "com.apple.Safari"),
             ClipItem(kind: .text, text: "#6C5CE7", date: now.addingTimeInterval(-900), sourceApp: "Figma", sourceBundle: "com.figma.Desktop"),
             ClipItem(kind: .text, text: "func greet(_ name: String) -> String {\n    return \"Olá, \\(name)!\"\n}", date: now.addingTimeInterval(-1800), sourceApp: "Xcode", sourceBundle: "com.apple.dt.Xcode", pinned: true),
             ClipItem(kind: .file, text: "/System/Applications/Calculator.app", date: now.addingTimeInterval(-3600), sourceApp: "Finder", sourceBundle: "com.apple.finder"),
@@ -128,7 +128,7 @@ final class ClipboardManager: ObservableObject {
 
     init() {
         let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        dir = base.appendingPathComponent("MeuMenu", isDirectory: true)
+        dir = base.appendingPathComponent("Menew", isDirectory: true)
         imagesDir = dir.appendingPathComponent("images", isDirectory: true)
         try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
     }

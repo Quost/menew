@@ -37,7 +37,7 @@ final class Toolbox: ObservableObject {
         guard on else { return }
         let r = IOPMAssertionCreateWithName(kIOPMAssertionTypePreventUserIdleDisplaySleep as CFString,
                                             IOPMAssertionLevel(kIOPMAssertionLevelOn),
-                                            "MeuMenu: manter acordado" as CFString, &assertionID)
+                                            "Menew: manter acordado" as CFString, &assertionID)
         keepAwake = r == kIOReturnSuccess
         if let minutes, keepAwake {
             awakeUntil = Timer.scheduledTimer(withTimeInterval: TimeInterval(minutes * 60), repeats: false) { [weak self] _ in
@@ -133,6 +133,6 @@ final class Toolbox: ObservableObject {
     private func runAppleScript(_ source: String) {
         var err: NSDictionary?
         NSAppleScript(source: source)?.executeAndReturnError(&err)
-        if err != nil { show("Permita o MeuMenu em Automação nos Ajustes") }
+        if err != nil { show("Permita o Menew em Automação nos Ajustes") }
     }
 }

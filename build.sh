@@ -1,22 +1,63 @@
 #!/bin/bash
-# Compila e monta o MeuMenu.app em ./build
+# Compila e monta o Menew.app em ./build
+#
+#   ./build.sh            → build/Menew.app
+#   ./build.sh --install  → e copia para /Applications e abre
+#   ./build.sh --dmg      → e gera build/Menew.dmg
+#
+# Variáveis opcionais:
+#   VERSION=1.2.0                                   versão no Info.plist
+#   UNIVERSAL=1                                     binário arm64 + x86_64
+#   SIGN_IDENTITY="Developer ID Application: ..."   assina para distribuição (senão, ad-hoc)
 set -euo pipefail
 cd "$(dirname "$0")"
 
-swift build -c release
-APP=build/MeuMenu.app
+ARCH_FLAGS=()
+[ "${UNIVERSAL:-0}" = 1 ] && ARCH_FLAGS=(--arch arm64 --arch x86_64)
+
+swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"}
+BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} --show-bin-path)
+
+APP=build/Menew.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
-cp .build/release/MeuMenu "$APP/Contents/MacOS/MeuMenu"
+cp "$BIN_DIR/Menew" "$APP/Contents/MacOS/Menew"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
-[ -f Resources/AppIcon.icns ] && cp Resources/AppIcon.icns "$APP/Contents/Resources/"
-codesign --force --sign - "$APP"
+cp Resources/AppIcon.icns "$APP/Contents/Resources/"
+
+if [ -n "${VERSION:-}" ]; then
+  plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
+  plutil -replace CFBundleVersion -string "$(git rev-list --count HEAD 2>/dev/null || echo 1)" "$APP/Contents/Info.plist"
+fi
+
+if [ -n "${SIGN_IDENTITY:-}" ]; then
+  codesign --force --options runtime --timestamp \
+    --entitlements Resources/Menew.entitlements --sign "$SIGN_IDENTITY" "$APP"
+else
+  codesign --force --sign - "$APP"
+fi
+codesign --verify --strict "$APP"
 echo "Pronto: $APP"
 
-if [ "${1:-}" = "--install" ]; then
-  pkill -x MeuMenu 2>/dev/null || true
-  rm -rf /Applications/MeuMenu.app
-  cp -R "$APP" /Applications/
-  open /Applications/MeuMenu.app
-  echo "Instalado em /Applications"
-fi
+for arg in "$@"; do
+  case "$arg" in
+    --dmg)
+      STAGE=$(mktemp -d)
+      cp -R "$APP" "$STAGE/"
+      ln -s /Applications "$STAGE/Applications"
+      rm -f build/Menew.dmg
+      hdiutil create -volname Menew -srcfolder "$STAGE" -ov -format UDZO -quiet build/Menew.dmg
+      rm -rf "$STAGE"
+      [ -n "${SIGN_IDENTITY:-}" ] && codesign --force --timestamp --sign "$SIGN_IDENTITY" build/Menew.dmg
+      echo "Pronto: build/Menew.dmg"
+      ;;
+    --install)
+      pkill -x Menew 2>/dev/null || true
+      pkill -x MeuMenu 2>/dev/null || true
+      rm -rf /Applications/Menew.app
+      cp -R "$APP" /Applications/
+      open /Applications/Menew.app
+      echo "Instalado em /Applications"
+      ;;
+  esac
+done

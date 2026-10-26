@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menew — your Mac's menu bar, supercharged</title>
+<meta name="description" content="Menew is a free, open source menu bar app for macOS: system monitor, clipboard history with search (⌘⇧V), quick actions, keyboard cleaning mode and more.">
+<meta property="og:title" content="Menew — your Mac's menu bar, supercharged">
+<meta property="og:description" content="System monitor, clipboard history, quick actions and cleaning mode. Free and open source.">
+<meta property="og:image" content="https://quost.github.io/menew/assets/panel0-dark.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<style>
+  :root {
+    --bg: #f7f7fa;
+    --bg-elev: #ffffff;
+    --text: #15151c;
+    --muted: #5d5d6e;
+    --faint: #8b8b9c;
+    --line: rgba(20, 20, 40, .09);
+    --card: rgba(255, 255, 255, .75);
+    --indigo: #5c6bff;
+    --violet: #9e40f2;
+    --brand: linear-gradient(135deg, var(--indigo), var(--violet));
+    --glow: rgba(124, 92, 255, .22);
+    --shadow: 0 30px 80px -20px rgba(40, 30, 90, .28), 0 10px 30px -10px rgba(40, 30, 90, .18);
+    --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d12;
+      --bg-elev: #16161d;
+      --text: #f2f2f7;
+      --muted: #a4a4b5;
+      --faint: #74748a;
+      --line: rgba(255, 255, 255, .09);
+      --card: rgba(255, 255, 255, .04);
+      --glow: rgba(124, 92, 255, .32);
+      --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d12; --bg-elev: #16161d; --text: #f2f2f7; --muted: #a4a4b5; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .04); --glow: rgba(124, 92, 255, .32);
+    --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .logo img { width: 30px; height: 30px; }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+  .nav-links a.text:hover { color: var(--text); background: var(--card); }
+
+  /* Botões */
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: 15px; letter-spacing: -.01em;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg-elev); color: var(--text);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .btn.primary {
+    background: var(--brand); color: #fff; border: 0;
+    box-shadow: 0 10px 30px -8px rgba(124, 80, 255, .6);
+  }
+  .btn.primary:hover { box-shadow: 0 14px 36px -8px rgba(124, 80, 255, .75); }
+  .btn.small { padding: 7px 12px; font-size: 13.5px; border-radius: 9px; }
+  .btn .count {
+    font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted);
+    border-left: 1px solid var(--line); padding-left: 9px; margin-left: 1px;
+  }
+
+  /* Hero */
+  .hero { position: relative; padding: 84px 0 40px; text-align: center; }
+  .hero::before {
+    content: ""; position: absolute; inset: -200px 0 auto; height: 760px; z-index: -1;
+    background:
+      radial-gradient(600px 340px at 30% 30%, var(--glow), transparent 70%),
+      radial-gradient(600px 340px at 72% 22%, rgba(92, 107, 255, .18), transparent 70%);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;
+    padding: 5px 12px 5px 6px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted); margin-bottom: 26px;
+  }
+  .badge b { background: var(--brand); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+  h1 {
+    font-size: clamp(40px, 7vw, 76px); line-height: 1.02; letter-spacing: -.045em; font-weight: 800;
+    max-width: 880px; margin: 0 auto;
+  }
+  h1 .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 640px; margin: 22px auto 34px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .meta { margin-top: 16px; font-size: 13px; color: var(--faint); }
+
+  /* Barra de menus fake */
+  .menubar {
+    margin: 64px auto 0; width: min(980px, 100%);
+    height: 34px; border-radius: 12px 12px 0 0;
+    display: flex; align-items: center; justify-content: flex-end; gap: 16px; padding: 0 16px;
+    background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
+    border: 1px solid var(--line); border-bottom: 0;
+    font-size: 13px; color: var(--muted);
+  }
+  .menubar .status { height: 24px; border-radius: 6px; padding: 0 6px; background: rgba(124, 92, 255, .14); display: flex; align-items: center; }
+  .menubar .status img { height: 22px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .menubar .status img { filter: invert(1); } }
+  :root[data-theme="dark"] .menubar .status img { filter: invert(1); }
+  .menubar .left { margin-right: auto; display: flex; gap: 18px; font-weight: 500; }
+  .menubar .left b { color: var(--text); }
+
+  .stage {
+    position: relative; width: min(980px, 100%); margin: 0 auto;
+    border: 1px solid var(--line); border-radius: 0 0 22px 22px;
+    background:
+      radial-gradient(800px 400px at 80% 0%, rgba(158, 64, 242, .16), transparent 60%),
+      radial-gradient(700px 400px at 0% 100%, rgba(92, 107, 255, .16), transparent 60%),
+      var(--bg-elev);
+    padding: 30px 30px 40px; overflow: hidden;
+    display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start;
+  }
+  .stage .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .stage .popover { justify-self: end; border-radius: 16px; }
+
+  /* Seções */
+  section { padding: 96px 0 0; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h2 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; letter-spacing: -.035em; font-weight: 750; margin: 10px 0 14px; }
+  .sub { color: var(--muted); font-size: 18px; max-width: 620px; }
+  .center { text-align: center; }
+  .center .sub { margin: 0 auto; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+  .feature {
+    padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card);
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .feature:hover { transform: translateY(-3px); border-color: rgba(124, 92, 255, .35); }
+  .icon {
+    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+    color: #fff; margin-bottom: 16px; box-shadow: 0 8px 20px -8px currentColor;
+  }
+  .icon svg { width: 21px; height: 21px; color: #fff; }
+  .feature h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 6px; }
+  .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+
+  .split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 10px; }
+  .split.rev { grid-template-columns: 1.25fr 1fr; }
+  .split.rev .copy { order: 2; }
+  .split .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
+  .list li { display: flex; gap: 12px; color: var(--muted); font-size: 15.5px; }
+  .list li::before {
+    content: ""; flex: none; width: 20px; height: 20px; margin-top: 2px; border-radius: 6px;
+    background: var(--brand) center / 12px no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
+  }
+  .list b { color: var(--text); font-weight: 600; }
+
+  .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  kbd {
+    font: 600 13px/1 -apple-system, system-ui, sans-serif; padding: 7px 10px; border-radius: 8px;
+    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
+  }
+  .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
+
+  .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .privacy div { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .privacy h3 { font-size: 16px; margin-bottom: 4px; }
+  .privacy p { color: var(--muted); font-size: 14.5px; }
+
+  .final {
+    margin: 110px auto 0; padding: 64px 28px; border-radius: 28px; text-align: center; position: relative; overflow: hidden;
+    background: radial-gradient(500px 260px at 50% 0%, var(--glow), transparent 70%), var(--card);
+    border: 1px solid var(--line);
+  }
+  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .45)); }
+  .install { margin: 26px auto 0; max-width: 520px; text-align: left; font-size: 14px; color: var(--muted); }
+  .install code {
+    display: block; margin-top: 8px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+    background: var(--bg-elev); color: var(--text); font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto;
+  }
+  .coffee { margin-top: 30px; display: none; }
+  .coffee.on { display: block; }
+  .btn.bmc { background: #ffdd00; color: #111; border: 0; }
+
+  footer { margin-top: 90px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a:hover { color: var(--text); }
+
+  /* Imagens claro/escuro */
+  .dark-only { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .dark-only { display: block; }
+    :root:not([data-theme="light"]) .light-only { display: none; }
+  }
+  :root[data-theme="dark"] .dark-only { display: block; }
+  :root[data-theme="dark"] .light-only { display: none; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: 1fr; padding: 18px; }
+    .stage .popover { justify-self: center; width: min(340px, 100%); }
+    .grid, .privacy { grid-template-columns: 1fr 1fr; }
+    .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
+    .split.rev .copy { order: 0; }
+    .menubar .left span:not(:first-child) { display: none; }
+  }
+  @media (max-width: 600px) {
+    .grid, .privacy { grid-template-columns: 1fr; }
+    .nav-links a.text { display: none; }
+    .hero { padding-top: 56px; }
+    h1 br { display: none; }
+    .menubar .left { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><img src="assets/icon.png" alt="">Menew</a>
+    <div class="nav-links">
+      <a class="text" href="#features">Features</a>
+      <a class="text" href="#clipboard">Clipboard</a>
+      <a class="text" href="#privacy">Privacy</a>
+      <a class="btn small star-btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
+      <b data-version>New</b> Free &amp; open source · macOS 14+
+    </a>
+    <h1>Your Mac's menu bar,<br><span class="grad">supercharged.</span></h1>
+    <p class="lead">System monitor, clipboard history with instant search, one-click quick actions and a cleaning mode — in one tiny, native app. No subscription. No account. No telemetry.</p>
+    <div class="cta">
+      <a class="btn primary" data-download href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
+        Download for Mac
+      </a>
+      <a class="btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        Star on GitHub<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+    <p class="meta"><span data-meta>Universal · Apple Silicon &amp; Intel</span></p>
+
+    <div class="menubar reveal" aria-hidden="true">
+      <div class="left"><span>&#63743;</span><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span></div>
+      <div class="status"><img src="assets/statusbar-all.png" alt=""></div>
+      <span>Mon 17:42</span>
+    </div>
+    <div class="stage reveal">
+      <div>
+        <img class="shot light-only" src="assets/panel0-light.png" alt="Clipboard history panel with search, filters and preview">
+        <img class="shot dark-only" src="assets/panel0-dark.png" alt="Clipboard history panel with search, filters and preview">
+      </div>
+      <div class="popover">
+        <img class="shot light-only" src="assets/popover-system-light.png" alt="System monitor with CPU, memory, disk and battery rings">
+        <img class="shot dark-only" src="assets/popover-system-dark.png" alt="System monitor with CPU, memory, disk and battery rings">
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Everything in one place</div>
+      <h2>The little things you do every day,<br>one click away.</h2>
+      <p class="sub">Menew replaces a handful of paid menu bar utilities with one fast, native app built in Swift.</p>
+    </div>
+    <div class="grid">
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff);color:#5c6bff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h3>System monitor</h3>
+        <p>CPU with live graph, memory, disk, battery, uptime, temperature and the processes eating your CPU.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff);color:#9e40f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
+        <h3>Clipboard history</h3>
+        <p>Text, links, images and files. Instant search, filters, pins and a rich preview. Opens with ⌘⇧V.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#f59e0b"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
+        <h3>Quick actions</h3>
+        <p>Keep awake, hidden files, hide desktop icons, eject disks, dark mode, color picker, screenshot to clipboard.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#14b8a6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
+        <h3>Cleaning mode</h3>
+        <p>Lock the keyboard while you wipe it, or black out every screen to spot the smudges.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#3b82f6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
+        <h3>Internet</h3>
+        <p>Live download and upload, local and public IP, and a real speed test powered by macOS itself.</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6);color:#ec4899"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
+        <h3>Notes &amp; devices</h3>
+        <p>A scratchpad that saves itself, plus battery levels for AirPods, Magic Mouse, Keyboard and Trackpad.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="clipboard">
+  <div class="wrap split">
+    <div class="copy reveal">
+      <div class="eyebrow">Clipboard history</div>
+      <h2>Never lose something you copied.</h2>
+      <p class="sub">Press <b>⌘⇧V</b> anywhere, type a few letters and hit return. It pastes straight into the app you were using.</p>
+      <ul class="list">
+        <li><span><b>Smart previews</b> — color swatches for hex codes, link previews, images and file icons.</span></li>
+        <li><span><b>Filters &amp; pins</b> — jump between text, links, images and files; keep favorites on top.</span></li>
+        <li><span><b>Password-safe</b> — ignores anything marked as a password by 1Password, Keychain and friends.</span></li>
+      </ul>
+      <div class="keys">
+        <span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>V</kbd> open</span>
+        <span><kbd>⌘</kbd><kbd>1–9</kbd> quick paste</span>
+        <span><kbd>⌥</kbd><kbd>↩</kbd> plain text</span>
+      </div>
+    </div>
+    <div class="reveal">
+      <img class="shot light-only" src="assets/panel2-light.png" alt="Clipboard preview of a color">
+      <img class="shot dark-only" src="assets/panel2-dark.png" alt="Clipboard preview of a color">
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split rev">
+    <div class="copy reveal">
+      <div class="eyebrow">Quick actions</div>
+      <h2>Toggles you'd otherwise Google every time.</h2>
+      <p class="sub">Show hidden files, hide the desktop, keep the Mac awake for an hour or pick a color from anywhere on screen — without opening Terminal.</p>
+      <ul class="list">
+        <li><span><b>Clean keyboard</b> — every key is blocked for 2 minutes, unlock with a click.</span></li>
+        <li><span><b>Clean screen</b> — pure black on every display, double-click to exit.</span></li>
+        <li><span><b>Screenshot to clipboard</b> — it lands right in your history.</span></li>
+      </ul>
+    </div>
+    <div class="reveal" style="display:flex;gap:18px;justify-content:center">
+      <img class="shot light-only" style="width:min(340px,48%)" src="assets/popover-actions-light.png" alt="Quick actions grid">
+      <img class="shot dark-only" style="width:min(340px,48%)" src="assets/popover-actions-dark.png" alt="Quick actions grid">
+      <img class="shot light-only" style="width:min(340px,48%)" src="assets/popover-notes-light.png" alt="Quick notes">
+      <img class="shot dark-only" style="width:min(340px,48%)" src="assets/popover-notes-dark.png" alt="Quick notes">
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Privacy</div>
+      <h2>Your data never leaves your Mac.</h2>
+      <p class="sub">Menew is open source, so you don't have to take our word for it.</p>
+    </div>
+    <div class="privacy">
+      <div class="reveal"><h3>No telemetry</h3><p>No analytics, no tracking, no account. Ever.</p></div>
+      <div class="reveal"><h3>Local storage</h3><p>History and notes live in ~/Library/Application Support/Menew.</p></div>
+      <div class="reveal"><h3>MIT licensed</h3><p>Read it, fork it, improve it. Pull requests welcome.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="final reveal">
+    <img class="appicon" src="assets/icon.png" alt="">
+    <h2>Make your menu bar work for you.</h2>
+    <p class="sub" style="margin:0 auto">Free forever. Takes ten seconds to install.</p>
+    <div class="cta" style="margin-top:28px">
+      <a class="btn primary" data-download href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">Download Menew<span data-size></span></a>
+      <a class="btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">View source</a>
+    </div>
+    <div class="install">
+      Open the .dmg and drag Menew to Applications. Or build it yourself:
+      <code>git clone https://github.com/Quost/menew &amp;&amp; cd menew &amp;&amp; ./build.sh --install</code>
+    </div>
+    <div class="coffee" data-coffee>
+      <p class="sub" style="margin:0 auto 14px;font-size:15px">Menew is made in spare time. If it saves you a few minutes a day:</p>
+      <a class="btn bmc" data-coffee-link target="_blank" rel="noopener">☕ Buy me a coffee</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Menew · MIT License · Made by <a href="https://github.com/Quost">Quost</a></span>
+    <span><a href="https://github.com/Quost/menew/releases">Releases</a> · <a href="https://github.com/Quost/menew/issues">Report a bug</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md">Contribute</a></span>
+  </div>
+</footer>
+
+<script>
+  // Preencha com seu usuário do Buy Me a Coffee para mostrar o botão
+  const BUY_ME_A_COFFEE = "";
+  const REPO = "Quost/menew";
+
+  if (BUY_ME_A_COFFEE) {
+    document.querySelector("[data-coffee]").classList.add("on");
+    document.querySelector("[data-coffee-link]").href = "https://buymeacoffee.com/" + BUY_ME_A_COFFEE;
+  }
+
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+
+  fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
+    if (!repo) return;
+    document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`).then(r => r.ok ? r.json() : null).then(rel => {
+    if (!rel) return;
+    const v = rel.tag_name.replace(/^v/, "");
+    document.querySelector("[data-version]").textContent = "v" + v;
+    const dmg = (rel.assets || []).find(a => a.name.endsWith(".dmg"));
+    const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
+    document.querySelector("[data-meta]").textContent = `Version ${v}${size} · Universal · Apple Silicon & Intel`;
+  }).catch(() => {});
+
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
