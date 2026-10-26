@@ -18,10 +18,7 @@ enum Snapshot {
             BTDevice(name: "AirPods Pro", kind: .airpods, levels: [(L("E"), 90), (L("D"), 88), (L("Estojo"), 54)]),
             BTDevice(name: "Magic Mouse", kind: .mouse, levels: [("", 17)]),
         ]
-        let notes = NotesStore(dir: FileManager.default.temporaryDirectory)
-        notes.text = L10n.current == .pt
-            ? "Ideias pro Menew\n- snippets de texto\n- atalhos configuráveis\n\nLigar pro João às 16h"
-            : "Menew ideas\n- text snippets\n- custom shortcuts\n\nCall Anna at 4 PM"
+        let notes = NotesStore.demo()
         monitor.start()
         // Só lê o disco: nada é apagado em modo captura
         let scanned = Cleaner()
@@ -57,6 +54,10 @@ enum Snapshot {
                            size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("cleaner-results-\(suffix).png"))
                 }
+                render(NotesView(store: notes, openID: notes.notes.first?.id)
+                        .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
+                       size: NSSize(width: 400, height: 600), dark: dark,
+                       to: dir.appendingPathComponent("note-editor-\(suffix).png"))
                 let state = ClipListState()
                 for (i, sel) in [0, 2, 3].enumerated() {
                     state.selection = sel

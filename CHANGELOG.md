@@ -2,6 +2,14 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.4.0
+
+- **Many notes, organized with #tags**: write `#work` or `#ideas` anywhere in a note and filter by it.
+- **Markdown**: switch between editing and reading. Headings, **bold**, lists, quotes, code and clickable `- [ ]` checklists.
+- **Protected notes** for sensitive stuff: the content lives in the macOS Keychain and opens with Touch ID or your Mac password.
+- Search across all notes. Your existing note was kept as the first one.
+- Update notes now show up right here, instead of the GitHub page.
+
 ## 1.3.0
 
 - **Free up space**: a quick scan clears app caches, logs and developer junk. A deep scan also finds old downloads and large files for you to review, and those go to the Trash.

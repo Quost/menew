@@ -282,6 +282,23 @@ private let table: [String: [String]] = [
     "Arquivos grandes": ["Large files", "Große Dateien", "Archivos grandes", "大文件"],
     "Mais de 500 MB; revise antes": ["Over 500 MB; review first", "Über 500 MB; vorher prüfen", "Más de 500 MB; revisa antes", "超过 500 MB，请先确认"],
 
+    // Notas (várias, tags, protegidas)
+    "Buscar notas": ["Search notes", "Notizen durchsuchen", "Buscar notas", "搜索笔记"],
+    "Nova": ["New", "Neu", "Nueva", "新建"],
+    "Todas": ["All", "Alle", "Todas", "全部"],
+    "Nenhuma nota ainda": ["No notes yet", "Noch keine Notizen", "Aún no hay notas", "还没有笔记"],
+    "Nota sem título": ["Untitled note", "Unbenannte Notiz", "Nota sin título", "无标题笔记"],
+    "Conteúdo protegido": ["Protected content", "Geschützter Inhalt", "Contenido protegido", "内容已保护"],
+    "Proteger com Touch ID": ["Protect with Touch ID", "Mit Touch ID schützen", "Proteger con Touch ID", "使用触控 ID 保护"],
+    "Remover proteção": ["Remove protection", "Schutz entfernen", "Quitar protección", "取消保护"],
+    "Protegida nas Chaves do macOS": ["Protected in the macOS Keychain", "Im macOS-Schlüsselbund geschützt", "Protegida en el Llavero de macOS", "已在 macOS 钥匙串中保护"],
+    "abrir a nota protegida": ["open the protected note", "die geschützte Notiz öffnen", "abrir la nota protegida", "打开受保护的笔记"],
+    "Apagar nota": ["Delete note", "Notiz löschen", "Borrar nota", "删除笔记"],
+    "Apagar esta nota?": ["Delete this note?", "Diese Notiz löschen?", "¿Borrar esta nota?", "删除这条笔记？"],
+    "Ler": ["Read", "Lesen", "Leer", "阅读"],
+    "Use #tags no texto para organizar e **negrito**, listas e - [ ] tarefas em Markdown.": ["Use #tags in the text to organize, and Markdown for **bold**, lists and - [ ] tasks.", "Nutze #Tags im Text zum Ordnen und Markdown für **fett**, Listen und - [ ] Aufgaben.", "Usa #etiquetas en el texto para organizar y Markdown para **negrita**, listas y - [ ] tareas.", "在文字中使用 #标签 整理，并用 Markdown 写 **粗体**、列表和 - [ ] 任务。"],
+    "Título na primeira linha…\nUse #tags, **negrito**, listas e - [ ] tarefas.": ["Title on the first line…\nUse #tags, **bold**, lists and - [ ] tasks.", "Titel in der ersten Zeile…\nNutze #Tags, **fett**, Listen und - [ ] Aufgaben.", "Título en la primera línea…\nUsa #etiquetas, **negrita**, listas y - [ ] tareas.", "第一行是标题…\n可使用 #标签、**粗体**、列表和 - [ ] 任务。"],
+
     // Ajustes
     "Aparência": ["Appearance", "Erscheinungsbild", "Apariencia", "外观"],
     "Tema": ["Theme", "Design", "Tema", "主题"],

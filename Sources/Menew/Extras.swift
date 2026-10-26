@@ -148,27 +148,3 @@ final class InternetInfo: ObservableObject {
         }
     }
 }
-
-// MARK: Notas
-
-@MainActor
-final class NotesStore: ObservableObject {
-    @Published var text: String = "" {
-        didSet { scheduleSave() }
-    }
-    private let url: URL
-    private var saveWork: DispatchWorkItem?
-
-    init(dir: URL) {
-        url = dir.appendingPathComponent("notas.md")
-        text = (try? String(contentsOf: url, encoding: .utf8)) ?? ""
-    }
-
-    private func scheduleSave() {
-        saveWork?.cancel()
-        let snapshot = text, url = url
-        let work = DispatchWorkItem { try? snapshot.write(to: url, atomically: true, encoding: .utf8) }
-        saveWork = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6, execute: work)
-    }
-}

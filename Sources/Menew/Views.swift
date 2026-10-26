@@ -597,47 +597,6 @@ struct ActionTile: View {
     }
 }
 
-// MARK: Notas
-
-struct NotesView: View {
-    @ObservedObject var store: NotesStore
-    @State private var confirmClear = false
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            ZStack(alignment: .topLeading) {
-                if store.text.isEmpty {
-                    Text(L("Anote qualquer coisa…\nSalva sozinho, fica aqui até você apagar."))
-                        .font(.system(size: 13)).foregroundStyle(.tertiary)
-                        .padding(.horizontal, 5).padding(.vertical, 1)
-                        .allowsHitTesting(false)
-                }
-                TextEditor(text: $store.text)
-                    .font(.system(size: 13))
-                    .lineSpacing(3)
-                    .scrollContentBackground(.hidden)
-            }
-            .card(padding: 10)
-
-            HStack(spacing: 8) {
-                Image(systemName: "checkmark.icloud").foregroundStyle(.green)
-                Text(L("Salvo · %d caracteres", store.text.count)).foregroundStyle(.secondary)
-                Spacer()
-                PillButton(title: L("Copiar"), icon: "doc.on.doc") {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(store.text, forType: .string)
-                }
-                IconButton(icon: "trash", help: L("Apagar notas")) { confirmClear = true }
-            }
-            .font(.system(size: 11))
-            .confirmationDialog(L("Apagar todas as notas?"), isPresented: $confirmClear) {
-                Button(L("Apagar"), role: .destructive) { store.text = "" }
-            }
-        }
-        .padding(.horizontal, 14).padding(.bottom, 14)
-    }
-}
-
 // MARK: Ajustes
 
 struct SettingsView: View {

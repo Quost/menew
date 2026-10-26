@@ -27,7 +27,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let internet = InternetInfo()
     let cleaner = Cleaner()
     let updater = UpdaterModel(enabled: true)
-    lazy var notes = NotesStore(dir: clipboard.dir)
+    lazy var notes = NotesStore(dir: clipboard.dir)  // migra notas.md na primeira vez
     let nav = PopoverState()
     let popoverClipState = ClipListState()
     lazy var clipPanel = ClipboardPanelController(manager: clipboard)
