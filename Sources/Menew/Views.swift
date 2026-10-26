@@ -653,7 +653,7 @@ struct SettingsView: View {
                 Picker(L("Idioma"), selection: $language) {
                     Text(L("Automático (sistema)")).tag("auto")
                     Divider()
-                    ForEach(Lang.allCases, id: \.rawValue) { Text($0.nativeName).tag($0.rawValue) }
+                    ForEach(Lang.allCases, id: \.rawValue) { Text($0.pickerName).tag($0.rawValue) }
                 }
             }
             Section(L("Barra de menus")) {

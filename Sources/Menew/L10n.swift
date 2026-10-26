@@ -14,6 +14,15 @@ enum Lang: String, CaseIterable {
         }
     }
 
+    /// "Deutsch (Alemão)": nome nativo + nome no idioma atual da interface.
+    /// O idioma atual aparece só com o nome nativo.
+    var pickerName: String {
+        let current = L10n.current
+        guard self != current,
+              let translated = current.locale.localizedString(forLanguageCode: rawValue) else { return nativeName }
+        return "\(nativeName) (\(translated.prefix(1).uppercased() + translated.dropFirst()))"
+    }
+
     var locale: Locale {
         switch self {
         case .en: Locale(identifier: "en_US")
