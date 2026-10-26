@@ -32,6 +32,7 @@ struct MainView: View {
     var onPickClip: (ClipItem, Bool) -> Void
 
     @Namespace private var tabNS
+    @AppStorage("language") private var language = "auto"
 
     var body: some View {
         VStack(spacing: 0) {
@@ -51,6 +52,7 @@ struct MainView: View {
         }
         .frame(width: 400, height: 600)
         .background(Theme.windowFill)
+        .id(language)
         .overlay(alignment: .bottom) {
             if let t = toolbox.toast {
                 Label(t, systemImage: "checkmark.circle.fill")
@@ -67,8 +69,8 @@ struct MainView: View {
     private var header: some View {
         HStack(spacing: 10) {
             if nav.tab == .settings {
-                IconButton(icon: "chevron.left", help: "Voltar") { nav.tab = .system }
-                Text("Ajustes").font(.system(size: 15, weight: .semibold))
+                IconButton(icon: "chevron.left", help: L("Voltar")) { nav.tab = .system }
+                Text(L("Ajustes")).font(.system(size: 15, weight: .semibold))
             } else {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Theme.brand)
@@ -79,14 +81,14 @@ struct MainView: View {
                 VStack(alignment: .leading, spacing: 1) {
                     Text("Menew").font(.system(size: 14, weight: .bold, design: .rounded))
                     TimelineView(.periodic(from: .now, by: 30)) { ctx in
-                        Text(ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Locale(identifier: "pt_BR"))).prefix(1).uppercased() + ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(Locale(identifier: "pt_BR"))).dropFirst())
+                        Text(ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(L10n.locale)).prefix(1).uppercased() + ctx.date.formatted(.dateTime.weekday(.wide).day().month(.wide).locale(L10n.locale)).dropFirst())
                             .font(.system(size: 11)).foregroundStyle(.secondary)
                     }
                 }
             }
             Spacer()
             if nav.tab != .settings {
-                IconButton(icon: "gearshape", help: "Ajustes") { nav.tab = .settings }
+                IconButton(icon: "gearshape", help: L("Ajustes")) { nav.tab = .settings }
             }
         }
         .padding(.horizontal, 14).padding(.top, 14).padding(.bottom, 10)
@@ -101,7 +103,7 @@ struct MainView: View {
                 } label: {
                     HStack(spacing: 5) {
                         Image(systemName: t.icon).font(.system(size: 11, weight: .semibold))
-                        Text(t.rawValue).font(.system(size: 11.5, weight: on ? .semibold : .medium))
+                        Text(L(t.rawValue)).font(.system(size: 11.5, weight: on ? .semibold : .medium))
                     }
                     .frame(maxWidth: .infinity).padding(.vertical, 6)
                     .foregroundStyle(on ? Color.primary : Color.secondary)
@@ -139,8 +141,8 @@ struct SystemView: View {
                 if !net.devices.isEmpty { devicesCard }
                 processesCard
                 HStack(spacing: 10) {
-                    MiniStat(icon: "clock.fill", color: .indigo, title: "Ligado há", value: Fmt.duration(m.uptime))
-                    MiniStat(icon: "thermometer.medium", color: thermalColor, title: "Temperatura", value: thermalText)
+                    MiniStat(icon: "clock.fill", color: .indigo, title: L("Ligado há"), value: Fmt.duration(m.uptime))
+                    MiniStat(icon: "thermometer.medium", color: thermalColor, title: L("Temperatura"), value: thermalText)
                 }
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
@@ -157,13 +159,13 @@ struct SystemView: View {
     private var overview: some View {
         HStack(spacing: 0) {
             RingStat(title: "CPU", fraction: m.cpu, color: Theme.load(m.cpu, base: Theme.cpu),
-                     detail: "\(m.cores) núcleos")
-            RingStat(title: "Memória", fraction: m.memFraction, color: Theme.load(m.memFraction, base: Theme.memory),
-                     detail: "\(Fmt.memShort(m.memUsed)) de \(Fmt.memShort(m.memTotal))")
-            RingStat(title: "Disco", fraction: m.diskFraction, color: Theme.load(m.diskFraction, base: Theme.disk),
-                     detail: "\(Fmt.bytes(m.diskFree)) livres")
+                     detail: L("%d núcleos", m.cores))
+            RingStat(title: L("Memória"), fraction: m.memFraction, color: Theme.load(m.memFraction, base: Theme.memory),
+                     detail: L("%@ de %@", Fmt.memShort(m.memUsed), Fmt.memShort(m.memTotal)))
+            RingStat(title: L("Disco"), fraction: m.diskFraction, color: Theme.load(m.diskFraction, base: Theme.disk),
+                     detail: L("%@ livres", Fmt.bytes(m.diskFree)))
             if let b = m.battery {
-                RingStat(title: "Bateria", fraction: Double(b.percent) / 100,
+                RingStat(title: L("Bateria"), fraction: Double(b.percent) / 100,
                          color: b.percent <= 20 && !b.onAC ? .red : Theme.battery,
                          detail: batteryText(b), icon: b.charging ? "bolt.fill" : nil)
             }
@@ -173,14 +175,14 @@ struct SystemView: View {
 
     private var cpuCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            CardHeader(title: "Processador", icon: "cpu", color: Theme.cpu) {
-                Text("últimos 2 min").font(.system(size: 10.5)).foregroundStyle(.tertiary)
+            CardHeader(title: L("Processador"), icon: "cpu", color: Theme.cpu) {
+                Text(L("últimos 2 min")).font(.system(size: 10.5)).foregroundStyle(.tertiary)
             }
             HStack(alignment: .bottom, spacing: 12) {
                 VStack(alignment: .leading, spacing: 0) {
                     Text(Fmt.pct(m.cpu)).font(.system(size: 26, weight: .bold, design: .rounded)).monospacedDigit()
                         .contentTransition(.numericText())
-                    Text("em uso").font(.system(size: 11)).foregroundStyle(.secondary)
+                    Text(L("em uso")).font(.system(size: 11)).foregroundStyle(.secondary)
                 }
                 .frame(width: 72, alignment: .leading)
                 Sparkline(values: m.cpuHistory, color: Theme.load(m.cpu, base: Theme.cpu))
@@ -192,14 +194,14 @@ struct SystemView: View {
 
     private var networkCard: some View {
         VStack(alignment: .leading, spacing: 12) {
-            CardHeader(title: "Internet", icon: "wifi", color: Theme.download)
+            CardHeader(title: L("Internet"), icon: "wifi", color: Theme.download)
             HStack(spacing: 10) {
-                NetStat(title: "Download", icon: "arrow.down", color: Theme.download, value: m.netIn, history: m.netInHistory)
-                NetStat(title: "Upload", icon: "arrow.up", color: Theme.upload, value: m.netOut, history: m.netOutHistory)
+                NetStat(title: L("Download"), icon: "arrow.down", color: Theme.download, value: m.netIn, history: m.netInHistory)
+                NetStat(title: L("Upload"), icon: "arrow.up", color: Theme.upload, value: m.netOut, history: m.netOutHistory)
             }
             HStack(spacing: 8) {
-                CopyPill(label: "IP local", value: m.localIP)
-                CopyPill(label: "IP público", value: net.publicIP ?? "…")
+                CopyPill(label: L("IP local"), value: m.localIP)
+                CopyPill(label: L("IP público"), value: net.publicIP ?? "…")
             }
             speedTest
         }
@@ -211,28 +213,28 @@ struct SystemView: View {
             switch net.speed {
             case .idle:
                 HStack {
-                    Text("Quer saber a velocidade real da sua conexão?").font(.system(size: 11.5)).foregroundStyle(.secondary)
+                    Text(L("Quer saber a velocidade real da sua conexão?")).font(.system(size: 11.5)).foregroundStyle(.secondary)
                     Spacer()
-                    PillButton(title: "Testar", icon: "speedometer", primary: true) { net.runSpeedTest() }
+                    PillButton(title: L("Testar"), icon: "speedometer", primary: true) { net.runSpeedTest() }
                 }
             case .running:
                 HStack(spacing: 8) {
                     ProgressView().controlSize(.small)
-                    Text("Medindo velocidade… leva uns 20 segundos").font(.system(size: 11.5)).foregroundStyle(.secondary)
+                    Text(L("Medindo velocidade… leva uns 20 segundos")).font(.system(size: 11.5)).foregroundStyle(.secondary)
                     Spacer()
                 }
             case .failed:
                 HStack {
-                    Text("Não deu para medir agora.").font(.system(size: 11.5)).foregroundStyle(.secondary)
+                    Text(L("Não deu para medir agora.")).font(.system(size: 11.5)).foregroundStyle(.secondary)
                     Spacer()
-                    PillButton(title: "Tentar de novo", icon: "arrow.clockwise") { net.runSpeedTest() }
+                    PillButton(title: L("Tentar de novo"), icon: "arrow.clockwise") { net.runSpeedTest() }
                 }
             case .done(let r):
                 HStack(spacing: 0) {
-                    SpeedValue(title: "Download", value: String(format: "%.0f", r.down), unit: "Mbps", color: Theme.download)
-                    SpeedValue(title: "Upload", value: String(format: "%.0f", r.up), unit: "Mbps", color: Theme.upload)
-                    SpeedValue(title: "Latência", value: String(format: "%.0f", r.latency), unit: "ms", color: .orange)
-                    IconButton(icon: "arrow.clockwise", help: "Testar de novo") { net.runSpeedTest() }
+                    SpeedValue(title: L("Download"), value: String(format: "%.0f", r.down), unit: "Mbps", color: Theme.download)
+                    SpeedValue(title: L("Upload"), value: String(format: "%.0f", r.up), unit: "Mbps", color: Theme.upload)
+                    SpeedValue(title: L("Latência"), value: String(format: "%.0f", r.latency), unit: "ms", color: .orange)
+                    IconButton(icon: "arrow.clockwise", help: L("Testar de novo")) { net.runSpeedTest() }
                 }
                 Text(r.quality).font(.system(size: 10.5)).foregroundStyle(.tertiary)
             }
@@ -243,7 +245,7 @@ struct SystemView: View {
 
     private var devicesCard: some View {
         VStack(alignment: .leading, spacing: 10) {
-            CardHeader(title: "Dispositivos", icon: "dot.radiowaves.left.and.right", color: .blue)
+            CardHeader(title: L("Dispositivos"), icon: "dot.radiowaves.left.and.right", color: .blue)
             ForEach(net.devices) { d in
                 HStack(spacing: 10) {
                     Image(systemName: d.icon).font(.system(size: 15)).frame(width: 30, height: 30)
@@ -261,14 +263,14 @@ struct SystemView: View {
 
     private var processesCard: some View {
         VStack(alignment: .leading, spacing: 9) {
-            CardHeader(title: "Quem está usando a CPU", icon: "list.bullet", color: .secondary) {
-                Button("Monitor de Atividade") {
+            CardHeader(title: L("Quem está usando a CPU"), icon: "list.bullet", color: .secondary) {
+                Button(L("Monitor de Atividade")) {
                     NSWorkspace.shared.open(URL(fileURLWithPath: "/System/Applications/Utilities/Activity Monitor.app"))
                 }
                 .buttonStyle(.plain).font(.system(size: 11)).foregroundStyle(Theme.indigo)
             }
             if m.topProcesses.isEmpty {
-                Text("Carregando…").font(.system(size: 11.5)).foregroundStyle(.secondary)
+                Text(L("Carregando…")).font(.system(size: 11.5)).foregroundStyle(.secondary)
             }
             ForEach(m.topProcesses.prefix(5)) { p in
                 HStack(spacing: 8) {
@@ -294,17 +296,17 @@ struct SystemView: View {
 
     private func batteryText(_ b: BatteryInfo) -> String {
         let t = b.minutesLeft.map { "\($0 / 60)h\(String(format: "%02d", $0 % 60))" }
-        if b.charging { return t.map { "cheia em \($0)" } ?? "carregando" }
-        if b.onAC { return "na tomada" }
-        return t.map { "restam \($0)" } ?? "na bateria"
+        if b.charging { return t.map { L("cheia em %@", $0) } ?? L("carregando") }
+        if b.onAC { return L("na tomada") }
+        return t.map { L("restam %@", $0) } ?? L("na bateria")
     }
 
     private var thermalText: String {
         switch m.thermal {
-        case .nominal: "Normal"
-        case .fair: "Morno"
-        case .serious: "Quente"
-        case .critical: "Crítico"
+        case .nominal: L("Normal")
+        case .fair: L("Morno")
+        case .serious: L("Quente")
+        case .critical: L("Crítico")
         @unknown default: "—"
         }
     }
@@ -401,7 +403,7 @@ struct CopyPill: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .help("Copiar")
+        .help(L("Copiar"))
     }
 }
 
@@ -472,45 +474,45 @@ struct ActionsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
-                group("Limpeza") {
-                    ActionTile(icon: "keyboard", color: .teal, title: "Limpar teclado", subtitle: "trava por 2 min",
+                group(L("Limpeza")) {
+                    ActionTile(icon: "keyboard", color: .teal, title: L("Limpar teclado"), subtitle: L("trava por 2 min"),
                                on: cleaning.keyboardLocked) {
-                        if !cleaning.lockKeyboard() { tb.show("Libere o Menew em Acessibilidade") }
+                        if !cleaning.lockKeyboard() { tb.show(L("Libere o Menew em Acessibilidade")) }
                     }
-                    ActionTile(icon: "sparkles.tv", color: .cyan, title: "Limpar tela", subtitle: "tela preta") {
+                    ActionTile(icon: "sparkles.tv", color: .cyan, title: L("Limpar tela"), subtitle: L("tela preta")) {
                         cleaning.blackScreen()
                     }
-                    ActionTile(icon: "trash", color: .red, title: "Esvaziar lixeira") { tb.emptyTrash() }
+                    ActionTile(icon: "trash", color: .red, title: L("Esvaziar lixeira")) { tb.emptyTrash() }
                 }
-                group("Energia") {
-                    ActionTile(icon: "cup.and.saucer.fill", color: .orange, title: "Manter acordado",
-                               subtitle: tb.keepAwake ? "ligado" : nil, on: tb.keepAwake) {
+                group(L("Energia")) {
+                    ActionTile(icon: "cup.and.saucer.fill", color: .orange, title: L("Manter acordado"),
+                               subtitle: tb.keepAwake ? L("ligado") : nil, on: tb.keepAwake) {
                         tb.setKeepAwake(!tb.keepAwake)
                     }
-                    ActionTile(icon: "timer", color: .orange, title: "Acordado 1h") {
-                        tb.setKeepAwake(true, minutes: 60); tb.show("Acordado por 1 hora")
+                    ActionTile(icon: "timer", color: .orange, title: L("Acordado 1h")) {
+                        tb.setKeepAwake(true, minutes: 60); tb.show(L("Acordado por 1 hora"))
                     }
-                    ActionTile(icon: "lock.fill", color: .gray, title: "Bloquear tela") { tb.lockScreen() }
+                    ActionTile(icon: "lock.fill", color: .gray, title: L("Bloquear tela")) { tb.lockScreen() }
                 }
-                group("Finder") {
-                    ActionTile(icon: "eye", color: .blue, title: "Arquivos ocultos", on: tb.hiddenFiles) { tb.toggleHiddenFiles() }
-                    ActionTile(icon: "menubar.dock.rectangle", color: .indigo, title: "Ocultar mesa",
+                group(L("Finder")) {
+                    ActionTile(icon: "eye", color: .blue, title: L("Arquivos ocultos"), on: tb.hiddenFiles) { tb.toggleHiddenFiles() }
+                    ActionTile(icon: "menubar.dock.rectangle", color: .indigo, title: L("Ocultar mesa"),
                                on: tb.desktopIconsHidden) { tb.toggleDesktopIcons() }
-                    ActionTile(icon: "eject.fill", color: .mint, title: "Ejetar discos") { tb.ejectAll() }
+                    ActionTile(icon: "eject.fill", color: .mint, title: L("Ejetar discos")) { tb.ejectAll() }
                 }
-                group("Ferramentas") {
-                    ActionTile(icon: "circle.lefthalf.filled", color: .purple, title: "Modo escuro") { tb.toggleDarkMode() }
-                    ActionTile(icon: "camera.viewfinder", color: .pink, title: "Print", subtitle: "vai pro clipboard") {
+                group(L("Ferramentas")) {
+                    ActionTile(icon: "circle.lefthalf.filled", color: .purple, title: L("Modo escuro")) { tb.toggleDarkMode() }
+                    ActionTile(icon: "camera.viewfinder", color: .pink, title: L("Print"), subtitle: L("vai pro clipboard")) {
                         tb.screenshotToClipboard()
                     }
-                    ActionTile(icon: "eyedropper.halffull", color: Theme.violet, title: "Conta-gotas", subtitle: "copia o hex") {
+                    ActionTile(icon: "eyedropper.halffull", color: Theme.violet, title: L("Conta-gotas"), subtitle: L("copia o hex")) {
                         tb.pickColor(clipboard: clipboard)
                     }
-                    ActionTile(icon: "textformat", color: .brown, title: "Limpar formatação") { tb.plainTextClipboard() }
-                    ActionTile(icon: "chart.bar.xaxis", color: .green, title: "Monitor") {
+                    ActionTile(icon: "textformat", color: .brown, title: L("Limpar formatação")) { tb.plainTextClipboard() }
+                    ActionTile(icon: "chart.bar.xaxis", color: .green, title: L("Monitor")) {
                         tb.open("/System/Applications/Utilities/Activity Monitor.app")
                     }
-                    ActionTile(icon: "terminal.fill", color: .black, title: "Terminal") {
+                    ActionTile(icon: "terminal.fill", color: .black, title: L("Terminal")) {
                         tb.open("/System/Applications/Utilities/Terminal.app")
                     }
                 }
@@ -594,7 +596,7 @@ struct NotesView: View {
         VStack(alignment: .leading, spacing: 8) {
             ZStack(alignment: .topLeading) {
                 if store.text.isEmpty {
-                    Text("Anote qualquer coisa…\nSalva sozinho, fica aqui até você apagar.")
+                    Text(L("Anote qualquer coisa…\nSalva sozinho, fica aqui até você apagar."))
                         .font(.system(size: 13)).foregroundStyle(.tertiary)
                         .padding(.horizontal, 5).padding(.vertical, 1)
                         .allowsHitTesting(false)
@@ -608,17 +610,17 @@ struct NotesView: View {
 
             HStack(spacing: 8) {
                 Image(systemName: "checkmark.icloud").foregroundStyle(.green)
-                Text("Salvo · \(store.text.count) caracteres").foregroundStyle(.secondary)
+                Text(L("Salvo · %d caracteres", store.text.count)).foregroundStyle(.secondary)
                 Spacer()
-                PillButton(title: "Copiar", icon: "doc.on.doc") {
+                PillButton(title: L("Copiar"), icon: "doc.on.doc") {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(store.text, forType: .string)
                 }
-                IconButton(icon: "trash", help: "Apagar notas") { confirmClear = true }
+                IconButton(icon: "trash", help: L("Apagar notas")) { confirmClear = true }
             }
             .font(.system(size: 11))
-            .confirmationDialog("Apagar todas as notas?", isPresented: $confirmClear) {
-                Button("Apagar", role: .destructive) { store.text = "" }
+            .confirmationDialog(L("Apagar todas as notas?"), isPresented: $confirmClear) {
+                Button(L("Apagar"), role: .destructive) { store.text = "" }
             }
         }
         .padding(.horizontal, 14).padding(.bottom, 14)
@@ -631,6 +633,7 @@ struct SettingsView: View {
     @ObservedObject var clipboard: ClipboardManager
     @AppStorage("menuBarStyle") private var style = MenuBarStyle.cpuRam.rawValue
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
+    @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
     @AppStorage("maxItems") private var maxItems = 300
     @AppStorage("ignoreConcealed") private var ignoreConcealed = true
@@ -642,58 +645,63 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
-            Section("Aparência") {
-                Picker("Tema", selection: $appearance) {
+            Section(L("Aparência")) {
+                Picker(L("Tema"), selection: $appearance) {
                     ForEach(AppAppearance.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
                 }
                 .pickerStyle(.segmented)
+                Picker(L("Idioma"), selection: $language) {
+                    Text(L("Automático (sistema)")).tag("auto")
+                    Divider()
+                    ForEach(Lang.allCases, id: \.rawValue) { Text($0.nativeName).tag($0.rawValue) }
+                }
             }
-            Section("Barra de menus") {
-                Picker("Mostrar", selection: $style) {
+            Section(L("Barra de menus")) {
+                Picker(L("Mostrar"), selection: $style) {
                     ForEach(MenuBarStyle.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
                 }
-                Toggle("Abrir ao iniciar o Mac", isOn: $launchAtLogin)
+                Toggle(L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, on in
                         do { on ? try SMAppService.mainApp.register() : try SMAppService.mainApp.unregister() }
                         catch { launchAtLogin = SMAppService.mainApp.status == .enabled }
                     }
             }
-            Section("Permissões") {
+            Section(L("Permissões")) {
                 HStack {
-                    Label("Acessibilidade", systemImage: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
+                    Label(L("Acessibilidade"), systemImage: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
                         .foregroundStyle(axTrusted ? .green : .orange)
                     Spacer()
                     if !axTrusted {
-                        Button("Permitir") {
+                        Button(L("Permitir")) {
                             ClipboardManager.requestAccessibility()
                             DispatchQueue.main.asyncAfter(deadline: .now() + 3) { axTrusted = AXIsProcessTrusted() }
                         }
                     }
                 }
-                Text("Usada para colar automaticamente e para travar o teclado na limpeza.")
+                Text(L("Usada para colar automaticamente e para travar o teclado na limpeza."))
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Section("Clipboard") {
-                Toggle("Colar automaticamente ao escolher", isOn: $autoPaste)
-                Toggle("Pausar captura", isOn: $paused)
-                Toggle("Ignorar senhas (1Password, Keychain…)", isOn: $ignoreConcealed)
-                Stepper("Guardar \(maxItems) itens", value: $maxItems, in: 50...2000, step: 50)
-                TextField("Ignorar apps", text: $ignoredApps, prompt: Text("bundle IDs separados por vírgula"))
-                Button("Limpar histórico (mantém fixados)", role: .destructive) { confirmClear = true }
-                    .confirmationDialog("Apagar todo o histórico não fixado?", isPresented: $confirmClear) {
-                        Button("Apagar", role: .destructive) { clipboard.clear() }
+            Section(L("Clipboard")) {
+                Toggle(L("Colar automaticamente ao escolher"), isOn: $autoPaste)
+                Toggle(L("Pausar captura"), isOn: $paused)
+                Toggle(L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
+                Stepper(L("Guardar %d itens", maxItems), value: $maxItems, in: 50...2000, step: 50)
+                TextField(L("Ignorar apps"), text: $ignoredApps, prompt: Text(L("bundle IDs separados por vírgula")))
+                Button(L("Limpar histórico (mantém fixados)"), role: .destructive) { confirmClear = true }
+                    .confirmationDialog(L("Apagar todo o histórico não fixado?"), isPresented: $confirmClear) {
+                        Button(L("Apagar"), role: .destructive) { clipboard.clear() }
                     }
             }
-            Section("Atalhos") {
-                LabeledContent("Histórico do clipboard") { Keycap(text: "⌘⇧V") }
-                LabeledContent("Abrir este menu") { Keycap(text: "⌥⌘M") }
+            Section(L("Atalhos")) {
+                LabeledContent(L("Histórico do clipboard")) { Keycap(text: "⌘⇧V") }
+                LabeledContent(L("Abrir este menu")) { Keycap(text: "⌥⌘M") }
             }
             Section {
                 HStack {
                     Text("Menew \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Button("Sair do Menew") { NSApp.terminate(nil) }
+                    Button(L("Sair do Menew")) { NSApp.terminate(nil) }
                 }
             }
         }
@@ -707,9 +715,9 @@ enum AppAppearance: String, CaseIterable {
     case system, light, dark
     var label: String {
         switch self {
-        case .system: "Automático"
-        case .light: "Claro"
-        case .dark: "Escuro"
+        case .system: L("Automático")
+        case .light: L("Claro")
+        case .dark: L("Escuro")
         }
     }
     var nsAppearance: NSAppearance? {
@@ -725,11 +733,11 @@ enum MenuBarStyle: String, CaseIterable {
     case icon, cpu, cpuRam, network, all
     var label: String {
         switch self {
-        case .icon: "Só o ícone"
+        case .icon: L("Só o ícone")
         case .cpu: "CPU"
-        case .cpuRam: "CPU + RAM"
-        case .network: "Rede"
-        case .all: "CPU + RAM + Rede"
+        case .cpuRam: L("CPU + RAM")
+        case .network: L("Rede")
+        case .all: L("CPU + RAM + Rede")
         }
     }
 }

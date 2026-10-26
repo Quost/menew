@@ -241,7 +241,7 @@ enum Fmt {
     /// "12,3 GB" / "16 GB"
     static func memShort(_ b: UInt64) -> String {
         let gb = Double(b) / 1_073_741_824
-        return (gb >= 10 || gb.rounded() == gb ? String(format: "%.0f", gb) : String(format: "%.1f", gb).replacingOccurrences(of: ".", with: ",")) + " GB"
+        return (gb >= 10 || gb.rounded() == gb ? String(format: "%.0f", gb) : String(format: "%.1f", locale: L10n.locale, gb)) + " GB"
     }
     static func rate(_ bps: Double) -> String {
         ByteCountFormatter.string(fromByteCount: Int64(bps), countStyle: .file) + "/s"

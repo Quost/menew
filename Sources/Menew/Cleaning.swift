@@ -134,19 +134,19 @@ struct KeyboardLockView: View {
                         .foregroundStyle(.white)
                 }
                 VStack(spacing: 8) {
-                    Text("Teclado bloqueado").font(.system(size: 28, weight: .bold, design: .rounded))
-                    Text("Pode limpar à vontade. Nenhuma tecla vai funcionar.")
+                    Text(L("Teclado bloqueado")).font(.system(size: 28, weight: .bold, design: .rounded))
+                    Text(L("Pode limpar à vontade. Nenhuma tecla vai funcionar."))
                         .font(.system(size: 15)).foregroundStyle(.secondary)
                 }
                 Button { controller.unlockKeyboard() } label: {
-                    Label("Desbloquear", systemImage: "lock.open.fill")
+                    Label(L("Desbloquear"), systemImage: "lock.open.fill")
                         .font(.system(size: 15, weight: .semibold))
                         .padding(.horizontal, 22).padding(.vertical, 11)
                         .background(Capsule().fill(Theme.brand))
                         .foregroundStyle(.white)
                 }
                 .buttonStyle(.plain)
-                Text("Destrava sozinho em \(controller.secondsLeft / 60):\(String(format: "%02d", controller.secondsLeft % 60))")
+                Text(L("Destrava sozinho em %@", "\(controller.secondsLeft / 60):\(String(format: "%02d", controller.secondsLeft % 60))"))
                     .font(.system(size: 12).monospacedDigit()).foregroundStyle(.tertiary)
             }
             .padding(44)
@@ -165,8 +165,8 @@ struct ScreenCleanView: View {
             if showHint {
                 VStack(spacing: 8) {
                     Image(systemName: "sparkles").font(.system(size: 28))
-                    Text("Tela de limpeza").font(.system(size: 20, weight: .semibold, design: .rounded))
-                    Text("Clique duas vezes ou aperte esc para sair").font(.system(size: 13))
+                    Text(L("Tela de limpeza")).font(.system(size: 20, weight: .semibold, design: .rounded))
+                    Text(L("Clique duas vezes ou aperte esc para sair")).font(.system(size: 13))
                 }
                 .foregroundStyle(.white.opacity(0.55))
                 .transition(.opacity)

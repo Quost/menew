@@ -42,6 +42,7 @@
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
 | 📝 **Notes** | A scratchpad that saves itself. |
+| 🌍 **5 languages** | English, Português, Deutsch, Español and 中文. Follows your Mac, or pick one in Settings. |
 
 <p align="center">
   <picture>
@@ -96,7 +97,6 @@ Menew has **no telemetry, no analytics and no account**. Clipboard history and n
 
 ## Roadmap
 
-- [ ] English localization (the UI is currently in Brazilian Portuguese)
 - [ ] Disk cleaner (basic and deep modes)
 - [ ] Custom keyboard shortcuts
 - [ ] Text snippets
@@ -111,7 +111,9 @@ Pull requests are very welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how t
 
 ## Support
 
-Menew is free and made in spare time. If it saves you a few minutes a day, a ⭐ on GitHub goes a long way.
+Menew is free and made in spare time. If it saves you a few minutes a day, a ⭐ on GitHub or a coffee goes a long way.
+
+<a href="https://buymeacoffee.com/quost"><img src="https://img.shields.io/badge/Buy%20me%20a%20coffee-ffdd00?style=for-the-badge&logo=buymeacoffee&logoColor=black" alt="Buy me a coffee"></a>
 
 ## License
 

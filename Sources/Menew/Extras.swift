@@ -43,9 +43,9 @@ enum Bluetooth {
                     (info[key] as? String).flatMap { Int($0.replacingOccurrences(of: "%", with: "").trimmingCharacters(in: .whitespaces)) }
                 }
                 var levels: [(String, Int)] = []
-                if let v = pct("device_batteryLevelLeft") { levels.append(("E", v)) }
-                if let v = pct("device_batteryLevelRight") { levels.append(("D", v)) }
-                if let v = pct("device_batteryLevelCase") { levels.append(("Estojo", v)) }
+                if let v = pct("device_batteryLevelLeft") { levels.append((L("E"), v)) }
+                if let v = pct("device_batteryLevelRight") { levels.append((L("D"), v)) }
+                if let v = pct("device_batteryLevelCase") { levels.append((L("Estojo"), v)) }
                 if let v = pct("device_batteryLevelMain") { levels.append(("", v)) }
                 guard !levels.isEmpty else { continue }
                 let minor = (info["device_minorType"] as? String ?? "").lowercased()
@@ -93,9 +93,9 @@ struct SpeedResult {
 
     var quality: String {
         switch rpm {
-        case ..<200: "Responsividade baixa"
-        case ..<800: "Responsividade média"
-        default: "Responsividade alta"
+        case ..<200: L("Responsividade baixa")
+        case ..<800: L("Responsividade média")
+        default: L("Responsividade alta")
         }
     }
 }

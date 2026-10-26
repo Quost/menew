@@ -56,12 +56,12 @@ enum ClipFilter: String, CaseIterable {
     case all, text, link, image, file, pinned
     var label: String {
         switch self {
-        case .all: "Tudo"
-        case .text: "Texto"
-        case .link: "Links"
-        case .image: "Imagens"
-        case .file: "Arquivos"
-        case .pinned: "Fixados"
+        case .all: L("Tudo")
+        case .text: L("Texto")
+        case .link: L("Links")
+        case .image: L("Imagens")
+        case .file: L("Arquivos")
+        case .pinned: L("Fixados")
         }
     }
     var icon: String {
@@ -114,14 +114,15 @@ final class ClipboardManager: ObservableObject {
         let m = ClipboardManager()
         m.isDemo = true
         let now = Date()
+        let pt = L10n.current == .pt
         m.items = [
-            ClipItem(kind: .text, text: "Reunião de alinhamento movida para quinta às 14h, sala 3.", date: now.addingTimeInterval(-40), sourceApp: "Microsoft Teams", sourceBundle: "com.microsoft.teams2"),
+            ClipItem(kind: .text, text: pt ? "Reunião de alinhamento movida para quinta às 14h, sala 3." : "Team sync moved to Thursday at 2 PM, room 3.", date: now.addingTimeInterval(-40), sourceApp: "Microsoft Teams", sourceBundle: "com.microsoft.teams2"),
             ClipItem(kind: .text, text: "https://github.com/Quost/menew", date: now.addingTimeInterval(-300), sourceApp: "Safari", sourceBundle: "com.apple.Safari"),
             ClipItem(kind: .text, text: "#6C5CE7", date: now.addingTimeInterval(-900), sourceApp: "Figma", sourceBundle: "com.figma.Desktop"),
-            ClipItem(kind: .text, text: "func greet(_ name: String) -> String {\n    return \"Olá, \\(name)!\"\n}", date: now.addingTimeInterval(-1800), sourceApp: "Xcode", sourceBundle: "com.apple.dt.Xcode", pinned: true),
+            ClipItem(kind: .text, text: "func greet(_ name: String) -> String {\n    return \"\(pt ? "Olá" : "Hello"), \\(name)!\"\n}", date: now.addingTimeInterval(-1800), sourceApp: "Xcode", sourceBundle: "com.apple.dt.Xcode", pinned: true),
             ClipItem(kind: .file, text: "/System/Applications/Calculator.app", date: now.addingTimeInterval(-3600), sourceApp: "Finder", sourceBundle: "com.apple.finder"),
-            ClipItem(kind: .text, text: "matheus@exemplo.com", date: now.addingTimeInterval(-7200), sourceApp: "Mail", sourceBundle: "com.apple.mail"),
-            ClipItem(kind: .text, text: "Lista de compras: café, pão, queijo, frutas", date: now.addingTimeInterval(-86400), sourceApp: "Notas", sourceBundle: "com.apple.Notes"),
+            ClipItem(kind: .text, text: pt ? "matheus@exemplo.com" : "hello@example.com", date: now.addingTimeInterval(-7200), sourceApp: "Mail", sourceBundle: "com.apple.mail"),
+            ClipItem(kind: .text, text: pt ? "Lista de compras: café, pão, queijo, frutas" : "Groceries: coffee, bread, cheese, fruit", date: now.addingTimeInterval(-86400), sourceApp: pt ? "Notas" : "Notes", sourceBundle: "com.apple.Notes"),
         ]
         return m
     }

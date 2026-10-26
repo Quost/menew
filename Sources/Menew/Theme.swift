@@ -205,11 +205,11 @@ struct PillButton: View {
 enum RelDate {
     private static let f: RelativeDateTimeFormatter = {
         let f = RelativeDateTimeFormatter()
-        f.locale = Locale(identifier: "pt_BR")
         f.unitsStyle = .short
         return f
     }()
     static func string(_ d: Date) -> String {
-        Date().timeIntervalSince(d) < 30 ? "agora" : f.localizedString(for: d, relativeTo: Date())
+        f.locale = L10n.locale
+        return Date().timeIntervalSince(d) < 30 ? L("agora") : f.localizedString(for: d, relativeTo: Date())
     }
 }

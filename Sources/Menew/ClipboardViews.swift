@@ -21,7 +21,7 @@ struct SearchField: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: large ? 17 : 13, weight: .medium))
                 .foregroundStyle(.secondary)
-            TextField("Buscar no histórico", text: $state.query)
+            TextField(L("Buscar no histórico"), text: $state.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: large ? 19 : 13))
                 .frame(height: large ? 30 : 18)
@@ -31,7 +31,7 @@ struct SearchField: View {
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
             }
             if UserDefaults.standard.bool(forKey: "paused") {
-                Label("Pausado", systemImage: "pause.circle.fill")
+                Label(L("Pausado"), systemImage: "pause.circle.fill")
                     .font(.system(size: 11, weight: .medium)).foregroundStyle(.orange)
             }
         }
@@ -127,7 +127,7 @@ struct ClipRow: View {
         HStack(spacing: 10) {
             ClipThumb(item: item, manager: manager)
             VStack(alignment: .leading, spacing: 2) {
-                Text(item.kind == .file ? fileTitle : item.title)
+                Text(item.kind == .file ? fileTitle : item.kind == .image ? item.title.replacingOccurrences(of: "Imagem", with: L("Imagem")) : item.title)
                     .font(.system(size: 13, weight: .medium))
                     .lineLimit(1)
                 Text(meta)
@@ -155,7 +155,7 @@ struct ClipRow: View {
     private var fileTitle: String {
         let paths = (item.text ?? "").split(separator: "\n")
         let first = (paths.first.map { String($0) } ?? "") as NSString
-        return paths.count > 1 ? "\(first.lastPathComponent) e mais \(paths.count - 1)" : first.lastPathComponent
+        return paths.count > 1 ? L("%@ e mais %d", first.lastPathComponent, paths.count - 1) : first.lastPathComponent
     }
 
     private var meta: String {
@@ -174,7 +174,7 @@ struct ClipList: View {
             VStack(spacing: 10) {
                 Image(systemName: state.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass")
                     .font(.system(size: 30, weight: .light)).foregroundStyle(.tertiary)
-                Text(state.query.isEmpty ? "Copie algo para começar" : "Nada encontrado")
+                Text(state.query.isEmpty ? L("Copie algo para começar") : L("Nada encontrado"))
                     .font(.system(size: 13)).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -206,31 +206,31 @@ struct ClipContextMenu: View {
     var onActivate: (ClipItem, Bool) -> Void
 
     var body: some View {
-        Button("Colar") { onActivate(item, false) }
-        if item.kind == .text { Button("Colar como texto puro") { onActivate(item, true) } }
-        Button("Só copiar") { manager.copy(item) }
-        Button(item.pinned ? "Desafixar" : "Fixar") { manager.togglePin(item) }
+        Button(L("Colar")) { onActivate(item, false) }
+        if item.kind == .text { Button(L("Colar como texto puro")) { onActivate(item, true) } }
+        Button(L("Só copiar")) { manager.copy(item) }
+        Button(item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
         if item.kind == .text, let t = item.text {
-            Menu("Transformar e copiar") {
-                Button("MAIÚSCULAS") { manager.copyText(t.uppercased()) }
-                Button("minúsculas") { manager.copyText(t.lowercased()) }
-                Button("Primeira Letra Maiúscula") { manager.copyText(t.capitalized) }
-                Button("Remover espaços extras") {
+            Menu(L("Transformar e copiar")) {
+                Button(L("MAIÚSCULAS")) { manager.copyText(t.uppercased()) }
+                Button(L("minúsculas")) { manager.copyText(t.lowercased()) }
+                Button(L("Primeira Letra Maiúscula")) { manager.copyText(t.capitalized) }
+                Button(L("Remover espaços extras")) {
                     manager.copyText(t.split(whereSeparator: \.isWhitespace).joined(separator: " "))
                 }
             }
         }
-        if let u = item.url { Button("Abrir link") { NSWorkspace.shared.open(u) } }
+        if let u = item.url { Button(L("Abrir link")) { NSWorkspace.shared.open(u) } }
         if item.kind == .file, let p = item.text?.split(separator: "\n").first {
-            Button("Mostrar no Finder") {
+            Button(L("Mostrar no Finder")) {
                 NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: String(p))])
             }
         }
         if item.kind == .image, let u = manager.imageURL(for: item) {
-            Button("Abrir imagem") { NSWorkspace.shared.open(u) }
+            Button(L("Abrir imagem")) { NSWorkspace.shared.open(u) }
         }
         Divider()
-        Button("Apagar", role: .destructive) { manager.delete(item) }
+        Button(L("Apagar"), role: .destructive) { manager.delete(item) }
     }
 }
 
@@ -253,26 +253,26 @@ struct ClipPreview: View {
             Divider().opacity(0.5)
 
             VStack(alignment: .leading, spacing: 7) {
-                infoRow("Origem") {
+                infoRow(L("Origem")) {
                     HStack(spacing: 5) {
                         if let icon = AppIcons.icon(for: item.sourceBundle) {
                             Image(nsImage: icon).resizable().frame(width: 14, height: 14)
                         }
-                        Text(item.sourceApp ?? "Desconhecido")
+                        Text(item.sourceApp ?? L("Desconhecido"))
                     }
                 }
-                infoRow("Copiado") { Text(item.date.formatted(.dateTime.day().month().hour().minute().locale(Locale(identifier: "pt_BR")))) }
-                infoRow("Conteúdo") { Text(stats) }
+                infoRow(L("Copiado")) { Text(item.date.formatted(.dateTime.day().month().hour().minute().locale(L10n.locale))) }
+                infoRow(L("Conteúdo")) { Text(stats) }
             }
             .font(.system(size: 11.5))
             .padding(.horizontal, 18).padding(.vertical, 12)
 
             HStack(spacing: 8) {
-                PillButton(title: "Colar", icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
-                PillButton(title: "Copiar", icon: "doc.on.doc") { manager.copy(item) }
-                PillButton(title: item.pinned ? "Desafixar" : "Fixar", icon: item.pinned ? "pin.slash" : "pin") { manager.togglePin(item) }
+                PillButton(title: L("Colar"), icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
+                PillButton(title: L("Copiar"), icon: "doc.on.doc") { manager.copy(item) }
+                PillButton(title: item.pinned ? L("Desafixar") : L("Fixar"), icon: item.pinned ? "pin.slash" : "pin") { manager.togglePin(item) }
                 Spacer()
-                IconButton(icon: "trash", help: "Apagar") { manager.delete(item) }
+                IconButton(icon: "trash", help: L("Apagar")) { manager.delete(item) }
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
@@ -289,7 +289,7 @@ struct ClipPreview: View {
             } else {
                 VStack(spacing: 8) {
                     Image(systemName: "photo.badge.exclamationmark").font(.system(size: 30, weight: .light))
-                    Text("O arquivo desta imagem não foi encontrado.").font(.system(size: 12))
+                    Text(L("O arquivo desta imagem não foi encontrado.")).font(.system(size: 12))
                 }
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, minHeight: 200)
@@ -319,9 +319,9 @@ struct ClipPreview: View {
                 }
             } else if let u = item.url {
                 VStack(alignment: .leading, spacing: 8) {
-                    Label(u.host() ?? "Link", systemImage: "globe").font(.system(size: 15, weight: .semibold))
+                    Label(u.host() ?? L("Link"), systemImage: "globe").font(.system(size: 15, weight: .semibold))
                     Text(u.absoluteString).font(.system(size: 13)).foregroundStyle(.blue).textSelection(.enabled)
-                    PillButton(title: "Abrir no navegador", icon: "arrow.up.right") { NSWorkspace.shared.open(u) }
+                    PillButton(title: L("Abrir no navegador"), icon: "arrow.up.right") { NSWorkspace.shared.open(u) }
                         .padding(.top, 4)
                 }
             } else {
@@ -335,15 +335,15 @@ struct ClipPreview: View {
 
     private var stats: String {
         switch item.kind {
-        case .image: return item.text ?? "Imagem"
+        case .image: return (item.text ?? "Imagem").replacingOccurrences(of: "Imagem", with: L("Imagem"))
         case .file:
             let n = (item.text ?? "").split(separator: "\n").count
-            return n == 1 ? "1 arquivo" : "\(n) arquivos"
+            return n == 1 ? L("1 arquivo") : L("%d arquivos", n)
         case .text:
             let t = item.text ?? ""
             let words = t.split(whereSeparator: \.isWhitespace).count
             let lines = t.split(separator: "\n", omittingEmptySubsequences: false).count
-            return "\(t.count) caracteres · \(words) palavras · \(lines) \(lines == 1 ? "linha" : "linhas")"
+            return L(lines == 1 ? "%d caracteres · %d palavras · %d linha" : "%d caracteres · %d palavras · %d linhas", t.count, words, lines)
         }
     }
 
@@ -362,6 +362,7 @@ struct ClipboardPanelView: View {
     @ObservedObject var manager: ClipboardManager
     @ObservedObject var state: ClipListState
     var onActivate: (ClipItem, Bool) -> Void
+    @AppStorage("language") private var language = "auto"
 
     var body: some View {
         let list = manager.filtered(state.query, state.filter)
@@ -390,17 +391,18 @@ struct ClipboardPanelView: View {
 
             Divider().opacity(0.6)
             HStack(spacing: 14) {
-                hint("↩", "colar")
-                hint("⌥↩", "texto puro")
-                hint("⌘1–9", "rápido")
-                hint("⌘P", "fixar")
-                hint("⌘⌫", "apagar")
+                hint("↩", L("colar"))
+                hint("⌥↩", L("texto puro"))
+                hint("⌘1–9", L("rápido"))
+                hint("⌘P", L("fixar"))
+                hint("⌘⌫", L("apagar"))
                 Spacer()
-                Text("\(manager.items.count) itens").foregroundStyle(.tertiary)
+                Text(L("%d itens", manager.items.count)).foregroundStyle(.tertiary)
             }
             .font(.system(size: 11))
             .padding(.horizontal, 16).padding(.vertical, 9)
         }
+        .id(language)
     }
 
     private func hint(_ key: String, _ label: String) -> some View {

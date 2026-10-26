@@ -58,21 +58,21 @@ final class Toolbox: ObservableObject {
     func toggleHiddenFiles() {
         hiddenFiles.toggle()
         Shell.run("/usr/bin/defaults", ["write", "com.apple.finder", "AppleShowAllFiles", "-bool", hiddenFiles ? "true" : "false"])
-        Shell.run("/usr/bin/killall", ["Finder"])
+        Shell.run("/usr/bin/killall", [L("Finder")])
     }
 
     func toggleDesktopIcons() {
         desktopIconsHidden.toggle()
         Shell.run("/usr/bin/defaults", ["write", "com.apple.finder", "CreateDesktop", "-bool", desktopIconsHidden ? "false" : "true"])
-        Shell.run("/usr/bin/killall", ["Finder"])
+        Shell.run("/usr/bin/killall", [L("Finder")])
     }
 
     func emptyTrash() {
         let alert = NSAlert()
         alert.messageText = "Esvaziar a Lixeira?"
         alert.informativeText = "Os itens serão apagados permanentemente."
-        alert.addButton(withTitle: "Esvaziar")
-        alert.addButton(withTitle: "Cancelar")
+        alert.addButton(withTitle: L("Esvaziar"))
+        alert.addButton(withTitle: L("Cancelar"))
         alert.alertStyle = .warning
         NSApp.activate(ignoringOtherApps: true)
         guard alert.runModal() == .alertFirstButtonReturn else { return }
@@ -88,7 +88,7 @@ final class Toolbox: ObservableObject {
                   r.volumeIsEjectable == true || (r.volumeIsInternal == false && v.path != "/") else { continue }
             if (try? NSWorkspace.shared.unmountAndEjectDevice(at: v)) != nil { count += 1 }
         }
-        show(count == 0 ? "Nenhum disco para ejetar" : "\(count) disco(s) ejetado(s)")
+        show(count == 0 ? L("Nenhum disco para ejetar") : L("%d disco(s) ejetado(s)", count))
     }
 
     // MARK: Sistema
@@ -113,17 +113,17 @@ final class Toolbox: ObservableObject {
                              Int(round(c.greenComponent * 255)), Int(round(c.blueComponent * 255)))
             MainActor.assumeIsolated {
                 clipboard.copyText(hex)
-                self?.show("Cor \(hex) copiada")
+                self?.show(L("Cor %@ copiada", hex))
             }
         }
     }
 
     func plainTextClipboard() {
         let pb = NSPasteboard.general
-        guard let s = pb.string(forType: .string) else { show("Clipboard não tem texto"); return }
+        guard let s = pb.string(forType: .string) else { show(L("Clipboard não tem texto")); return }
         pb.clearContents()
         pb.setString(s, forType: .string)
-        show("Formatação removida")
+        show(L("Formatação removida"))
     }
 
     func open(_ path: String) {
@@ -133,6 +133,6 @@ final class Toolbox: ObservableObject {
     private func runAppleScript(_ source: String) {
         var err: NSDictionary?
         NSAppleScript(source: source)?.executeAndReturnError(&err)
-        if err != nil { show("Permita o Menew em Automação nos Ajustes") }
+        if err != nil { show(L("Permita o Menew em Automação nos Ajustes")) }
     }
 }

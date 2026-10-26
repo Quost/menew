@@ -15,11 +15,13 @@ enum Snapshot {
         internet.speed = .done(SpeedResult(down: 224, up: 146, latency: 21, rpm: 425))
         internet.publicIP = "189.0.113.42"
         internet.devices = [
-            BTDevice(name: "AirPods Pro", kind: .airpods, levels: [("E", 90), ("D", 88), ("Estojo", 54)]),
+            BTDevice(name: "AirPods Pro", kind: .airpods, levels: [(L("E"), 90), (L("D"), 88), (L("Estojo"), 54)]),
             BTDevice(name: "Magic Mouse", kind: .mouse, levels: [("", 17)]),
         ]
         let notes = NotesStore(dir: FileManager.default.temporaryDirectory)
-        notes.text = "Ideias pro Menew\n- snippets de texto\n- atalhos configuráveis\n\nLigar pro João às 16h"
+        notes.text = L10n.current == .pt
+            ? "Ideias pro Menew\n- snippets de texto\n- atalhos configuráveis\n\nLigar pro João às 16h"
+            : "Menew ideas\n- text snippets\n- custom shortcuts\n\nCall Anna at 4 PM"
         monitor.start()
 
         // Espera alguns ciclos para CPU/rede terem dados

@@ -126,12 +126,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             item.target = self
             menu.addItem(item)
         }
-        add("Histórico do clipboard", "", "doc.on.clipboard", #selector(openClipPanel))
-        add("Limpar teclado", "", "keyboard", #selector(lockKeyboard))
-        add("Limpar tela", "", "sparkles.tv", #selector(blackScreen))
+        add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel))
+        add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
+        add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())
-        add("Ajustes…", ",", "gearshape", #selector(openSettings))
-        add("Sair do Menew", "q", "power", #selector(quit))
+        add(L("Ajustes…"), ",", "gearshape", #selector(openSettings))
+        add(L("Sair do Menew"), "q", "power", #selector(quit))
         statusItem.menu = menu
         statusItem.button?.performClick(nil)
         statusItem.menu = nil
