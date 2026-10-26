@@ -7,3 +7,5 @@ build/
 .signing-identity
 .firebase/
 firebase-debug.log
+.agents/
+skills-lock.json
