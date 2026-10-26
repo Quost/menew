@@ -9,8 +9,16 @@
 #   VERSION=1.2.0                                   versão no Info.plist
 #   UNIVERSAL=1                                     binário arm64 + x86_64
 #   SIGN_IDENTITY="Developer ID Application: ..."   assina para distribuição (senão, ad-hoc)
+#
+# Para builds locais, coloque o nome ou o SHA-1 de um certificado seu em
+# .signing-identity (fora do git). Com assinatura estável, o macOS lembra a
+# permissão de Acessibilidade entre um build e outro; com ad-hoc, pede de novo.
 set -euo pipefail
 cd "$(dirname "$0")"
+
+if [ -z "${SIGN_IDENTITY:-}" ] && [ -f .signing-identity ]; then
+  SIGN_IDENTITY=$(head -1 .signing-identity)
+fi
 
 ARCH_FLAGS=()
 [ "${UNIVERSAL:-0}" = 1 ] && ARCH_FLAGS=(--arch arm64 --arch x86_64)

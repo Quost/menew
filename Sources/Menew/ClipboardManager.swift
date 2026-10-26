@@ -165,7 +165,10 @@ final class ClipboardManager: ObservableObject {
             let hash = SHA256.hash(data: png).prefix(10).map { String(format: "%02x", $0) }.joined()
             let name = "\(hash).png"
             let file = imagesDir.appendingPathComponent(name)
-            if !FileManager.default.fileExists(atPath: file.path) { try? png.write(to: file) }
+            try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
+            if !FileManager.default.fileExists(atPath: file.path) {
+                guard (try? png.write(to: file)) != nil else { return }
+            }
             item = ClipItem(kind: .image, text: "Imagem \(rep.pixelsWide)×\(rep.pixelsHigh)", imageFile: name)
         }
 
@@ -326,7 +329,12 @@ final class ClipboardManager: ObservableObject {
     private func load() {
         guard let data = try? Data(contentsOf: historyURL),
               let decoded = try? JSONDecoder().decode([ClipItem].self, from: data) else { return }
-        items = decoded
+        // Remove imagens cujo arquivo sumiu (ex.: capturadas durante a troca de nome do app)
+        items = decoded.filter { item in
+            guard let f = item.imageFile else { return true }
+            return FileManager.default.fileExists(atPath: imagesDir.appendingPathComponent(f).path)
+        }
+        if items.count != decoded.count { save() }
     }
 
     private func save() {

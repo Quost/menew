@@ -24,6 +24,7 @@ struct SearchField: View {
             TextField("Buscar no histórico", text: $state.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: large ? 19 : 13))
+                .frame(height: large ? 30 : 18)
                 .focused($focused)
             if !state.query.isEmpty {
                 Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
@@ -285,6 +286,13 @@ struct ClipPreview: View {
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .frame(maxHeight: 260)
                     .frame(maxWidth: .infinity)
+            } else {
+                VStack(spacing: 8) {
+                    Image(systemName: "photo.badge.exclamationmark").font(.system(size: 30, weight: .light))
+                    Text("O arquivo desta imagem não foi encontrado.").font(.system(size: 12))
+                }
+                .foregroundStyle(.secondary)
+                .frame(maxWidth: .infinity, minHeight: 200)
             }
         case .file:
             VStack(alignment: .leading, spacing: 10) {

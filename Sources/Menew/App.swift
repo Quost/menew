@@ -192,7 +192,7 @@ enum StatusRenderer {
                            ("↑ " + u as NSString).size(withAttributes: attrs(netFont)).width, minW)
             }
         }
-        let total = segments.isEmpty ? iconSize : iconSize + widths.reduce(0) { $0 + $1 + gap } - gap + 1
+        let total = segments.isEmpty ? iconSize : iconSize + widths.reduce(0) { $0 + $1 + gap } - gap + 4
         let img = NSImage(size: NSSize(width: ceil(total), height: height), flipped: false) { _ in
             let cfg = NSImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
             if let sym = NSImage(systemSymbolName: "square.grid.2x2.fill", accessibilityDescription: nil)?.withSymbolConfiguration(cfg) {
