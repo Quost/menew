@@ -69,6 +69,7 @@
 
 ```bash
 brew tap quost/menew https://github.com/Quost/menew
+brew trust quost/menew
 brew install --cask menew
 ```
 
