@@ -1,7 +1,7 @@
 # Atualizado automaticamente pelo workflow de release
 cask "menew" do
-  version "1.4.0"
-  sha256 "248ba4f4fcfc591e5f168772c06ca258974f828d79edf69590d6a8daa0d4c2c3"
+  version "1.4.1"
+  sha256 "9e11ad2599b5fcc9e9d281a46d757e67b26da6047776188beddb2cbe5fd683bf"
 
   url "https://github.com/Quost/menew/releases/download/v#{version}/Menew.dmg"
   name "Menew"
