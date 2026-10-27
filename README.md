@@ -35,7 +35,8 @@
 
 | | |
 |---|---|
-| 📊 **System monitor** | CPU with live graph, memory, disk, battery, uptime, thermal state and the top processes. Live stats right in the menu bar. |
+| 📊 **System monitor** | CPU with live graph, memory pressure and swap, disk, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar: CPU, CPU graph, memory, network, disk, battery. |
+| 🔔 **Alerts** | Optional macOS notifications for a nearly full disk, low battery, critical memory pressure or CPU stuck above 90%. |
 | 📋 **Clipboard history** | Text, links, images and files with instant search, filters, pins and a rich preview. Press **⌘⇧V** anywhere. |
 | ⚡ **Quick actions** | Keep awake, hidden files, hide desktop icons, eject disks, empty trash, dark mode, color picker, screenshot to clipboard. |
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
@@ -115,6 +116,9 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 - [x] Auto-delete clipboard items older than X days
 - [x] Auto-updates with Sparkle
 - [x] Homebrew cask
+- [x] Memory pressure, battery health, alerts and a customizable menu bar
+- [ ] Optional modules and a first-launch tour
+- [ ] Window manager
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

@@ -145,6 +145,8 @@ struct SystemView: View {
             VStack(spacing: 10) {
                 overview
                 cpuCard
+                MemoryCard(m: m)
+                if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
                 networkCard
                 if !net.devices.isEmpty { devicesCard }
                 processesCard
@@ -281,21 +283,8 @@ struct SystemView: View {
                 Text(L("Carregando…")).font(.system(size: 11.5)).foregroundStyle(.secondary)
             }
             ForEach(m.topProcesses.prefix(5)) { p in
-                HStack(spacing: 8) {
-                    Group {
-                        if let icon = AppIcons.icon(forProcess: p.name) {
-                            Image(nsImage: icon).resizable()
-                        } else {
-                            Image(systemName: "gearshape.fill").font(.system(size: 10)).foregroundStyle(.secondary)
-                        }
-                    }
-                    .frame(width: 18, height: 18)
-                    Text(p.name).font(.system(size: 12)).lineLimit(1)
-                    Spacer(minLength: 6)
-                    Text(Fmt.mem(p.memKB * 1024)).font(.system(size: 11)).foregroundStyle(.tertiary).monospacedDigit()
-                    UsageBar(fraction: min(p.cpu / 100, 1), color: Theme.cpu, height: 4).frame(width: 44)
-                    Text(String(format: "%.0f%%", p.cpu)).font(.system(size: 11.5, weight: .medium)).monospacedDigit()
-                        .frame(width: 36, alignment: .trailing)
+                ProcessRow(p: p) { force in
+                    if !m.quit(p, force: force) { NSSound.beep() }
                 }
             }
         }
@@ -602,7 +591,7 @@ struct ActionTile: View {
 struct SettingsView: View {
     @ObservedObject var clipboard: ClipboardManager
     @ObservedObject var updater: UpdaterModel
-    @AppStorage("menuBarStyle") private var style = MenuBarStyle.cpuRam.rawValue
+    @AppStorage(MenuBarItem.key) private var menuBarItems = "cpu,ram"
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
@@ -629,15 +618,14 @@ struct SettingsView: View {
                 }
             }
             Section(L("Barra de menus")) {
-                Picker(L("Mostrar"), selection: $style) {
-                    ForEach(MenuBarStyle.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
-                }
+                MenuBarItemsPicker(selection: $menuBarItems)
                 Toggle(L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, on in
                         do { on ? try SMAppService.mainApp.register() : try SMAppService.mainApp.unregister() }
                         catch { launchAtLogin = SMAppService.mainApp.status == .enabled }
                     }
             }
+            AlertsSection()
             Section(L("Permissões")) {
                 HStack {
                     Label(L("Acessibilidade"), systemImage: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
@@ -730,15 +718,71 @@ enum AppAppearance: String, CaseIterable {
     }
 }
 
-enum MenuBarStyle: String, CaseIterable {
-    case icon, cpu, cpuRam, network, all
+/// O que aparece ao lado do ícone na barra de menus, na ordem abaixo
+enum MenuBarItem: String, CaseIterable {
+    case cpu, cpuGraph, ram, net, disk, battery
+
+    static let key = "menuBarItems"
+
+    static var selected: [MenuBarItem] {
+        let raw = UserDefaults.standard.string(forKey: key) ?? ""
+        let set = Set(raw.split(separator: ",").map(String.init))
+        return allCases.filter { set.contains($0.rawValue) }
+    }
+
+    /// Converte a opção antiga ("CPU + RAM" etc.) na primeira vez
+    static var migratedDefault: String {
+        switch UserDefaults.standard.string(forKey: "menuBarStyle") {
+        case "icon": ""
+        case "cpu": "cpu"
+        case "network": "net"
+        case "all": "cpu,ram,net"
+        default: "cpu,ram"
+        }
+    }
+
     var label: String {
         switch self {
-        case .icon: L("Só o ícone")
         case .cpu: "CPU"
-        case .cpuRam: L("CPU + RAM")
-        case .network: L("Rede")
-        case .all: L("CPU + RAM + Rede")
+        case .cpuGraph: L("Gráfico da CPU")
+        case .ram: L("Memória")
+        case .net: L("Rede")
+        case .disk: L("Disco")
+        case .battery: L("Bateria")
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .cpu: "cpu"
+        case .cpuGraph: "chart.bar.fill"
+        case .ram: "memorychip"
+        case .net: "arrow.up.arrow.down"
+        case .disk: "internaldrive"
+        case .battery: "battery.75percent"
+        }
+    }
+
+    @MainActor func segment(_ m: SystemMonitor) -> StatusSegment? {
+        switch self {
+        case .cpu: .stat("CPU", Fmt.pct(m.cpu))
+        case .cpuGraph: .graph(Array(m.cpuHistory.suffix(12)))
+        case .ram: .stat("RAM", Fmt.pct(m.memFraction))
+        case .net: .net(Fmt.shortRate(m.netIn), Fmt.shortRate(m.netOut))
+        case .disk: .stat("SSD", Fmt.pct(m.diskFraction))
+        case .battery: m.battery.map { .stat("BAT", "\($0.percent)%") }
+        }
+    }
+
+    /// Valores fixos para a prévia nos Ajustes e nas capturas
+    var sample: StatusSegment {
+        switch self {
+        case .cpu: .stat("CPU", "23%")
+        case .cpuGraph: .graph([0.2, 0.35, 0.3, 0.6, 0.45, 0.8, 0.5, 0.3, 0.4, 0.25, 0.55, 0.35])
+        case .ram: .stat("RAM", "64%")
+        case .net: .net("1.2M", "48K")
+        case .disk: .stat("SSD", "58%")
+        case .battery: .stat("BAT", "80%")
         }
     }
 }

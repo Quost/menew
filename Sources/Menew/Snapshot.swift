@@ -29,6 +29,13 @@ enum Snapshot {
             // Dados fictícios onde a máquina real apareceria (rede, processos)
             monitor.isDemo = true
             monitor.localIP = "192.168.0.12"
+            monitor.battery = BatteryInfo(percent: 80, charging: false, onAC: true, minutesLeft: nil)
+            monitor.batteryHealth = BatteryHealth(cycles: 112, healthPercent: 96, temperature: nil, adapterWatts: 70)
+            monitor.memPressure = .normal
+            monitor.memTotal = 16 << 30
+            monitor.memBreakdown = MemoryBreakdown(app: 6_400 << 20, wired: 2_100 << 20, compressed: 1_300 << 20)
+            monitor.memUsed = monitor.memBreakdown.app + monitor.memBreakdown.wired + monitor.memBreakdown.compressed
+            monitor.swapUsed = 0
             monitor.topProcesses = [
                 ProcInfo(name: "Safari", cpu: 18.4, memKB: 1_450_000),
                 ProcInfo(name: "WindowServer", cpu: 9.2, memKB: 420_000),
@@ -70,20 +77,15 @@ enum Snapshot {
                        background: NSColor(calibratedRed: 0.3, green: 0.4, blue: 0.6, alpha: 1),
                        to: dir.appendingPathComponent("keyboard-lock-\(suffix).png"))
             }
-            for style in MenuBarStyle.allCases {
-                let segs: [StatusSegment]
-                switch style {
-                case .icon: segs = []
-                case .cpu: segs = [.stat("CPU", "23%")]
-                case .cpuRam: segs = [.stat("CPU", "23%"), .stat("RAM", "64%")]
-                case .network: segs = [.net("1.2M", "48K")]
-                case .all: segs = [.stat("CPU", "23%"), .stat("RAM", "64%"), .net("1.2M", "48K")]
-                }
-                let img = StatusRenderer.image(segments: segs)
+            // Barra de menus: a combinação usada no site e algumas opções
+            let bars: [(String, [MenuBarItem])] = [("all", [.cpu, .ram, .net]), ("graph", [.cpuGraph, .ram, .net]),
+                                                   ("icon", []), ("battery", [.cpu, .ram, .disk, .battery])]
+            for (name, items) in bars {
+                let img = StatusRenderer.image(segments: items.map(\.sample))
                 let v = Image(nsImage: img).padding(.horizontal, 8).frame(height: 24)
                 render(v, size: NSSize(width: img.size.width + 16, height: 24), dark: false,
                        background: NSColor(white: 0.93, alpha: 1), scale: 4,
-                       to: dir.appendingPathComponent("statusbar-\(style).png"))
+                       to: dir.appendingPathComponent("statusbar-\(name).png"))
             }
             NSApp.terminate(nil)
         }

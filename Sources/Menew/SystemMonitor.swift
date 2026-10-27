@@ -1,5 +1,6 @@
-import Foundation
+import AppKit
 import Darwin
+import IOKit
 import IOKit.ps
 
 struct BatteryInfo {
@@ -9,8 +10,28 @@ struct BatteryInfo {
     var minutesLeft: Int?
 }
 
+/// Saúde e carregador (lidos do IORegistry; ficam nil quando o Mac não informa)
+struct BatteryHealth {
+    var cycles: Int?
+    var healthPercent: Int?
+    var temperature: Double?
+    var adapterWatts: Int?
+}
+
+/// Mesma escala do Monitor de Atividade: é ela que diz se falta memória, não o "usado"
+enum MemoryPressure: Int {
+    case normal = 1, warning = 2, critical = 4
+}
+
+struct MemoryBreakdown {
+    var app: UInt64 = 0
+    var wired: UInt64 = 0
+    var compressed: UInt64 = 0
+}
+
 struct ProcInfo: Identifiable {
     let id = UUID()
+    var pid: Int32 = 0
     let name: String
     let cpu: Double
     let memKB: UInt64
@@ -25,6 +46,10 @@ final class SystemMonitor: ObservableObject {
     @Published var diskFree: Int64 = 0
     @Published var diskTotal: Int64 = 0
     @Published var battery: BatteryInfo?
+    @Published var batteryHealth: BatteryHealth?
+    @Published var memPressure: MemoryPressure = .normal
+    @Published var memBreakdown = MemoryBreakdown()
+    @Published var swapUsed: UInt64 = 0
     @Published var netIn: Double = 0
     @Published var netOut: Double = 0
     @Published var netInHistory: [Double] = Array(repeating: 0, count: 40)
@@ -58,17 +83,22 @@ final class SystemMonitor: ObservableObject {
     private func tick() {
         tickCount += 1
         readCPU()
-        readMemory()
         readNetwork()
         uptime = ProcessInfo.processInfo.systemUptime
         thermal = ProcessInfo.processInfo.thermalState
+        // Em modo captura, memória, bateria e IP ficam com os valores fictícios
+        if !isDemo { readMemory() }
         // Itens que mudam devagar: a cada ~10s
         if tickCount % 5 == 1 {
             readDisk()
-            battery = Self.readBattery()
-            if !isDemo { localIP = Self.readLocalIP() ?? "—" }
+            if !isDemo {
+                battery = Self.readBattery()
+                if battery != nil { batteryHealth = Self.readBatteryHealth() }
+                localIP = Self.readLocalIP() ?? "—"
+            }
         }
         if wantsProcesses { refreshProcesses() }
+        if !isDemo { Alerts.shared.check(self) }
         onTick?()
     }
 
@@ -110,7 +140,18 @@ final class SystemMonitor: ObservableObject {
         host_page_size(mach_host_self(), &pageSize)
         let page = UInt64(pageSize)
         let app = UInt64(stats.internal_page_count) &- UInt64(stats.purgeable_count)
-        memUsed = (app + UInt64(stats.wire_count) + UInt64(stats.compressor_page_count)) * page
+        memBreakdown = MemoryBreakdown(app: app * page, wired: UInt64(stats.wire_count) * page,
+                                       compressed: UInt64(stats.compressor_page_count) * page)
+        memUsed = memBreakdown.app + memBreakdown.wired + memBreakdown.compressed
+
+        var level: Int32 = 1
+        var size = MemoryLayout<Int32>.size
+        if sysctlbyname("kern.memorystatus_vm_pressure_level", &level, &size, nil, 0) == 0 {
+            memPressure = MemoryPressure(rawValue: Int(level)) ?? .normal
+        }
+        var swap = xsw_usage()
+        size = MemoryLayout<xsw_usage>.size
+        if sysctlbyname("vm.swapusage", &swap, &size, nil, 0) == 0 { swapUsed = swap.xsu_used }
     }
 
     // MARK: Disco
@@ -195,6 +236,27 @@ final class SystemMonitor: ObservableObject {
         return nil
     }
 
+    private static func readBatteryHealth() -> BatteryHealth {
+        var h = BatteryHealth()
+        if let details = IOPSCopyExternalPowerAdapterDetails()?.takeRetainedValue() as? [String: Any] {
+            h.adapterWatts = details[kIOPSPowerAdapterWattsKey] as? Int
+        }
+        let service = IOServiceGetMatchingService(kIOMainPortDefault, IOServiceMatching("AppleSmartBattery"))
+        guard service != 0 else { return h }
+        defer { IOObjectRelease(service) }
+        var props: Unmanaged<CFMutableDictionary>?
+        guard IORegistryEntryCreateCFProperties(service, &props, kCFAllocatorDefault, 0) == KERN_SUCCESS,
+              let d = props?.takeRetainedValue() as? [String: Any] else { return h }
+        h.cycles = d["CycleCount"] as? Int
+        // Apple Silicon guarda as capacidades em BatteryData; Macs Intel, na raiz
+        let data = d["BatteryData"] as? [String: Any] ?? [:]
+        let design = data["DesignCapacity"] as? Int ?? d["DesignCapacity"] as? Int
+        let full = data["NominalChargeCapacity"] as? Int ?? d["NominalChargeCapacity"] as? Int ?? d["AppleRawMaxCapacity"] as? Int
+        if let design, let full, design > 0 { h.healthPercent = min(100, Int((Double(full) / Double(design) * 100).rounded())) }
+        if let t = d["Temperature"] as? Int, t > 0 { h.temperature = Double(t) / 100 }
+        return h
+    }
+
     // MARK: Processos
 
     func refreshProcesses() {
@@ -205,13 +267,28 @@ final class SystemMonitor: ObservableObject {
         }
     }
 
-    nonisolated private static func readTopProcesses() -> [ProcInfo] {
-        let out = Shell.run("/bin/ps", ["-Aceo", "pcpu=,rss=,comm=", "-r"])
+    nonisolated static func readTopProcesses() -> [ProcInfo] {
+        let out = Shell.run("/bin/ps", ["-Aceo", "pid=,pcpu=,rss=,comm=", "-r"])
         return out.split(separator: "\n").prefix(6).compactMap { line in
-            let parts = line.split(separator: " ", maxSplits: 2, omittingEmptySubsequences: true)
-            guard parts.count == 3, let cpu = Double(parts[0]) else { return nil }
-            return ProcInfo(name: String(parts[2]), cpu: cpu, memKB: UInt64(parts[1]) ?? 0)
+            let parts = line.split(separator: " ", maxSplits: 3, omittingEmptySubsequences: true)
+            guard parts.count == 4, let pid = Int32(parts[0]), let cpu = Double(parts[1]) else { return nil }
+            return ProcInfo(pid: pid, name: String(parts[3]), cpu: cpu, memKB: UInt64(parts[2]) ?? 0)
         }
+    }
+
+    /// Encerra como o Dock faria (apps) ou com SIGTERM; `force` usa Forçar Encerrar / SIGKILL.
+    /// Processos do sistema e de outros usuários recusam (retorna false).
+    @discardableResult
+    func quit(_ p: ProcInfo, force: Bool) -> Bool {
+        guard p.pid > 1, p.pid != getpid() else { return false }
+        let ok: Bool
+        if let app = NSRunningApplication(processIdentifier: p.pid) {
+            ok = force ? app.forceTerminate() : app.terminate()
+        } else {
+            ok = kill(p.pid, force ? SIGKILL : SIGTERM) == 0
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in self?.refreshProcesses() }
+        return ok
     }
 }
 
@@ -233,10 +310,10 @@ enum Shell {
 
 enum Fmt {
     static func bytes(_ b: Int64) -> String {
-        ByteCountFormatter.string(fromByteCount: b, countStyle: .file)
+        b.formatted(.byteCount(style: .file).locale(L10n.locale))
     }
     static func mem(_ b: UInt64) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(b), countStyle: .memory)
+        Int64(b).formatted(.byteCount(style: .memory).locale(L10n.locale))
     }
     /// "12,3 GB" / "16 GB"
     static func memShort(_ b: UInt64) -> String {
@@ -244,7 +321,7 @@ enum Fmt {
         return (gb >= 10 || gb.rounded() == gb ? String(format: "%.0f", gb) : String(format: "%.1f", locale: L10n.locale, gb)) + " GB"
     }
     static func rate(_ bps: Double) -> String {
-        ByteCountFormatter.string(fromByteCount: Int64(bps), countStyle: .file) + "/s"
+        Int64(bps).formatted(.byteCount(style: .file).locale(L10n.locale)) + "/s"
     }
     /// Versão curta para a barra de menus: 1.2M, 340K
     static func shortRate(_ bps: Double) -> String {

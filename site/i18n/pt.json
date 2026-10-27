@@ -24,7 +24,7 @@
   "features_h2": "As pequenas coisas do seu dia,<br>a um clique de distância.",
   "features_sub": "O Menew substitui vários utilitários pagos da barra de menus por um único app nativo e rápido, feito em Swift.",
   "f1_t": "Monitor do sistema",
-  "f1_d": "CPU com gráfico ao vivo, memória, disco, bateria, tempo ligado, temperatura e os processos que mais usam CPU.",
+  "f1_d": "CPU com gráfico ao vivo, pressão de memória e swap, disco, saúde e ciclos da bateria e os processos mais pesados, que você encerra com um clique. Alertas opcionais, e você escolhe o que aparece na barra.",
   "f2_t": "Histórico do clipboard",
   "f2_d": "Textos, links, imagens e arquivos. Busca instantânea, filtros, itens fixados e pré-visualização. Abre com ⌘⇧V.",
   "f3_t": "Ações rápidas",

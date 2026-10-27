@@ -2,6 +2,15 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.5.0
+
+- **Memory pressure**: see whether your Mac actually needs more memory, plus how much is used by apps, the system, compression and swap.
+- **Battery details**: health, charge cycles and the charger's wattage.
+- **Quit processes** right from the list: hover and click ✕, or right-click to force quit.
+- **Alerts** (off by default, turn them on in Settings): a nearly full disk, low battery, critical memory pressure, or CPU stuck above 90% for 2 minutes.
+- **Your menu bar, your way**: pick any mix of CPU, a mini CPU graph, memory, network, disk and battery, with a live preview.
+- Sizes now follow the app's language (for example 824.4 GB in English).
+
 ## 1.4.2
 
 - A nicer install window: drag Menew to Applications on a clean, branded background.

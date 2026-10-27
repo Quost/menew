@@ -38,7 +38,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         UserDefaults.standard.register(defaults: [
-            "menuBarStyle": MenuBarStyle.cpuRam.rawValue,
+            MenuBarItem.key: MenuBarItem.migratedDefault,
             "autoPaste": true,
             "maxItems": 300,
             "ignoreConcealed": true,
@@ -89,16 +89,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func updateStatusItem() {
         guard let button = statusItem?.button else { return }
-        let style = MenuBarStyle(rawValue: UserDefaults.standard.string(forKey: "menuBarStyle") ?? "") ?? .cpuRam
-        var segments: [StatusSegment] = []
-        switch style {
-        case .icon: break
-        case .cpu: segments = [.stat("CPU", Fmt.pct(monitor.cpu))]
-        case .cpuRam: segments = [.stat("CPU", Fmt.pct(monitor.cpu)), .stat("RAM", Fmt.pct(monitor.memFraction))]
-        case .network: segments = [.net(Fmt.shortRate(monitor.netIn), Fmt.shortRate(monitor.netOut))]
-        case .all: segments = [.stat("CPU", Fmt.pct(monitor.cpu)), .stat("RAM", Fmt.pct(monitor.memFraction)),
-                               .net(Fmt.shortRate(monitor.netIn), Fmt.shortRate(monitor.netOut))]
-        }
+        let segments = MenuBarItem.selected.compactMap { $0.segment(monitor) }
         let key = segments.map(\.key).joined(separator: "|")
         guard key != lastStatusKey || button.image == nil else { return }
         lastStatusKey = key
@@ -173,11 +164,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 enum StatusSegment {
     case stat(String, String)   // rótulo pequeno em cima, valor embaixo
     case net(String, String)    // ↓ e ↑ empilhados
+    case graph([Double])        // mini gráfico de barras (0…1)
 
     var key: String {
         switch self {
         case .stat(let a, let b): "\(a)\(b)"
         case .net(let a, let b): "\(a)\(b)"
+        case .graph(let v): v.map { String(Int($0 * 16)) }.joined(separator: ",")
         }
     }
 }
@@ -203,6 +196,8 @@ enum StatusRenderer {
                 let minW = ("↓ 99.9M" as NSString).size(withAttributes: attrs(netFont)).width
                 return max(("↓ " + d as NSString).size(withAttributes: attrs(netFont)).width,
                            ("↑ " + u as NSString).size(withAttributes: attrs(netFont)).width, minW)
+            case .graph(let v):
+                return CGFloat(v.count) * 2.5
             }
         }
         let total = segments.isEmpty ? iconSize : iconSize + widths.reduce(0) { $0 + $1 + gap } - gap + 4
@@ -223,6 +218,15 @@ enum StatusRenderer {
                 case .net(let d, let u):
                     ("↑ " + u as NSString).draw(at: NSPoint(x: x, y: 10.5), withAttributes: attrs(netFont))
                     ("↓ " + d as NSString).draw(at: NSPoint(x: x, y: 0), withAttributes: attrs(netFont))
+                case .graph(let v):
+                    NSColor.black.withAlphaComponent(0.25).setFill()
+                    NSRect(x: x, y: 3, width: w, height: 0.8).fill()
+                    NSColor.black.setFill()
+                    for (i, f) in v.enumerated() {
+                        let h = max(1, 16 * CGFloat(min(max(f, 0), 1)))
+                        NSBezierPath(roundedRect: NSRect(x: x + CGFloat(i) * 2.5, y: 3, width: 1.8, height: h),
+                                     xRadius: 0.6, yRadius: 0.6).fill()
+                    }
                 }
                 x += w + gap
             }

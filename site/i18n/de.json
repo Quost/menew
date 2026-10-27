@@ -24,7 +24,7 @@
   "features_h2": "Die kleinen Dinge deines Alltags,<br>einen Klick entfernt.",
   "features_sub": "Menew ersetzt eine Handvoll kostenpflichtiger Menüleisten-Tools durch eine schnelle, native App in Swift.",
   "f1_t": "Systemmonitor",
-  "f1_d": "CPU mit Live-Grafik, Speicher, Festplatte, Batterie, Laufzeit, Temperatur und die Prozesse, die deine CPU belasten.",
+  "f1_d": "CPU mit Live-Grafik, Speicherdruck und Swap, Festplatte, Batteriezustand und Zyklen sowie die aktivsten Prozesse, die du mit einem Klick beendest. Optionale Hinweise, und du wählst, was in der Menüleiste steht.",
   "f2_t": "Zwischenablage-Verlauf",
   "f2_d": "Texte, Links, Bilder und Dateien. Sofortsuche, Filter, Anheften und eine ausführliche Vorschau. Öffnet mit ⌘⇧V.",
   "f3_t": "Schnellaktionen",
