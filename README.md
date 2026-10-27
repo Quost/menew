@@ -117,6 +117,10 @@ Menew has **no telemetry, no analytics and no account**. Clipboard history and n
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).
 
+## Feedback
+
+Found a bug or have an idea? Use **Report a problem…** or **Suggest an idea…** in Menew's right-click menu (or in Settings → Help). It opens a GitHub issue with your Menew and macOS versions already filled in.
+
 ## Contributing
 
 Pull requests are very welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for how the project is organized and how to run it.
