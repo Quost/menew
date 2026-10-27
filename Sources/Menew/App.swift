@@ -55,11 +55,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         popover.behavior = .transient
         popover.animates = true
-        popover.contentViewController = NSHostingController(rootView: MainView(
+        // Tamanho fixo desde o início: com o SDK do macOS 26 o popover era posicionado com o tamanho
+        // padrão (320 pt) e depois crescia para cima, por cima da barra de menus
+        popover.contentSize = NSSize(width: 400, height: 600)
+        let hosting = NSHostingController(rootView: MainView(
             nav: nav, monitor: monitor, clipboard: clipboard, toolbox: toolbox, internet: internet, notes: notes,
             cleaner: cleaner, updater: updater, clipState: popoverClipState,
             onPickClip: { [weak self] item, plain in self?.pickFromPopover(item, plain: plain) }
         ))
+        hosting.sizingOptions = []
+        popover.contentViewController = hosting
 
         monitor.onTick = { [weak self] in self?.updateStatusItem() }
         monitor.start()
