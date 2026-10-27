@@ -20,6 +20,12 @@ LANGS = {  # código: (atributo lang, nome nativo)
     "zh": ("zh-Hans", "中文"),
 }
 
+# Contador de visitas do site (GoatCounter: sem cookies, sem dados pessoais). Vazio = desligado.
+# O app em si continua sem nenhuma telemetria.
+GOATCOUNTER = ""
+ANALYTICS = (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
+             if GOATCOUNTER else "")
+
 def url(lang):
     return SITE + "/" if lang == "en" else f"{SITE}/{lang}"
 
@@ -42,6 +48,7 @@ def switch(current):
         for code, (_, name) in LANGS.items())
     return ('<select class="lang" aria-label="Language" onchange="'
             "try{localStorage.setItem('menew-lang',this.value)}catch(e){}"
+            "try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}"
             "location.href=this.value==='en'?'/':'/'+this.value\">" + options + "</select>")
 
 # Dados estruturados para o Google mostrar o Menew como aplicativo (grátis, macOS)
@@ -86,6 +93,7 @@ for lang in LANGS:
         "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
         "lang_switch": switch(lang),
         "jsonld": jsonld(lang, texts),
+        "analytics": ANALYTICS,
         "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt")},
                                   "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
     })
