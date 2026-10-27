@@ -202,11 +202,43 @@
     border: 1px solid var(--line);
   }
   .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .45)); }
-  .install { margin: 26px auto 0; max-width: 520px; text-align: left; font-size: 14px; color: var(--muted); }
-  .install code {
-    display: block; margin-top: 8px; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
-    background: var(--bg-elev); color: var(--text); font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; overflow-x: auto;
+  .install { margin: 34px auto 0; max-width: 600px; text-align: left; }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(127,127,127,.12); }
+  .tabs button {
+    flex: 1; border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px;
+    transition: background .15s ease, color .15s ease;
   }
+  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .panel { display: none; margin-top: 14px; }
+  .panel.on { display: block; }
+  .steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
+  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--muted); font-size: 15px; counter-increment: s; }
+  .steps li::before {
+    content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    font: 700 12px/1 -apple-system, system-ui, sans-serif; color: #fff; background: var(--brand); transform: translateY(-1px);
+  }
+  .steps b { color: var(--text); }
+  .cmd {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg-elev);
+  }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); scrollbar-width: none; }
+  .cmd code::before { content: "$ "; color: var(--faint); }
+  .copy-btn {
+    flex: none; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+    font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease;
+  }
+  .copy-btn:hover { color: var(--text); background: rgba(127,127,127,.12); }
+  .copy-btn.done { color: #22c55e; border-color: rgba(34,197,94,.5); }
+  .hint { margin-top: 10px; font-size: 13px; color: var(--faint); }
+  .ai {
+    margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px;
+    border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07);
+  }
+  .ai p { flex: 1; font-size: 14px; color: var(--muted); }
+  .ai b { color: var(--text); }
+  @media (max-width: 600px) { .ai { flex-direction: column; align-items: stretch; text-align: left; } }
   .coffee { margin-top: 30px; display: none; }
   .coffee.on { display: block; }
   .btn.bmc { background: #ffdd00; color: #111; border: 0; }
@@ -410,11 +442,40 @@
       <a class="btn primary" data-download href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">Download Menew<span data-size></span></a>
       <a class="btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">View source</a>
     </div>
-    <div class="install">
-      Open the .dmg and drag Menew to Applications. With Homebrew:
-      <code>brew tap quost/menew https://github.com/Quost/menew &amp;&amp; brew trust quost/menew &amp;&amp; brew install --cask menew</code>
-      Or build it yourself:
-      <code>git clone https://github.com/Quost/menew &amp;&amp; cd menew &amp;&amp; ./build.sh --install</code>
+    <div class="install" id="install">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="dmg">Download</button>
+        <button role="tab" aria-selected="false" data-tab="brew">Homebrew</button>
+        <button role="tab" aria-selected="false" data-tab="src">From source</button>
+      </div>
+
+      <div class="panel on" data-panel="dmg">
+        <ol class="steps">
+          <li><span>Download <b>Menew.dmg</b> with the button above.</span></li>
+          <li><span>Open it and drag <b>Menew</b> into <b>Applications</b>.</span></li>
+          <li><span>Open Menew. It lives in your <b>menu bar</b>; press <b>⌘⇧V</b> for the clipboard.</span></li>
+        </ol>
+        <p class="hint">macOS 14 or later · Apple Silicon &amp; Intel · Signed and notarized by Apple</p>
+      </div>
+
+      <div class="panel" data-panel="brew">
+        <div class="cmd"><code>brew tap quost/menew https://github.com/Quost/menew</code><button class="copy-btn">Copy</button></div>
+        <div class="cmd"><code>brew trust quost/menew</code><button class="copy-btn">Copy</button></div>
+        <div class="cmd"><code>brew install --cask menew</code><button class="copy-btn">Copy</button></div>
+        <p class="hint">Newer Homebrew versions ask you to trust third-party taps once.</p>
+      </div>
+
+      <div class="panel" data-panel="src">
+        <div class="cmd"><code>git clone https://github.com/Quost/menew</code><button class="copy-btn">Copy</button></div>
+        <div class="cmd"><code>cd menew</code><button class="copy-btn">Copy</button></div>
+        <div class="cmd"><code>./build.sh --install</code><button class="copy-btn">Copy</button></div>
+        <p class="hint">Needs Xcode 16 or the Swift 6 toolchain.</p>
+      </div>
+
+      <div class="ai">
+        <p>Using an AI assistant? <b>Copy a ready-made prompt</b> and paste it into ChatGPT, Claude or your terminal agent.</p>
+        <button class="copy-btn" data-ai>Copy prompt</button>
+      </div>
     </div>
     <div class="coffee" data-coffee>
       <p class="sub" style="margin:0 auto 14px;font-size:15px">Menew is made in spare time. If it saves you a few minutes a day:</p>
@@ -426,7 +487,7 @@
 <footer>
   <div class="wrap">
     <span>Menew · MIT License · Made by <a href="https://github.com/Quost">Quost</a></span>
-    <span><a href="https://github.com/Quost/menew/releases">Releases</a> · <a href="https://github.com/Quost/menew/issues">Report a bug</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md">Contribute</a></span>
+    <span><a href="https://github.com/Quost/menew/releases">Releases</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml">Report a bug</a> · <a href="https://github.com/Quost/menew/issues/new?template=feature_request.yml">Suggest an idea</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md">Contribute</a></span>
   </div>
 </footer>
 
@@ -455,6 +516,44 @@
     const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
     document.querySelector("[data-meta]").textContent = `Version ${v}${size} · Universal · Apple Silicon & Intel`;
   }).catch(() => {});
+
+  // Instalação: abas
+  document.querySelectorAll("[data-tab]").forEach(tab => tab.addEventListener("click", () => {
+    document.querySelectorAll("[data-tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
+    document.querySelectorAll("[data-panel]").forEach(p => p.classList.toggle("on", p.dataset.panel === tab.dataset.tab));
+  }));
+
+  const AI_PROMPT = `Install Menew on my Mac. It's a free, open source menu bar app (https://github.com/Quost/menew), signed and notarized by Apple, and it needs macOS 14 or later.
+
+1. If Homebrew is installed, run:
+   brew tap quost/menew https://github.com/Quost/menew
+   brew trust quost/menew
+   brew install --cask menew
+2. Otherwise, download the latest Menew.dmg from https://github.com/Quost/menew/releases/latest, open it and copy Menew.app into /Applications.
+3. Open Menew. It shows up in the menu bar; ⌘⇧V opens the clipboard history.
+
+Explain each command before running it.`;
+
+  async function copy(btn, text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Reserva para navegadores que bloqueiam a API moderna
+      const ta = Object.assign(document.createElement("textarea"), { value: text });
+      ta.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      if (!ok) return;
+    }
+    const label = btn.textContent;
+    btn.textContent = "Copied ✓";
+    btn.classList.add("done");
+    setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1600);
+  }
+  document.querySelectorAll(".cmd .copy-btn").forEach(b => b.addEventListener("click", () => copy(b, b.previousElementSibling.textContent)));
+  document.querySelector("[data-ai]").addEventListener("click", e => copy(e.currentTarget, AI_PROMPT));
 
   const io = new IntersectionObserver(entries => entries.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
