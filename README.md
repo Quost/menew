@@ -35,7 +35,7 @@
 
 | | |
 |---|---|
-| 📊 **System monitor** | CPU with live graph, memory pressure and swap, disk, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar: CPU, CPU graph, memory, network, disk, battery. |
+| 📊 **System monitor** | CPU with live graph, memory pressure and swap, disk, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery) with a live preview. |
 | 🔔 **Alerts** | Optional macOS notifications for a nearly full disk, low battery, critical memory pressure or CPU stuck above 90%. |
 | 📋 **Clipboard history** | Text, links, images and files with instant search, filters, pins and a rich preview. Press **⌘⇧V** anywhere. |
 | ⚡ **Quick actions** | Switches that show their live state: dark mode, keep awake (with a timer), hidden files and desktop icons. One-click actions: screenshot to clipboard, color picker, plain-text clipboard, lock screen, eject disks, empty trash. |
@@ -45,6 +45,7 @@
 | 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads and large files. You review everything, and your files go to the Trash. |
 | ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. |
 | 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. |
+| 🪟 **Liquid Glass** | Native macOS 26 design: glass tabs, controls and cards, with a translucent fallback on macOS 14 and 15. |
 | 🌍 **5 languages** | English, Português, Deutsch, Español and 中文. Follows your Mac, or pick one in Settings. |
 
 <p align="center">
