@@ -55,6 +55,7 @@ struct NotesView: View {
                         .padding(2)
                     }
                 }
+                .noLiquidGlass()
                 .scrollIndicators(.never)
             }
 
@@ -75,6 +76,7 @@ struct NotesView: View {
                         ForEach(notes) { n in row(n) }
                     }
                 }
+                .noLiquidGlass()
                 .scrollIndicators(.never)
             }
         }
@@ -189,6 +191,7 @@ private struct NoteEditor: View {
                         MarkdownView(text: store.text(of: id), onToggleTask: toggleTask, onTag: onTag)
                             .padding(4)
                     }
+                    .noLiquidGlass()
                     .scrollIndicators(.never)
                 } else {
                     ZStack(alignment: .topLeading) {

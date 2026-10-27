@@ -195,6 +195,7 @@ struct ClipList: View {
                     }
                     .padding(6)
                 }
+                .noLiquidGlass()
                 .onChange(of: state.selection) { _, new in
                     if list.indices.contains(new) { proxy.scrollTo(list[new].id) }
                 }
@@ -255,6 +256,7 @@ struct ClipPreview: View {
                     .frame(maxWidth: .infinity, alignment: .topLeading)
                     .padding(18)
             }
+            .noLiquidGlass()
             .frame(maxHeight: .infinity)
 
             Divider().opacity(0.5)

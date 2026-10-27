@@ -135,6 +135,7 @@ struct SystemView: View {
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
+        .noLiquidGlass()
         .scrollIndicators(.never)
         .onAppear {
             m.wantsProcesses = true
@@ -560,6 +561,7 @@ struct SettingsView: View {
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
+        .noLiquidGlass()
         .scrollIndicators(.never)
         .onAppear { axTrusted = AXIsProcessTrusted() }
     }

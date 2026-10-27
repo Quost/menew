@@ -114,6 +114,7 @@ struct SnippetsView: View {
                             }
                         }
                     }
+                    .noLiquidGlass()
                     .scrollIndicators(.never)
                 }
             }

@@ -214,25 +214,46 @@ enum RelDate {
 
 // MARK: Liquid Glass (macOS 26+), com material translúcido nas versões anteriores
 
-extension View {
-    @ViewBuilder
-    func glass<S: Shape>(in shape: S, tint: Color? = nil, interactive: Bool = false) -> some View {
-        if Theme.flatGlass {
-            // Capturas fora da tela não desenham vidro nem material: usa um preenchimento equivalente
-            background(shape.fill(tint ?? .clear)).background(shape.fill(Theme.cardFill))
+/// O Liquid Glass não respeita o recorte da rolagem (os cards passam por cima do cabeçalho).
+/// Dentro de ScrollView ele fica desligado e os cards usam um preenchimento comum.
+private struct LiquidGlassAllowedKey: EnvironmentKey { static let defaultValue = true }
+
+extension EnvironmentValues {
+    var liquidGlassAllowed: Bool {
+        get { self[LiquidGlassAllowedKey.self] }
+        set { self[LiquidGlassAllowedKey.self] = newValue }
+    }
+}
+
+private struct GlassModifier<S: Shape>: ViewModifier {
+    let shape: S
+    let tint: Color?
+    let interactive: Bool
+    @Environment(\.liquidGlassAllowed) private var allowed
+
+    func body(content: Content) -> some View {
+        if Theme.flatGlass || !allowed {
+            // Capturas e conteúdo rolável: preenchimento equivalente, sem vidro
+            content.background(shape.fill(tint ?? .clear)).background(shape.fill(Theme.cardFill))
                 .overlay(shape.stroke(Theme.cardStroke, lineWidth: 0.5))
-        } else if #available(macOS 26, *), let glassy = liquidGlass(in: shape, tint: tint, interactive: interactive) {
+        } else if #available(macOS 26, *), let glassy = content.liquidGlass(in: shape, tint: tint, interactive: interactive) {
             glassy
         } else {
-            background(shape.fill(.regularMaterial))
+            content.background(shape.fill(.regularMaterial))
                 .background(shape.fill(tint ?? .clear))
                 .overlay(shape.stroke(Theme.cardStroke, lineWidth: 0.5))
         }
     }
+}
+
+extension View {
+    func glass<S: Shape>(in shape: S, tint: Color? = nil, interactive: Bool = false) -> some View {
+        modifier(GlassModifier(shape: shape, tint: tint, interactive: interactive))
+    }
 
     /// Só existe ao compilar com o SDK do macOS 26 (Xcode 26+); em Xcodes antigos cai no material
     @available(macOS 26, *)
-    private func liquidGlass<S: Shape>(in shape: S, tint: Color?, interactive: Bool) -> AnyView? {
+    fileprivate func liquidGlass<S: Shape>(in shape: S, tint: Color?, interactive: Bool) -> AnyView? {
         #if compiler(>=6.2)
         AnyView(glassEffect(Glass.regular.tint(tint).interactive(interactive), in: shape))
         #else
@@ -243,16 +264,20 @@ extension View {
     func glass(cornerRadius: CGFloat = 14, tint: Color? = nil, interactive: Bool = false) -> some View {
         glass(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous), tint: tint, interactive: interactive)
     }
+
+    /// Para o conteúdo de uma ScrollView
+    func noLiquidGlass() -> some View { environment(\.liquidGlassAllowed, false) }
 }
 
 /// Agrupa vidros próximos para eles se fundirem como no sistema
 struct GlassGroup<Content: View>: View {
     var spacing: CGFloat = 8
     @ViewBuilder var content: Content
+    @Environment(\.liquidGlassAllowed) private var allowed
 
     var body: some View {
         #if compiler(>=6.2)
-        if #available(macOS 26, *) {
+        if #available(macOS 26, *), allowed, !Theme.flatGlass {
             GlassEffectContainer(spacing: spacing) { content }
         } else {
             content

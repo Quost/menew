@@ -118,6 +118,7 @@ struct ActionsView: View {
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
+        .noLiquidGlass()
         .scrollIndicators(.never)
         .onAppear { tb.refresh() }
     }

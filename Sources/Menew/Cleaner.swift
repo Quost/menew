@@ -289,6 +289,7 @@ struct CleanerView: View {
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
+        .noLiquidGlass()
         .scrollIndicators(.never)
     }
 
@@ -316,6 +317,7 @@ struct CleanerView: View {
                     }
                     .padding(.horizontal, 14).padding(.bottom, 10)
                 }
+                .noLiquidGlass()
                 .scrollIndicators(.never)
 
                 HStack(spacing: 10) {
