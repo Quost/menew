@@ -1,0 +1,570 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menew — 让你的 Mac 菜单栏更强大</title>
+<meta name="description" content="Menew 是一款免费开源的 macOS 菜单栏应用：系统监视器、可搜索的剪贴板历史（⌘⇧V）、快捷操作、键盘清洁模式等。">
+<meta property="og:title" content="Menew — 让你的 Mac 菜单栏更强大">
+<meta property="og:description" content="系统监视器、剪贴板历史、快捷操作和清洁模式。免费且开源。">
+<meta property="og:image" content="https://menew.web.app/assets/zh/panel0-dark.png">
+<meta property="og:url" content="https://menew.web.app/zh">
+<link rel="canonical" href="https://menew.web.app/zh">
+<link rel="alternate" hreflang="en" href="https://menew.web.app/">
+<link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt">
+<link rel="alternate" hreflang="de" href="https://menew.web.app/de">
+<link rel="alternate" hreflang="es" href="https://menew.web.app/es">
+<link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh">
+<link rel="alternate" hreflang="x-default" href="https://menew.web.app/">
+
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="/assets/icon.png">
+<style>
+  :root {
+    --bg: #f7f7fa;
+    --bg-elev: #ffffff;
+    --text: #15151c;
+    --muted: #5d5d6e;
+    --faint: #8b8b9c;
+    --line: rgba(20, 20, 40, .09);
+    --card: rgba(255, 255, 255, .75);
+    --indigo: #5c6bff;
+    --violet: #9e40f2;
+    --brand: linear-gradient(135deg, var(--indigo), var(--violet));
+    --glow: rgba(124, 92, 255, .22);
+    --shadow: 0 30px 80px -20px rgba(40, 30, 90, .28), 0 10px 30px -10px rgba(40, 30, 90, .18);
+    --radius: 18px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0d0d12;
+      --bg-elev: #16161d;
+      --text: #f2f2f7;
+      --muted: #a4a4b5;
+      --faint: #74748a;
+      --line: rgba(255, 255, 255, .09);
+      --card: rgba(255, 255, 255, .04);
+      --glow: rgba(124, 92, 255, .32);
+      --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0d0d12; --bg-elev: #16161d; --text: #f2f2f7; --muted: #a4a4b5; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .04); --glow: rgba(124, 92, 255, .32);
+    --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .logo img { width: 30px; height: 30px; }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+  .nav-links a.text:hover { color: var(--text); background: var(--card); }
+  .lang {
+    appearance: none; -webkit-appearance: none; cursor: pointer; font: 500 13.5px -apple-system, system-ui, sans-serif;
+    color: var(--muted); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b8b9c' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20'/%3E%3C/svg%3E") no-repeat 9px center / 14px;
+    border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px 7px 28px;
+  }
+  .lang:hover { color: var(--text); }
+
+  /* Botões */
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px;
+    font-weight: 600; font-size: 15px; letter-spacing: -.01em;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line);
+    background: var(--bg-elev); color: var(--text);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
+    cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .btn.primary {
+    background: var(--brand); color: #fff; border: 0;
+    box-shadow: 0 10px 30px -8px rgba(124, 80, 255, .6);
+  }
+  .btn.primary:hover { box-shadow: 0 14px 36px -8px rgba(124, 80, 255, .75); }
+  .btn.small { padding: 7px 12px; font-size: 13.5px; border-radius: 9px; }
+  .btn .count {
+    font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted);
+    border-left: 1px solid var(--line); padding-left: 9px; margin-left: 1px;
+  }
+
+  /* Hero */
+  .hero { position: relative; padding: 84px 0 40px; text-align: center; }
+  .hero::before {
+    content: ""; position: absolute; inset: -200px 0 auto; height: 760px; z-index: -1;
+    background:
+      radial-gradient(600px 340px at 30% 30%, var(--glow), transparent 70%),
+      radial-gradient(600px 340px at 72% 22%, rgba(92, 107, 255, .18), transparent 70%);
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;
+    padding: 5px 12px 5px 6px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted); margin-bottom: 26px;
+  }
+  .badge b { background: var(--brand); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
+  h1 {
+    font-size: clamp(40px, 7vw, 76px); line-height: 1.02; letter-spacing: -.045em; font-weight: 800;
+    max-width: 880px; margin: 0 auto;
+  }
+  h1 .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 640px; margin: 22px auto 34px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .meta { margin-top: 16px; font-size: 13px; color: var(--faint); }
+
+  /* Barra de menus fake */
+  .menubar {
+    margin: 64px auto 0; width: min(980px, 100%);
+    height: 34px; border-radius: 12px 12px 0 0;
+    display: flex; align-items: center; justify-content: flex-end; gap: 16px; padding: 0 16px;
+    background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
+    border: 1px solid var(--line); border-bottom: 0;
+    font-size: 13px; color: var(--muted);
+  }
+  .menubar .status { height: 24px; border-radius: 6px; padding: 0 6px; background: rgba(124, 92, 255, .14); display: flex; align-items: center; }
+  .menubar .status img { height: 22px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .menubar .status img { filter: invert(1); } }
+  :root[data-theme="dark"] .menubar .status img { filter: invert(1); }
+  .menubar .left { margin-right: auto; display: flex; gap: 18px; font-weight: 500; }
+  .menubar .left b { color: var(--text); }
+
+  .stage {
+    position: relative; width: min(980px, 100%); margin: 0 auto;
+    border: 1px solid var(--line); border-radius: 0 0 22px 22px;
+    background:
+      radial-gradient(800px 400px at 80% 0%, rgba(158, 64, 242, .16), transparent 60%),
+      radial-gradient(700px 400px at 0% 100%, rgba(92, 107, 255, .16), transparent 60%),
+      var(--bg-elev);
+    padding: 30px 30px 40px; overflow: hidden;
+    display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start;
+  }
+  .stage .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .stage .popover { justify-self: end; border-radius: 16px; }
+
+  /* Seções */
+  section { padding: 96px 0 0; }
+  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h2 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; letter-spacing: -.035em; font-weight: 750; margin: 10px 0 14px; }
+  .sub { color: var(--muted); font-size: 18px; max-width: 620px; }
+  .center { text-align: center; }
+  .center .sub { margin: 0 auto; }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+  .feature {
+    padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card);
+    transition: transform .2s ease, border-color .2s ease;
+  }
+  .feature:hover { transform: translateY(-3px); border-color: rgba(124, 92, 255, .35); }
+  .icon {
+    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
+    color: #fff; margin-bottom: 16px; box-shadow: 0 8px 20px -8px currentColor;
+  }
+  .icon svg { width: 21px; height: 21px; color: #fff; }
+  .feature h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 6px; }
+  .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+
+  .split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 10px; }
+  .split.rev { grid-template-columns: 1.25fr 1fr; }
+  .split.rev .copy { order: 2; }
+  .split .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
+  .list li { display: flex; gap: 12px; color: var(--muted); font-size: 15.5px; }
+  .list li::before {
+    content: ""; flex: none; width: 20px; height: 20px; margin-top: 2px; border-radius: 6px;
+    background: var(--brand) center / 12px no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
+  }
+  .list b { color: var(--text); font-weight: 600; }
+
+  .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  kbd {
+    font: 600 13px/1 -apple-system, system-ui, sans-serif; padding: 7px 10px; border-radius: 8px;
+    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
+  }
+  .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
+
+  .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .privacy div { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .privacy h3 { font-size: 16px; margin-bottom: 4px; }
+  .privacy p { color: var(--muted); font-size: 14.5px; }
+
+  .final {
+    margin: 110px auto 0; padding: 64px 28px; border-radius: 28px; text-align: center; position: relative; overflow: hidden;
+    background: radial-gradient(500px 260px at 50% 0%, var(--glow), transparent 70%), var(--card);
+    border: 1px solid var(--line);
+  }
+  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .45)); }
+  .install { margin: 34px auto 0; max-width: 600px; text-align: left; }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(127,127,127,.12); }
+  .tabs button {
+    flex: 1; border: 0; background: transparent; color: var(--muted); cursor: pointer;
+    font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px;
+    transition: background .15s ease, color .15s ease;
+  }
+  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .panel { display: none; margin-top: 14px; }
+  .panel.on { display: block; }
+  .steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
+  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--muted); font-size: 15px; counter-increment: s; }
+  .steps li::before {
+    content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+    font: 700 12px/1 -apple-system, system-ui, sans-serif; color: #fff; background: var(--brand); transform: translateY(-1px);
+  }
+  .steps b { color: var(--text); }
+  .cmd {
+    display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px;
+    border: 1px solid var(--line); background: var(--bg-elev);
+  }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); scrollbar-width: none; }
+  .cmd code::before { content: "$ "; color: var(--faint); }
+  .copy-btn {
+    flex: none; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
+    font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease;
+  }
+  .copy-btn:hover { color: var(--text); background: rgba(127,127,127,.12); }
+  .copy-btn.done { color: #22c55e; border-color: rgba(34,197,94,.5); }
+  .hint { margin-top: 10px; font-size: 13px; color: var(--faint); }
+  .ai {
+    margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px;
+    border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07);
+  }
+  .ai p { flex: 1; font-size: 14px; color: var(--muted); }
+  .ai b { color: var(--text); }
+  @media (max-width: 600px) { .ai { flex-direction: column; align-items: stretch; text-align: left; } }
+  .coffee { margin-top: 30px; display: none; }
+  .coffee.on { display: block; }
+  .btn.bmc { background: #ffdd00; color: #111; border: 0; }
+
+  footer { margin-top: 90px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a:hover { color: var(--text); }
+
+  /* Imagens claro/escuro */
+  .dark-only { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .dark-only { display: block; }
+    :root:not([data-theme="light"]) .light-only { display: none; }
+  }
+  :root[data-theme="dark"] .dark-only { display: block; }
+  :root[data-theme="dark"] .light-only { display: none; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+  @media (max-width: 900px) {
+    .stage { grid-template-columns: 1fr; padding: 18px; }
+    .stage .popover { justify-self: center; width: min(340px, 100%); }
+    .grid, .privacy { grid-template-columns: 1fr 1fr; }
+    .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
+    .split.rev .copy { order: 0; }
+    .menubar .left span:not(:first-child) { display: none; }
+  }
+  @media (max-width: 600px) {
+    .grid, .privacy { grid-template-columns: 1fr; }
+    .nav-links a.text { display: none; }
+    .hero { padding-top: 56px; }
+    h1 br { display: none; }
+    .menubar .left { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="#"><img src="/assets/icon.png" alt="">Menew</a>
+    <div class="nav-links">
+      <a class="text" href="#features">功能</a>
+      <a class="text" href="#clipboard">剪贴板</a>
+      <a class="text" href="#privacy">隐私</a>
+      <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}location.href=this.value==='en'?'/':'/'+this.value"><option value="en">English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es">Español</option><option value="zh" selected>中文</option></select>
+      <a class="btn small star-btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <a class="badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
+      <b data-version>新</b> 免费开源 · macOS 14+
+    </a>
+    <h1>你的 Mac 菜单栏，<br><span class="grad">全面升级。</span></h1>
+    <p class="lead">系统监视器、即时搜索的剪贴板历史、一键快捷操作和清洁模式——集于一个小巧的原生应用。无需订阅，无需账户，没有遥测。</p>
+    <div class="cta">
+      <a class="btn primary" data-download href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
+        下载 Mac 版
+      </a>
+      <a class="btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        在 GitHub 上 Star<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+    <p class="meta"><span data-meta>通用 · Apple 芯片和 Intel</span> · English, Português, Deutsch, Español, 中文</p>
+
+    <div class="menubar reveal" aria-hidden="true">
+      <div class="left"><span>&#63743;</span><b>访达</b><span>文件</span><span>编辑</span><span>显示</span><span>前往</span><span>窗口</span></div>
+      <div class="status"><img src="/assets/statusbar-all.png" alt=""></div>
+      <span>周一 17:42</span>
+    </div>
+    <div class="stage reveal">
+      <div>
+        <img class="shot light-only" src="/assets/zh/panel0-light.png" alt="带搜索、筛选和预览的剪贴板历史面板">
+        <img class="shot dark-only" src="/assets/zh/panel0-dark.png" alt="带搜索、筛选和预览的剪贴板历史面板">
+      </div>
+      <div class="popover">
+        <img class="shot light-only" src="/assets/zh/popover-system-light.png" alt="显示 CPU、内存、磁盘和电池圆环的系统监视器">
+        <img class="shot dark-only" src="/assets/zh/popover-system-dark.png" alt="显示 CPU、内存、磁盘和电池圆环的系统监视器">
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="features">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">一站式搞定</div>
+      <h2>日常的小事，<br>一键即达。</h2>
+      <p class="sub">Menew 用一个基于 Swift 的快速原生应用，取代多个付费菜单栏工具。</p>
+    </div>
+    <div class="grid">
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff);color:#5c6bff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h3>系统监视器</h3>
+        <p>实时 CPU 图表、内存、磁盘、电池、运行时间、温度，以及占用 CPU 最多的进程。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff);color:#9e40f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
+        <h3>剪贴板历史</h3>
+        <p>文本、链接、图片和文件。即时搜索、筛选、置顶和丰富预览。用 ⌘⇧V 打开。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#f59e0b"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
+        <h3>快捷操作</h3>
+        <p>保持唤醒、隐藏文件、隐藏桌面图标、推出磁盘、深色模式、取色器、截图到剪贴板。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#14b8a6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
+        <h3>释放空间</h3>
+        <p>几秒内清理缓存、日志和开发残留。深度扫描会找出旧下载和大文件，由你确认。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#3b82f6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
+        <h3>网络</h3>
+        <p>实时下载和上传速度、本地和公网 IP，以及由 macOS 自带工具完成的真实测速。</p>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6);color:#ec4899"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
+        <h3>笔记、文本片段和设备</h3>
+        <p>支持 #标签 和 Markdown 清单的笔记、用触控 ID 打开的受保护笔记，以及 ⌘⇧V 中可复用的文本片段。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="clipboard">
+  <div class="wrap split">
+    <div class="copy reveal">
+      <div class="eyebrow">剪贴板历史</div>
+      <h2>再也不会丢失复制过的内容。</h2>
+      <p class="sub">在任何地方按下 <b>⌘⇧V</b>，输入几个字母后回车，内容会直接粘贴到你正在使用的应用中。</p>
+      <ul class="list">
+        <li><span><b>智能预览</b>——十六进制颜色色块、链接、图片和文件图标。</span></li>
+        <li><span><b>筛选与置顶</b>——在文本、链接、图片和文件之间切换；常用内容保持在最上方。</span></li>
+        <li><span><b>密码安全</b>——忽略 1Password、钥匙串等标记为密码的内容。</span></li>
+      </ul>
+      <div class="keys">
+        <span><kbd>⌘</kbd><kbd>⇧</kbd><kbd>V</kbd> 打开</span>
+        <span><kbd>⌘</kbd><kbd>1–9</kbd> 快速粘贴</span>
+        <span><kbd>⌥</kbd><kbd>↩</kbd> 纯文本</span>
+      </div>
+    </div>
+    <div class="reveal">
+      <img class="shot light-only" src="/assets/zh/panel2-light.png" alt="剪贴板中颜色的预览">
+      <img class="shot dark-only" src="/assets/zh/panel2-dark.png" alt="剪贴板中颜色的预览">
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap split rev">
+    <div class="copy reveal">
+      <div class="eyebrow">快捷操作</div>
+      <h2>那些你每次都要去搜索的设置。</h2>
+      <p class="sub">显示隐藏文件、隐藏桌面、让 Mac 保持唤醒一小时，或从屏幕任意位置取色——无需打开终端。</p>
+      <ul class="list">
+        <li><span><b>清洁键盘</b>——所有按键锁定 2 分钟，点击即可解锁。</span></li>
+        <li><span><b>清洁屏幕</b>——所有显示器全黑，双击退出。</span></li>
+        <li><span><b>截图到剪贴板</b>——直接进入你的历史记录。</span></li>
+      </ul>
+    </div>
+    <div class="reveal" style="display:flex;gap:18px;justify-content:center">
+      <img class="shot light-only" style="width:min(340px,48%)" src="/assets/zh/popover-actions-light.png" alt="快捷操作网格">
+      <img class="shot dark-only" style="width:min(340px,48%)" src="/assets/zh/popover-actions-dark.png" alt="快捷操作网格">
+      <img class="shot light-only" style="width:min(340px,48%)" src="/assets/zh/popover-notes-light.png" alt="快速笔记">
+      <img class="shot dark-only" style="width:min(340px,48%)" src="/assets/zh/popover-notes-dark.png" alt="快速笔记">
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">隐私</div>
+      <h2>你的数据永远不会离开你的 Mac。</h2>
+      <p class="sub">Menew 是开源的，所以你无需只听我们的一面之词。</p>
+    </div>
+    <div class="privacy">
+      <div class="reveal"><h3>没有遥测</h3><p>没有分析、没有追踪、没有账户。永远如此。</p></div>
+      <div class="reveal"><h3>本地存储</h3><p>历史记录和笔记保存在 ~/Library/Application Support/Menew。</p></div>
+      <div class="reveal"><h3>MIT 许可</h3><p>阅读、Fork、改进。欢迎提交 Pull Request。</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="final reveal">
+    <img class="appicon" src="/assets/icon.png" alt="">
+    <h2>让菜单栏为你工作。</h2>
+    <p class="sub" style="margin:0 auto">永久免费，十秒完成安装。</p>
+    <div class="cta" style="margin-top:28px">
+      <a class="btn primary" data-download href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">下载 Menew<span data-size></span></a>
+      <a class="btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">查看源代码</a>
+    </div>
+    <div class="install" id="install">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="dmg">下载</button>
+        <button role="tab" aria-selected="false" data-tab="brew">Homebrew</button>
+        <button role="tab" aria-selected="false" data-tab="src">源代码</button>
+      </div>
+
+      <div class="panel on" data-panel="dmg">
+        <ol class="steps">
+          <li><span>点击上方按钮下载 <b>Menew.dmg</b>。</span></li>
+          <li><span>打开它，把 <b>Menew</b> 拖到 <b>应用程序</b> 文件夹。</span></li>
+          <li><span>打开 Menew。它位于<b>菜单栏</b>；按 <b>⌘⇧V</b> 打开剪贴板。</span></li>
+        </ol>
+        <p class="hint">macOS 14 或更高版本 · Apple 芯片和 Intel · 经 Apple 签名和公证</p>
+      </div>
+
+      <div class="panel" data-panel="brew">
+        <div class="cmd"><code>brew tap quost/menew https://github.com/Quost/menew</code><button class="copy-btn">复制</button></div>
+        <div class="cmd"><code>brew trust quost/menew</code><button class="copy-btn">复制</button></div>
+        <div class="cmd"><code>brew install --cask menew</code><button class="copy-btn">复制</button></div>
+        <p class="hint">较新的 Homebrew 版本会要求你信任一次第三方 tap。</p>
+      </div>
+
+      <div class="panel" data-panel="src">
+        <div class="cmd"><code>git clone https://github.com/Quost/menew</code><button class="copy-btn">复制</button></div>
+        <div class="cmd"><code>cd menew</code><button class="copy-btn">复制</button></div>
+        <div class="cmd"><code>./build.sh --install</code><button class="copy-btn">复制</button></div>
+        <p class="hint">需要 Xcode 16 或 Swift 6。</p>
+      </div>
+
+      <div class="ai">
+        <p>在用 AI 助手？<b>复制一段现成的提示词</b>，粘贴到 ChatGPT、Claude 或你的终端智能体中。</p>
+        <button class="copy-btn" data-ai>复制提示词</button>
+      </div>
+    </div>
+    <div class="coffee" data-coffee>
+      <p class="sub" style="margin:0 auto 14px;font-size:15px">Menew 是利用业余时间开发的。如果它每天为你节省几分钟：</p>
+      <a class="btn bmc" data-coffee-link target="_blank" rel="noopener">☕ 请我喝杯咖啡</a>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Menew · MIT License · 作者 <a href="https://github.com/Quost">Quost</a></span>
+    <span><a href="https://github.com/Quost/menew/releases">版本</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml">报告问题</a> · <a href="https://github.com/Quost/menew/issues/new?template=feature_request.yml">提出建议</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md">参与贡献</a></span>
+  </div>
+</footer>
+
+<script>
+  const T = {"copied": "已复制 ✓", "version": "版本", "ai_prompt": "请在我的 Mac 上安装 Menew。它是一款免费开源的菜单栏应用（https://github.com/Quost/menew），经过 Apple 签名和公证，需要 macOS 14 或更高版本。\n\n1. 如果已安装 Homebrew，请运行：\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. 否则，从 https://github.com/Quost/menew/releases/latest 下载最新的 Menew.dmg，打开后把 Menew.app 复制到 /Applications。\n3. 打开 Menew。它会出现在菜单栏中；⌘⇧V 打开剪贴板历史。\n\n在运行每条命令之前先解释它的作用。", "platforms": "通用 · Apple 芯片和 Intel"};
+  // Preencha com seu usuário do Buy Me a Coffee para mostrar o botão
+  const BUY_ME_A_COFFEE = "quost";
+  const REPO = "Quost/menew";
+
+  if (BUY_ME_A_COFFEE) {
+    document.querySelector("[data-coffee]").classList.add("on");
+    document.querySelector("[data-coffee-link]").href = "https://buymeacoffee.com/" + BUY_ME_A_COFFEE;
+  }
+
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+
+  fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
+    if (!repo) return;
+    document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`).then(r => r.ok ? r.json() : null).then(rel => {
+    if (!rel) return;
+    const v = rel.tag_name.replace(/^v/, "");
+    document.querySelector("[data-version]").textContent = "v" + v;
+    const dmg = (rel.assets || []).find(a => a.name.endsWith(".dmg"));
+    const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
+    document.querySelector("[data-meta]").textContent = `${T.version} ${v}${size} · ${T.platforms}`;
+  }).catch(() => {});
+
+  // Instalação: abas
+  document.querySelectorAll("[data-tab]").forEach(tab => tab.addEventListener("click", () => {
+    document.querySelectorAll("[data-tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
+    document.querySelectorAll("[data-panel]").forEach(p => p.classList.toggle("on", p.dataset.panel === tab.dataset.tab));
+  }));
+
+  const AI_PROMPT = T.ai_prompt;
+
+  async function copy(btn, text) {
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Reserva para navegadores que bloqueiam a API moderna
+      const ta = Object.assign(document.createElement("textarea"), { value: text });
+      ta.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      if (!ok) return;
+    }
+    const label = btn.textContent;
+    btn.textContent = T.copied;
+    btn.classList.add("done");
+    setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1600);
+  }
+  document.querySelectorAll(".cmd .copy-btn").forEach(b => b.addEventListener("click", () => copy(b, b.previousElementSibling.textContent)));
+  document.querySelector("[data-ai]").addEventListener("click", e => copy(e.currentTarget, AI_PROMPT));
+
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

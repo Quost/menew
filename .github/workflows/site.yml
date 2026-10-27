@@ -4,7 +4,7 @@ name: Site
 on:
   push:
     branches: [main]
-    paths: ["docs/**", "firebase.json", ".firebaserc", ".github/workflows/site.yml"]
+    paths: ["docs/**", "site/**", "scripts/build-site.py", "firebase.json", ".firebaserc", ".github/workflows/site.yml"]
   workflow_dispatch:
 
 permissions:
@@ -21,6 +21,11 @@ jobs:
     if: ${{ vars.FIREBASE_READY == 'true' }}
     steps:
       - uses: actions/checkout@v4
+      # As páginas de docs/ são geradas a partir de site/; não publica se estiverem desatualizadas
+      - name: Conferir páginas geradas
+        run: |
+          python3 scripts/build-site.py
+          git diff --exit-code -- docs || { echo "::error::Rode python3 scripts/build-site.py e faça commit"; exit 1; }
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}

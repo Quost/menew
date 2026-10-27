@@ -36,6 +36,16 @@ You can also open `Package.swift` in Xcode and run the `Menew` scheme.
 | `HotKey.swift` | Global shortcuts (Carbon) |
 | `Snapshot.swift` | Renders screenshots of every screen |
 
+## Website
+
+The site (https://menew.web.app) is generated in 5 languages from `site/template.html` and `site/i18n/*.json`:
+
+```bash
+python3 scripts/build-site.py
+```
+
+Don't edit `docs/**/index.html` by hand; CI checks they match the template. Visitors are sent to their browser's language automatically, and the language menu remembers their choice.
+
 ## Screenshots
 
 Changed something visual? Regenerate the screenshots used by the README and website:

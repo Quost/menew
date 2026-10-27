@@ -10,8 +10,25 @@
 <meta property="og:image" content="https://menew.web.app/assets/panel0-dark.png">
 <meta property="og:url" content="https://menew.web.app/">
 <link rel="canonical" href="https://menew.web.app/">
+<link rel="alternate" hreflang="en" href="https://menew.web.app/">
+<link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt">
+<link rel="alternate" hreflang="de" href="https://menew.web.app/de">
+<link rel="alternate" hreflang="es" href="https://menew.web.app/es">
+<link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh">
+<link rel="alternate" hreflang="x-default" href="https://menew.web.app/">
+<script>
+  (function () {
+    try {
+      var supported = ["pt", "de", "es", "zh"];
+      var pick = localStorage.getItem("menew-lang") || (navigator.languages || [navigator.language])
+        .map(function (l) { return l.slice(0, 2).toLowerCase(); })
+        .filter(function (l) { return l === "en" || supported.indexOf(l) >= 0; })[0];
+      if (pick && supported.indexOf(pick) >= 0) location.replace("/" + pick + location.hash);
+    } catch (e) {}
+  })();
+</script>
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="icon" type="image/png" href="/assets/icon.png">
 <style>
   :root {
     --bg: #f7f7fa;
@@ -74,6 +91,12 @@
   .nav-links { display: flex; gap: 6px; align-items: center; }
   .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
   .nav-links a.text:hover { color: var(--text); background: var(--card); }
+  .lang {
+    appearance: none; -webkit-appearance: none; cursor: pointer; font: 500 13.5px -apple-system, system-ui, sans-serif;
+    color: var(--muted); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b8b9c' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20'/%3E%3C/svg%3E") no-repeat 9px center / 14px;
+    border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px 7px 28px;
+  }
+  .lang:hover { color: var(--text); }
 
   /* Botões */
   .btn {
@@ -281,11 +304,12 @@
 
 <nav>
   <div class="wrap">
-    <a class="logo" href="#"><img src="assets/icon.png" alt="">Menew</a>
+    <a class="logo" href="#"><img src="/assets/icon.png" alt="">Menew</a>
     <div class="nav-links">
       <a class="text" href="#features">Features</a>
       <a class="text" href="#clipboard">Clipboard</a>
       <a class="text" href="#privacy">Privacy</a>
+      <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}location.href=this.value==='en'?'/':'/'+this.value"><option value="en" selected>English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es">Español</option><option value="zh">中文</option></select>
       <a class="btn small star-btn" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         Star<span class="count" data-stars hidden></span>
@@ -299,7 +323,7 @@
     <a class="badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
       <b data-version>New</b> Free &amp; open source · macOS 14+
     </a>
-    <h1>Your Mac's menu bar,<br><span class="grad">supercharged.</span></h1>
+    <h1>Your Mac's menu bar, <br><span class="grad">supercharged.</span></h1>
     <p class="lead">System monitor, clipboard history with instant search, one-click quick actions and a cleaning mode — in one tiny, native app. No subscription. No account. No telemetry.</p>
     <div class="cta">
       <a class="btn primary" data-download href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
@@ -315,17 +339,17 @@
 
     <div class="menubar reveal" aria-hidden="true">
       <div class="left"><span>&#63743;</span><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span></div>
-      <div class="status"><img src="assets/statusbar-all.png" alt=""></div>
+      <div class="status"><img src="/assets/statusbar-all.png" alt=""></div>
       <span>Mon 17:42</span>
     </div>
     <div class="stage reveal">
       <div>
-        <img class="shot light-only" src="assets/panel0-light.png" alt="Clipboard history panel with search, filters and preview">
-        <img class="shot dark-only" src="assets/panel0-dark.png" alt="Clipboard history panel with search, filters and preview">
+        <img class="shot light-only" src="/assets/panel0-light.png" alt="Clipboard history panel with search, filters and preview">
+        <img class="shot dark-only" src="/assets/panel0-dark.png" alt="Clipboard history panel with search, filters and preview">
       </div>
       <div class="popover">
-        <img class="shot light-only" src="assets/popover-system-light.png" alt="System monitor with CPU, memory, disk and battery rings">
-        <img class="shot dark-only" src="assets/popover-system-dark.png" alt="System monitor with CPU, memory, disk and battery rings">
+        <img class="shot light-only" src="/assets/popover-system-light.png" alt="System monitor with CPU, memory, disk and battery rings">
+        <img class="shot dark-only" src="/assets/popover-system-dark.png" alt="System monitor with CPU, memory, disk and battery rings">
       </div>
     </div>
   </div>
@@ -391,8 +415,8 @@
       </div>
     </div>
     <div class="reveal">
-      <img class="shot light-only" src="assets/panel2-light.png" alt="Clipboard preview of a color">
-      <img class="shot dark-only" src="assets/panel2-dark.png" alt="Clipboard preview of a color">
+      <img class="shot light-only" src="/assets/panel2-light.png" alt="Clipboard preview of a color">
+      <img class="shot dark-only" src="/assets/panel2-dark.png" alt="Clipboard preview of a color">
     </div>
   </div>
 </section>
@@ -410,10 +434,10 @@
       </ul>
     </div>
     <div class="reveal" style="display:flex;gap:18px;justify-content:center">
-      <img class="shot light-only" style="width:min(340px,48%)" src="assets/popover-actions-light.png" alt="Quick actions grid">
-      <img class="shot dark-only" style="width:min(340px,48%)" src="assets/popover-actions-dark.png" alt="Quick actions grid">
-      <img class="shot light-only" style="width:min(340px,48%)" src="assets/popover-notes-light.png" alt="Quick notes">
-      <img class="shot dark-only" style="width:min(340px,48%)" src="assets/popover-notes-dark.png" alt="Quick notes">
+      <img class="shot light-only" style="width:min(340px,48%)" src="/assets/popover-actions-light.png" alt="Quick actions grid">
+      <img class="shot dark-only" style="width:min(340px,48%)" src="/assets/popover-actions-dark.png" alt="Quick actions grid">
+      <img class="shot light-only" style="width:min(340px,48%)" src="/assets/popover-notes-light.png" alt="Quick notes">
+      <img class="shot dark-only" style="width:min(340px,48%)" src="/assets/popover-notes-dark.png" alt="Quick notes">
     </div>
   </div>
 </section>
@@ -435,7 +459,7 @@
 
 <div class="wrap">
   <div class="final reveal">
-    <img class="appicon" src="assets/icon.png" alt="">
+    <img class="appicon" src="/assets/icon.png" alt="">
     <h2>Make your menu bar work for you.</h2>
     <p class="sub" style="margin:0 auto">Free forever. Takes ten seconds to install.</p>
     <div class="cta" style="margin-top:28px">
@@ -492,6 +516,7 @@
 </footer>
 
 <script>
+  const T = {"copied": "Copied ✓", "version": "Version", "ai_prompt": "Install Menew on my Mac. It's a free, open source menu bar app (https://github.com/Quost/menew), signed and notarized by Apple, and it needs macOS 14 or later.\n\n1. If Homebrew is installed, run:\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. Otherwise, download the latest Menew.dmg from https://github.com/Quost/menew/releases/latest, open it and copy Menew.app into /Applications.\n3. Open Menew. It shows up in the menu bar; ⌘⇧V opens the clipboard history.\n\nExplain each command before running it.", "platforms": "Universal · Apple Silicon & Intel"};
   // Preencha com seu usuário do Buy Me a Coffee para mostrar o botão
   const BUY_ME_A_COFFEE = "quost";
   const REPO = "Quost/menew";
@@ -514,7 +539,7 @@
     document.querySelector("[data-version]").textContent = "v" + v;
     const dmg = (rel.assets || []).find(a => a.name.endsWith(".dmg"));
     const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
-    document.querySelector("[data-meta]").textContent = `Version ${v}${size} · Universal · Apple Silicon & Intel`;
+    document.querySelector("[data-meta]").textContent = `${T.version} ${v}${size} · ${T.platforms}`;
   }).catch(() => {});
 
   // Instalação: abas
@@ -523,16 +548,7 @@
     document.querySelectorAll("[data-panel]").forEach(p => p.classList.toggle("on", p.dataset.panel === tab.dataset.tab));
   }));
 
-  const AI_PROMPT = `Install Menew on my Mac. It's a free, open source menu bar app (https://github.com/Quost/menew), signed and notarized by Apple, and it needs macOS 14 or later.
-
-1. If Homebrew is installed, run:
-   brew tap quost/menew https://github.com/Quost/menew
-   brew trust quost/menew
-   brew install --cask menew
-2. Otherwise, download the latest Menew.dmg from https://github.com/Quost/menew/releases/latest, open it and copy Menew.app into /Applications.
-3. Open Menew. It shows up in the menu bar; ⌘⇧V opens the clipboard history.
-
-Explain each command before running it.`;
+  const AI_PROMPT = T.ai_prompt;
 
   async function copy(btn, text) {
     try {
@@ -548,7 +564,7 @@ Explain each command before running it.`;
       if (!ok) return;
     }
     const label = btn.textContent;
-    btn.textContent = "Copied ✓";
+    btn.textContent = T.copied;
     btn.classList.add("done");
     setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1600);
   }
