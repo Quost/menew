@@ -40,8 +40,12 @@ struct MainView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            header
-            if !isSubpage { tabBar }
+            // O vidro dos cards não respeita o recorte da rolagem: o cabeçalho fica por cima e o conteúdo é recortado
+            VStack(spacing: 0) {
+                header
+                if !isSubpage { tabBar }
+            }
+            .zIndex(1)
 
             Group {
                 switch nav.tab {
@@ -54,6 +58,7 @@ struct MainView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .clipped()
         }
         .frame(width: 400, height: 600)
         .background(Theme.popoverFill)
