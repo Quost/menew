@@ -22,7 +22,7 @@ LANGS = {  # código: (atributo lang, nome nativo)
 
 # Contador de visitas do site (GoatCounter: sem cookies, sem dados pessoais). Vazio = desligado.
 # O app em si continua sem nenhuma telemetria.
-GOATCOUNTER = ""
+GOATCOUNTER = "menew"
 ANALYTICS = (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
              if GOATCOUNTER else "")
 

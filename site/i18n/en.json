@@ -54,7 +54,7 @@
   "priv_h2": "Your data never leaves your Mac.",
   "priv_sub": "Menew is open source, so you don't have to take our word for it.",
   "priv1_t": "No telemetry",
-  "priv1_d": "No analytics, no tracking, no account. Ever.",
+  "priv1_d": "The app sends nothing about you: no analytics, no tracking, no account. Ever.",
   "priv2_t": "Local storage",
   "priv2_d": "History and notes live in ~/Library/Application Support/Menew.",
   "priv3_t": "MIT licensed",
@@ -83,5 +83,6 @@
   "footer_contribute": "Contribute",
   "copied": "Copied ✓",
   "version": "Version",
-  "ai_prompt": "Install Menew on my Mac. It's a free, open source menu bar app (https://github.com/Quost/menew), signed and notarized by Apple, and it needs macOS 14 or later.\n\n1. If Homebrew is installed, run:\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. Otherwise, download the latest Menew.dmg from https://github.com/Quost/menew/releases/latest, open it and copy Menew.app into /Applications.\n3. Open Menew. It shows up in the menu bar; ⌘⇧V opens the clipboard history.\n\nExplain each command before running it."
+  "ai_prompt": "Install Menew on my Mac. It's a free, open source menu bar app (https://github.com/Quost/menew), signed and notarized by Apple, and it needs macOS 14 or later.\n\n1. If Homebrew is installed, run:\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. Otherwise, download the latest Menew.dmg from https://github.com/Quost/menew/releases/latest, open it and copy Menew.app into /Applications.\n3. Open Menew. It shows up in the menu bar; ⌘⇧V opens the clipboard history.\n\nExplain each command before running it.",
+  "site_stats": "This website counts visits anonymously with GoatCounter, without cookies."
 }

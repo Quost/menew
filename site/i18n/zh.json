@@ -54,7 +54,7 @@
   "priv_h2": "你的数据永远不会离开你的 Mac。",
   "priv_sub": "Menew 是开源的，所以你无需只听我们的一面之词。",
   "priv1_t": "没有遥测",
-  "priv1_d": "没有分析、没有追踪、没有账户。永远如此。",
+  "priv1_d": "应用不会发送任何关于你的信息：没有分析、没有追踪、没有账户。永远如此。",
   "priv2_t": "本地存储",
   "priv2_d": "历史记录和笔记保存在 ~/Library/Application Support/Menew。",
   "priv3_t": "MIT 许可",
@@ -83,5 +83,6 @@
   "footer_contribute": "参与贡献",
   "copied": "已复制 ✓",
   "version": "版本",
-  "ai_prompt": "请在我的 Mac 上安装 Menew。它是一款免费开源的菜单栏应用（https://github.com/Quost/menew），经过 Apple 签名和公证，需要 macOS 14 或更高版本。\n\n1. 如果已安装 Homebrew，请运行：\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. 否则，从 https://github.com/Quost/menew/releases/latest 下载最新的 Menew.dmg，打开后把 Menew.app 复制到 /Applications。\n3. 打开 Menew。它会出现在菜单栏中；⌘⇧V 打开剪贴板历史。\n\n在运行每条命令之前先解释它的作用。"
+  "ai_prompt": "请在我的 Mac 上安装 Menew。它是一款免费开源的菜单栏应用（https://github.com/Quost/menew），经过 Apple 签名和公证，需要 macOS 14 或更高版本。\n\n1. 如果已安装 Homebrew，请运行：\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. 否则，从 https://github.com/Quost/menew/releases/latest 下载最新的 Menew.dmg，打开后把 Menew.app 复制到 /Applications。\n3. 打开 Menew。它会出现在菜单栏中；⌘⇧V 打开剪贴板历史。\n\n在运行每条命令之前先解释它的作用。",
+  "site_stats": "本网站使用 GoatCounter 匿名统计访问量，不使用 Cookie。"
 }
