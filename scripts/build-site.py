@@ -5,6 +5,7 @@
 
 Inglês fica em docs/index.html; os outros em docs/<idioma>/index.html.
 Edite o modelo e os textos, nunca os HTML gerados.
+As imagens de prévia de links (docs/assets/og) saem de: swift scripts/make-og.swift
 """
 import html as htmllib, json, re
 from pathlib import Path
@@ -59,6 +60,8 @@ for lang in LANGS:
         "hreflang": hreflang,
         "detect": DETECT if lang == "en" else "",
         "shots": "/assets" if lang == "en" else f"/assets/{lang}",
+        "og_image": f"{SITE}/assets/og/{lang}.png",
+        "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
         "lang_switch": switch(lang),
         "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt")},
                                   "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
