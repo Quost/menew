@@ -2,7 +2,7 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## 1.6.0
+## 1.6.1
 
 - **A cleaner Actions tab**: switches like Dark mode, Keep awake, Hidden files and Desktop icons now show what's on right now, and they follow changes you make elsewhere in macOS.
 - **Keep awake for a while**: 30 minutes, 1, 2 or 4 hours, and it shows until when.

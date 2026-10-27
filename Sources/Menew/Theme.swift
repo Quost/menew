@@ -229,13 +229,23 @@ extension View {
             // Capturas fora da tela não desenham vidro nem material: usa um preenchimento equivalente
             background(shape.fill(tint ?? .clear)).background(shape.fill(Theme.cardFill))
                 .overlay(shape.stroke(Theme.cardStroke, lineWidth: 0.5))
-        } else if #available(macOS 26, *) {
-            glassEffect(Glass.regular.tint(tint).interactive(interactive), in: shape)
+        } else if #available(macOS 26, *), let glassy = liquidGlass(in: shape, tint: tint, interactive: interactive) {
+            glassy
         } else {
             background(shape.fill(.regularMaterial))
                 .background(shape.fill(tint ?? .clear))
                 .overlay(shape.stroke(Theme.cardStroke, lineWidth: 0.5))
         }
+    }
+
+    /// Só existe ao compilar com o SDK do macOS 26 (Xcode 26+); em Xcodes antigos cai no material
+    @available(macOS 26, *)
+    private func liquidGlass<S: Shape>(in shape: S, tint: Color?, interactive: Bool) -> AnyView? {
+        #if compiler(>=6.2)
+        AnyView(glassEffect(Glass.regular.tint(tint).interactive(interactive), in: shape))
+        #else
+        nil
+        #endif
     }
 
     func glass(cornerRadius: CGFloat = 14, tint: Color? = nil, interactive: Bool = false) -> some View {
@@ -249,10 +259,14 @@ struct GlassGroup<Content: View>: View {
     @ViewBuilder var content: Content
 
     var body: some View {
+        #if compiler(>=6.2)
         if #available(macOS 26, *) {
             GlassEffectContainer(spacing: spacing) { content }
         } else {
             content
         }
+        #else
+        content
+        #endif
     }
 }
