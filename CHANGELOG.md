@@ -2,6 +2,14 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.6.0
+
+- **A cleaner Actions tab**: switches like Dark mode, Keep awake, Hidden files and Desktop icons now show what's on right now, and they follow changes you make elsewhere in macOS.
+- **Keep awake for a while**: 30 minutes, 1, 2 or 4 hours, and it shows until when.
+- Every action says what it does. Hover for a longer explanation.
+- **Liquid Glass** look on macOS 26 and later, with a translucent style on older versions.
+- Eject disks shows how many are connected, and the Empty Trash confirmation is now translated.
+
 ## 1.5.0
 
 - **Memory pressure**: see whether your Mac actually needs more memory, plus how much is used by apps, the system, compression and swap.

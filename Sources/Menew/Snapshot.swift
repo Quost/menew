@@ -7,6 +7,7 @@ import SwiftUI
 enum Snapshot {
     static func run(into dir: URL) {
         try? FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        Theme.flatGlass = !CommandLine.arguments.contains("--live-glass")
         let monitor = SystemMonitor()
         let clipboard = ClipboardManager.demo()
         let toolbox = Toolbox()
@@ -89,6 +90,31 @@ enum Snapshot {
             }
             NSApp.terminate(nil)
         }
+    }
+
+    /// `Menew --preview <aba>`: abre a tela numa janela de verdade (para ver o Liquid Glass) e imprime o número da janela
+    static func preview(tab: String) {
+        let nav = PopoverState()
+        nav.tab = Tab.allCases.first { "\($0)" == tab } ?? .actions
+        let toolbox = Toolbox()
+        let v = MainView(nav: nav, monitor: { let m = SystemMonitor(); m.start(); return m }(), clipboard: ClipboardManager.demo(),
+                         toolbox: toolbox, internet: InternetInfo(), notes: NotesStore.demo(), cleaner: Cleaner(),
+                         updater: UpdaterModel(enabled: false), clipState: ClipListState(), onPickClip: { _, _ in })
+        let win = NSWindow(contentRect: NSRect(x: 200, y: 200, width: 400, height: 600), styleMask: [.titled, .fullSizeContentView],
+                           backing: .buffered, defer: false)
+        win.titlebarAppearsTransparent = true
+        win.titleVisibility = .hidden
+        let effect = NSVisualEffectView()
+        effect.material = .popover
+        effect.state = .active
+        let host = NSHostingView(rootView: v)
+        host.frame = effect.bounds
+        host.autoresizingMask = [.width, .height]
+        effect.addSubview(host)
+        win.contentView = effect
+        win.makeKeyAndOrderFront(nil)
+        NSApp.activate(ignoringOtherApps: true)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { print(win.windowNumber); fflush(stdout) }
     }
 
     static func render<V: View>(_ view: V, size: NSSize, dark: Bool, background: NSColor? = nil,

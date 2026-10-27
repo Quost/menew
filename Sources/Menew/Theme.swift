@@ -23,6 +23,13 @@ enum Theme {
             ? NSColor(white: 1, alpha: 0.06) : NSColor(white: 1, alpha: 0.85)
     })
     static let cardStroke = Color.primary.opacity(0.08)
+    /// No macOS 26+ o próprio popover é de vidro: o conteúdo fica transparente por cima dele
+    static var popoverFill: Color {
+        if #available(macOS 26, *), !flatGlass { return .clear }
+        return windowFill
+    }
+    /// Ligado pelo modo captura (--snapshot)
+    nonisolated(unsafe) static var flatGlass = false
 }
 
 struct CardModifier: ViewModifier {
@@ -31,8 +38,7 @@ struct CardModifier: ViewModifier {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Theme.cardFill))
-            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.cardStroke, lineWidth: 0.5))
+            .glass(cornerRadius: 14)
     }
 }
 
@@ -211,5 +217,42 @@ enum RelDate {
     static func string(_ d: Date) -> String {
         f.locale = L10n.locale
         return Date().timeIntervalSince(d) < 30 ? L("agora") : f.localizedString(for: d, relativeTo: Date())
+    }
+}
+
+// MARK: Liquid Glass (macOS 26+), com material translúcido nas versões anteriores
+
+extension View {
+    @ViewBuilder
+    func glass<S: Shape>(in shape: S, tint: Color? = nil, interactive: Bool = false) -> some View {
+        if Theme.flatGlass {
+            // Capturas fora da tela não desenham vidro nem material: usa um preenchimento equivalente
+            background(shape.fill(tint ?? .clear)).background(shape.fill(Theme.cardFill))
+                .overlay(shape.stroke(Theme.cardStroke, lineWidth: 0.5))
+        } else if #available(macOS 26, *) {
+            glassEffect(Glass.regular.tint(tint).interactive(interactive), in: shape)
+        } else {
+            background(shape.fill(.regularMaterial))
+                .background(shape.fill(tint ?? .clear))
+                .overlay(shape.stroke(Theme.cardStroke, lineWidth: 0.5))
+        }
+    }
+
+    func glass(cornerRadius: CGFloat = 14, tint: Color? = nil, interactive: Bool = false) -> some View {
+        glass(in: RoundedRectangle(cornerRadius: cornerRadius, style: .continuous), tint: tint, interactive: interactive)
+    }
+}
+
+/// Agrupa vidros próximos para eles se fundirem como no sistema
+struct GlassGroup<Content: View>: View {
+    var spacing: CGFloat = 8
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        if #available(macOS 26, *) {
+            GlassEffectContainer(spacing: spacing) { content }
+        } else {
+            content
+        }
     }
 }

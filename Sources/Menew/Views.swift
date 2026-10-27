@@ -56,7 +56,7 @@ struct MainView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 400, height: 600)
-        .background(Theme.windowFill)
+        .background(Theme.popoverFill)
         .id(language)
         .overlay(alignment: .bottom) {
             if let t = toolbox.toast {
@@ -117,19 +117,19 @@ struct MainView: View {
                     .foregroundStyle(on ? Color.primary : Color.secondary)
                     .background {
                         if on {
-                            RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .fill(Color(nsColor: .controlBackgroundColor))
-                                .shadow(color: .black.opacity(0.12), radius: 2, y: 1)
+                            Capsule()
+                                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.9))
+                                .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
                                 .matchedGeometryEffect(id: "tab", in: tabNS)
                         }
                     }
-                    .contentShape(Rectangle())
+                    .contentShape(Capsule())
                 }
                 .buttonStyle(.plain)
             }
         }
-        .padding(3)
-        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.06)))
+        .padding(4)
+        .glass(in: Capsule())
         .padding(.horizontal, 14).padding(.bottom, 12)
     }
 }
@@ -450,139 +450,6 @@ struct MiniStat: View {
             Spacer(minLength: 0)
         }
         .card(padding: 10)
-    }
-}
-
-// MARK: Ações
-
-struct ActionsView: View {
-    @ObservedObject var tb: Toolbox
-    @ObservedObject var cleaning: CleaningController
-    let clipboard: ClipboardManager
-    var openCleaner: () -> Void
-
-    init(tb: Toolbox, clipboard: ClipboardManager, openCleaner: @escaping () -> Void) {
-        self.tb = tb
-        self.cleaning = tb.cleaning
-        self.clipboard = clipboard
-        self.openCleaner = openCleaner
-    }
-
-    private let cols = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
-
-    var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
-                group(L("Limpeza")) {
-                    ActionTile(icon: "sparkles", color: .blue, title: L("Liberar espaço"), subtitle: L("caches e mais"), action: openCleaner)
-                    ActionTile(icon: "keyboard", color: .teal, title: L("Limpar teclado"), subtitle: L("trava por 2 min"),
-                               on: cleaning.keyboardLocked) {
-                        if !cleaning.lockKeyboard() { tb.show(L("Libere o Menew em Acessibilidade")) }
-                    }
-                    ActionTile(icon: "sparkles.tv", color: .cyan, title: L("Limpar tela"), subtitle: L("tela preta")) {
-                        cleaning.blackScreen()
-                    }
-                }
-                group(L("Energia")) {
-                    ActionTile(icon: "cup.and.saucer.fill", color: .orange, title: L("Manter acordado"),
-                               subtitle: tb.keepAwake ? L("ligado") : nil, on: tb.keepAwake) {
-                        tb.setKeepAwake(!tb.keepAwake)
-                    }
-                    ActionTile(icon: "timer", color: .orange, title: L("Acordado 1h")) {
-                        tb.setKeepAwake(true, minutes: 60); tb.show(L("Acordado por 1 hora"))
-                    }
-                    ActionTile(icon: "lock.fill", color: .gray, title: L("Bloquear tela")) { tb.lockScreen() }
-                }
-                group(L("Finder")) {
-                    ActionTile(icon: "eye", color: .blue, title: L("Arquivos ocultos"), on: tb.hiddenFiles) { tb.toggleHiddenFiles() }
-                    ActionTile(icon: "menubar.dock.rectangle", color: .indigo, title: L("Ocultar mesa"),
-                               on: tb.desktopIconsHidden) { tb.toggleDesktopIcons() }
-                    ActionTile(icon: "eject.fill", color: .mint, title: L("Ejetar discos")) { tb.ejectAll() }
-                    ActionTile(icon: "trash", color: .red, title: L("Esvaziar lixeira")) { tb.emptyTrash() }
-                }
-                group(L("Ferramentas")) {
-                    ActionTile(icon: "circle.lefthalf.filled", color: .purple, title: L("Modo escuro")) { tb.toggleDarkMode() }
-                    ActionTile(icon: "camera.viewfinder", color: .pink, title: L("Print"), subtitle: L("vai pro clipboard")) {
-                        tb.screenshotToClipboard()
-                    }
-                    ActionTile(icon: "eyedropper.halffull", color: Theme.violet, title: L("Conta-gotas"), subtitle: L("copia o hex")) {
-                        tb.pickColor(clipboard: clipboard)
-                    }
-                    ActionTile(icon: "textformat", color: .brown, title: L("Limpar formatação")) { tb.plainTextClipboard() }
-                    ActionTile(icon: "chart.bar.xaxis", color: .green, title: L("Monitor")) {
-                        tb.open("/System/Applications/Utilities/Activity Monitor.app")
-                    }
-                    ActionTile(icon: "terminal.fill", color: .black, title: L("Terminal")) {
-                        tb.open("/System/Applications/Utilities/Terminal.app")
-                    }
-                }
-            }
-            .padding(.horizontal, 14).padding(.bottom, 14)
-        }
-        .scrollIndicators(.never)
-    }
-
-    private func group<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.leading, 2)
-            LazyVGrid(columns: cols, spacing: 8) { content() }
-        }
-    }
-}
-
-struct ActionTile: View {
-    let icon: String
-    let color: Color
-    let title: String
-    var subtitle: String? = nil
-    var on = false
-    let action: () -> Void
-    @State private var hover = false
-    @State private var pressed = false
-
-    var body: some View {
-        Button(action: action) {
-            VStack(spacing: 7) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 10, style: .continuous).fill(color.gradient)
-                    Image(systemName: icon).font(.system(size: 16, weight: .semibold)).foregroundStyle(.white)
-                }
-                .frame(width: 38, height: 38)
-                .shadow(color: color.opacity(on ? 0.5 : 0.25), radius: on ? 7 : 3, y: 2)
-                .overlay(alignment: .topTrailing) {
-                    if on {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 14, weight: .bold))
-                            .foregroundStyle(.white, .green)
-                            .background(Circle().fill(Theme.windowFill).padding(1))
-                            .offset(x: 6, y: -6)
-                            .transition(.scale.combined(with: .opacity))
-                    }
-                }
-                VStack(spacing: 1) {
-                    Text(title).font(.system(size: 11, weight: .medium)).lineLimit(1).minimumScaleFactor(0.85)
-                    if let subtitle {
-                        Text(subtitle).font(.system(size: 9.5)).foregroundStyle(.secondary).lineLimit(1)
-                    }
-                }
-            }
-            .frame(maxWidth: .infinity, minHeight: 88)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(on ? AnyShapeStyle(color.opacity(0.12)) : AnyShapeStyle(Theme.cardFill))
-                    .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(hover ? 0.05 : 0)))
-            )
-            .overlay(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(on ? color.opacity(0.7) : Theme.cardStroke, lineWidth: on ? 1.5 : 0.5)
-            )
-            .scaleEffect(pressed ? 0.96 : 1)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .onHover { hover = $0 }
-        .animation(.easeOut(duration: 0.15), value: hover)
-        .animation(.spring(duration: 0.25), value: on)
     }
 }
 

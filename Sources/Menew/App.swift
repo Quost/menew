@@ -12,6 +12,8 @@ enum MenewMain {
         Migration.run()
         if let i = CommandLine.arguments.firstIndex(of: "--snapshot"), CommandLine.arguments.count > i + 1 {
             Snapshot.run(into: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
+        } else if let i = CommandLine.arguments.firstIndex(of: "--preview"), CommandLine.arguments.count > i + 1 {
+            Snapshot.preview(tab: CommandLine.arguments[i + 1])
         } else {
             app.delegate = delegate
         }

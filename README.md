@@ -38,7 +38,7 @@
 | 📊 **System monitor** | CPU with live graph, memory pressure and swap, disk, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar: CPU, CPU graph, memory, network, disk, battery. |
 | 🔔 **Alerts** | Optional macOS notifications for a nearly full disk, low battery, critical memory pressure or CPU stuck above 90%. |
 | 📋 **Clipboard history** | Text, links, images and files with instant search, filters, pins and a rich preview. Press **⌘⇧V** anywhere. |
-| ⚡ **Quick actions** | Keep awake, hidden files, hide desktop icons, eject disks, empty trash, dark mode, color picker, screenshot to clipboard. |
+| ⚡ **Quick actions** | Switches that show their live state: dark mode, keep awake (with a timer), hidden files and desktop icons. One-click actions: screenshot to clipboard, color picker, plain-text clipboard, lock screen, eject disks, empty trash. |
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |

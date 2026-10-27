@@ -5,17 +5,32 @@ import IOKit.pwr_mgt
 @MainActor
 final class Toolbox: ObservableObject {
     @Published var keepAwake = false
+    /// Quando o "manter acordado" desliga sozinho (nil = até desligar)
+    @Published var awakeUntil: Date?
+    @Published var darkMode = Toolbox.systemIsDark
+    @Published var ejectableCount = 0
     @Published var hiddenFiles = false
     @Published var desktopIconsHidden = false
     @Published var toast: String?
     let cleaning = CleaningController()
 
     private var assertionID: IOPMAssertionID = 0
-    private var awakeUntil: Timer?
+    private var awakeTimer: Timer?
 
     init() {
         hiddenFiles = Self.finderBool("AppleShowAllFiles") ?? false
         desktopIconsHidden = (Self.finderBool("CreateDesktop") ?? true) == false
+        // Acompanha o modo escuro mesmo quando ele muda fora do Menew
+        DistributedNotificationCenter.default().addObserver(forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
+                                                            object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.darkMode = Self.systemIsDark }
+        }
+    }
+
+    /// Aparência do macOS (não a do Menew, que pode estar forçada nos Ajustes)
+    static var systemIsDark: Bool {
+        CFPreferencesAppSynchronize(kCFPreferencesAnyApplication)
+        return (CFPreferencesCopyAppValue("AppleInterfaceStyle" as CFString, kCFPreferencesAnyApplication) as? String) == "Dark"
     }
 
     func show(_ msg: String) {
@@ -28,7 +43,8 @@ final class Toolbox: ObservableObject {
     // MARK: Manter acordado (tipo Amphetamine/caffeinate)
 
     func setKeepAwake(_ on: Bool, minutes: Int? = nil) {
-        awakeUntil?.invalidate()
+        awakeTimer?.invalidate()
+        awakeUntil = nil
         if assertionID != 0 {
             IOPMAssertionRelease(assertionID)
             assertionID = 0
@@ -40,7 +56,8 @@ final class Toolbox: ObservableObject {
                                             "Menew: manter acordado" as CFString, &assertionID)
         keepAwake = r == kIOReturnSuccess
         if let minutes, keepAwake {
-            awakeUntil = Timer.scheduledTimer(withTimeInterval: TimeInterval(minutes * 60), repeats: false) { [weak self] _ in
+            awakeUntil = Date().addingTimeInterval(TimeInterval(minutes * 60))
+            awakeTimer = Timer.scheduledTimer(withTimeInterval: TimeInterval(minutes * 60), repeats: false) { [weak self] _ in
                 MainActor.assumeIsolated { self?.setKeepAwake(false) }
             }
         }
@@ -69,8 +86,8 @@ final class Toolbox: ObservableObject {
 
     func emptyTrash() {
         let alert = NSAlert()
-        alert.messageText = "Esvaziar a Lixeira?"
-        alert.informativeText = "Os itens serão apagados permanentemente."
+        alert.messageText = L("Esvaziar a Lixeira?")
+        alert.informativeText = L("Os itens serão apagados permanentemente.")
         alert.addButton(withTitle: L("Esvaziar"))
         alert.addButton(withTitle: L("Cancelar"))
         alert.alertStyle = .warning
@@ -79,22 +96,34 @@ final class Toolbox: ObservableObject {
         runAppleScript("tell application \"Finder\" to empty trash")
     }
 
-    func ejectAll() {
+    private static func ejectableVolumes() -> [URL] {
         let keys: [URLResourceKey] = [.volumeIsEjectableKey, .volumeIsRemovableKey, .volumeIsInternalKey]
         let vols = FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: keys, options: [.skipHiddenVolumes]) ?? []
-        var count = 0
-        for v in vols {
-            guard let r = try? v.resourceValues(forKeys: Set(keys)),
-                  r.volumeIsEjectable == true || (r.volumeIsInternal == false && v.path != "/") else { continue }
-            if (try? NSWorkspace.shared.unmountAndEjectDevice(at: v)) != nil { count += 1 }
+        return vols.filter { v in
+            guard let r = try? v.resourceValues(forKeys: Set(keys)) else { return false }
+            return r.volumeIsEjectable == true || (r.volumeIsInternal == false && v.path != "/")
         }
+    }
+
+    /// Atualiza os estados que podem mudar fora do Menew (ao abrir a aba)
+    func refresh() {
+        darkMode = Self.systemIsDark
+        ejectableCount = Self.ejectableVolumes().count
+    }
+
+    func ejectAll() {
+        var count = 0
+        for v in Self.ejectableVolumes() where (try? NSWorkspace.shared.unmountAndEjectDevice(at: v)) != nil { count += 1 }
+        ejectableCount = Self.ejectableVolumes().count
         show(count == 0 ? L("Nenhum disco para ejetar") : L("%d disco(s) ejetado(s)", count))
     }
 
     // MARK: Sistema
 
     func toggleDarkMode() {
-        runAppleScript("tell application \"System Events\" to tell appearance preferences to set dark mode to not dark mode")
+        let target = !darkMode
+        runAppleScript("tell application \"System Events\" to tell appearance preferences to set dark mode to \(target)")
+        darkMode = Self.systemIsDark
     }
 
     func lockScreen() {
