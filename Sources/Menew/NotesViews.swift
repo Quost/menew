@@ -31,10 +31,13 @@ struct NotesView: View {
                 HStack(spacing: 8) {
                     Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
                     TextField(L("Buscar notas"), text: $query).textFieldStyle(.plain)
+                    if !query.isEmpty {
+                        Button { query = "" } label: { Image(systemName: "xmark.circle.fill") }
+                            .buttonStyle(.plain).foregroundStyle(.tertiary)
+                    }
                 }
                 .font(.system(size: 13))
-                .padding(.horizontal, 10).padding(.vertical, 7)
-                .background(RoundedRectangle(cornerRadius: 9).fill(Color.primary.opacity(0.06)))
+                .glassField()
                 PillButton(title: L("Nova"), icon: "square.and.pencil", primary: true) {
                     openID = store.create(text: tag.map { "\n\n#\($0)" } ?? "")
                 }
@@ -42,11 +45,14 @@ struct NotesView: View {
 
             if !store.allTags.isEmpty {
                 ScrollView(.horizontal) {
-                    HStack(spacing: 6) {
-                        chip(L("Todas"), on: tag == nil) { tag = nil }
-                        ForEach(store.allTags, id: \.self) { t in
-                            chip("#\(t)", on: tag == t) { tag = tag == t ? nil : t }
+                    GlassGroup(spacing: 6) {
+                        HStack(spacing: 6) {
+                            GlassChip(title: L("Todas"), on: tag == nil) { tag = nil }
+                            ForEach(store.allTags, id: \.self) { t in
+                                GlassChip(title: "#\(t)", on: tag == t) { tag = tag == t ? nil : t }
+                            }
                         }
+                        .padding(2)
                     }
                 }
                 .scrollIndicators(.never)
@@ -116,17 +122,6 @@ struct NotesView: View {
         }
     }
 
-    private func chip(_ title: String, on: Bool, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Text(title)
-                .font(.system(size: 11, weight: .medium))
-                .padding(.horizontal, 9).padding(.vertical, 4)
-                .background(Capsule().fill(on ? AnyShapeStyle(Theme.brand) : AnyShapeStyle(Color.primary.opacity(0.06))))
-                .foregroundStyle(on ? Color.white : Color.secondary)
-        }
-        .buttonStyle(.plain)
-    }
-
     private func open(_ n: Note) {
         guard n.secure else { openID = n.id; return }
         Task { if await store.unlock(n.id) { openID = n.id } }
@@ -165,12 +160,10 @@ private struct NoteEditor: View {
                 }
                 Text(note?.title ?? "").font(.system(size: 13, weight: .semibold)).lineLimit(1)
                 Spacer()
-                Picker("", selection: $reading) {
-                    Image(systemName: "pencil").tag(false)
-                    Image(systemName: "eye").tag(true)
-                }
-                .pickerStyle(.segmented).labelsHidden().frame(width: 76)
-                .help(reading ? L("Ler") : L("Editar"))
+                GlassSegmented(selection: $reading, options: [
+                    .init(value: false, icon: "pencil", help: L("Editar")),
+                    .init(value: true, icon: "eye", help: L("Ler")),
+                ], expand: false)
                 Menu {
                     Button(L("Copiar")) {
                         NSPasteboard.general.clearContents()
@@ -182,9 +175,12 @@ private struct NoteEditor: View {
                     Divider()
                     Button(L("Apagar nota"), role: .destructive) { confirmDelete = true }
                 } label: {
-                    Image(systemName: "ellipsis.circle").font(.system(size: 14))
+                    Image(systemName: "ellipsis").font(.system(size: 12, weight: .semibold))
+                        .frame(width: 30, height: 30)
+                        .contentShape(Circle())
+                        .glass(in: Circle(), interactive: true)
                 }
-                .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
             }
 
             Group {

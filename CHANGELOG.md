@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.7.0
+
+- **Liquid Glass everywhere**: Clipboard, Snippets, Notes, Free up space and Settings now share the glass tabs, search fields, filter chips and buttons from macOS 26.
+- **Redesigned Settings**: clean glass sections, a theme picker with icons and simple menus for language and auto-delete.
+- The menu bar preview in Settings now shows your Mac's real values and updates live.
+- A softer highlight for the selected clipboard item.
+
 ## 1.6.2
 
 - Fixed cards sliding over the header and tabs when scrolling on macOS 26.

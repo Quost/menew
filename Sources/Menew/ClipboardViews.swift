@@ -35,13 +35,17 @@ struct SearchField: View {
                     .font(.system(size: 11, weight: .medium)).foregroundStyle(.orange)
             }
         }
-        .padding(.horizontal, large ? 4 : 10)
-        .padding(.vertical, large ? 0 : 7)
-        .background {
-            if !large { RoundedRectangle(cornerRadius: 9).fill(Color.primary.opacity(0.06)) }
-        }
+        .modifier(SearchFieldChrome(large: large))
         .onAppear { focused = true }
         .onChange(of: state.focusToken) { _, _ in focused = true }
+    }
+}
+
+/// No painel grande o campo fica solto; no menu, em cápsula de vidro
+private struct SearchFieldChrome: ViewModifier {
+    let large: Bool
+    func body(content: Content) -> some View {
+        if large { content.padding(.horizontal, 4) } else { content.glassField() }
     }
 }
 
@@ -50,21 +54,13 @@ struct FilterChips: View {
     var iconsOnly = false
 
     var body: some View {
-        HStack(spacing: 6) {
-            ForEach(ClipFilter.allCases, id: \.self) { f in
-                let on = state.filter == f
-                Button { state.filter = f } label: {
-                    HStack(spacing: 4) {
-                        Image(systemName: f.icon).font(.system(size: 10, weight: .semibold))
-                        if !iconsOnly || on { Text(f.label) }
-                    }
-                    .font(.system(size: 11, weight: .medium))
-                    .padding(.horizontal, 9).padding(.vertical, 4.5)
-                    .background(Capsule().fill(on ? AnyShapeStyle(Theme.brand) : AnyShapeStyle(Color.primary.opacity(0.06))))
-                    .foregroundStyle(on ? Color.white : Color.secondary)
-                    .contentShape(Capsule())
+        GlassGroup(spacing: 6) {
+            HStack(spacing: 6) {
+                ForEach(ClipFilter.allCases, id: \.self) { f in
+                    let on = state.filter == f
+                    GlassChip(title: !iconsOnly || on ? f.label : nil, icon: f.icon, on: on) { state.filter = f }
+                        .help(f.label)
                 }
-                .buttonStyle(.plain)
             }
         }
     }
@@ -140,16 +136,19 @@ struct ClipRow: View {
             Spacer(minLength: 4)
             if item.pinned {
                 Image(systemName: "pin.fill").font(.system(size: 10)).rotationEffect(.degrees(35))
-                    .foregroundStyle(selected ? Color.white : Color.orange)
+                    .foregroundStyle(Color.orange)
             }
             if index < 9 {
                 Text("⌘\(index + 1)").font(.system(size: 10.5, weight: .medium, design: .rounded)).opacity(0.5)
             }
         }
-        .foregroundStyle(selected ? Color.white : Color.primary)
+        .foregroundStyle(Color.primary)
         .padding(.horizontal, 8).padding(.vertical, 6)
         .background {
-            if selected { RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Theme.brand) }
+            if selected {
+                RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Theme.indigo.opacity(0.16))
+                    .overlay(RoundedRectangle(cornerRadius: 10, style: .continuous).strokeBorder(Theme.indigo.opacity(0.35), lineWidth: 0.75))
+            }
         }
         .contentShape(Rectangle())
     }
@@ -438,12 +437,10 @@ struct ClipboardTabView: View {
 
     var body: some View {
         VStack(spacing: 10) {
-            Picker("", selection: $managingSnippets) {
-                Text(L("Histórico")).tag(false)
-                Text(L("Snippets")).tag(true)
-            }
-            .pickerStyle(.segmented)
-            .labelsHidden()
+            GlassSegmented(selection: $managingSnippets, options: [
+                .init(value: false, title: L("Histórico"), icon: "clock.arrow.circlepath"),
+                .init(value: true, title: L("Snippets"), icon: "text.badge.star"),
+            ])
 
             if managingSnippets {
                 SnippetsView(store: manager.snippets)

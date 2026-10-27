@@ -182,39 +182,42 @@ struct ProcessRow: View {
 
 // MARK: Ajustes
 
-/// Fichas para escolher o que aparece na barra, com uma prévia ao vivo
+/// Fichas para escolher o que aparece na barra, com uma prévia ao vivo (valores reais do Mac)
 struct MenuBarItemsPicker: View {
     @Binding var selection: String
+    @ObservedObject var monitor: SystemMonitor
     private let cols = Array(repeating: GridItem(.flexible(), spacing: 6), count: 3)
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack {
-                Text(L("Mostrar ao lado do ícone"))
+                Text(L("Mostrar ao lado do ícone")).font(.system(size: 12.5))
                 Spacer()
-                let segs = MenuBarItem.allCases.filter { chosen.contains($0) }.map(\.sample)
+                let segs = MenuBarItem.allCases.filter { chosen.contains($0) }.compactMap { $0.segment(monitor) }
                 Image(nsImage: StatusRenderer.image(segments: segs))
                     .renderingMode(.template)
-                    .padding(.horizontal, 8).padding(.vertical, 2)
-                    .background(RoundedRectangle(cornerRadius: 5).fill(Color.primary.opacity(0.07)))
+                    .padding(.horizontal, 10).padding(.vertical, 3)
+                    .glass(in: Capsule())
+                    .help(L("Prévia ao vivo"))
             }
-            LazyVGrid(columns: cols, spacing: 6) {
-                ForEach(MenuBarItem.allCases, id: \.self) { item in
-                    let on = chosen.contains(item)
-                    Button { toggle(item) } label: {
-                        Label(item.label, systemImage: item.icon)
-                            .font(.system(size: 11, weight: .medium)).lineLimit(1).minimumScaleFactor(0.8)
-                            .frame(maxWidth: .infinity).padding(.vertical, 6)
-                            .foregroundStyle(on ? Color.white : Color.primary)
-                            .background(RoundedRectangle(cornerRadius: 7, style: .continuous)
-                                .fill(on ? AnyShapeStyle(Theme.brand) : AnyShapeStyle(Color.primary.opacity(0.06))))
-                            .contentShape(Rectangle())
+            GlassGroup(spacing: 6) {
+                LazyVGrid(columns: cols, spacing: 6) {
+                    ForEach(MenuBarItem.allCases, id: \.self) { item in
+                        let on = chosen.contains(item)
+                        Button { toggle(item) } label: {
+                            Label(item.label, systemImage: item.icon)
+                                .font(.system(size: 11, weight: .medium)).lineLimit(1).minimumScaleFactor(0.8)
+                                .frame(maxWidth: .infinity).padding(.vertical, 6)
+                                .foregroundStyle(on ? Color.white : Color.primary)
+                                .contentShape(Capsule())
+                                .glass(in: Capsule(), tint: on ? Theme.indigo : nil, interactive: true)
+                        }
+                        .buttonStyle(.plain)
                     }
-                    .buttonStyle(.plain)
                 }
             }
         }
-        .padding(.vertical, 2)
+        .padding(.horizontal, 12).padding(.vertical, 9)
     }
 
     private var chosen: Set<MenuBarItem> {
@@ -236,37 +239,35 @@ struct AlertsSection: View {
     @State private var denied = false
 
     var body: some View {
-        Section(L("Alertas")) {
+        GlassSection(title: L("Alertas"),
+                     footer: denied ? nil : L("Um aviso do macOS quando algo precisa da sua atenção. Cada alerta avisa uma vez, até a situação se resolver.")) {
             toggle(.disk, $disk, L("Menos de 10 GB livres"))
-            if SystemMonitorInfo.hasBattery { toggle(.battery, $battery, L("20% ou menos, fora da tomada")) }
+            if SystemMonitorInfo.hasBattery {
+                RowDivider()
+                toggle(.battery, $battery, L("20% ou menos, fora da tomada"))
+            }
+            RowDivider()
             toggle(.memory, $memory, L("Pressão de memória crítica"))
+            RowDivider()
             toggle(.cpu, $cpu, L("Acima de 90% por 2 minutos"))
             if denied {
-                HStack {
-                    Text(L("As notificações do Menew estão desligadas no macOS.")).font(.caption).foregroundStyle(.orange)
-                    Spacer()
-                    Button(L("Abrir Ajustes")) {
+                RowDivider()
+                SettingRow(title: L("As notificações do Menew estão desligadas no macOS."), icon: "bell.slash") {
+                    PillButton(title: L("Abrir Ajustes")) {
                         NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Notifications-Settings.extension")!)
                     }
                 }
-            } else {
-                Text(L("Um aviso do macOS quando algo precisa da sua atenção. Cada alerta avisa uma vez, até a situação se resolver."))
-                    .font(.caption).foregroundStyle(.secondary)
+                .foregroundStyle(.orange)
             }
         }
         .onAppear(perform: refreshDenied)
     }
 
     private func toggle(_ kind: Alerts.Kind, _ value: Binding<Bool>, _ detail: String) -> some View {
-        Toggle(isOn: value) {
-            VStack(alignment: .leading, spacing: 1) {
-                Label(kind.title, systemImage: kind.icon)
-                Text(detail).font(.caption).foregroundStyle(.secondary)
+        ToggleRow(title: kind.title, detail: detail, icon: kind.icon, isOn: value)
+            .onChange(of: value.wrappedValue) { _, on in
+                if on { Alerts.shared.requestPermission { granted in denied = !granted } }
             }
-        }
-        .onChange(of: value.wrappedValue) { _, on in
-            if on { Alerts.shared.requestPermission { granted in denied = !granted } }
-        }
     }
 
     private func refreshDenied() {

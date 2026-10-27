@@ -318,7 +318,6 @@ struct CleanerView: View {
                 }
                 .scrollIndicators(.never)
 
-                Divider()
                 HStack(spacing: 10) {
                     VStack(alignment: .leading, spacing: 1) {
                         Text(L("Selecionado")).font(.system(size: 10.5)).foregroundStyle(.secondary)
@@ -330,6 +329,8 @@ struct CleanerView: View {
                         .disabled(cleaner.selectedSize == 0)
                         .opacity(cleaner.selectedSize == 0 ? 0.5 : 1)
                 }
+                .padding(.leading, 18).padding(.trailing, 8).padding(.vertical, 8)
+                .glass(in: Capsule())
                 .padding(.horizontal, 14).padding(.vertical, 10)
                 .confirmationDialog(L("Liberar %@?", Fmt.bytes(cleaner.selectedSize)), isPresented: $confirm) {
                     Button(L("Limpar"), role: .destructive) { cleaner.clean() }
@@ -427,12 +428,11 @@ private struct ModeButton: View {
                 Image(systemName: "chevron.right").font(.system(size: 11, weight: .bold)).foregroundStyle(.tertiary)
             }
             .padding(12)
-            .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Theme.cardFill)
-                .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(Color.primary.opacity(hover ? 0.05 : 0))))
-            .overlay(RoundedRectangle(cornerRadius: 12, style: .continuous).strokeBorder(Theme.cardStroke, lineWidth: 0.5))
             .contentShape(Rectangle())
+            .glass(cornerRadius: 14, tint: hover ? color.opacity(0.12) : nil, interactive: true)
         }
         .buttonStyle(.plain)
         .onHover { hover = $0 }
+        .animation(.easeOut(duration: 0.15), value: hover)
     }
 }

@@ -177,13 +177,12 @@ struct IconButton: View {
     }
 }
 
-/// Botão em pílula: estilo "primário" usa o gradiente da marca
+/// Botão em pílula de vidro: o "primário" ganha a cor da marca
 struct PillButton: View {
     let title: String
     var icon: String? = nil
     var primary = false
     let action: () -> Void
-    @State private var hover = false
 
     var body: some View {
         Button(action: action) {
@@ -193,18 +192,11 @@ struct PillButton: View {
             }
             .font(.system(size: 12, weight: .semibold))
             .padding(.horizontal, 12).padding(.vertical, 6)
-            .background {
-                if primary {
-                    Capsule().fill(Theme.brand).opacity(hover ? 0.88 : 1)
-                } else {
-                    Capsule().fill(Color.primary.opacity(hover ? 0.11 : 0.07))
-                }
-            }
             .foregroundStyle(primary ? Color.white : Color.primary)
             .contentShape(Capsule())
+            .glass(in: Capsule(), tint: primary ? Theme.indigo : nil, interactive: true)
         }
         .buttonStyle(.plain)
-        .onHover { hover = $0 }
     }
 }
 
@@ -268,5 +260,189 @@ struct GlassGroup<Content: View>: View {
         #else
         content
         #endif
+    }
+}
+
+// MARK: Controles de vidro compartilhados
+
+/// Seletor em cápsula de vidro, com a opção escolhida destacada (abas, Histórico/Snippets, tema…)
+struct GlassSegmented<V: Hashable>: View {
+    struct Option {
+        let value: V
+        var title: String? = nil
+        var icon: String? = nil
+        var help: String? = nil
+    }
+
+    @Binding var selection: V
+    let options: [Option]
+    /// false = cada opção do tamanho do conteúdo (só ícones, por exemplo)
+    var expand = true
+    @Namespace private var ns
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(options.indices, id: \.self) { i in
+                let o = options[i]
+                let on = o.value == selection
+                Button {
+                    withAnimation(.spring(duration: 0.28)) { selection = o.value }
+                } label: {
+                    HStack(spacing: 5) {
+                        if let icon = o.icon { Image(systemName: icon).font(.system(size: 11, weight: .semibold)) }
+                        if let title = o.title { Text(title).font(.system(size: 11.5, weight: on ? .semibold : .medium)).lineLimit(1) }
+                    }
+                    .frame(maxWidth: expand ? .infinity : nil)
+                    .padding(.horizontal, expand ? 0 : 10).padding(.vertical, 6)
+                    .foregroundStyle(on ? Color.primary : Color.secondary)
+                    .background {
+                        if on {
+                            Capsule()
+                                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.9))
+                                .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
+                                .matchedGeometryEffect(id: "selected", in: ns)
+                        }
+                    }
+                    .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .help(o.help ?? "")
+            }
+        }
+        .padding(3)
+        .glass(in: Capsule())
+    }
+}
+
+/// Ficha de filtro em vidro; ligada, fica com a cor da marca
+struct GlassChip: View {
+    var title: String? = nil
+    var icon: String? = nil
+    let on: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 4) {
+                if let icon { Image(systemName: icon).font(.system(size: 10, weight: .semibold)) }
+                if let title { Text(title).lineLimit(1) }
+            }
+            .font(.system(size: 11, weight: .medium))
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .foregroundStyle(on ? Color.white : Color.secondary)
+            .contentShape(Capsule())
+            .glass(in: Capsule(), tint: on ? Theme.indigo : nil, interactive: true)
+        }
+        .buttonStyle(.plain)
+        .animation(.spring(duration: 0.25), value: on)
+    }
+}
+
+/// Seção com título pequeno e as linhas dentro de um só cartão de vidro
+struct GlassSection<Content: View>: View {
+    let title: String
+    var footer: String? = nil
+    @ViewBuilder var content: Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            SectionLabel(title)
+            VStack(spacing: 0) { content }
+                .padding(.vertical, 3)
+                .glass()
+            if let footer {
+                Text(footer).font(.system(size: 10.5)).foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 6)
+            }
+        }
+    }
+}
+
+struct SectionLabel: View {
+    let text: String
+    init(_ text: String) { self.text = text }
+    var body: some View {
+        Text(text).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.leading, 4)
+    }
+}
+
+/// Linha fina entre as linhas de uma seção
+struct RowDivider: View {
+    var inset: CGFloat = 12
+    var body: some View {
+        Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, inset)
+    }
+}
+
+/// Linha de ajuste: título (e detalhe) à esquerda, controle à direita
+struct SettingRow<Control: View>: View {
+    let title: String
+    var detail: String? = nil
+    var icon: String? = nil
+    @ViewBuilder var control: Control
+
+    var body: some View {
+        HStack(spacing: 10) {
+            if let icon {
+                Image(systemName: icon).font(.system(size: 12, weight: .medium)).foregroundStyle(.secondary).frame(width: 18)
+            }
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(.system(size: 12.5))
+                if let detail { Text(detail).font(.system(size: 10.5)).foregroundStyle(.secondary) }
+            }
+            Spacer(minLength: 8)
+            control
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+    }
+}
+
+/// Interruptor no padrão das linhas de ajuste
+struct ToggleRow: View {
+    let title: String
+    var detail: String? = nil
+    var icon: String? = nil
+    @Binding var isOn: Bool
+
+    var body: some View {
+        SettingRow(title: title, detail: detail, icon: icon) {
+            Toggle("", isOn: $isOn).toggleStyle(.switch).controlSize(.small).labelsHidden()
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { isOn.toggle() }
+    }
+}
+
+/// Menu de opções com o rótulo em cápsula de vidro (no lugar do popup clássico)
+struct GlassMenu<V: Hashable>: View {
+    @Binding var selection: V
+    let options: [(value: V, title: String)]
+
+    var body: some View {
+        Menu {
+            ForEach(options.indices, id: \.self) { i in
+                Button { selection = options[i].value } label: {
+                    if options[i].value == selection { Label(options[i].title, systemImage: "checkmark") } else { Text(options[i].title) }
+                }
+            }
+        } label: {
+            HStack(spacing: 5) {
+                Text(options.first { $0.value == selection }?.title ?? "").lineLimit(1)
+                Image(systemName: "chevron.up.chevron.down").font(.system(size: 8, weight: .bold)).foregroundStyle(.secondary)
+            }
+            .font(.system(size: 11.5, weight: .medium))
+            .padding(.horizontal, 10).padding(.vertical, 5)
+            .contentShape(Capsule())
+            .glass(in: Capsule(), interactive: true)
+        }
+        .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+    }
+}
+
+extension View {
+    /// Campo de texto em cápsula de vidro
+    func glassField() -> some View {
+        padding(.horizontal, 12).padding(.vertical, 7).glass(in: Capsule())
     }
 }

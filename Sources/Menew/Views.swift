@@ -35,7 +35,6 @@ struct MainView: View {
     let clipState: ClipListState
     var onPickClip: (ClipItem, Bool) -> Void
 
-    @Namespace private var tabNS
     @AppStorage("language") private var language = "auto"
 
     var body: some View {
@@ -54,7 +53,7 @@ struct MainView: View {
                 case .actions: ActionsView(tb: toolbox, clipboard: clipboard) { nav.tab = .cleaner }
                 case .cleaner: CleanerView(cleaner: cleaner, monitor: monitor)
                 case .notes: NotesView(store: notes)
-                case .settings: SettingsView(clipboard: clipboard, updater: updater)
+                case .settings: SettingsView(clipboard: clipboard, monitor: monitor, updater: updater)
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -108,34 +107,8 @@ struct MainView: View {
     }
 
     private var tabBar: some View {
-        HStack(spacing: 2) {
-            ForEach(Tab.visible, id: \.self) { t in
-                let on = nav.tab == t
-                Button {
-                    withAnimation(.spring(duration: 0.28)) { nav.tab = t }
-                } label: {
-                    HStack(spacing: 5) {
-                        Image(systemName: t.icon).font(.system(size: 11, weight: .semibold))
-                        Text(L(t.rawValue)).font(.system(size: 11.5, weight: on ? .semibold : .medium))
-                    }
-                    .frame(maxWidth: .infinity).padding(.vertical, 6)
-                    .foregroundStyle(on ? Color.primary : Color.secondary)
-                    .background {
-                        if on {
-                            Capsule()
-                                .fill(Color(nsColor: .controlBackgroundColor).opacity(0.9))
-                                .shadow(color: .black.opacity(0.12), radius: 3, y: 1)
-                                .matchedGeometryEffect(id: "tab", in: tabNS)
-                        }
-                    }
-                    .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-            }
-        }
-        .padding(4)
-        .glass(in: Capsule())
-        .padding(.horizontal, 14).padding(.bottom, 12)
+        GlassSegmented(selection: $nav.tab, options: Tab.visible.map { .init(value: $0, title: L($0.rawValue), icon: $0.icon) })
+            .padding(.horizontal, 14).padding(.bottom, 12)
     }
 }
 
@@ -462,6 +435,7 @@ struct MiniStat: View {
 
 struct SettingsView: View {
     @ObservedObject var clipboard: ClipboardManager
+    let monitor: SystemMonitor
     @ObservedObject var updater: UpdaterModel
     @AppStorage(MenuBarItem.key) private var menuBarItems = "cpu,ram"
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
@@ -477,97 +451,116 @@ struct SettingsView: View {
     @State private var confirmClear = false
 
     var body: some View {
-        Form {
-            Section(L("Aparência")) {
-                Picker(L("Tema"), selection: $appearance) {
-                    ForEach(AppAppearance.allCases, id: \.rawValue) { Text($0.label).tag($0.rawValue) }
-                }
-                .pickerStyle(.segmented)
-                Picker(L("Idioma"), selection: $language) {
-                    Text(L("Automático (sistema)")).tag("auto")
-                    Divider()
-                    ForEach(Lang.allCases, id: \.rawValue) { Text($0.pickerName).tag($0.rawValue) }
-                }
-            }
-            Section(L("Barra de menus")) {
-                MenuBarItemsPicker(selection: $menuBarItems)
-                Toggle(L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, on in
-                        do { on ? try SMAppService.mainApp.register() : try SMAppService.mainApp.unregister() }
-                        catch { launchAtLogin = SMAppService.mainApp.status == .enabled }
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                GlassSection(title: L("Aparência")) {
+                    SettingRow(title: L("Tema")) {
+                        GlassSegmented(selection: $appearance, options: AppAppearance.allCases.map {
+                            .init(value: $0.rawValue, title: $0.label, icon: $0.icon)
+                        }, expand: false)
                     }
-            }
-            AlertsSection()
-            Section(L("Permissões")) {
-                HStack {
-                    Label(L("Acessibilidade"), systemImage: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
-                        .foregroundStyle(axTrusted ? .green : .orange)
-                    Spacer()
-                    if !axTrusted {
-                        Button(L("Permitir")) {
-                            ClipboardManager.requestAccessibility()
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { axTrusted = AXIsProcessTrusted() }
+                    RowDivider()
+                    SettingRow(title: L("Idioma")) {
+                        GlassMenu(selection: $language, options: [("auto", L("Automático (sistema)"))]
+                                  + Lang.allCases.map { ($0.rawValue, $0.pickerName) })
+                    }
+                }
+
+                GlassSection(title: L("Barra de menus")) {
+                    MenuBarItemsPicker(selection: $menuBarItems, monitor: monitor)
+                    RowDivider()
+                    ToggleRow(title: L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
+                        .onChange(of: launchAtLogin) { _, on in
+                            do { on ? try SMAppService.mainApp.register() : try SMAppService.mainApp.unregister() }
+                            catch { launchAtLogin = SMAppService.mainApp.status == .enabled }
+                        }
+                }
+
+                AlertsSection()
+
+                GlassSection(title: L("Permissões"), footer: L("Usada para colar automaticamente e para travar o teclado na limpeza.")) {
+                    SettingRow(title: L("Acessibilidade"), icon: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill") {
+                        if axTrusted {
+                            Text(L("Permitido")).font(.system(size: 11.5, weight: .medium)).foregroundStyle(.green)
+                        } else {
+                            PillButton(title: L("Permitir"), primary: true) {
+                                ClipboardManager.requestAccessibility()
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { axTrusted = AXIsProcessTrusted() }
+                            }
                         }
                     }
                 }
-                Text(L("Usada para colar automaticamente e para travar o teclado na limpeza."))
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section(L("Clipboard")) {
-                Toggle(L("Colar automaticamente ao escolher"), isOn: $autoPaste)
-                Toggle(L("Pausar captura"), isOn: $paused)
-                Toggle(L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
-                Stepper(L("Guardar %d itens", maxItems), value: $maxItems, in: 50...2000, step: 50)
-                Picker(L("Apagar itens com mais de"), selection: $autoDeleteDays) {
-                    Text(L("Nunca")).tag(0)
-                    ForEach([1, 7, 30, 90], id: \.self) { d in
-                        Text(d == 1 ? L("1 dia") : L("%d dias", d)).tag(d)
+
+                GlassSection(title: L("Clipboard")) {
+                    ToggleRow(title: L("Colar automaticamente ao escolher"), isOn: $autoPaste)
+                    RowDivider()
+                    ToggleRow(title: L("Pausar captura"), isOn: $paused)
+                    RowDivider()
+                    ToggleRow(title: L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
+                    RowDivider()
+                    SettingRow(title: L("Guardar %d itens", maxItems)) {
+                        Stepper("", value: $maxItems, in: 50...2000, step: 50).labelsHidden()
                     }
-                }
-                .onChange(of: autoDeleteDays) { _, _ in clipboard.pruneAndSaveIfNeeded() }
-                TextField(L("Ignorar apps"), text: $ignoredApps, prompt: Text(L("bundle IDs separados por vírgula")))
-                Button(L("Limpar histórico (mantém fixados)"), role: .destructive) { confirmClear = true }
+                    RowDivider()
+                    SettingRow(title: L("Apagar itens com mais de")) {
+                        GlassMenu(selection: $autoDeleteDays, options: [(0, L("Nunca"))]
+                                  + [1, 7, 30, 90].map { ($0, $0 == 1 ? L("1 dia") : L("%d dias", $0)) })
+                    }
+                    .onChange(of: autoDeleteDays) { _, _ in clipboard.pruneAndSaveIfNeeded() }
+                    RowDivider()
+                    VStack(alignment: .leading, spacing: 6) {
+                        Text(L("Ignorar apps")).font(.system(size: 12.5))
+                        TextField("", text: $ignoredApps, prompt: Text(L("bundle IDs separados por vírgula")))
+                            .textFieldStyle(.plain).font(.system(size: 12))
+                            .glassField()
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    RowDivider()
+                    SettingRow(title: L("Limpar histórico (mantém fixados)")) {
+                        PillButton(title: L("Limpar"), icon: "trash") { confirmClear = true }
+                    }
                     .confirmationDialog(L("Apagar todo o histórico não fixado?"), isPresented: $confirmClear) {
                         Button(L("Apagar"), role: .destructive) { clipboard.clear() }
                     }
-            }
-            Section(L("Atalhos")) {
-                LabeledContent(L("Histórico do clipboard")) {
-                    ShortcutRecorder(name: HotKeyCenter.clipboardKey, fallback: .clipboardDefault)
                 }
-                LabeledContent(L("Abrir este menu")) {
-                    ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
+
+                GlassSection(title: L("Atalhos")) {
+                    SettingRow(title: L("Histórico do clipboard")) {
+                        ShortcutRecorder(name: HotKeyCenter.clipboardKey, fallback: .clipboardDefault)
+                    }
+                    RowDivider()
+                    SettingRow(title: L("Abrir este menu")) {
+                        ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
+                    }
                 }
-            }
-            Section(L("Ajuda")) {
-                HStack(spacing: 8) {
-                    Button { Feedback.reportBug() } label: { Label(L("Reportar um problema…"), systemImage: "ladybug") }
-                    Button { Feedback.suggestIdea() } label: { Label(L("Sugerir uma ideia…"), systemImage: "lightbulb") }
-                    Spacer()
-                    Button { Feedback.openRepo() } label: { Image(systemName: "arrow.up.right.square") }
-                        .buttonStyle(.borderless).help(L("Ver no GitHub"))
+
+                GlassSection(title: L("Ajuda"),
+                             footer: L("Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar.")) {
+                    HStack(spacing: 8) {
+                        PillButton(title: L("Reportar um problema…"), icon: "ladybug") { Feedback.reportBug() }
+                        PillButton(title: L("Sugerir uma ideia…"), icon: "lightbulb") { Feedback.suggestIdea() }
+                        Spacer(minLength: 0)
+                        IconButton(icon: "arrow.up.right.square", help: L("Ver no GitHub")) { Feedback.openRepo() }
+                    }
+                    .padding(.horizontal, 10).padding(.vertical, 8)
                 }
-                Text(L("Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar."))
-                    .font(.caption).foregroundStyle(.secondary)
-            }
-            Section(L("Atualizações")) {
-                Toggle(L("Procurar atualizações automaticamente"), isOn: $updater.automaticallyChecks)
+
+                GlassSection(title: L("Atualizações")) {
+                    ToggleRow(title: L("Procurar atualizações automaticamente"), isOn: $updater.automaticallyChecks)
+                    RowDivider()
+                    SettingRow(title: "Menew \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")") {
+                        PillButton(title: L("Procurar agora"), icon: "arrow.down.circle") { updater.checkForUpdates() }
+                    }
+                }
+
                 HStack {
-                    Text("Menew \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "")")
-                        .foregroundStyle(.secondary)
                     Spacer()
-                    Button(L("Procurar agora")) { updater.checkForUpdates() }
+                    PillButton(title: L("Sair do Menew"), icon: "power") { NSApp.terminate(nil) }
                 }
             }
-            Section {
-                HStack {
-                    Spacer()
-                    Button(L("Sair do Menew")) { NSApp.terminate(nil) }
-                }
-            }
+            .padding(.horizontal, 14).padding(.bottom, 14)
         }
-        .formStyle(.grouped)
-        .scrollContentBackground(.hidden)
+        .scrollIndicators(.never)
         .onAppear { axTrusted = AXIsProcessTrusted() }
     }
 }
@@ -579,6 +572,13 @@ enum AppAppearance: String, CaseIterable {
         case .system: L("Automático")
         case .light: L("Claro")
         case .dark: L("Escuro")
+        }
+    }
+    var icon: String {
+        switch self {
+        case .system: "circle.lefthalf.filled"
+        case .light: "sun.max"
+        case .dark: "moon"
         }
     }
     var nsAppearance: NSAppearance? {
@@ -646,7 +646,7 @@ enum MenuBarItem: String, CaseIterable {
         }
     }
 
-    /// Valores fixos para a prévia nos Ajustes e nas capturas
+    /// Valores fixos para as capturas da barra de menus
     var sample: StatusSegment {
         switch self {
         case .cpu: .stat("CPU", "23%")

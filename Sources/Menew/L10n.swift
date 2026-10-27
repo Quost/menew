@@ -252,6 +252,8 @@ private let table: [String: [String]] = [
     "Analisando o disco…": ["Scanning your disk…", "Festplatte wird analysiert…", "Analizando el disco…", "正在扫描磁盘…"],
     "Limpando…": ["Cleaning…", "Wird bereinigt…", "Limpiando…", "正在清理…"],
     "Limpar": ["Clean", "Bereinigen", "Limpiar", "清理"],
+    "Permitido": ["Allowed", "Erlaubt", "Permitido", "已允许"],
+    "Prévia ao vivo": ["Live preview", "Live-Vorschau", "Vista previa en vivo", "实时预览"],
     "Selecionado": ["Selected", "Ausgewählt", "Seleccionado", "已选择"],
     "Liberar %@?": ["Free up %@?", "%@ freigeben?", "¿Liberar %@?", "释放 %@？"],
     "Caches e logs são apagados (os apps recriam). Arquivos seus vão para a Lixeira.": ["Caches and logs are deleted (apps recreate them). Your files go to the Trash.", "Caches und Logs werden gelöscht (Apps erstellen sie neu). Deine Dateien landen im Papierkorb.", "Las cachés y registros se borran (las apps los recrean). Tus archivos van a la Papelera.", "缓存和日志将被删除（应用会重新生成）。你的文件会移到废纸篓。"],

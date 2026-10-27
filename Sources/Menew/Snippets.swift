@@ -132,13 +132,13 @@ private struct SnippetEditor: View {
             Text(isNew ? L("Novo snippet") : L("Editar snippet")).font(.system(size: 13, weight: .semibold))
             TextField(L("Título"), text: $snippet.title)
                 .textFieldStyle(.plain)
-                .padding(8)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+                .font(.system(size: 13))
+                .glassField()
             TextEditor(text: $snippet.text)
                 .font(.system(size: 13))
                 .scrollContentBackground(.hidden)
-                .padding(6)
-                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+                .padding(8)
+                .glass(cornerRadius: 14)
             Text(L("Use {date}, {time} e {clipboard} para preencher na hora de colar."))
                 .font(.system(size: 10.5)).foregroundStyle(.secondary)
             HStack {
@@ -152,9 +152,9 @@ private struct SnippetEditor: View {
                     onSave(s)
                 }
                 .disabled(snippet.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                .opacity(snippet.text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? 0.5 : 1)
             }
         }
-        .card()
         .frame(maxHeight: .infinity, alignment: .top)
     }
 }
