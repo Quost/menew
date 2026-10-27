@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <url>
+    <loc>https://menew.web.app/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/pt</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/de</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/es</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/zh</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh"/>
+  </url>
+</urlset>

@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://menew.web.app/sitemap.xml

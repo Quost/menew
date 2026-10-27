@@ -14,7 +14,7 @@ Whenever a change is visible to users (new feature, renamed screen, new setting,
    ```
    Snapshots use fake data (`ClipboardManager.demo()`, `NotesStore.demo()`); never screenshot the user's real clipboard or notes. Add new screens to `Snapshot.swift`.
 3. **README.md**: the Features table, Keyboard shortcuts, Privacy and Roadmap sections.
-4. **Website**, in 5 languages like the app. Never edit the generated `docs/**/index.html`; edit `site/template.html` (layout) and `site/i18n/<lang>.json` (texts, all 5 files), then run `python3 scripts/build-site.py`. Localized screenshots live in `docs/assets/<lang>/` (English in `docs/assets/`); regenerate them with `-language pt|de|es|zh`. Link-preview images (`docs/assets/og/<lang>.png`, 1200×630) come from `swift scripts/make-og.swift`; rerun it after changing the title or the screenshots. Pushing `docs/` to `main` deploys it, and CI fails if the generated pages are out of date.
+4. **Website**, in 5 languages like the app. Never edit the generated `docs/**/index.html`; edit `site/template.html` (layout) and `site/i18n/<lang>.json` (texts, all 5 files), then run `python3 scripts/build-site.py` (it also writes `docs/sitemap.xml` and `docs/robots.txt`). Localized screenshots live in `docs/assets/<lang>/` (English in `docs/assets/`); regenerate them with `-language pt|de|es|zh`. Link-preview images (`docs/assets/og/<lang>.png`, 1200×630) come from `swift scripts/make-og.swift`; rerun it after changing the title or the screenshots. Pushing `docs/` to `main` deploys it, and CI fails if the generated pages are out of date.
 5. **CHANGELOG.md**: add a `## X.Y.Z` section *before* tagging. It becomes the release notes in the in-app update window and on GitHub. Write it for users, in English.
 
 ## Commits
