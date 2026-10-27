@@ -2,7 +2,7 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## 1.7.2
+## 1.7.3
 
 - Fixed the menu opening too high on macOS 26 and later, covering the menu bar and hiding the top of the window. It now opens right below the menu bar again.
 

@@ -26,10 +26,13 @@ ARCH_FLAGS=()
 # Grava no binário a versão real do SDK. Sem isso o SwiftPM pode gravar a do
 # deployment target (14.0), e o macOS roda o app em modo de compatibilidade: sem o
 # comportamento novo do Liquid Glass, e o build local fica diferente do publicado.
-SDK_FLAGS=(-Xlinker -platform_version -Xlinker macos -Xlinker 14.0 -Xlinker "$(xcrun --sdk macosx --show-sdk-version)")
+# Só no build de uma arquitetura: o universal (CI) passa pelo XCBuild, que já grava o SDK certo
+# e não aceita estes argumentos.
+SDK_FLAGS=()
+[ "${UNIVERSAL:-0}" = 1 ] || SDK_FLAGS=(-Xlinker -platform_version -Xlinker macos -Xlinker 14.0 -Xlinker "$(xcrun --sdk macosx --show-sdk-version)")
 
-swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} "${SDK_FLAGS[@]}"
-BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} "${SDK_FLAGS[@]}" --show-bin-path)
+swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} ${SDK_FLAGS[@]+"${SDK_FLAGS[@]}"}
+BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} ${SDK_FLAGS[@]+"${SDK_FLAGS[@]}"} --show-bin-path)
 
 APP=build/Menew.app
 rm -rf "$APP"
