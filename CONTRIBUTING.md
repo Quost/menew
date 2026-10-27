@@ -54,6 +54,30 @@ No Swift needed for these:
 - **GIFs for the README and website.** Short screen recordings (5–10 s) of the ⌘⇧V panel, the quick actions and the cleaning mode. Keep them under 3 MB and add them to `docs/assets/`.
 - **Translations.** Spot something awkward in your language? All strings live in `Sources/Menew/L10n.swift`. New languages are welcome too.
 
+## Commit messages
+
+Menew follows [Conventional Commits](https://www.conventionalcommits.org). A check runs on every push and pull request.
+
+```
+<type>(<optional scope>): <short summary in lowercase>
+```
+
+| Type | Use it for |
+|---|---|
+| `feat` | A new feature |
+| `fix` | A bug fix |
+| `docs` | README, CONTRIBUTING, comments |
+| `refactor` | Code changes that don't change behavior |
+| `perf` | Performance improvements |
+| `ci` | GitHub Actions, release pipeline |
+| `chore` | Maintenance (dependencies, config, Homebrew bumps) |
+
+Common scopes: `ui`, `i18n`, `clipboard`, `snippets`, `notes`, `monitor`, `cleaner`, `actions`, `updates`, `installer`, `release`, `site`, `homebrew`.
+
+Examples: `feat(notes): add Markdown checklists`, `fix(clipboard): keep pinned items when clearing history`.
+
+Add `!` after the type (`feat!:`) for breaking changes.
+
 ## Guidelines
 
 - **Keep it native and light.** No third-party dependencies unless there's a very good reason.

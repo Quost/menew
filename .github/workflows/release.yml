@@ -105,5 +105,5 @@ jobs:
           if git diff --quiet; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git commit -qam "Homebrew: Menew $VERSION"
+          git commit -qam "chore(homebrew): bump cask to $VERSION"
           git push -q origin main
