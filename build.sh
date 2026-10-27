@@ -23,8 +23,13 @@ fi
 ARCH_FLAGS=()
 [ "${UNIVERSAL:-0}" = 1 ] && ARCH_FLAGS=(--arch arm64 --arch x86_64)
 
-swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"}
-BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} --show-bin-path)
+# Grava no binário a versão real do SDK. Sem isso o SwiftPM pode gravar a do
+# deployment target (14.0), e o macOS roda o app em modo de compatibilidade: sem o
+# comportamento novo do Liquid Glass, e o build local fica diferente do publicado.
+SDK_FLAGS=(-Xlinker -platform_version -Xlinker macos -Xlinker 14.0 -Xlinker "$(xcrun --sdk macosx --show-sdk-version)")
+
+swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} "${SDK_FLAGS[@]}"
+BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} "${SDK_FLAGS[@]}" --show-bin-path)
 
 APP=build/Menew.app
 rm -rf "$APP"
