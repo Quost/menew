@@ -1,7 +1,7 @@
 blank_issues_enabled: true
 contact_links:
   - name: 🌐 Website
-    url: https://menew.web.app
+    url: https://menew.web.app/?ref=github
     about: Download, features and keyboard shortcuts.
   - name: ☕ Support the project
     url: https://buymeacoffee.com/quost
