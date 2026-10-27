@@ -55,7 +55,12 @@ jobs:
         run: |
           xcrun notarytool submit build/Menew.dmg --apple-id "$APPLE_ID" --team-id "$APPLE_TEAM_ID" \
             --password "$APPLE_APP_PASSWORD" --wait --timeout 2h
-          xcrun stapler staple build/Menew.dmg
+          # O stapler baixa o selo da Apple; quedas de rede passageiras acontecem, então tenta de novo
+          for i in 1 2 3 4 5; do
+            xcrun stapler staple build/Menew.dmg && break
+            [ "$i" = 5 ] && exit 1
+            echo "Nova tentativa em $((i * 15))s…"; sleep $((i * 15))
+          done
           xcrun stapler staple build/Menew.app || true
 
       - name: Zip
