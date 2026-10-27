@@ -54,6 +54,10 @@ enum Snapshot {
                     render(v, size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("popover-\(tab)-\(suffix).png"))
                 }
+                if CommandLine.arguments.contains("--full-settings") { // Ajustes inteiros, para revisar o layout
+                    render(SettingsView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false)).background(Theme.windowFill),
+                           size: NSSize(width: 400, height: 1900), dark: dark, to: dir.appendingPathComponent("settings-full-\(suffix).png"))
+                }
                 if CommandLine.arguments.contains("--scan") {
                     let nav = PopoverState()
                     nav.tab = .cleaner

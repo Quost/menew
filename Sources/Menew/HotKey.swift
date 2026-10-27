@@ -145,12 +145,11 @@ struct ShortcutRecorder: View {
             Button { recording ? stop() : start() } label: {
                 Text(recording ? L("Pressione o atalho…") : shortcut.display)
                     .font(.system(size: 12, weight: .medium, design: recording ? .default : .rounded))
-                    .frame(minWidth: 90)
-                    .padding(.horizontal, 8).padding(.vertical, 4)
-                    .background(RoundedRectangle(cornerRadius: 6)
-                        .fill(recording ? Color.accentColor.opacity(0.18) : Color.primary.opacity(0.07)))
-                    .overlay(RoundedRectangle(cornerRadius: 6)
-                        .strokeBorder(recording ? Color.accentColor : Color.primary.opacity(0.1), lineWidth: recording ? 1.5 : 0.5))
+                    .frame(minWidth: 70)
+                    .padding(.horizontal, 12).padding(.vertical, 5)
+                    .contentShape(Capsule())
+                    .overlay(Capsule().strokeBorder(Color.accentColor, lineWidth: recording ? 1.5 : 0))
+                    .glass(in: Capsule(), tint: recording ? Color.accentColor.opacity(0.18) : nil, interactive: true)
             }
             .buttonStyle(.plain)
             if shortcut != fallback && !recording {

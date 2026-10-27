@@ -423,6 +423,53 @@ struct SettingRow<Control: View>: View {
     }
 }
 
+/// Linha inteira clicável que abre algo fora do app (GitHub, Ajustes do Sistema…)
+struct LinkRow: View {
+    let title: String
+    let icon: String
+    let action: () -> Void
+    @State private var hover = false
+
+    var body: some View {
+        Button(action: action) {
+            SettingRow(title: title, icon: icon) {
+                Image(systemName: "arrow.up.right").font(.system(size: 10, weight: .bold)).foregroundStyle(.tertiary)
+            }
+            .background(Color.primary.opacity(hover ? 0.05 : 0))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hover = $0 }
+    }
+}
+
+/// − e + numa cápsula de vidro (no lugar do Stepper clássico)
+struct GlassStepper: View {
+    @Binding var value: Int
+    let range: ClosedRange<Int>
+    var step = 1
+
+    var body: some View {
+        HStack(spacing: 0) {
+            button("minus", enabled: value > range.lowerBound) { value = max(range.lowerBound, value - step) }
+            Rectangle().fill(Theme.cardStroke).frame(width: 0.5, height: 14)
+            button("plus", enabled: value < range.upperBound) { value = min(range.upperBound, value + step) }
+        }
+        .glass(in: Capsule())
+    }
+
+    private func button(_ icon: String, enabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon).font(.system(size: 10, weight: .bold))
+                .frame(width: 30, height: 24).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .disabled(!enabled)
+        .foregroundStyle(enabled ? Color.primary : Color.secondary.opacity(0.5))
+        .buttonRepeatBehavior(.enabled)
+    }
+}
+
 /// Interruptor no padrão das linhas de ajuste
 struct ToggleRow: View {
     let title: String

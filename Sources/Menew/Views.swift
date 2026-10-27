@@ -501,7 +501,7 @@ struct SettingsView: View {
                     ToggleRow(title: L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
                     RowDivider()
                     SettingRow(title: L("Guardar %d itens", maxItems)) {
-                        Stepper("", value: $maxItems, in: 50...2000, step: 50).labelsHidden()
+                        GlassStepper(value: $maxItems, range: 50...2000, step: 50)
                     }
                     RowDivider()
                     SettingRow(title: L("Apagar itens com mais de")) {
@@ -532,13 +532,11 @@ struct SettingsView: View {
 
                 GlassSection(title: L("Ajuda"),
                              footer: L("Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar.")) {
-                    HStack(spacing: 8) {
-                        PillButton(title: L("Reportar um problema…"), icon: "ladybug") { Feedback.reportBug() }
-                        PillButton(title: L("Sugerir uma ideia…"), icon: "lightbulb") { Feedback.suggestIdea() }
-                        Spacer(minLength: 0)
-                        IconButton(icon: "arrow.up.right.square", help: L("Ver no GitHub")) { Feedback.openRepo() }
-                    }
-                    .padding(.horizontal, 10).padding(.vertical, 8)
+                    LinkRow(title: L("Reportar um problema…"), icon: "ladybug") { Feedback.reportBug() }
+                    RowDivider()
+                    LinkRow(title: L("Sugerir uma ideia…"), icon: "lightbulb") { Feedback.suggestIdea() }
+                    RowDivider()
+                    LinkRow(title: L("Ver no GitHub"), icon: "chevron.left.forwardslash.chevron.right") { Feedback.openRepo() }
                 }
 
                 GlassSection(title: L("Atualizações")) {

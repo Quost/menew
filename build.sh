@@ -48,6 +48,9 @@ cp -R "$BIN_DIR/Sparkle.framework" "$APP/Contents/Frameworks/"
 rm -rf "$APP/Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices" \
        "$APP/Contents/Frameworks/Sparkle.framework/XPCServices"
 
+# Sem VERSION, usa a última tag (o build local mostra a versão certa nos Ajustes)
+[ -z "${VERSION:-}" ] && VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || true)
+
 if [ -n "${VERSION:-}" ]; then
   plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
   plutil -replace CFBundleVersion -string "$(git rev-list --count HEAD 2>/dev/null || echo 1)" "$APP/Contents/Info.plist"

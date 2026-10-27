@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.8.1
+
+- Tidier Settings: Help links are now even rows, and the shortcut recorders and the history size control use the same glass style as the rest of the app.
+
 ## 1.8.0
 
 - **Ignore apps the easy way**: in Settings → Clipboard, pick apps from the ones open right now or choose any app in Applications. No more typing bundle IDs. Remove one with a click.
