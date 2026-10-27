@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.4.2
+
+- A nicer install window: drag Menew to Applications on a clean, branded background.
+
 ## 1.4.1
 
 - **Report a problem** and **Suggest an idea** in the right-click menu and in Settings. They open GitHub with your Menew and macOS versions already filled in; you review everything before sending.

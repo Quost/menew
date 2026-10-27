@@ -62,12 +62,13 @@ echo "Pronto: $APP"
 for arg in "$@"; do
   case "$arg" in
     --dmg)
-      STAGE=$(mktemp -d)
-      cp -R "$APP" "$STAGE/"
-      ln -s /Applications "$STAGE/Applications"
+      # Janela de instalação com fundo, seta e ícones posicionados (Resources/dmg)
+      if [ ! -x .build/dmgvenv/bin/dmgbuild ]; then
+        python3 -m venv .build/dmgvenv
+        .build/dmgvenv/bin/pip install -q dmgbuild
+      fi
       rm -f build/Menew.dmg
-      hdiutil create -volname Menew -srcfolder "$STAGE" -ov -format UDZO -quiet build/Menew.dmg
-      rm -rf "$STAGE"
+      .build/dmgvenv/bin/dmgbuild -s Resources/dmg/settings.py -D app="$APP" Menew build/Menew.dmg > /dev/null
       [ -n "${SIGN_IDENTITY:-}" ] && codesign --force --timestamp --sign "$SIGN_IDENTITY" build/Menew.dmg
       echo "Pronto: build/Menew.dmg"
       ;;
