@@ -40,7 +40,7 @@
   "clip_sub": "Aperte <b>⌘⇧V</b> em qualquer lugar, digite algumas letras e dê enter. Cola direto no app que você estava usando.",
   "clip_l1": "<b>Pré-visualização inteligente</b> — amostra de cor para códigos hex, links, imagens e ícones de arquivos.",
   "clip_l2": "<b>Filtros e fixados</b> — alterne entre textos, links, imagens e arquivos; deixe os favoritos no topo.",
-  "clip_l3": "<b>Seguro com senhas</b> — ignora tudo o que o 1Password, as Chaves e afins marcam como senha.",
+  "clip_l3": "<b>Seguro com senhas</b> — ignora tudo o que o 1Password, as Chaves e afins marcam como senha. Você também escolhe apps para ignorar, direto da lista.",
   "key_open": "abrir",
   "key_quick": "colar rápido",
   "key_plain": "texto puro",

@@ -40,7 +40,7 @@
   "clip_sub": "Press <b>⌘⇧V</b> anywhere, type a few letters and hit return. It pastes straight into the app you were using.",
   "clip_l1": "<b>Smart previews</b> — color swatches for hex codes, link previews, images and file icons.",
   "clip_l2": "<b>Filters &amp; pins</b> — jump between text, links, images and files; keep favorites on top.",
-  "clip_l3": "<b>Password-safe</b> — ignores anything marked as a password by 1Password, Keychain and friends.",
+  "clip_l3": "<b>Password-safe</b> — ignores anything marked as a password by 1Password, Keychain and friends. You can also pick apps to ignore, right from a list.",
   "key_open": "open",
   "key_quick": "quick paste",
   "key_plain": "plain text",

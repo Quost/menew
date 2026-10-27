@@ -40,7 +40,7 @@
   "clip_sub": "Drücke überall <b>⌘⇧V</b>, tippe ein paar Buchstaben und drücke Return. Es wird direkt in die App eingesetzt, in der du warst.",
   "clip_l1": "<b>Smarte Vorschau</b> — Farbmuster für Hex-Codes, Links, Bilder und Datei-Symbole.",
   "clip_l2": "<b>Filter &amp; Anheften</b> — wechsle zwischen Texten, Links, Bildern und Dateien; Favoriten bleiben oben.",
-  "clip_l3": "<b>Passwort-sicher</b> — ignoriert alles, was 1Password, der Schlüsselbund &amp; Co. als Passwort markieren.",
+  "clip_l3": "<b>Passwort-sicher</b> — ignoriert alles, was 1Password, der Schlüsselbund &amp; Co. als Passwort markieren. Außerdem kannst du Apps direkt aus einer Liste ausschließen.",
   "key_open": "öffnen",
   "key_quick": "schnell einsetzen",
   "key_plain": "reiner Text",

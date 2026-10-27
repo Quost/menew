@@ -40,7 +40,7 @@
   "clip_sub": "Pulsa <b>⌘⇧V</b> en cualquier lugar, escribe unas letras y pulsa intro. Se pega directamente en la app que estabas usando.",
   "clip_l1": "<b>Vistas previas inteligentes</b> — muestra de color para códigos hex, enlaces, imágenes e iconos de archivos.",
   "clip_l2": "<b>Filtros y fijados</b> — cambia entre textos, enlaces, imágenes y archivos; deja tus favoritos arriba.",
-  "clip_l3": "<b>Seguro con contraseñas</b> — ignora todo lo que 1Password, el Llavero y similares marcan como contraseña.",
+  "clip_l3": "<b>Seguro con contraseñas</b> — ignora todo lo que 1Password, el Llavero y similares marcan como contraseña. También puedes elegir apps para ignorar, directamente de una lista.",
   "key_open": "abrir",
   "key_quick": "pegado rápido",
   "key_plain": "texto plano",

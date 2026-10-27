@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 import ServiceManagement
 import ApplicationServices
 
@@ -509,13 +510,7 @@ struct SettingsView: View {
                     }
                     .onChange(of: autoDeleteDays) { _, _ in clipboard.pruneAndSaveIfNeeded() }
                     RowDivider()
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(L("Ignorar apps")).font(.system(size: 12.5))
-                        TextField("", text: $ignoredApps, prompt: Text(L("bundle IDs separados por vírgula")))
-                            .textFieldStyle(.plain).font(.system(size: 12))
-                            .glassField()
-                    }
-                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    IgnoredAppsRow(raw: $ignoredApps)
                     RowDivider()
                     SettingRow(title: L("Limpar histórico (mantém fixados)")) {
                         PillButton(title: L("Limpar"), icon: "trash") { confirmClear = true }
@@ -564,6 +559,171 @@ struct SettingsView: View {
         .noLiquidGlass()
         .scrollIndicators(.never)
         .onAppear { axTrusted = AXIsProcessTrusted() }
+    }
+}
+
+/// Apps cujo conteúdo copiado não entra no histórico: escolha da lista de apps abertos ou do Finder
+struct IgnoredAppsRow: View {
+    @Binding var raw: String
+
+    private var ids: [String] {
+        raw.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(L("Ignorar apps")).font(.system(size: 12.5))
+                    Text(L("O que você copiar neles não vai para o histórico."))
+                        .font(.system(size: 10.5)).foregroundStyle(.secondary)
+                }
+                Spacer(minLength: 8)
+                Menu {
+                    let running = runningApps
+                    if !running.isEmpty {
+                        Section(L("Abertos agora")) {
+                            ForEach(running, id: \.bundleIdentifier) { app in
+                                Button {
+                                    if let id = app.bundleIdentifier { add(id) }
+                                } label: {
+                                    Label {
+                                        Text(app.localizedName ?? app.bundleIdentifier ?? "")
+                                    } icon: {
+                                        if let icon = app.icon { Image(nsImage: Self.small(icon)) }
+                                    }
+                                }
+                            }
+                        }
+                        Divider()
+                    }
+                    Button(L("Escolher outro app…")) { chooseApp() }
+                } label: {
+                    Label(L("Adicionar"), systemImage: "plus")
+                        .font(.system(size: 11.5, weight: .medium))
+                        .padding(.horizontal, 10).padding(.vertical, 5)
+                        .contentShape(Capsule())
+                        .glass(in: Capsule(), interactive: true)
+                }
+                .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+            }
+            if !ids.isEmpty {
+                FlowLayout(spacing: 6) {
+                    ForEach(ids, id: \.self) { id in
+                        HStack(spacing: 5) {
+                            if let icon = AppIcons.icon(for: id) {
+                                Image(nsImage: icon).resizable().frame(width: 16, height: 16)
+                            }
+                            Text(Self.name(for: id)).font(.system(size: 11.5)).lineLimit(1)
+                            Button { remove(id) } label: {
+                                Image(systemName: "xmark.circle.fill").font(.system(size: 11)).foregroundStyle(.tertiary)
+                            }
+                            .buttonStyle(.plain).help(L("Remover"))
+                        }
+                        .padding(.leading, 6).padding(.trailing, 7).padding(.vertical, 4)
+                        .background(Capsule().fill(Color.primary.opacity(0.07)))
+                        .help(id)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+    }
+
+    /// Apps com janela abertos agora, sem os que já estão na lista e sem o próprio Menew
+    private var runningApps: [NSRunningApplication] {
+        let current = Set(ids)
+        var seen = Set<String>()
+        return NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular }
+            .filter { app in
+                guard let id = app.bundleIdentifier, id != Bundle.main.bundleIdentifier, !current.contains(id) else { return false }
+                return seen.insert(id).inserted
+            }
+            .sorted { ($0.localizedName ?? "").localizedCaseInsensitiveCompare($1.localizedName ?? "") == .orderedAscending }
+    }
+
+    private func add(_ id: String) {
+        guard !ids.contains(id) else { return }
+        raw = (ids + [id]).joined(separator: ",")
+    }
+
+    private func remove(_ id: String) {
+        raw = ids.filter { $0 != id }.joined(separator: ",")
+    }
+
+    private func chooseApp() {
+        let panel = NSOpenPanel()
+        panel.title = L("Escolher outro app…")
+        panel.directoryURL = URL(fileURLWithPath: "/Applications")
+        panel.allowedContentTypes = [.application]
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = false
+        NSApp.activate(ignoringOtherApps: true)
+        // Grava direto nos ajustes: o popover pode fechar enquanto o painel está aberto
+        panel.begin { response in
+            guard response == .OK else { return }
+            let picked = panel.urls.compactMap { Bundle(url: $0)?.bundleIdentifier }
+            let current = (UserDefaults.standard.string(forKey: "ignoredApps") ?? "")
+                .split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+            let merged = current + picked.filter { !current.contains($0) }
+            UserDefaults.standard.set(merged.joined(separator: ","), forKey: "ignoredApps")
+        }
+    }
+
+    static func name(for id: String) -> String {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) else { return id }
+        return FileManager.default.displayName(atPath: url.path).replacingOccurrences(of: ".app", with: "")
+    }
+
+    static func small(_ icon: NSImage) -> NSImage {
+        let img = NSImage(size: NSSize(width: 16, height: 16))
+        img.lockFocus()
+        icon.draw(in: NSRect(x: 0, y: 0, width: 16, height: 16))
+        img.unlockFocus()
+        return img
+    }
+}
+
+/// Distribui as fichas em linhas, quebrando quando não cabem
+struct FlowLayout: Layout {
+    var spacing: CGFloat = 6
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        let rows = arrange(width: proposal.width ?? .infinity, subviews: subviews)
+        return CGSize(width: proposal.width ?? rows.map(\.width).max() ?? 0,
+                      height: rows.map(\.height).reduce(0, +) + spacing * CGFloat(max(rows.count - 1, 0)))
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        var y = bounds.minY
+        for row in arrange(width: bounds.width, subviews: subviews) {
+            var x = bounds.minX
+            for i in row.indices {
+                let size = subviews[i].sizeThatFits(.unspecified)
+                subviews[i].place(at: CGPoint(x: x, y: y), proposal: ProposedViewSize(size))
+                x += size.width + spacing
+            }
+            y += row.height + spacing
+        }
+    }
+
+    private struct Row { var indices: [Int] = []; var width: CGFloat = 0; var height: CGFloat = 0 }
+
+    private func arrange(width: CGFloat, subviews: Subviews) -> [Row] {
+        var rows: [Row] = [Row()]
+        for i in subviews.indices {
+            let size = subviews[i].sizeThatFits(.unspecified)
+            if !rows[rows.count - 1].indices.isEmpty, rows[rows.count - 1].width + spacing + size.width > width {
+                rows.append(Row())
+            }
+            var row = rows[rows.count - 1]
+            row.width += (row.indices.isEmpty ? 0 : spacing) + size.width
+            row.height = max(row.height, size.height)
+            row.indices.append(i)
+            rows[rows.count - 1] = row
+        }
+        return rows.filter { !$0.indices.isEmpty }
     }
 }
 
