@@ -2,6 +2,8 @@
 
 Thanks for wanting to help! Menew is a small, dependency-free Swift app, so getting started takes a minute.
 
+Please follow our [code of conduct](CODE_OF_CONDUCT.md). Found a security problem? Report it privately as described in [SECURITY.md](SECURITY.md), not in a public issue.
+
 ## Getting started
 
 Requirements: macOS 14+ and Xcode 16+ (or the Swift 6 toolchain).
