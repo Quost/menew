@@ -22,7 +22,7 @@
   "alt_notes": "快速笔记",
   "features_eyebrow": "一站式搞定",
   "features_h2": "日常的小事，<br>一键即达。",
-  "features_sub": "Menew 用一个基于 Swift 的快速原生应用，取代多个付费菜单栏工具。采用 macOS 26 的 Liquid Glass 设计。",
+  "features_sub": "Menew 用一个基于 Swift 的快速原生应用，取代多个付费菜单栏工具。采用 macOS 26 的 Liquid Glass 设计。按需使用：可在设置中关闭模块。",
   "f1_t": "系统监视器",
   "f1_d": "实时 CPU 图表、内存压力与交换空间、磁盘、电池健康度与循环次数，以及最占资源的进程（一键即可退出）。可选提醒，菜单栏显示什么由你决定。",
   "f2_t": "剪贴板历史",
