@@ -66,6 +66,10 @@ enum Snapshot {
                            size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("cleaner-results-\(suffix).png"))
                 }
+                for step in 0..<5 {
+                    render(WelcomeView(monitor: monitor, onFinish: { _ in }, step: step), size: NSSize(width: 480, height: 560), dark: dark,
+                           to: dir.appendingPathComponent("welcome\(step)-\(suffix).png"))
+                }
                 render(NotesView(store: notes, openID: notes.notes.first?.id)
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,

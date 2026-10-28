@@ -167,7 +167,8 @@ final class ClipboardManager: ObservableObject {
         let pb = NSPasteboard.general
         guard pb.changeCount != lastChange else { return }
         lastChange = pb.changeCount
-        if defaults.bool(forKey: "paused") { return }
+        // Módulo desligado: nem o conteúdo é lido
+        if !Module.clipboard.isOn || defaults.bool(forKey: "paused") { return }
 
         let types = (pb.types ?? []).map(\.rawValue)
         if defaults.bool(forKey: "ignoreConcealed"), types.contains(where: ignoredTypes.contains) { return }

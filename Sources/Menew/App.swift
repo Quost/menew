@@ -33,6 +33,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let nav = PopoverState()
     let popoverClipState = ClipListState()
     lazy var clipPanel = ClipboardPanelController(manager: clipboard)
+    lazy var welcome = WelcomeController(monitor: monitor)
 
     private var statusItem: NSStatusItem!
     private let popover = NSPopover()
@@ -51,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             button.target = self
             button.action = #selector(statusClicked(_:))
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
+            button.setAccessibilityLabel("Menew")
         }
 
         popover.behavior = .transient
@@ -79,9 +81,25 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
 
-        HotKeyCenter.shared.onClipboard = { [weak self] in self?.clipPanel.toggle() }
+        HotKeyCenter.shared.onClipboard = { [weak self] in
+            if Module.clipboard.isOn { self?.clipPanel.toggle() }
+        }
         HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
         HotKeyCenter.shared.register()
+
+        welcome.onOpenMenu = { [weak self] in self?.showPopover() }
+        NotificationCenter.default.addObserver(forName: .showWelcome, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.popover.performClose(nil)
+                self?.welcome.show()
+            }
+        }
+        // Quem já usava o app (tem histórico ou notas) não vê a apresentação
+        let dir = clipboard.dir
+        let existing = ["history.json", "notes.json", "notas.md"].contains {
+            FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path)
+        }
+        welcome.showIfNeeded(existingUser: existing)
     }
 
     /// Automático segue o sistema; Claro/Escuro forçam o tema em todas as janelas do app
@@ -120,7 +138,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             item.target = self
             menu.addItem(item)
         }
-        add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel))
+        if Module.clipboard.isOn { add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel)) }
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
         add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())

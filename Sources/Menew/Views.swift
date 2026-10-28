@@ -6,7 +6,8 @@ import ApplicationServices
 enum Tab: String, CaseIterable {
     case system = "Sistema", clipboard = "Clipboard", actions = "Ações", notes = "Notas", settings = "Ajustes"
     case cleaner = "Liberar espaço"
-    static let visible: [Tab] = [.system, .clipboard, .actions, .notes]
+    /// Abas na barra, sem os módulos desligados
+    static var visible: [Tab] { [.system] + Module.allCases.filter(\.isOn).map(\.tab) }
     var icon: String {
         switch self {
         case .system: "gauge.with.dots.needle.67percent"
@@ -37,6 +38,10 @@ struct MainView: View {
     var onPickClip: (ClipItem, Bool) -> Void
 
     @AppStorage("language") private var language = "auto"
+    // Redesenha as abas quando um módulo liga ou desliga
+    @AppStorage(Module.clipboard.key) private var clipboardOn = true
+    @AppStorage(Module.actions.key) private var actionsOn = true
+    @AppStorage(Module.notes.key) private var notesOn = true
 
     var body: some View {
         VStack(spacing: 0) {
@@ -74,6 +79,10 @@ struct MainView: View {
             }
         }
         .animation(.spring(duration: 0.3), value: toolbox.toast)
+        .onChange(of: [clipboardOn, actionsOn, notesOn]) { _, _ in
+            // Desligou o módulo da aba aberta: volta para o Sistema
+            if let m = Module.allCases.first(where: { $0.tab == nav.tab }), !m.isOn { nav.tab = .system }
+        }
     }
 
     /// Telas abertas por botão (com "voltar"), fora da barra de abas
@@ -448,6 +457,7 @@ struct SettingsView: View {
     @AppStorage("ignoreConcealed") private var ignoreConcealed = true
     @AppStorage("paused") private var paused = false
     @AppStorage("ignoredApps") private var ignoredApps = ""
+    @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
     @State private var confirmClear = false
@@ -465,6 +475,13 @@ struct SettingsView: View {
                     SettingRow(title: L("Idioma")) {
                         GlassMenu(selection: $language, options: [("auto", L("Automático (sistema)"))]
                                   + Lang.allCases.map { ($0.rawValue, $0.pickerName) })
+                    }
+                }
+
+                GlassSection(title: L("Módulos"), footer: L("O Sistema fica sempre ligado.")) {
+                    ForEach(Array(Module.allCases.enumerated()), id: \.element) { i, m in
+                        if i > 0 { RowDivider(inset: 52) }
+                        ModuleToggle(m)
                     }
                 }
 
@@ -493,6 +510,7 @@ struct SettingsView: View {
                     }
                 }
 
+                if clipboardOn {
                 GlassSection(title: L("Clipboard")) {
                     ToggleRow(title: L("Colar automaticamente ao escolher"), isOn: $autoPaste)
                     RowDivider()
@@ -519,12 +537,15 @@ struct SettingsView: View {
                         Button(L("Apagar"), role: .destructive) { clipboard.clear() }
                     }
                 }
+                }
 
                 GlassSection(title: L("Atalhos")) {
-                    SettingRow(title: L("Histórico do clipboard")) {
-                        ShortcutRecorder(name: HotKeyCenter.clipboardKey, fallback: .clipboardDefault)
+                    if clipboardOn {
+                        SettingRow(title: L("Histórico do clipboard")) {
+                            ShortcutRecorder(name: HotKeyCenter.clipboardKey, fallback: .clipboardDefault)
+                        }
+                        RowDivider()
                     }
-                    RowDivider()
                     SettingRow(title: L("Abrir este menu")) {
                         ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
                     }
@@ -537,6 +558,10 @@ struct SettingsView: View {
                     LinkRow(title: L("Sugerir uma ideia…"), icon: "lightbulb") { Feedback.suggestIdea() }
                     RowDivider()
                     LinkRow(title: L("Ver no GitHub"), icon: "chevron.left.forwardslash.chevron.right") { Feedback.openRepo() }
+                    RowDivider()
+                    LinkRow(title: L("Ver a apresentação de novo"), icon: "sparkles") {
+                        NotificationCenter.default.post(name: .showWelcome, object: nil)
+                    }
                 }
 
                 GlassSection(title: L("Atualizações")) {
