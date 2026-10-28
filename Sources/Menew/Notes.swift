@@ -204,6 +204,8 @@ final class NotesStore: ObservableObject {
         return true
     }
 
+    func lock(_ id: UUID) { unlocked[id] = nil }
+
     func lockAll() { unlocked = [:] }
 
     private func scheduleSave() {

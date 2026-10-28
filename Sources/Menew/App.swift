@@ -22,7 +22,7 @@ enum MenewMain {
 }
 
 @MainActor
-final class AppDelegate: NSObject, NSApplicationDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let monitor = SystemMonitor()
     let clipboard = ClipboardManager()
     let toolbox = Toolbox()
@@ -56,6 +56,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         popover.behavior = .transient
+        popover.delegate = self
         popover.animates = true
         // Tamanho fixo desde o início: com o SDK do macOS 26 o popover era posicionado com o tamanho
         // padrão (320 pt) e depois crescia para cima, por cima da barra de menus
@@ -100,6 +101,47 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path)
         }
         welcome.showIfNeeded(existingUser: existing)
+
+        installEditMenu()
+        // Notas protegidas pedem Touch ID de novo depois que o Mac trava ou dorme
+        let ws = NSWorkspace.shared.notificationCenter
+        for name in [NSWorkspace.screensDidSleepNotification, NSWorkspace.sessionDidResignActiveNotification] {
+            ws.addObserver(forName: name, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.notes.lockAll() }
+            }
+        }
+        DistributedNotificationCenter.default().addObserver(forName: .init("com.apple.screenIsLocked"), object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.notes.lockAll() }
+        }
+    }
+
+    /// Fechar o menu tranca de novo as notas protegidas
+    func popoverDidClose(_ notification: Notification) { notes.lockAll() }
+
+    /// Sem menu principal o macOS não entrega ⌘V, ⌘C, ⌘X, ⌘A e ⌘Z aos campos de texto.
+    /// Num app da barra de menus esse menu nunca aparece, só serve para os atalhos.
+    private func installEditMenu() {
+        let edit = NSMenu(title: "Edit")
+        let items: [(String, Selector, String, NSEvent.ModifierFlags)] = [
+            ("Undo", Selector(("undo:")), "z", .command),
+            ("Redo", Selector(("redo:")), "z", [.command, .shift]),
+            ("Cut", #selector(NSText.cut(_:)), "x", .command),
+            ("Copy", #selector(NSText.copy(_:)), "c", .command),
+            ("Paste", #selector(NSText.paste(_:)), "v", .command),
+            ("Paste and Match Style", #selector(NSTextView.pasteAsPlainText(_:)), "v", [.command, .option, .shift]),
+            ("Select All", #selector(NSText.selectAll(_:)), "a", .command),
+        ]
+        for (title, action, key, mods) in items {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: key)
+            item.keyEquivalentModifierMask = mods
+            edit.addItem(item)
+        }
+        let editItem = NSMenuItem(title: "Edit", action: nil, keyEquivalent: "")
+        editItem.submenu = edit
+        let main = NSMenu()
+        main.addItem(NSMenuItem(title: "Menew", action: nil, keyEquivalent: ""))
+        main.addItem(editItem)
+        NSApp.mainMenu = main
     }
 
     /// Automático segue o sistema; Claro/Escuro forçam o tema em todas as janelas do app

@@ -14,8 +14,9 @@ struct NotesView: View {
 
     var body: some View {
         Group {
-            if let id = openID, store.note(id) != nil {
-                NoteEditor(store: store, id: id, onTag: { t in tag = t; openID = nil }) { openID = nil }
+            // Uma nota protegida que foi trancada (menu fechado, Mac travado) volta para a lista
+            if let id = openID, store.note(id) != nil, !store.isLocked(id) {
+                NoteEditor(store: store, id: id, onTag: { t in tag = t; openID = nil }) { store.lock(id); openID = nil }
             } else {
                 list
             }
