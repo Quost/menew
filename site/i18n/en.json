@@ -49,7 +49,7 @@
   "act_sub": "Show hidden files, hide the desktop, keep the Mac awake for an hour or pick a color from anywhere on screen — without opening Terminal. Every switch shows its current state.",
   "act_l1": "<b>Monitor brightness</b> — a slider for every screen, including third-party monitors over DDC/CI.",
   "act_l2": "<b>Mute your mic</b> — from any app with ⌃⌥⌘M, great for meetings.",
-  "act_l3": "<b>Screenshot to clipboard</b> — it lands right in your history.",
+  "act_l3": "<b>Window manager</b> — snap windows to halves, corners and thirds with ⌃⌥ shortcuts or a grid, and send them to the other display.",
   "priv_eyebrow": "Privacy",
   "priv_h2": "Your data never leaves your Mac.",
   "priv_sub": "Menew is open source, so you don't have to take our word for it.",

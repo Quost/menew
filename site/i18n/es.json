@@ -49,7 +49,7 @@
   "act_sub": "Muestra archivos ocultos, oculta el escritorio, mantén el Mac despierto una hora o toma un color de cualquier parte de la pantalla — sin abrir el Terminal. Cada interruptor muestra su estado actual.",
   "act_l1": "<b>Brillo del monitor</b> — un control para cada pantalla, incluso monitores de otras marcas por DDC/CI.",
   "act_l2": "<b>Silencia el micrófono</b> — desde cualquier app con ⌃⌥⌘M, ideal para reuniones.",
-  "act_l3": "<b>Captura al portapapeles</b> — va directo a tu historial.",
+  "act_l3": "<b>Gestor de ventanas</b> — coloca ventanas en mitades, esquinas y tercios con atajos ⌃⌥ o una cuadrícula, y envíalas a la otra pantalla.",
   "priv_eyebrow": "Privacidad",
   "priv_h2": "Tus datos nunca salen de tu Mac.",
   "priv_sub": "Menew es de código abierto, así que no tienes que creernos a ciegas.",
