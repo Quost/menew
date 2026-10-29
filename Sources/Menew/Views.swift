@@ -25,6 +25,18 @@ final class PopoverState: ObservableObject {
     @Published var tab: Tab = .system
     /// Nota pedida pela paleta de comandos; a aba Notas abre e limpa
     @Published var noteToOpen: UUID?
+    /// O popover está na tela. Fechado, as telas são desmontadas e nada é lido nem redesenhado.
+    @Published var isOpen = false
+}
+
+/// Raiz do popover: só monta o conteúdo enquanto ele está aberto
+struct PopoverRoot<Content: View>: View {
+    @ObservedObject var nav: PopoverState
+    @ViewBuilder var content: () -> Content
+
+    var body: some View {
+        if nav.isOpen { content() } else { Color.clear }
+    }
 }
 
 struct MainView: View {

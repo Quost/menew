@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.17.1
+
+- **Much lighter in the background**: after you opened the System tab, Menew kept listing processes and redrawing its charts every 2 seconds even with the menu closed. Now nothing is drawn while the menu is closed. Idle use went from about 15% CPU and 66 MB to about 0.5% CPU and 16 MB.
+
 ## 1.17.0
 
 - **Calculator in the command palette**: type a sum like “12*7.5”, “200 + 10%”, “20% of 340”, “2^10” or “√16” and the result shows at the top. Press ↩ to copy it.

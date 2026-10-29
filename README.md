@@ -124,6 +124,10 @@ cd menew
 | <kbd>⇥</kbd> | Next filter |
 | <kbd>⌘</kbd> <kbd>P</kbd> / <kbd>⌘</kbd> <kbd>⌫</kbd> | Pin / delete |
 
+## Performance
+
+Menew only reads what it shows. With the menu closed it uses about **0.5% CPU and 16 MB of memory** on an Apple Silicon Mac (measured over 60 seconds with Activity Monitor's numbers, menu bar showing CPU, RAM and disk). Charts, the process list and other screens only update while the menu is open.
+
 ## Privacy
 
 The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off).

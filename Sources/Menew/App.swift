@@ -82,11 +82,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         // Tamanho fixo desde o início: com o SDK do macOS 26 o popover era posicionado com o tamanho
         // padrão (320 pt) e depois crescia para cima, por cima da barra de menus
         popover.contentSize = NSSize(width: 400, height: 600)
-        let hosting = NSHostingController(rootView: MainView(
-            nav: nav, monitor: monitor, clipboard: clipboard, toolbox: toolbox, internet: internet, notes: notes,
-            cleaner: cleaner, updater: updater, clipState: popoverClipState,
-            onPickClip: { [weak self] item, plain in self?.pickFromPopover(item, plain: plain) }
-        ))
+        let hosting = NSHostingController(rootView: PopoverRoot(nav: nav) { [unowned self] in
+            MainView(
+                nav: nav, monitor: monitor, clipboard: clipboard, toolbox: toolbox, internet: internet, notes: notes,
+                cleaner: cleaner, updater: updater, clipState: popoverClipState,
+                onPickClip: { [weak self] item, plain in self?.pickFromPopover(item, plain: plain) }
+            )
+        })
         hosting.sizingOptions = []
         popover.contentViewController = hosting
 
@@ -157,7 +159,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     /// Fechar o menu tranca de novo as notas protegidas
-    func popoverDidClose(_ notification: Notification) { notes.lockAll() }
+    func popoverDidClose(_ notification: Notification) {
+        notes.lockAll()
+        nav.isOpen = false
+    }
 
     /// Sem menu principal o macOS não entrega ⌘V, ⌘C, ⌘X, ⌘A e ⌘Z aos campos de texto.
     /// Num app da barra de menus esse menu nunca aparece, só serve para os atalhos.
@@ -286,6 +291,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popoverClipState.query = ""
         popoverClipState.focusToken += 1
         NSApp.activate(ignoringOtherApps: true)
+        nav.isOpen = true
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
     }
