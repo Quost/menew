@@ -50,7 +50,7 @@
   "act_l1": "<b>Monitor brightness</b> — a slider for every screen, including third-party monitors over DDC/CI.",
   "act_l2": "<b>Mute your mic</b> — from any app with ⌃⌥⌘M, great for meetings.",
   "act_l3": "<b>Window manager</b> — snap windows to halves, corners and thirds with ⌃⌥ shortcuts or a grid, and send them to the other display.",
-  "act_l4": "<b>Command palette</b> — press ⌃⌥Space to find any app, action, window layout, snippet or note. Type “brightness 60” or “awake 2h”.",
+  "act_l4": "<b>Command palette</b> — press ⌃⌥Space to find any app, action, window layout, snippet or note. Type “brightness 60” or “awake 2h”. Do math and conversions too: “20% of 340”, “5 km to mi”.",
   "act_l5": "<b>Work profiles</b> — save your open apps and window layout, then bring it all back with one click: apps open, windows go back in place, mic and Keep Awake set.",
   "act_l6": "<b>Quick shelf</b> — shake files while dragging and a shelf appears. Drop files, links and text there, then drag them all out together. Originals never move.",
   "act_l7": "<b>Automations</b> — at 9 AM turn on your work profile, mute the mic when Zoom opens, dim the screen when you unplug. Simple triggers, no scripts.",

@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.17.0
+
+- **Calculator in the command palette**: type a sum like “12*7.5”, “200 + 10%”, “20% of 340”, “2^10” or “√16” and the result shows at the top. Press ↩ to copy it.
+- **Unit conversions**: length, weight, volume, data, time, speed, area and temperature, like “5 km to mi”, “72 f to c” or “1.5 gb to mb”.
+- **Currencies**: “100 usd to brl”. Pressing ↩ fetches the day's European Central Bank rate (frankfurter.app, no account) and keeps it for 6 hours. It's the only part that uses the internet, and only when you ask.
+
 ## 1.16.0
 
 - **Automations** (Actions → Automations): “when X happens, do Y”. Triggers: a time on chosen days, charger plugged in or out, battery below a level, an app opening or quitting, a display connecting or disconnecting. Actions: turn on a work profile, keep awake, mute or unmute the mic, light or dark mode, brightness, pause or resume the clipboard, open an app. Each rule shows a short notice when it runs, has a “Test now” button and runs at most once a minute. No scripts.
