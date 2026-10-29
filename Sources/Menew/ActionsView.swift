@@ -10,6 +10,8 @@ struct ActionsView: View {
     @ObservedObject var displays: DisplayController
     @ObservedObject var profiles = ProfileStore.shared
     @State private var editingProfile: UUID?
+    @ObservedObject var automations = AutomationStore.shared
+    @State private var editingAutomation: UUID?
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
 
@@ -26,6 +28,9 @@ struct ActionsView: View {
     var body: some View {
         if let id = editingProfile, let p = profiles.profile(id) {
             ProfileEditor(store: profiles, tb: tb, profile: p) { editingProfile = nil }
+                .id(id)
+        } else if let id = editingAutomation, let r = automations.rule(id) {
+            AutomationEditor(store: automations, rule: r) { editingAutomation = nil }
                 .id(id)
         } else {
             list
@@ -138,6 +143,10 @@ struct ActionsView: View {
 
                 section(L("Perfis")) {
                     ProfilesSection(store: profiles, tb: tb, editing: $editingProfile)
+                }
+
+                section(L("Automações")) {
+                    AutomationsSection(store: automations, editing: $editingAutomation)
                 }
 
                 section(L("Limpeza")) {

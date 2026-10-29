@@ -90,12 +90,18 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         hosting.sizingOptions = []
         popover.contentViewController = hosting
 
-        monitor.onTick = { [weak self] in self?.updateStatusItem() }
+        monitor.onTick = { [weak self] in
+            guard let self else { return }
+            updateStatusItem()
+            AutomationStore.shared.tick(monitor)
+        }
         updater.onPendingChange = { [weak self] in self?.updateStatusItem() }
         monitor.start()
         clipboard.start()
         ProfileStore.shared.load(dir: clipboard.dir)
         shelf.startShakeDetection()
+        AutomationStore.shared.load(dir: clipboard.dir)
+        AutomationStore.shared.start(toolbox: toolbox)
         updateStatusItem()
 
         applyAppearance()
