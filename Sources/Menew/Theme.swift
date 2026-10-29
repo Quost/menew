@@ -24,10 +24,15 @@ enum Theme {
     })
     static let cardStroke = Color.primary.opacity(0.08)
     /// No macOS 26+ o próprio popover é de vidro: o conteúdo fica transparente por cima dele
+    /// No escuro o vidro sozinho fica cinza-claro sobre fundos brancos e o texto branco some:
+    /// um véu escuro mantém o contraste sem perder a transparência
     static var popoverFill: Color {
-        if #available(macOS 26, *), !flatGlass { return .clear }
+        if #available(macOS 26, *), !flatGlass { return glassScrim }
         return windowFill
     }
+    private static let glassScrim = Color(nsColor: NSColor(name: nil) { a in
+        a.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua ? NSColor(white: 0.06, alpha: 0.55) : .clear
+    })
     /// Ligado pelo modo captura (--snapshot)
     nonisolated(unsafe) static var flatGlass = false
 }

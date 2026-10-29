@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.18.1
+
+- **Better contrast in dark mode**: on macOS 26 the menu's glass turned light gray over bright windows behind it, and the white text was hard to read. It now keeps a dark tint behind the content, so it stays readable over any background.
+
 ## 1.18.0
 
 - **Copy text from screen**: press ⌃⌥⌘T (or use the right-click menu or the command palette), select an area and its text goes straight to the clipboard: a video, a PDF, a screenshot, an error message. A “Reading text…” notice stays up until it's ready, then shows how many lines were copied.
