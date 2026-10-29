@@ -138,15 +138,24 @@ enum AudioControl {
 /// Aviso rápido no meio da tela quando o microfone muda pelo atalho
 @MainActor
 enum MuteHUD {
+    static func show(muted: Bool) {
+        HUD.show(icon: muted ? "mic.slash.fill" : "mic.fill", color: muted ? .red : .green,
+                 text: muted ? L("Microfone mudo") : L("Microfone ligado"))
+    }
+}
+
+/// Confirmação curta perto da base da tela, sem roubar o foco (atalhos e paleta)
+@MainActor
+enum HUD {
     private static var panel: NSPanel?
     private static var hideWork: DispatchWorkItem?
 
-    static func show(muted: Bool) {
+    static func show(icon: String, color: Color, text: String) {
         let view = HStack(spacing: 10) {
-            Image(systemName: muted ? "mic.slash.fill" : "mic.fill")
+            Image(systemName: icon)
                 .font(.system(size: 22, weight: .semibold))
-                .foregroundStyle(muted ? .red : .green)
-            Text(muted ? L("Microfone mudo") : L("Microfone ligado"))
+                .foregroundStyle(color)
+            Text(text)
                 .font(.system(size: 15, weight: .semibold))
         }
         .padding(.horizontal, 22).padding(.vertical, 14)

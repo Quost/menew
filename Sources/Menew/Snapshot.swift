@@ -77,6 +77,12 @@ enum Snapshot {
                     render(WelcomeView(monitor: monitor, onFinish: { _ in }, step: step), size: NSSize(width: 480, height: 560), dark: dark,
                            to: dir.appendingPathComponent("welcome\(step)-\(suffix).png"))
                 }
+                let paletteModel = PaletteModel(toolbox: toolbox, clipboard: clipboard, notes: notes)
+                paletteModel.isDemo = true
+                paletteModel.update()
+                render(PaletteController.chrome(PaletteView(model: paletteModel)), size: PaletteController.size, dark: dark,
+                       background: NSColor(calibratedRed: 0.3, green: 0.4, blue: 0.6, alpha: 1),
+                       to: dir.appendingPathComponent("palette-\(suffix).png"))
                 render(NotesView(store: notes, openID: notes.notes.first?.id)
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,

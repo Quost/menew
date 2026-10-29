@@ -23,6 +23,8 @@ enum Tab: String, CaseIterable {
 @MainActor
 final class PopoverState: ObservableObject {
     @Published var tab: Tab = .system
+    /// Nota pedida pela paleta de comandos; a aba Notas abre e limpa
+    @Published var noteToOpen: UUID?
 }
 
 struct MainView: View {
@@ -59,7 +61,7 @@ struct MainView: View {
                 case .clipboard: ClipboardTabView(manager: clipboard, state: clipState, onActivate: onPickClip)
                 case .actions: ActionsView(tb: toolbox, clipboard: clipboard) { nav.tab = .cleaner }
                 case .cleaner: CleanerView(cleaner: cleaner, monitor: monitor)
-                case .notes: NotesView(store: notes)
+                case .notes: NotesView(store: notes, nav: nav)
                 case .settings: SettingsView(clipboard: clipboard, monitor: monitor, updater: updater)
                 }
             }
@@ -592,6 +594,10 @@ struct SettingsView: View {
                     }
                     SettingRow(title: L("Abrir este menu")) {
                         ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
+                    }
+                    RowDivider()
+                    SettingRow(title: L("Paleta de comandos")) {
+                        ShortcutRecorder(name: HotKeyCenter.paletteKey, fallback: .paletteDefault)
                     }
                     if actionsOn {
                         RowDivider()

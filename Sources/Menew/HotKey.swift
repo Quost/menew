@@ -13,7 +13,8 @@ final class HotKey {
         Self.installHandlerOnce()
         Self.handlers[id] = handler
         let hkID = EventHotKeyID(signature: OSType(0x4D4D4E55), id: id) // 'MMNU'
-        RegisterEventHotKey(keyCode, modifiers, hkID, GetApplicationEventTarget(), 0, &ref)
+        let status = RegisterEventHotKey(keyCode, modifiers, hkID, GetApplicationEventTarget(), 0, &ref)
+        if status != noErr { NSLog("Menew: atalho %u não registrado (%d)", id, status) }
     }
 
     deinit {
@@ -45,6 +46,7 @@ struct Shortcut: Codable, Equatable {
     static let clipboardDefault = Shortcut(keyCode: UInt32(kVK_ANSI_V), modifiers: UInt32(cmdKey | shiftKey), key: "V")
     static let menuDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey), key: "M")
     static let micDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "M")
+    static let paletteDefault = Shortcut(keyCode: UInt32(kVK_Space), modifiers: UInt32(optionKey | controlKey), key: "Space")
 
     var display: String {
         var s = ""
@@ -106,10 +108,12 @@ final class HotKeyCenter {
     static let clipboardKey = "shortcutClipboard"
     static let menuKey = "shortcutMenu"
     static let micKey = "shortcutMic"
+    static let paletteKey = "shortcutPalette"
 
     var onClipboard: (() -> Void)?
     var onMenu: (() -> Void)?
     var onMic: (() -> Void)?
+    var onPalette: (() -> Void)?
     private var hotKeys: [HotKey] = []
 
     func register() {
@@ -117,6 +121,7 @@ final class HotKeyCenter {
         let clip = Shortcut.load(Self.clipboardKey, default: .clipboardDefault)
         let menu = Shortcut.load(Self.menuKey, default: .menuDefault)
         let mic = Shortcut.load(Self.micKey, default: .micDefault)
+        let palette = Shortcut.load(Self.paletteKey, default: .paletteDefault)
         hotKeys = [
             HotKey(keyCode: clip.keyCode, modifiers: clip.modifiers, id: 1) { [weak self] in
                 MainActor.assumeIsolated { self?.onClipboard?() }
@@ -126,6 +131,9 @@ final class HotKeyCenter {
             },
             HotKey(keyCode: mic.keyCode, modifiers: mic.modifiers, id: 3) { [weak self] in
                 MainActor.assumeIsolated { self?.onMic?() }
+            },
+            HotKey(keyCode: palette.keyCode, modifiers: palette.modifiers, id: 4) { [weak self] in
+                MainActor.assumeIsolated { self?.onPalette?() }
             },
         ]
         WindowManager.shared.registerHotKeys()

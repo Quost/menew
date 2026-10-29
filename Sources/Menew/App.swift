@@ -36,6 +36,23 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let popoverClipState = ClipListState()
     lazy var clipPanel = ClipboardPanelController(manager: clipboard)
     lazy var welcome = WelcomeController(monitor: monitor)
+    lazy var palette: PaletteController = {
+        let model = PaletteModel(toolbox: toolbox, clipboard: clipboard, notes: notes)
+        model.openTab = { [weak self] tab in
+            guard let self else { return }
+            nav.tab = tab
+            showPopover()
+        }
+        model.openNote = { [weak self] id in
+            guard let self else { return }
+            nav.tab = .notes
+            nav.noteToOpen = id
+            showPopover()
+        }
+        model.openClipboard = { [weak self] in self?.clipPanel.show() }
+        model.checkForUpdates = { [weak self] in self?.updater.checkForUpdates() }
+        return PaletteController(model: model)
+    }()
 
     private var statusItem: NSStatusItem!
     private let popover = NSPopover()
@@ -89,6 +106,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             if Module.clipboard.isOn { self?.clipPanel.toggle() }
         }
         HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
+        HotKeyCenter.shared.onPalette = { [weak self] in
+            guard let self else { return }
+            if popover.isShown { popover.performClose(nil) }
+            if clipPanel.isVisible { clipPanel.close() }
+            palette.toggle()
+        }
         HotKeyCenter.shared.onMic = { [weak self] in
             guard Module.actions.isOn, let self else { return }
             MuteHUD.show(muted: toolbox.toggleMic())
@@ -205,6 +228,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             item.target = self
             menu.addItem(item)
         }
+        add(L("Paleta de comandos"), "", "command", #selector(openPalette))
         if Module.clipboard.isOn { add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel)) }
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
         add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
@@ -225,6 +249,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     }
 
     @objc private func openClipPanel() { clipPanel.show() }
+    @objc private func openPalette() { palette.show() }
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
     @objc private func checkForUpdates() { updater.checkForUpdates() }

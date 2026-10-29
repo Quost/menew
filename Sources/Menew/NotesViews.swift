@@ -1,14 +1,17 @@
+import Combine
 import SwiftUI
 
 /// Aba Notas: lista com busca e tags; ao abrir uma nota, editor com modo leitura (Markdown)
 struct NotesView: View {
     @ObservedObject var store: NotesStore
+    var nav: PopoverState?
     @State private var openID: UUID?
     @State private var query = ""
     @State private var tag: String?
 
-    init(store: NotesStore, openID: UUID? = nil) {
+    init(store: NotesStore, nav: PopoverState? = nil, openID: UUID? = nil) {
         self.store = store
+        self.nav = nav
         _openID = State(initialValue: openID)
     }
 
@@ -23,6 +26,21 @@ struct NotesView: View {
         }
         .padding(.horizontal, 14).padding(.bottom, 14)
         .onDisappear { store.lockAll() }
+        .onAppear(perform: openRequested)
+        .onReceive(nav?.$noteToOpen.compactMap { $0 }.eraseToAnyPublisher() ?? Empty().eraseToAnyPublisher()) { _ in openRequested() }
+    }
+
+    /// Nota escolhida na paleta; a protegida pede Touch ID antes
+    private func openRequested() {
+        guard let id = nav?.noteToOpen else { return }
+        nav?.noteToOpen = nil
+        query = ""
+        tag = nil
+        if store.isLocked(id) {
+            Task { if await store.unlock(id) { openID = id } }
+        } else {
+            openID = id
+        }
     }
 
     private var list: some View {
