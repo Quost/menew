@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.10.0
+
+- **Display brightness**: a slider for every screen in Actions, including external monitors from other brands over DDC/CI (Apple Silicon).
+- **Mute the microphone** from any app with **⌃⌥⌘M** (change it in Settings → Shortcuts), with a quick on-screen confirmation. Mute the sound too.
+- **Hide the Dock** with one switch in Actions.
+- **GPU usage** in the Processor card and a new **Disk** card with live read and write speed.
+
 ## 1.9.1
 
 - Fixed pasting (⌘V) and the other editing shortcuts (⌘C, ⌘X, ⌘A, ⌘Z) not working in notes and other text fields.

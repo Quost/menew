@@ -35,10 +35,11 @@
 
 | | |
 |---|---|
-| 📊 **System monitor** | CPU with live graph, memory pressure and swap, disk, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery) with a live preview. |
+| 📊 **System monitor** | CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery) with a live preview. |
 | 🔔 **Alerts** | Optional macOS notifications for a nearly full disk, low battery, critical memory pressure or CPU stuck above 90%. |
 | 📋 **Clipboard history** | Text, links, images and files with instant search, filters, pins and a rich preview. Press **⌘⇧V** anywhere. Skips passwords and any app you pick to ignore. |
-| ⚡ **Quick actions** | Switches that show their live state: dark mode, keep awake (with a timer), hidden files and desktop icons. One-click actions: screenshot to clipboard, color picker, plain-text clipboard, lock screen, eject disks, empty trash. |
+| 🔆 **Display brightness** | A slider for every screen: the Mac's own display and external monitors over DDC/CI (Apple Silicon). |
+| ⚡ **Quick actions** | Switches that show their live state: mute the microphone (**⌃⌥⌘M** from anywhere) or the sound, hide the Dock, dark mode, keep awake (with a timer), hidden files and desktop icons. One-click actions: screenshot to clipboard, color picker, plain-text clipboard, lock screen, eject disks, empty trash. |
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
@@ -99,6 +100,7 @@ cd menew
 |---|---|
 | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> | Open clipboard history (customizable) |
 | <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>M</kbd> | Open the Menew menu (customizable) |
+| <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>M</kbd> | Mute / unmute the microphone (customizable) |
 | <kbd>↩</kbd> / <kbd>⌥</kbd> <kbd>↩</kbd> | Paste / paste as plain text |
 | <kbd>⌘</kbd> <kbd>1</kbd>…<kbd>9</kbd> | Quick paste |
 | <kbd>⇥</kbd> | Next filter |
