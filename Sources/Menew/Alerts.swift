@@ -8,7 +8,7 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
     static let shared = Alerts()
 
     enum Kind: String, CaseIterable {
-        case disk = "alertDisk", battery = "alertBattery", memory = "alertMemory", cpu = "alertCPU"
+        case disk = "alertDisk", battery = "alertBattery", memory = "alertMemory", cpu = "alertCPU", thermal = "alertThermal"
 
         var title: String {
             switch self {
@@ -16,6 +16,7 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
             case .battery: L("Bateria baixa")
             case .memory: L("Memória no limite")
             case .cpu: L("CPU alta por muito tempo")
+            case .thermal: L("Mac esquentando")
             }
         }
         var icon: String {
@@ -24,6 +25,7 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
             case .battery: "battery.25percent"
             case .memory: "memorychip"
             case .cpu: "flame"
+            case .thermal: "thermometer.high"
             }
         }
         var enabled: Bool { UserDefaults.standard.bool(forKey: rawValue) }
@@ -62,6 +64,10 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
         memoryStreak = m.memPressure == .critical ? memoryStreak + 1 : 0
         evaluate(.memory, on: memoryStreak >= 5, off: m.memPressure == .normal) {
             L("O Mac está sem memória livre e pode ficar lento. Feche apps que não está usando.")
+        }
+        // Temperatura: o próprio macOS diz que está quente (ele já reduz a velocidade nesse ponto)
+        evaluate(.thermal, on: m.thermal == .serious || m.thermal == .critical, off: m.thermal == .nominal) {
+            L("O Mac está quente e pode ficar mais lento. Feche apps pesados ou deixe as saídas de ar livres.")
         }
         // CPU: acima de 90% por 2 minutos (60 leituras de 2 s)
         cpuStreak = m.cpu > 0.9 ? cpuStreak + 1 : 0

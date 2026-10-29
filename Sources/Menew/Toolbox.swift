@@ -7,6 +7,8 @@ final class Toolbox: ObservableObject {
     @Published var keepAwake = false
     /// Quando o "manter acordado" desliga sozinho (nil = até desligar)
     @Published var awakeUntil: Date?
+    /// App que mantém o Mac acordado enquanto estiver aberto
+    @Published var awakeApp: NSRunningApplication?
     @Published var darkMode = Toolbox.systemIsDark
     @Published var ejectableCount = 0
     @Published var hiddenFiles = false
@@ -30,6 +32,13 @@ final class Toolbox: ObservableObject {
                                                             object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.darkMode = Self.systemIsDark }
         }
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.didTerminateApplicationNotification,
+                                                          object: nil, queue: .main) { [weak self] note in
+            let pid = (note.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.processIdentifier
+            MainActor.assumeIsolated {
+                if let self, let pid, self.awakeApp?.processIdentifier == pid { self.setKeepAwake(false) }
+            }
+        }
     }
 
     /// Aparência do macOS (não a do Menew, que pode estar forçada nos Ajustes)
@@ -47,9 +56,21 @@ final class Toolbox: ObservableObject {
 
     // MARK: Manter acordado (tipo Amphetamine/caffeinate)
 
+    /// Até um horário (o próximo, se já passou hoje)
+    func keepAwake(until date: Date) {
+        setKeepAwake(true, minutes: max(1, Int((date.timeIntervalSinceNow / 60).rounded(.up))))
+    }
+
+    /// Enquanto o app estiver aberto
+    func keepAwake(while app: NSRunningApplication) {
+        setKeepAwake(true)
+        if keepAwake { awakeApp = app }
+    }
+
     func setKeepAwake(_ on: Bool, minutes: Int? = nil) {
         awakeTimer?.invalidate()
         awakeUntil = nil
+        awakeApp = nil
         if assertionID != 0 {
             IOPMAssertionRelease(assertionID)
             assertionID = 0

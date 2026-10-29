@@ -314,6 +314,18 @@ final class PaletteModel: ObservableObject {
                    shortcut: Shortcut.load(HotKeyCenter.clipboardKey, default: .clipboardDefault).display) { [weak self] in
                 self?.openClipboard()
             }
+            if ClipboardManager.isPaused {
+                action("clipresume", L("Retomar captura do clipboard"), "play.circle.fill", .orange, "clipboard retomar resume pausa pause") {
+                    ClipboardManager.resume()
+                    HUD.show(icon: "play.circle.fill", color: .green, text: L("Captura retomada"))
+                }
+            } else {
+                action("clippause", L("Pausar o clipboard por 1 hora"), "pause.circle.fill", .orange,
+                       "clipboard pausar pause privacidade privacy") {
+                    ClipboardManager.pause(minutes: 60)
+                    HUD.show(icon: "pause.circle.fill", color: .orange, text: L("Clipboard pausado por 1 hora"))
+                }
+            }
             for s in clipboard.snippets.snippets {
                 let item = ClipItem(id: s.id, kind: .text, text: s.text, snippetTitle: s.title)
                 out.append(PaletteItem(id: isDemo && s.id == clipboard.snippets.snippets.first?.id ? "snippet.demo" : "snippet.\(s.id)",
@@ -360,6 +372,24 @@ final class PaletteModel: ObservableObject {
         let tb = toolbox
         var out: [PaletteItem] = []
         let parts = q.split(separator: " ")
+        // "acordado até 18", "awake until 18:30"
+        if parts.count == 3, ["acordado", "awake", "wach", "despierto"].contains(where: { $0.hasPrefix(String(parts[0])) }),
+           ["ate", "until", "bis", "hasta"].contains(String(parts[1])) {
+            let hm = parts[2].replacingOccurrences(of: "h", with: ":").split(separator: ":").compactMap { Int($0) }
+            if let h = hm.first, (0..<24).contains(h) {
+                let m = hm.count > 1 ? hm[1] : 0
+                if (0..<60).contains(m),
+                   let date = Calendar.current.nextDate(after: Date(), matching: DateComponents(hour: h, minute: m), matchingPolicy: .nextTime) {
+                    let time = date.formatted(.dateTime.hour().minute().locale(L10n.locale))
+                    out.append(PaletteItem(id: "awake.until", kind: .action, title: L("Manter acordado até %@", time), keywords: q,
+                                           icon: .symbol("cup.and.saucer.fill", .orange), remember: false) {
+                        tb.keepAwake(until: date)
+                        HUD.show(icon: "cup.and.saucer.fill", color: .orange, text: L("Acordado até %@", time))
+                    })
+                }
+            }
+            return out
+        }
         guard parts.count == 2 else { return [] }
         let word = String(parts[0]), arg = String(parts[1])
 
@@ -496,6 +526,8 @@ struct PaletteRow: View {
         }
         .padding(.horizontal, 10)
         .frame(height: item.subtitle?.isEmpty == false ? 44 : 38)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(selected ? [.isButton, .isSelected] : .isButton)
         .background(RoundedRectangle(cornerRadius: 9, style: .continuous)
             .fill(selected ? Color.accentColor.opacity(0.22) : .clear))
     }

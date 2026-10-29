@@ -30,14 +30,48 @@ struct SearchField: View {
                 Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
             }
-            if UserDefaults.standard.bool(forKey: "paused") {
-                Label(L("Pausado"), systemImage: "pause.circle.fill")
-                    .font(.system(size: 11, weight: .medium)).foregroundStyle(.orange)
-            }
+            ClipPauseMenu()
         }
         .modifier(SearchFieldChrome(large: large))
         .onAppear { focused = true }
         .onChange(of: state.focusToken) { _, _ in focused = true }
+    }
+}
+
+/// Pausar a captura por um tempo (ou até retomar), ao lado da busca
+struct ClipPauseMenu: View {
+    @AppStorage("paused") private var paused = false
+    @AppStorage("pausedUntil") private var until: Double = 0
+
+    var body: some View {
+        // Reavalia a cada 30 s para a pausa com hora sumir sozinha
+        TimelineView(.periodic(from: .now, by: 30)) { ctx in
+            let active = paused || until > ctx.date.timeIntervalSince1970
+            Menu {
+                if active {
+                    Button(L("Retomar captura")) { ClipboardManager.resume() }
+                    Divider()
+                }
+                Button(L("Pausar por 15 minutos")) { ClipboardManager.pause(minutes: 15) }
+                Button(L("Pausar por 1 hora")) { ClipboardManager.pause(minutes: 60) }
+                Button(L("Pausar até eu retomar")) { ClipboardManager.pause(minutes: nil) }
+            } label: {
+                if active {
+                    Label(label, systemImage: "pause.circle.fill")
+                        .font(.system(size: 11, weight: .medium)).foregroundStyle(.orange)
+                } else {
+                    Image(systemName: "pause.circle").font(.system(size: 13)).foregroundStyle(.tertiary)
+                }
+            }
+            .menuStyle(.button).buttonStyle(.borderless).menuIndicator(.hidden).fixedSize()
+            .help(active ? label : L("Pausar a captura (para copiar algo sem guardar)"))
+            .accessibilityLabel(active ? label : L("Pausar captura"))
+        }
+    }
+
+    private var label: String {
+        guard !paused, until > 0 else { return L("Pausado") }
+        return L("Pausado até %@", Date(timeIntervalSince1970: until).formatted(.dateTime.hour().minute().locale(L10n.locale)))
     }
 }
 
@@ -60,6 +94,8 @@ struct FilterChips: View {
                     let on = state.filter == f
                     GlassChip(title: !iconsOnly || on ? f.label : nil, icon: f.icon, on: on) { state.filter = f }
                         .help(f.label)
+                        .accessibilityLabel(f.label)
+                        .accessibilityAddTraits(on ? .isSelected : [])
                 }
             }
         }
@@ -450,11 +486,23 @@ struct ClipboardTabView: View {
                 SearchField(state: state)
                 FilterChips(state: state, iconsOnly: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                ClipList(manager: manager, state: state, list: manager.filtered(state.query, state.filter), onActivate: onActivate)
+                let list = manager.filtered(state.query, state.filter)
+                ClipList(manager: manager, state: state, list: list, onActivate: onActivate)
                     .padding(.horizontal, -6)
+                    .background(quickPaste(list))
             }
         }
         .padding(.horizontal, 12).padding(.top, 4).padding(.bottom, managingSnippets ? 12 : 0)
+    }
+
+    /// ⌘1…⌘9 colam o item da posição, como no painel ⌘⇧V
+    private func quickPaste(_ list: [ClipItem]) -> some View {
+        ZStack {
+            ForEach(Array(list.prefix(9).enumerated()), id: \.element.id) { i, item in
+                Button("") { onActivate(item, false) }.keyboardShortcut(KeyEquivalent(Character("\(i + 1)")), modifiers: .command)
+            }
+        }
+        .opacity(0).frame(width: 0, height: 0).accessibilityHidden(true)
     }
 }
 

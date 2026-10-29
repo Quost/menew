@@ -76,6 +76,16 @@ struct ActionsView: View {
                                         tb.setKeepAwake(true, minutes: m)
                                     }
                                 }
+                                Menu(L("Até um horário")) {
+                                    ForEach(Self.nextHours(), id: \.self) { d in
+                                        Button(d.formatted(.dateTime.hour().minute().locale(L10n.locale))) { tb.keepAwake(until: d) }
+                                    }
+                                }
+                                Menu(L("Enquanto um app estiver aberto")) {
+                                    ForEach(Self.runningApps(), id: \.processIdentifier) { app in
+                                        Button(app.localizedName ?? "") { tb.keepAwake(while: app) }
+                                    }
+                                }
                                 Divider()
                                 Button(L("Até eu desligar")) { tb.setKeepAwake(true) }
                             } label: {
@@ -117,6 +127,7 @@ struct ActionsView: View {
                                     }
                                     .buttonStyle(.plain)
                                     .help("\(l.title)  \(l.shortcutDisplay)")
+                                    .accessibilityLabel(l.title)
                                 }
                             }
                         }
@@ -191,12 +202,26 @@ struct ActionsView: View {
         .onAppear { tb.refresh() }
     }
 
+    /// As próximas 8 horas cheias (a primeira com pelo menos 30 min de folga)
+    static func nextHours() -> [Date] {
+        let cal = Calendar.current
+        let start = cal.nextDate(after: Date().addingTimeInterval(30 * 60), matching: DateComponents(minute: 0), matchingPolicy: .nextTime) ?? Date()
+        return (0..<8).compactMap { cal.date(byAdding: .hour, value: $0, to: start) }
+    }
+
+    static func runningApps() -> [NSRunningApplication] {
+        NSWorkspace.shared.runningApplications
+            .filter { $0.activationPolicy == .regular && $0.bundleIdentifier != Bundle.main.bundleIdentifier }
+            .sorted { ($0.localizedName ?? "").localizedCaseInsensitiveCompare($1.localizedName ?? "") == .orderedAscending }
+    }
+
     private var isSnapshot: Bool { CommandLine.arguments.contains("--snapshot") }
 
     private var micShortcut: String { Shortcut.load(HotKeyCenter.micKey, default: .micDefault).display }
 
     private var awakeState: String {
         guard tb.keepAwake else { return L("Desligado") }
+        if let app = tb.awakeApp { return L("Enquanto %@ estiver aberto", app.localizedName ?? "") }
         guard let until = tb.awakeUntil else { return L("Até você desligar") }
         return L("Até %@", until.formatted(.dateTime.hour().minute().locale(L10n.locale)))
     }
@@ -275,7 +300,9 @@ struct ControlRow<Extra: View>: View {
             }
             Spacer(minLength: 6)
             extra.foregroundStyle(.secondary)
-            Toggle("", isOn: $isOn).toggleStyle(.switch).controlSize(.small).labelsHidden().tint(color)
+            Toggle(title, isOn: $isOn).toggleStyle(.switch).controlSize(.small).labelsHidden().tint(color)
+                .accessibilityValue(state)
+                .accessibilityHint(help)
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
         .contentShape(Rectangle())
@@ -327,6 +354,7 @@ struct ActionTile: View {
             .glass(tint: on ? color.opacity(0.25) : nil, interactive: !disabled)
         }
         .buttonStyle(.plain)
+        .accessibilityHint(help)
         .disabled(disabled)
         .opacity(disabled ? 0.5 : 1)
         .onHover { hover = $0 }

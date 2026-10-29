@@ -137,6 +137,15 @@ struct MainView: View {
     private var tabBar: some View {
         GlassSegmented(selection: $nav.tab, options: Tab.visible.map { .init(value: $0, title: L($0.rawValue), icon: $0.icon) })
             .padding(.horizontal, 14).padding(.bottom, 12)
+            .background(tabShortcuts)
+    }
+
+    /// ⌘, abre os Ajustes (botão invisível, só pelo atalho)
+    private var tabShortcuts: some View {
+        ZStack {
+            Button("") { nav.tab = .settings }.keyboardShortcut(",", modifiers: .command)
+        }
+        .opacity(0).frame(width: 0, height: 0).accessibilityHidden(true)
     }
 }
 

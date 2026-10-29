@@ -168,7 +168,7 @@ final class ClipboardManager: ObservableObject {
         guard pb.changeCount != lastChange else { return }
         lastChange = pb.changeCount
         // Módulo desligado: nem o conteúdo é lido
-        if !Module.clipboard.isOn || defaults.bool(forKey: "paused") { return }
+        if !Module.clipboard.isOn || Self.isPaused { return }
 
         let types = (pb.types ?? []).map(\.rawValue)
         if defaults.bool(forKey: "ignoreConcealed"), types.contains(where: ignoredTypes.contains) { return }
@@ -312,6 +312,30 @@ final class ClipboardManager: ObservableObject {
         up?.flags = .maskCommand
         down?.post(tap: .cghidEventTap)
         up?.post(tap: .cghidEventTap)
+    }
+
+    // MARK: Pausa
+
+    /// "paused": até retomar. "pausedUntil": volta sozinha nessa hora (segundos desde 1970).
+    static var isPaused: Bool {
+        let d = UserDefaults.standard
+        return d.bool(forKey: "paused") || d.double(forKey: "pausedUntil") > Date().timeIntervalSince1970
+    }
+
+    static func pause(minutes: Int?) {
+        let d = UserDefaults.standard
+        if let minutes {
+            d.set(false, forKey: "paused")
+            d.set(Date().addingTimeInterval(TimeInterval(minutes * 60)).timeIntervalSince1970, forKey: "pausedUntil")
+        } else {
+            d.set(true, forKey: "paused")
+            d.removeObject(forKey: "pausedUntil")
+        }
+    }
+
+    static func resume() {
+        UserDefaults.standard.set(false, forKey: "paused")
+        UserDefaults.standard.removeObject(forKey: "pausedUntil")
     }
 
     static func requestAccessibility() {

@@ -236,6 +236,7 @@ struct AlertsSection: View {
     @AppStorage(Alerts.Kind.battery.rawValue) private var battery = false
     @AppStorage(Alerts.Kind.memory.rawValue) private var memory = false
     @AppStorage(Alerts.Kind.cpu.rawValue) private var cpu = false
+    @AppStorage(Alerts.Kind.thermal.rawValue) private var thermal = false
     @State private var denied = false
 
     var body: some View {
@@ -250,6 +251,8 @@ struct AlertsSection: View {
             toggle(.memory, $memory, L("Pressão de memória crítica"))
             RowDivider()
             toggle(.cpu, $cpu, L("Acima de 90% por 2 minutos"))
+            RowDivider()
+            toggle(.thermal, $thermal, L("Temperatura alta ou crítica"))
             if denied {
                 RowDivider()
                 SettingRow(title: L("As notificações do Menew estão desligadas no macOS."), icon: "bell.slash") {
@@ -271,7 +274,7 @@ struct AlertsSection: View {
     }
 
     private func refreshDenied() {
-        guard Bundle.main.bundleIdentifier != nil, [disk, battery, memory, cpu].contains(true) else { return }
+        guard Bundle.main.bundleIdentifier != nil, [disk, battery, memory, cpu, thermal].contains(true) else { return }
         UNUserNotificationCenter.current().getNotificationSettings { s in
             let off = s.authorizationStatus == .denied
             Task { @MainActor in denied = off }

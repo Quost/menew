@@ -174,6 +174,7 @@ struct IconButton: View {
         .foregroundStyle(.secondary)
         .onHover { hover = $0 }
         .help(help)
+        .accessibilityLabel(help)
     }
 }
 
@@ -479,7 +480,7 @@ struct ToggleRow: View {
 
     var body: some View {
         SettingRow(title: title, detail: detail, icon: icon) {
-            Toggle("", isOn: $isOn).toggleStyle(.switch).controlSize(.small).labelsHidden()
+            Toggle(title, isOn: $isOn).toggleStyle(.switch).controlSize(.small).labelsHidden()
         }
         .contentShape(Rectangle())
         .onTapGesture { isOn.toggle() }
