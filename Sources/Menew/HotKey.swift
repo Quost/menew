@@ -128,9 +128,13 @@ final class HotKeyCenter {
                 MainActor.assumeIsolated { self?.onMic?() }
             },
         ]
+        WindowManager.shared.registerHotKeys()
     }
 
-    func suspend() { hotKeys = [] }
+    func suspend() {
+        hotKeys = []
+        WindowManager.shared.suspendHotKeys()
+    }
 }
 
 /// Campo que grava um atalho: clique, pressione a combinação; esc cancela

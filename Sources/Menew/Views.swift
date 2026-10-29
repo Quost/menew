@@ -48,6 +48,7 @@ struct MainView: View {
             // O vidro dos cards não respeita o recorte da rolagem: o cabeçalho fica por cima e o conteúdo é recortado
             VStack(spacing: 0) {
                 header
+                if let v = updater.pendingVersion { updateBanner(v) }
                 if !isSubpage { tabBar }
             }
             .zIndex(1)
@@ -82,7 +83,22 @@ struct MainView: View {
         .onChange(of: [clipboardOn, actionsOn, notesOn]) { _, _ in
             // Desligou o módulo da aba aberta: volta para o Sistema
             if let m = Module.allCases.first(where: { $0.tab == nav.tab }), !m.isOn { nav.tab = .system }
+            // Os atalhos de janelas fazem parte das Ações
+            WindowManager.shared.registerHotKeys()
         }
+    }
+
+    /// Aviso discreto de versão nova: a janela do Sparkle só abre quando você clica
+    private func updateBanner(_ version: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: "arrow.down.circle.fill").font(.system(size: 16)).foregroundStyle(Theme.indigo)
+            Text(L("Menew %@ está disponível", version)).font(.system(size: 12, weight: .medium)).lineLimit(1)
+            Spacer()
+            PillButton(title: L("Ver novidades"), primary: true) { updater.checkForUpdates() }
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+        .glass()
+        .padding(.horizontal, 14).padding(.bottom, 10)
     }
 
     /// Telas abertas por botão (com "voltar"), fora da barra de abas
@@ -485,6 +501,7 @@ struct SettingsView: View {
     @AppStorage("ignoredApps") private var ignoredApps = ""
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @AppStorage(Module.actions.key) private var actionsOn = true
+    @AppStorage(WindowManager.shortcutsKey) private var windowShortcuts = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
     @State private var confirmClear = false
@@ -581,6 +598,11 @@ struct SettingsView: View {
                         SettingRow(title: L("Mutar microfone")) {
                             ShortcutRecorder(name: HotKeyCenter.micKey, fallback: .micDefault)
                         }
+                        RowDivider()
+                        ToggleRow(title: L("Organizar janelas com ⌃⌥"),
+                                  detail: L("⌃⌥ + setas para metades, U I J K para cantos, ↩ para maximizar. Desligue se usa outro app para isso."),
+                                  isOn: $windowShortcuts)
+                            .onChange(of: windowShortcuts) { _, _ in WindowManager.shared.registerHotKeys() }
                     }
                 }
 

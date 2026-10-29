@@ -93,6 +93,27 @@ struct ActionsView: View {
                     .glass()
                 }
 
+                section(L("Janelas")) {
+                    VStack(spacing: 6) {
+                        GlassGroup(spacing: 6) {
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 6), count: 6), spacing: 6) {
+                                ForEach(WindowLayout.allCases.filter { $0 != .nextDisplay || NSScreen.screens.count > 1 || isSnapshot }) { l in
+                                    Button { WindowManager.shared.apply(l, fromMenu: true) } label: {
+                                        LayoutIcon(layout: l)
+                                            .frame(maxWidth: .infinity, minHeight: 34)
+                                            .contentShape(Rectangle())
+                                            .glass(interactive: true)
+                                    }
+                                    .buttonStyle(.plain)
+                                    .help("\(l.title)  \(l.shortcutDisplay)")
+                                }
+                            }
+                        }
+                        Text(L("Move a janela do app que estava na frente. Atalhos: ⌃⌥ + setas, U I J K, D F G, E T, ↩ e C."))
+                            .font(.system(size: 10.5)).foregroundStyle(.tertiary).padding(.leading, 4)
+                    }
+                }
+
                 section(L("Limpeza")) {
                     GlassGroup {
                         LazyVGrid(columns: cols, spacing: 8) {
@@ -154,6 +175,8 @@ struct ActionsView: View {
         .scrollIndicators(.never)
         .onAppear { tb.refresh() }
     }
+
+    private var isSnapshot: Bool { CommandLine.arguments.contains("--snapshot") }
 
     private var micShortcut: String { Shortcut.load(HotKeyCenter.micKey, default: .micDefault).display }
 
