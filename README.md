@@ -126,7 +126,7 @@ cd menew
 
 ## Performance
 
-Menew only reads what it shows. With the menu closed it uses about **0.5% CPU and 16 MB of memory** on an Apple Silicon Mac (measured over 60 seconds with Activity Monitor's numbers, menu bar showing CPU, RAM and disk). Charts, the process list and other screens only update while the menu is open.
+Menew only reads what it shows. With the menu closed it uses about **0.5% CPU and 16 MB of memory** on an Apple Silicon Mac (measured over 60 seconds with `top` and `footprint`, menu bar showing CPU, RAM and disk). Charts, the process list and other screens only update while the menu is open.
 
 ## Privacy
 
