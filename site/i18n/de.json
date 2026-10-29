@@ -52,6 +52,7 @@
   "act_l3": "<b>Fensterverwaltung</b> — Fenster per ⌃⌥-Kurzbefehl oder Raster auf Hälften, Ecken und Drittel legen und auf den anderen Bildschirm schicken.",
   "act_l4": "<b>Befehlspalette</b> — drücke ⌃⌥Leertaste und finde jede App, Aktion, Fensteranordnung, jedes Snippet und jede Notiz. Tippe „helligkeit 60“ oder „wach 2h“.",
   "act_l5": "<b>Arbeitsprofile</b> — sichere offene Apps und Fensteranordnung und hol alles mit einem Klick zurück: Apps öffnen sich, Fenster landen an ihrem Platz, Mikrofon und Wachhalten werden gesetzt.",
+  "act_l6": "<b>Schnellablage</b> — schüttle Dateien beim Ziehen, und eine Ablage erscheint. Lege Dateien, Links und Text dort ab und ziehe dann alles zusammen heraus. Originale bleiben, wo sie sind.",
   "priv_eyebrow": "Datenschutz",
   "priv_h2": "Deine Daten verlassen nie deinen Mac.",
   "priv_sub": "Menew ist Open Source — du musst uns also nicht einfach glauben.",

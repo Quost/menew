@@ -52,6 +52,7 @@
   "act_l3": "<b>Gerenciador de janelas</b> — encaixe janelas em metades, cantos e terços com atalhos ⌃⌥ ou por uma grade, e mande para a outra tela.",
   "act_l4": "<b>Paleta de comandos</b> — aperte ⌃⌥Espaço e encontre qualquer app, ação, layout de janela, snippet ou nota. Digite “brilho 60” ou “acordado 2h”.",
   "act_l5": "<b>Perfis de trabalho</b> — salve os apps abertos e o layout das janelas e volte a tudo com um clique: os apps abrem, as janelas voltam ao lugar, e o microfone e o manter acordado se ajustam.",
+  "act_l6": "<b>Estante rápida</b> — chacoalhe arquivos enquanto arrasta e uma estante aparece. Solte ali arquivos, links e textos e depois arraste tudo junto. Os originais nunca saem do lugar.",
   "priv_eyebrow": "Privacidade",
   "priv_h2": "Seus dados nunca saem do seu Mac.",
   "priv_sub": "O Menew é open source, então você não precisa acreditar só na nossa palavra.",
