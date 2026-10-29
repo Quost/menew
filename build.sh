@@ -7,6 +7,7 @@
 #
 # Variáveis opcionais:
 #   VERSION=1.2.0                                   versão no Info.plist
+#   BUILD=1                                         número do build (padrão: nº de commits)
 #   UNIVERSAL=1                                     binário arm64 + x86_64
 #   SIGN_IDENTITY="Developer ID Application: ..."   assina para distribuição (senão, ad-hoc)
 #
@@ -53,7 +54,7 @@ rm -rf "$APP/Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices" \
 
 if [ -n "${VERSION:-}" ]; then
   plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
-  plutil -replace CFBundleVersion -string "$(git rev-list --count HEAD 2>/dev/null || echo 1)" "$APP/Contents/Info.plist"
+  plutil -replace CFBundleVersion -string "${BUILD:-$(git rev-list --count HEAD 2>/dev/null || echo 1)}" "$APP/Contents/Info.plist"
 fi
 
 # Assina de dentro para fora: partes do Sparkle, o framework e por fim o app

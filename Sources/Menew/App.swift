@@ -72,6 +72,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popover.contentViewController = hosting
 
         monitor.onTick = { [weak self] in self?.updateStatusItem() }
+        updater.onPendingChange = { [weak self] in self?.updateStatusItem() }
         monitor.start()
         clipboard.start()
         updateStatusItem()
@@ -163,11 +164,29 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private func updateStatusItem() {
         guard let button = statusItem?.button else { return }
         let segments = MenuBarItem.selected.compactMap { $0.segment(monitor) }
-        let key = segments.map(\.key).joined(separator: "|")
+        let pending = updater.pendingVersion != nil
+        let key = segments.map(\.key).joined(separator: "|") + (pending ? "|update" : "")
         guard key != lastStatusKey || button.image == nil else { return }
         lastStatusKey = key
-        button.image = StatusRenderer.image(segments: segments)
+        let image = StatusRenderer.image(segments: segments)
+        button.image = pending ? Self.withUpdateDot(image) : image
         button.imagePosition = .imageOnly
+    }
+
+    /// Pontinho no canto do ícone: tem atualização esperando, sem abrir janela nenhuma
+    private static func withUpdateDot(_ image: NSImage) -> NSImage {
+        // Espaço extra à direita para o ponto não encostar no texto
+        let d: CGFloat = 5, gap: CGFloat = 2
+        let size = NSSize(width: image.size.width + gap + d, height: image.size.height)
+        let out = NSImage(size: size, flipped: false) { rect in
+            image.draw(in: NSRect(origin: .zero, size: image.size))
+            NSColor.black.setFill()
+            NSBezierPath(ovalIn: NSRect(x: rect.maxX - d, y: rect.maxY - d - 3, width: d, height: d)).fill()
+            return true
+        }
+        // Continua modelo (template): o macOS pinta ícone e ponto na cor certa da barra
+        out.isTemplate = image.isTemplate
+        return out
     }
 
     @objc private func statusClicked(_ sender: NSStatusBarButton) {
@@ -193,7 +212,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         add(L("Reportar um problema…"), "", "ladybug", #selector(reportBug))
         add(L("Sugerir uma ideia…"), "", "lightbulb", #selector(suggestIdea))
         menu.addItem(.separator())
-        add(L("Procurar atualizações…"), "", "arrow.down.circle", #selector(checkForUpdates))
+        if let v = updater.pendingVersion {
+            add(L("Atualizar para a versão %@…", v), "", "arrow.down.circle.fill", #selector(showPendingUpdate))
+        } else {
+            add(L("Procurar atualizações…"), "", "arrow.down.circle", #selector(checkForUpdates))
+        }
         add(L("Ajustes…"), ",", "gearshape", #selector(openSettings))
         add(L("Sair do Menew"), "q", "power", #selector(quit))
         statusItem.menu = menu
@@ -205,13 +228,17 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
     @objc private func checkForUpdates() { updater.checkForUpdates() }
+    @objc private func showPendingUpdate() { updater.showPendingUpdate() }
     @objc private func reportBug() { popover.performClose(nil); Feedback.reportBug() }
     @objc private func suggestIdea() { popover.performClose(nil); Feedback.suggestIdea() }
     @objc private func openSettings() { nav.tab = .settings; showPopover() }
     @objc private func quit() { NSApp.terminate(nil) }
 
     private func togglePopover() {
-        popover.isShown ? popover.performClose(nil) : showPopover()
+        if popover.isShown { popover.performClose(nil); return }
+        // Atualização achada em segundo plano: a janela do Sparkle abre quando a pessoa clica no ícone
+        if updater.pendingVersion != nil { updater.showPendingUpdate(); return }
+        showPopover()
     }
 
     private func showPopover() {
