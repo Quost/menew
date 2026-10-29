@@ -44,6 +44,7 @@ struct Shortcut: Codable, Equatable {
 
     static let clipboardDefault = Shortcut(keyCode: UInt32(kVK_ANSI_V), modifiers: UInt32(cmdKey | shiftKey), key: "V")
     static let menuDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey), key: "M")
+    static let micDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "M")
 
     var display: String {
         var s = ""
@@ -104,21 +105,27 @@ final class HotKeyCenter {
     static let shared = HotKeyCenter()
     static let clipboardKey = "shortcutClipboard"
     static let menuKey = "shortcutMenu"
+    static let micKey = "shortcutMic"
 
     var onClipboard: (() -> Void)?
     var onMenu: (() -> Void)?
+    var onMic: (() -> Void)?
     private var hotKeys: [HotKey] = []
 
     func register() {
         hotKeys = []   // libera os anteriores
         let clip = Shortcut.load(Self.clipboardKey, default: .clipboardDefault)
         let menu = Shortcut.load(Self.menuKey, default: .menuDefault)
+        let mic = Shortcut.load(Self.micKey, default: .micDefault)
         hotKeys = [
             HotKey(keyCode: clip.keyCode, modifiers: clip.modifiers, id: 1) { [weak self] in
                 MainActor.assumeIsolated { self?.onClipboard?() }
             },
             HotKey(keyCode: menu.keyCode, modifiers: menu.modifiers, id: 2) { [weak self] in
                 MainActor.assumeIsolated { self?.onMenu?() }
+            },
+            HotKey(keyCode: mic.keyCode, modifiers: mic.modifiers, id: 3) { [weak self] in
+                MainActor.assumeIsolated { self?.onMic?() }
             },
         ]
     }

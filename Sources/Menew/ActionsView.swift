@@ -7,12 +7,14 @@ import SwiftUI
 struct ActionsView: View {
     @ObservedObject var tb: Toolbox
     @ObservedObject var cleaning: CleaningController
+    @ObservedObject var displays: DisplayController
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
 
     init(tb: Toolbox, clipboard: ClipboardManager, openCleaner: @escaping () -> Void) {
         self.tb = tb
         self.cleaning = tb.cleaning
+        self.displays = tb.displays
         self.clipboard = clipboard
         self.openCleaner = openCleaner
     }
@@ -22,8 +24,33 @@ struct ActionsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if !displays.screens.isEmpty {
+                    section(L("Brilho")) {
+                        VStack(spacing: 0) {
+                            ForEach(Array(displays.screens.enumerated()), id: \.element.id) { i, screen in
+                                if i > 0 { Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52) }
+                                BrightnessRow(screen: screen) { displays.set($0, for: screen.id) }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                        .glass()
+                    }
+                }
+
                 section(L("Controles")) {
                     VStack(spacing: 0) {
+                        ControlRow(icon: tb.micMuted ? "mic.slash.fill" : "mic.fill", color: .red,
+                                   title: L("Mutar microfone"), state: tb.micMuted ? L("Mudo") : L("Ligado"),
+                                   help: L("Silencia o microfone em qualquer app, bom para reuniões. Também pelo atalho %@.", micShortcut),
+                                   isOn: Binding(get: { tb.micMuted }, set: { _ in tb.toggleMic() })) {
+                            Text(micShortcut).font(.system(size: 10.5, weight: .medium, design: .rounded))
+                        }
+                        Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
+                        ControlRow(icon: tb.soundMuted ? "speaker.slash.fill" : "speaker.wave.2.fill", color: .pink,
+                                   title: L("Mutar som"), state: tb.soundMuted ? L("Mudo") : L("Ligado"),
+                                   help: L("Silencia a saída de som atual do Mac."),
+                                   isOn: Binding(get: { tb.soundMuted }, set: { _ in tb.toggleSound() }))
+                        Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
                         ControlRow(icon: tb.darkMode ? "moon.fill" : "sun.max.fill", color: tb.darkMode ? .indigo : .orange,
                                    title: L("Modo escuro"), state: tb.darkMode ? L("Ligado") : L("Desligado"),
                                    help: L("Troca a aparência de todo o macOS entre claro e escuro."),
@@ -56,6 +83,11 @@ struct ActionsView: View {
                                    title: L("Ícones da mesa"), state: tb.desktopIconsHidden ? L("Escondidos") : L("Aparecem"),
                                    help: L("Esconde tudo da mesa, bom para gravar a tela ou apresentar. Os arquivos continuam lá."),
                                    isOn: Binding(get: { !tb.desktopIconsHidden }, set: { _ in tb.toggleDesktopIcons() }))
+                        Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
+                        ControlRow(icon: "dock.rectangle", color: .gray,
+                                   title: L("Esconder o Dock"), state: tb.dockAutohide ? L("Aparece ao levar o mouse") : L("Sempre visível"),
+                                   help: L("Esconde o Dock automaticamente e libera espaço na tela."),
+                                   isOn: Binding(get: { tb.dockAutohide }, set: { _ in tb.toggleDockAutohide() }))
                     }
                     .padding(.vertical, 4)
                     .glass()
@@ -123,6 +155,8 @@ struct ActionsView: View {
         .onAppear { tb.refresh() }
     }
 
+    private var micShortcut: String { Shortcut.load(HotKeyCenter.micKey, default: .micDefault).display }
+
     private var awakeState: String {
         guard tb.keepAwake else { return L("Desligado") }
         guard let until = tb.awakeUntil else { return L("Até você desligar") }
@@ -134,6 +168,47 @@ struct ActionsView: View {
             Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.leading, 4)
             content()
         }
+    }
+}
+
+/// Uma tela com o slider de brilho; monitores sem DDC dizem por que não dá
+struct BrightnessRow: View {
+    let screen: ScreenInfo
+    let onChange: (Double) -> Void
+    @State private var value: Double?
+
+    var body: some View {
+        HStack(spacing: 12) {
+            Image(systemName: screen.builtin ? "laptopcomputer" : "display")
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(.yellow)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(Color.yellow.opacity(0.15)))
+            VStack(alignment: .leading, spacing: 3) {
+                HStack {
+                    Text(screen.name).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
+                    Spacer()
+                    if screen.kind != .unsupported {
+                        Text(Fmt.pct(value ?? screen.brightness)).font(.system(size: 11, weight: .medium, design: .rounded))
+                            .monospacedDigit().foregroundStyle(.secondary)
+                    }
+                }
+                if screen.kind == .unsupported {
+                    Text(L("Este monitor não aceita ajuste de brilho pelo Mac (DDC/CI)."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                } else {
+                    HStack(spacing: 6) {
+                        Image(systemName: "sun.min").font(.system(size: 10)).foregroundStyle(.secondary)
+                        Slider(value: Binding(get: { value ?? screen.brightness },
+                                              set: { value = $0; onChange($0) }), in: 0...1)
+                            .controlSize(.small).tint(.yellow)
+                        Image(systemName: "sun.max.fill").font(.system(size: 11)).foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
+        .onChange(of: screen.brightness) { _, _ in value = nil }
     }
 }
 

@@ -12,6 +12,11 @@ enum Snapshot {
         let clipboard = ClipboardManager.demo()
         let toolbox = Toolbox()
         toolbox.keepAwake = true
+        toolbox.displays.isDemo = true
+        toolbox.displays.screens = [
+            ScreenInfo(id: 1, name: L("Tela do Mac"), builtin: true, kind: .apple, brightness: 0.72),
+            ScreenInfo(id: 2, name: "DELL P2419H", builtin: false, kind: .ddc, brightness: 0.5),
+        ]
         let internet = InternetInfo()
         internet.speed = .done(SpeedResult(down: 224, up: 146, latency: 21, rpm: 425))
         internet.publicIP = "189.0.113.42"

@@ -136,6 +136,7 @@ struct SystemView: View {
                 MemoryCard(m: m)
                 if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
                 networkCard
+                diskCard
                 if !net.devices.isEmpty { devicesCard }
                 processesCard
                 HStack(spacing: 10) {
@@ -186,6 +187,31 @@ struct SystemView: View {
                 .frame(width: 72, alignment: .leading)
                 Sparkline(values: m.cpuHistory, color: Theme.load(m.cpu, base: Theme.cpu))
                     .frame(height: 46)
+            }
+            if let g = m.gpu {
+                HStack(alignment: .center, spacing: 12) {
+                    HStack(alignment: .firstTextBaseline, spacing: 5) {
+                        Text("GPU").font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                        Text(Fmt.pct(g)).font(.system(size: 14, weight: .bold, design: .rounded)).monospacedDigit()
+                            .contentTransition(.numericText())
+                    }
+                    .frame(width: 72, alignment: .leading)
+                    Sparkline(values: m.gpuHistory, color: Theme.load(g, base: .pink))
+                        .frame(height: 22)
+                }
+            }
+        }
+        .card()
+    }
+
+    private var diskCard: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            CardHeader(title: L("Disco"), icon: "internaldrive", color: Theme.disk) {
+                Text(L("%@ livres", Fmt.bytes(m.diskFree))).font(.system(size: 10.5)).foregroundStyle(.tertiary)
+            }
+            HStack(spacing: 10) {
+                NetStat(title: L("Leitura"), icon: "arrow.down.doc", color: Theme.disk, value: m.diskRead, history: m.diskReadHistory)
+                NetStat(title: L("Gravação"), icon: "square.and.arrow.down", color: .orange, value: m.diskWrite, history: m.diskWriteHistory)
             }
         }
         .card()
@@ -458,6 +484,7 @@ struct SettingsView: View {
     @AppStorage("paused") private var paused = false
     @AppStorage("ignoredApps") private var ignoredApps = ""
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
+    @AppStorage(Module.actions.key) private var actionsOn = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
     @State private var confirmClear = false
@@ -548,6 +575,12 @@ struct SettingsView: View {
                     }
                     SettingRow(title: L("Abrir este menu")) {
                         ShortcutRecorder(name: HotKeyCenter.menuKey, fallback: .menuDefault)
+                    }
+                    if actionsOn {
+                        RowDivider()
+                        SettingRow(title: L("Mutar microfone")) {
+                            ShortcutRecorder(name: HotKeyCenter.micKey, fallback: .micDefault)
+                        }
                     }
                 }
 

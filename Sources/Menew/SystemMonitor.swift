@@ -58,6 +58,12 @@ final class SystemMonitor: ObservableObject {
     @Published var uptime: TimeInterval = 0
     @Published var thermal: ProcessInfo.ThermalState = .nominal
     @Published var topProcesses: [ProcInfo] = []
+    @Published var gpu: Double?
+    @Published var gpuHistory: [Double] = Array(repeating: 0, count: 60)
+    @Published var diskRead: Double = 0
+    @Published var diskWrite: Double = 0
+    @Published var diskReadHistory: [Double] = Array(repeating: 0, count: 40)
+    @Published var diskWriteHistory: [Double] = Array(repeating: 0, count: 40)
 
     var wantsProcesses = false
     /// Modo captura de tela: não sobrescreve IP e processos fictícios
@@ -67,6 +73,7 @@ final class SystemMonitor: ObservableObject {
     private var timer: Timer?
     private var prevTicks: (user: UInt64, sys: UInt64, idle: UInt64, nice: UInt64)?
     private var prevNet: (rx: UInt64, tx: UInt64, at: Date)?
+    private var prevDisk: (r: UInt64, w: UInt64, at: Date)?
     private var tickCount = 0
 
     let cores = ProcessInfo.processInfo.activeProcessorCount
@@ -84,6 +91,8 @@ final class SystemMonitor: ObservableObject {
         tickCount += 1
         readCPU()
         readNetwork()
+        readGPU()
+        readDiskIO()
         uptime = ProcessInfo.processInfo.systemUptime
         thermal = ProcessInfo.processInfo.thermalState
         // Em modo captura, memória, bateria e IP ficam com os valores fictícios
@@ -162,6 +171,30 @@ final class SystemMonitor: ObservableObject {
             diskFree = v.volumeAvailableCapacityForImportantUsage ?? 0
             diskTotal = Int64(v.volumeTotalCapacity ?? 0)
         }
+    }
+
+    private func readDiskIO() {
+        let (r, w) = HardwareStats.diskBytes()
+        let now = Date()
+        if let p = prevDisk {
+            let dt = now.timeIntervalSince(p.at)
+            if dt > 0 {
+                diskRead = r >= p.r ? Double(r - p.r) / dt : 0
+                diskWrite = w >= p.w ? Double(w - p.w) / dt : 0
+                diskReadHistory.removeFirst(); diskReadHistory.append(diskRead)
+                diskWriteHistory.removeFirst(); diskWriteHistory.append(diskWrite)
+            }
+        }
+        prevDisk = (r, w, now)
+    }
+
+    // MARK: GPU
+
+    private func readGPU() {
+        guard let g = HardwareStats.gpuUtilization() else { return }
+        gpu = g
+        gpuHistory.removeFirst()
+        gpuHistory.append(g)
     }
 
     // MARK: Rede

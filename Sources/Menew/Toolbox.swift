@@ -12,7 +12,11 @@ final class Toolbox: ObservableObject {
     @Published var hiddenFiles = false
     @Published var desktopIconsHidden = false
     @Published var toast: String?
+    @Published var micMuted = AudioControl.isMuted(input: true)
+    @Published var soundMuted = AudioControl.isMuted(input: false)
+    @Published var dockAutohide = false
     let cleaning = CleaningController()
+    let displays = DisplayController()
 
     private var assertionID: IOPMAssertionID = 0
     private var awakeTimer: Timer?
@@ -20,6 +24,7 @@ final class Toolbox: ObservableObject {
     init() {
         hiddenFiles = Self.finderBool("AppleShowAllFiles") ?? false
         desktopIconsHidden = (Self.finderBool("CreateDesktop") ?? true) == false
+        dockAutohide = Self.dockAutohideOn
         // Acompanha o modo escuro mesmo quando ele muda fora do Menew
         DistributedNotificationCenter.default().addObserver(forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
                                                             object: nil, queue: .main) { [weak self] _ in
@@ -109,6 +114,42 @@ final class Toolbox: ObservableObject {
     func refresh() {
         darkMode = Self.systemIsDark
         ejectableCount = Self.ejectableVolumes().count
+        micMuted = AudioControl.isMuted(input: true)
+        soundMuted = AudioControl.isMuted(input: false)
+        dockAutohide = Self.dockAutohideOn
+        displays.refresh()
+    }
+
+    // MARK: Áudio
+
+    /// Retorna o novo estado (para o aviso do atalho)
+    @discardableResult
+    func toggleMic() -> Bool {
+        let target = !AudioControl.isMuted(input: true)
+        if !AudioControl.setMuted(target, input: true) { show(L("Este microfone não pode ser mutado")) }
+        micMuted = AudioControl.isMuted(input: true)
+        return micMuted
+    }
+
+    func toggleSound() {
+        let target = !AudioControl.isMuted(input: false)
+        if !AudioControl.setMuted(target, input: false) { show(L("Esta saída de som não pode ser mutada")) }
+        soundMuted = AudioControl.isMuted(input: false)
+    }
+
+    // MARK: Dock
+
+    private static var dockAutohideOn: Bool {
+        CFPreferencesAppSynchronize("com.apple.dock" as CFString)
+        return (CFPreferencesCopyAppValue("autohide" as CFString, "com.apple.dock" as CFString) as? Bool) ?? false
+    }
+
+    func toggleDockAutohide() {
+        let target = !dockAutohide
+        // Pelo System Events o Dock muda na hora, sem reiniciar
+        if runAppleScript("tell application \"System Events\" to set autohide of dock preferences to \(target)") {
+            dockAutohide = target
+        }
     }
 
     func ejectAll() {
@@ -159,9 +200,11 @@ final class Toolbox: ObservableObject {
         NSWorkspace.shared.open(URL(fileURLWithPath: path))
     }
 
-    private func runAppleScript(_ source: String) {
+    @discardableResult
+    private func runAppleScript(_ source: String) -> Bool {
         var err: NSDictionary?
         NSAppleScript(source: source)?.executeAndReturnError(&err)
         if err != nil { show(L("Permita o Menew em Automação nos Ajustes")) }
+        return err == nil
     }
 }

@@ -14,6 +14,8 @@ enum MenewMain {
             Snapshot.run(into: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
         } else if let i = CommandLine.arguments.firstIndex(of: "--preview"), CommandLine.arguments.count > i + 1 {
             Snapshot.preview(tab: CommandLine.arguments[i + 1])
+        } else if CommandLine.arguments.contains("--hardware") {
+            DisplayController.printReport()
         } else {
             app.delegate = delegate
         }
@@ -86,6 +88,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             if Module.clipboard.isOn { self?.clipPanel.toggle() }
         }
         HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
+        HotKeyCenter.shared.onMic = { [weak self] in
+            guard Module.actions.isOn, let self else { return }
+            MuteHUD.show(muted: toolbox.toggleMic())
+        }
         HotKeyCenter.shared.register()
 
         welcome.onOpenMenu = { [weak self] in self?.showPopover() }
