@@ -42,6 +42,8 @@ DETECT = """<script>
   })();
 </script>"""
 
+LANG_PATHS = "{" + ",".join(f"{c}:'" + ("/" if c == "en" else f"/{c}/") + "'" for c in LANGS) + "}"
+
 def switch(current):
     options = "".join(
         f'<option value="{code}"{" selected" if code == current else ""}>{name}</option>'
@@ -49,7 +51,8 @@ def switch(current):
     return ('<select class="lang" aria-label="Language" onchange="'
             "try{localStorage.setItem('menew-lang',this.value)}catch(e){}"
             "try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}"
-            "location.href=this.value==='en'?'/':'/'+this.value\">" + options + "</select>")
+            # Endereços fixos: o valor do <select> nunca vira URL direto (alerta do CodeQL)
+            "var u=" + LANG_PATHS + "[this.value];if(u)location.href=u\">" + options + "</select>")
 
 # Dados estruturados para o Google mostrar o Menew como aplicativo (grátis, macOS)
 def jsonld(lang, texts):
