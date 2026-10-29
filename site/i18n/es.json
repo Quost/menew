@@ -51,6 +51,7 @@
   "act_l2": "<b>Silencia el micrófono</b> — desde cualquier app con ⌃⌥⌘M, ideal para reuniones.",
   "act_l3": "<b>Gestor de ventanas</b> — coloca ventanas en mitades, esquinas y tercios con atajos ⌃⌥ o una cuadrícula, y envíalas a la otra pantalla.",
   "act_l4": "<b>Paleta de comandos</b> — pulsa ⌃⌥Espacio y encuentra cualquier app, acción, disposición de ventana, snippet o nota. Escribe «brillo 60» o «despierto 2h».",
+  "act_l5": "<b>Perfiles de trabajo</b> — guarda las apps abiertas y la disposición de las ventanas y vuelve a todo con un clic: las apps se abren, las ventanas vuelven a su sitio y se ajustan el micrófono y mantener despierto.",
   "priv_eyebrow": "Privacidad",
   "priv_h2": "Tus datos nunca salen de tu Mac.",
   "priv_sub": "Menew es de código abierto, así que no tienes que creernos a ciegas.",
