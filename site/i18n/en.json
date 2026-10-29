@@ -50,6 +50,7 @@
   "act_l1": "<b>Monitor brightness</b> — a slider for every screen, including third-party monitors over DDC/CI.",
   "act_l2": "<b>Mute your mic</b> — from any app with ⌃⌥⌘M, great for meetings.",
   "act_l3": "<b>Window manager</b> — snap windows to halves, corners and thirds with ⌃⌥ shortcuts or a grid, and send them to the other display.",
+  "act_l4": "<b>Command palette</b> — press ⌃⌥Space to find any app, action, window layout, snippet or note. Type “brightness 60” or “awake 2h”.",
   "priv_eyebrow": "Privacy",
   "priv_h2": "Your data never leaves your Mac.",
   "priv_sub": "Menew is open source, so you don't have to take our word for it.",

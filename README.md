@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Your Mac's menu bar, supercharged.</b><br>
-  System monitor · Clipboard history · Quick actions · Cleaning mode<br>
+  Command palette · System monitor · Clipboard history · Quick actions<br>
   Free, open source, native. No account, no telemetry.
 </p>
 
@@ -35,6 +35,7 @@
 
 | | |
 |---|---|
+| ⌨️ **Command palette** | Press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>Space</kbd> anywhere to find and run any app, Menew action, window layout, snippet, note or copied item. Type “brightness 60” or “awake 2h”, and your recent picks come first. |
 | 📊 **System monitor** | CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health, cycles and charger, uptime, thermal state and the top processes (quit them in one click). Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery) with a live preview. |
 | 🔔 **Alerts** | Optional macOS notifications for a nearly full disk, low battery, critical memory pressure or CPU stuck above 90%. |
 | 📋 **Clipboard history** | Text, links, images and files with instant search, filters, pins and a rich preview. Press **⌘⇧V** anywhere. Skips passwords and any app you pick to ignore. |
@@ -65,6 +66,13 @@
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="docs/assets/popover-clipboard-dark.png">
     <img src="docs/assets/popover-clipboard-light.png" width="250" alt="Clipboard">
+  </picture>
+</p>
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/palette-dark.png">
+    <img src="docs/assets/palette-light.png" width="560" alt="Command palette">
   </picture>
 </p>
 
@@ -99,6 +107,7 @@ cd menew
 
 | Shortcut | Action |
 |---|---|
+| <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>Space</kbd> | Open the command palette (customizable) |
 | <kbd>⌘</kbd> <kbd>⇧</kbd> <kbd>V</kbd> | Open clipboard history (customizable) |
 | <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>M</kbd> | Open the Menew menu (customizable) |
 | <kbd>⌃</kbd> <kbd>⌥</kbd> <kbd>⌘</kbd> <kbd>M</kbd> | Mute / unmute the microphone (customizable) |
@@ -129,6 +138,9 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 - [x] Memory pressure, battery health, alerts and a customizable menu bar
 - [x] Optional modules and a first-launch tour
 - [x] Window manager
+- [x] Command palette
+- [ ] Work profiles (apps + saved window layouts)
+- [ ] Quick shelf for dragging files between apps
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).
