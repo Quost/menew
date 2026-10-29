@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.14.0
+
+- **Keep awake, your way**: besides a timer, keep the Mac awake until a set time or while an app is open (it stops when the app quits). From the command palette too: “awake until 18:30”.
+- **Pause the clipboard** for 15 minutes or an hour from the ⏸ button next to the search, so you can copy something private without saving it. It resumes on its own.
+- **Heat alert**: an optional notification when macOS reports that your Mac is running hot (Settings → Alerts).
+- **Keyboard and VoiceOver**: ⌘1–9 paste from the Clipboard tab too, ⌘, opens Settings, and icon-only buttons, switches and command palette results now have proper VoiceOver labels.
+
 ## 1.13.0
 
 - **Work profiles**: arrange your windows, then save them as a profile in Actions → Profiles. One click (or its name in the command palette) opens the apps, puts every window back where it was and, if you want, keeps the Mac awake, mutes the mic, switches between light and dark mode and hides the other apps. Windows from a display that isn't connected move to the main one.
