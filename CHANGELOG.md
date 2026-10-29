@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.18.0
+
+- **Copy text from screen**: press ⌃⌥⌘T (or use the right-click menu or the command palette), select an area and its text goes straight to the clipboard: a video, a PDF, a screenshot, an error message. A “Reading text…” notice stays up until it's ready, then shows how many lines were copied.
+- **Text from copied images**: in the clipboard history, the new “Copy text” button (or right-click → Copy text from image) pulls the text out of any image.
+- Everything runs on your Mac with Apple's own text recognition, with no internet, and the screen capture is deleted right away. The shortcut can be changed in Settings → Shortcuts.
+
 ## 1.17.1
 
 - **Much lighter in the background**: after you opened the System tab, Menew kept listing processes and redrawing its charts every 2 seconds even with the menu closed. Now nothing is drawn while the menu is closed. Idle use went from about 15% CPU and 66 MB to about 0.5% CPU and 16 MB.

@@ -54,6 +54,7 @@
   "act_l5": "<b>Perfiles de trabajo</b> — guarda las apps abiertas y la disposición de las ventanas y vuelve a todo con un clic: las apps se abren, las ventanas vuelven a su sitio y se ajustan el micrófono y mantener despierto.",
   "act_l6": "<b>Estantería rápida</b> — agita los archivos mientras arrastras y aparece una estantería. Suelta ahí archivos, enlaces y textos y luego arrástralos todos juntos. Los originales nunca se mueven.",
   "act_l7": "<b>Automatizaciones</b> — a las 9 h activa el perfil de trabajo, silencia el micro cuando se abra Zoom, baja el brillo al desenchufar. Disparadores simples, sin scripts.",
+  "act_l8": "<b>Copiar texto de la pantalla</b> — pulsa ⌃⌥⌘T, selecciona cualquier zona (un vídeo, un PDF, un mensaje de error) y el texto pasa al portapapeles. También funciona con imágenes copiadas. Todo se ejecuta en tu Mac.",
   "priv_eyebrow": "Privacidad",
   "priv_h2": "Tus datos nunca salen de tu Mac.",
   "priv_sub": "Menew es de código abierto, así que no tienes que creernos a ciegas.",

@@ -54,6 +54,7 @@
   "act_l5": "<b>Work profiles</b> — save your open apps and window layout, then bring it all back with one click: apps open, windows go back in place, mic and Keep Awake set.",
   "act_l6": "<b>Quick shelf</b> — shake files while dragging and a shelf appears. Drop files, links and text there, then drag them all out together. Originals never move.",
   "act_l7": "<b>Automations</b> — at 9 AM turn on your work profile, mute the mic when Zoom opens, dim the screen when you unplug. Simple triggers, no scripts.",
+  "act_l8": "<b>Copy text from screen</b> — press ⌃⌥⌘T, select any area (a video, a PDF, an error message) and its text goes to the clipboard. Works on copied images too. Runs entirely on your Mac.",
   "priv_eyebrow": "Privacy",
   "priv_h2": "Your data never leaves your Mac.",
   "priv_sub": "Menew is open source, so you don't have to take our word for it.",

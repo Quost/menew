@@ -54,6 +54,7 @@
   "act_l5": "<b>Arbeitsprofile</b> — sichere offene Apps und Fensteranordnung und hol alles mit einem Klick zurück: Apps öffnen sich, Fenster landen an ihrem Platz, Mikrofon und Wachhalten werden gesetzt.",
   "act_l6": "<b>Schnellablage</b> — schüttle Dateien beim Ziehen, und eine Ablage erscheint. Lege Dateien, Links und Text dort ab und ziehe dann alles zusammen heraus. Originale bleiben, wo sie sind.",
   "act_l7": "<b>Automationen</b> — um 9 Uhr das Arbeitsprofil aktivieren, das Mikro stummschalten, wenn Zoom startet, die Helligkeit senken, wenn du aussteckst. Einfache Auslöser, keine Skripte.",
+  "act_l8": "<b>Text vom Bildschirm kopieren</b> — drücke ⌃⌥⌘T, wähle einen Bereich (ein Video, ein PDF, eine Fehlermeldung) und der Text landet in der Zwischenablage. Klappt auch mit kopierten Bildern. Alles läuft auf deinem Mac.",
   "priv_eyebrow": "Datenschutz",
   "priv_h2": "Deine Daten verlassen nie deinen Mac.",
   "priv_sub": "Menew ist Open Source — du musst uns also nicht einfach glauben.",
