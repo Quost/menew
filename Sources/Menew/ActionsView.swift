@@ -8,6 +8,8 @@ struct ActionsView: View {
     @ObservedObject var tb: Toolbox
     @ObservedObject var cleaning: CleaningController
     @ObservedObject var displays: DisplayController
+    @ObservedObject var profiles = ProfileStore.shared
+    @State private var editingProfile: UUID?
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
 
@@ -22,6 +24,15 @@ struct ActionsView: View {
     private let cols = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
 
     var body: some View {
+        if let id = editingProfile, let p = profiles.profile(id) {
+            ProfileEditor(store: profiles, tb: tb, profile: p) { editingProfile = nil }
+                .id(id)
+        } else {
+            list
+        }
+    }
+
+    private var list: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 if !displays.screens.isEmpty {
@@ -112,6 +123,10 @@ struct ActionsView: View {
                         Text(L("Move a janela do app que estava na frente. Atalhos: ⌃⌥ + setas, U I J K, D F G, E T, ↩ e C."))
                             .font(.system(size: 10.5)).foregroundStyle(.tertiary).padding(.leading, 4)
                     }
+                }
+
+                section(L("Perfis")) {
+                    ProfilesSection(store: profiles, tb: tb, editing: $editingProfile)
                 }
 
                 section(L("Limpeza")) {

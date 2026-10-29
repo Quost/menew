@@ -7,11 +7,12 @@ import SwiftUI
 /// Uma coisa que a paleta encontra e executa: ação do Menew, app, layout de janela, snippet, nota ou item copiado
 struct PaletteItem: Identifiable {
     enum Kind: Int {
-        case action, window, app, snippet, note, clip
+        case action, profile, window, app, snippet, note, clip
 
         var label: String {
             switch self {
             case .action: L("Ação")
+            case .profile: L("Perfil")
             case .window: L("Janela")
             case .app: L("App")
             case .snippet: L("Snippet")
@@ -290,6 +291,14 @@ final class PaletteModel: ObservableObject {
                 action("eject", L("Ejetar discos"), "eject.fill", .mint, "ejetar eject disco pendrive usb") { tb.ejectAll() }
             }
             action("trash", L("Esvaziar lixeira"), "trash", .red, "lixeira trash esvaziar empty") { tb.emptyTrash() }
+
+            for p in ProfileStore.shared.profiles {
+                out.append(PaletteItem(id: "profile.\(p.id)", kind: .profile, title: p.name, subtitle: p.apps.map(\.name).joined(separator: ", "),
+                                       keywords: "perfil profile workspace \(p.apps.map(\.name).joined(separator: " "))",
+                                       icon: .symbol(p.icon, .indigo)) {
+                    ProfileStore.shared.activate(p, toolbox: tb)
+                })
+            }
 
             for l in WindowLayout.allCases where l != .nextDisplay || NSScreen.screens.count > 1 {
                 out.append(PaletteItem(id: "win.\(l.rawValue)", kind: .window, title: l.title,

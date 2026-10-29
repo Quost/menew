@@ -25,6 +25,7 @@ enum Snapshot {
             BTDevice(name: "Magic Mouse", kind: .mouse, levels: [("", 17)]),
         ]
         let notes = NotesStore.demo()
+        ProfileStore.shared.demo()
         monitor.start()
         // Só lê o disco: nada é apagado em modo captura
         let scanned = Cleaner()
@@ -64,6 +65,10 @@ enum Snapshot {
                            size: NSSize(width: 400, height: 1900), dark: dark, to: dir.appendingPathComponent("settings-full-\(suffix).png"))
                     render(ActionsView(tb: toolbox, clipboard: clipboard, openCleaner: {}).background(Theme.windowFill),
                            size: NSSize(width: 400, height: 1500), dark: dark, to: dir.appendingPathComponent("actions-full-\(suffix).png"))
+                    if let p = ProfileStore.shared.profiles.first {
+                        render(ProfileEditor(store: ProfileStore.shared, tb: toolbox, profile: p, onClose: {}).background(Theme.windowFill),
+                               size: NSSize(width: 400, height: 600), dark: dark, to: dir.appendingPathComponent("profile-editor-\(suffix).png"))
+                    }
                 }
                 if CommandLine.arguments.contains("--scan") {
                     let nav = PopoverState()

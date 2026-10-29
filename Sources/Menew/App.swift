@@ -92,6 +92,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         updater.onPendingChange = { [weak self] in self?.updateStatusItem() }
         monitor.start()
         clipboard.start()
+        ProfileStore.shared.load(dir: clipboard.dir)
         updateStatusItem()
 
         applyAppearance()

@@ -181,7 +181,7 @@ final class WindowManager {
         return nil
     }
 
-    private func frame(of window: AXUIElement) -> CGRect? {
+    func frame(of window: AXUIElement) -> CGRect? {
         var pos: CFTypeRef?, size: CFTypeRef?
         guard AXUIElementCopyAttributeValue(window, kAXPositionAttribute as CFString, &pos) == .success,
               AXUIElementCopyAttributeValue(window, kAXSizeAttribute as CFString, &size) == .success,
@@ -192,7 +192,7 @@ final class WindowManager {
         return CGRect(origin: p, size: s)
     }
 
-    private func setFrame(_ r: CGRect, of window: AXUIElement) {
+    func setFrame(_ r: CGRect, of window: AXUIElement) {
         var p = r.origin, s = r.size
         guard let pos = AXValueCreate(.cgPoint, &p), let size = AXValueCreate(.cgSize, &s) else { return }
         // Tamanho, posição e tamanho de novo: sem isso a janela esbarra na borda da tela e fica menor
@@ -203,9 +203,9 @@ final class WindowManager {
 
     // MARK: Coordenadas (AppKit tem origem embaixo; Acessibilidade, em cima da tela principal)
 
-    private var primaryHeight: CGFloat { NSScreen.screens.first?.frame.height ?? 0 }
+    var primaryHeight: CGFloat { NSScreen.screens.first?.frame.height ?? 0 }
 
-    private func axFrame(of r: NSRect) -> CGRect {
+    func axFrame(of r: NSRect) -> CGRect {
         CGRect(x: r.minX, y: primaryHeight - r.maxY, width: r.width, height: r.height)
     }
 
