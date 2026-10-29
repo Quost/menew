@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.16.0
+
+- **Automations** (Actions → Automations): “when X happens, do Y”. Triggers: a time on chosen days, charger plugged in or out, battery below a level, an app opening or quitting, a display connecting or disconnecting. Actions: turn on a work profile, keep awake, mute or unmute the mic, light or dark mode, brightness, pause or resume the clipboard, open an app. Each rule shows a short notice when it runs, has a “Test now” button and runs at most once a minute. No scripts.
+
 ## 1.15.0
 
 - **Quick shelf**: while dragging files, shake the mouse and a shelf appears next to the cursor. Drop files, folders, links, text or images on it, then drag them all out together (or one by one) to another app or folder. Items are always copied, so the originals never move. Also opens from the right-click menu and the command palette. Turn the shake gesture off in Settings → Shortcuts.
