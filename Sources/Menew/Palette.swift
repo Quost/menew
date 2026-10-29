@@ -143,6 +143,7 @@ final class PaletteModel: ObservableObject {
     var openNote: (UUID) -> Void = { _ in }
     var openClipboard: () -> Void = {}
     var checkForUpdates: () -> Void = {}
+    var openShelf: () -> Void = {}
     /// Fecha a paleta antes de executar
     var dismiss: () -> Void = {}
     /// Modo captura: apps fixos e nada de recentes reais
@@ -286,6 +287,8 @@ final class PaletteModel: ObservableObject {
                 tb.plainTextClipboard()
                 HUD.show(icon: "textformat", color: .brown, text: L("Formatação removida"))
             }
+            action("shelf", L("Abrir a estante"), "tray.full.fill", Theme.indigo,
+                   "estante shelf dropover arquivos files arrastar drag ablage estantería") { [weak self] in self?.openShelf() }
             action("lock", L("Bloquear tela"), "lock.fill", .gray, "bloquear lock tela screen senha") { tb.lockScreen() }
             if tb.ejectableCount > 0 {
                 action("eject", L("Ejetar discos"), "eject.fill", .mint, "ejetar eject disco pendrive usb") { tb.ejectAll() }

@@ -513,6 +513,7 @@ struct SettingsView: View {
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @AppStorage(Module.actions.key) private var actionsOn = true
     @AppStorage(WindowManager.shortcutsKey) private var windowShortcuts = true
+    @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
     @State private var confirmClear = false
@@ -613,6 +614,10 @@ struct SettingsView: View {
                         SettingRow(title: L("Mutar microfone")) {
                             ShortcutRecorder(name: HotKeyCenter.micKey, fallback: .micDefault)
                         }
+                        RowDivider()
+                        ToggleRow(title: L("Abrir a estante ao chacoalhar arquivos"),
+                                  detail: L("Ao arrastar arquivos, chacoalhe o mouse e a estante aparece para você soltar ali."),
+                                  isOn: $shelfShake)
                         RowDivider()
                         ToggleRow(title: L("Organizar janelas com ⌃⌥"),
                                   detail: L("⌃⌥ + setas para metades, U I J K para cantos, ↩ para maximizar. Desligue se usa outro app para isso."),

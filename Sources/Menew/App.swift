@@ -36,6 +36,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let popoverClipState = ClipListState()
     lazy var clipPanel = ClipboardPanelController(manager: clipboard)
     lazy var welcome = WelcomeController(monitor: monitor)
+    let shelf = ShelfController()
     lazy var palette: PaletteController = {
         let model = PaletteModel(toolbox: toolbox, clipboard: clipboard, notes: notes)
         model.openTab = { [weak self] tab in
@@ -51,6 +52,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
         model.openClipboard = { [weak self] in self?.clipPanel.show() }
         model.checkForUpdates = { [weak self] in self?.updater.checkForUpdates() }
+        model.openShelf = { [weak self] in self?.shelf.show(nearMouse: false) }
         return PaletteController(model: model)
     }()
 
@@ -93,6 +95,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         monitor.start()
         clipboard.start()
         ProfileStore.shared.load(dir: clipboard.dir)
+        shelf.startShakeDetection()
         updateStatusItem()
 
         applyAppearance()
@@ -100,6 +103,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             MainActor.assumeIsolated {
                 self?.updateStatusItem()
                 self?.applyAppearance()
+                self?.shelf.startShakeDetection()
             }
         }
 
@@ -231,6 +235,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
         add(L("Paleta de comandos"), "", "command", #selector(openPalette))
         if Module.clipboard.isOn { add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel)) }
+        if Module.actions.isOn { add(L("Estante"), "", "tray.full", #selector(openShelf)) }
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
         add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())
@@ -251,6 +256,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     @objc private func openClipPanel() { clipPanel.show() }
     @objc private func openPalette() { palette.show() }
+    @objc private func openShelf() { shelf.toggle() }
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
     @objc private func checkForUpdates() { updater.checkForUpdates() }
