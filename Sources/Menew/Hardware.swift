@@ -150,7 +150,13 @@ enum HUD {
     private static var panel: NSPanel?
     private static var hideWork: DispatchWorkItem?
 
-    static func show(icon: String, color: Color, text: String) {
+    static func hide() {
+        hideWork?.cancel()
+        panel?.orderOut(nil)
+    }
+
+    /// duration nil: fica na tela até o próximo show (para trabalho em andamento)
+    static func show(icon: String, color: Color, text: String, duration: TimeInterval? = 1.2) {
         let view = HStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.system(size: 22, weight: .semibold))
@@ -185,7 +191,7 @@ enum HUD {
             NSAnimationContext.runAnimationGroup({ $0.duration = 0.3; p.animator().alphaValue = 0 }) { p.orderOut(nil) }
         }
         hideWork = work
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2, execute: work)
+        if let duration { DispatchQueue.main.asyncAfter(deadline: .now() + duration, execute: work) }
     }
 }
 

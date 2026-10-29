@@ -119,6 +119,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             if Module.clipboard.isOn { self?.clipPanel.toggle() }
         }
         HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
+        HotKeyCenter.shared.onOCR = { if Module.actions.isOn { TextRecognizer.captureScreenText() } }
         HotKeyCenter.shared.onPalette = { [weak self] in
             guard let self else { return }
             if popover.isShown { popover.performClose(nil) }
@@ -246,7 +247,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
         add(L("Paleta de comandos"), "", "command", #selector(openPalette))
         if Module.clipboard.isOn { add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel)) }
-        if Module.actions.isOn { add(L("Estante"), "", "tray.full", #selector(openShelf)) }
+        if Module.actions.isOn {
+            add(L("Copiar texto da tela"), "", "text.viewfinder", #selector(captureText))
+            add(L("Estante"), "", "tray.full", #selector(openShelf))
+        }
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
         add(L("Limpar tela"), "", "sparkles.tv", #selector(blackScreen))
         menu.addItem(.separator())
@@ -268,6 +272,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func openClipPanel() { clipPanel.show() }
     @objc private func openPalette() { palette.show() }
     @objc private func openShelf() { shelf.toggle() }
+    @objc private func captureText() { TextRecognizer.captureScreenText() }
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
     @objc private func checkForUpdates() { updater.checkForUpdates() }

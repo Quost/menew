@@ -188,10 +188,11 @@ struct PillButton: View {
     var body: some View {
         Button(action: action) {
             HStack(spacing: 5) {
-                if let icon { Image(systemName: icon) }
-                Text(title)
+                if let icon { Image(systemName: icon).frame(height: 14) }
+                Text(title).lineLimit(1)
             }
             .font(.system(size: 12, weight: .semibold))
+            .fixedSize()
             .padding(.horizontal, 12).padding(.vertical, 6)
             .foregroundStyle(primary ? Color.white : Color.primary)
             .contentShape(Capsule())

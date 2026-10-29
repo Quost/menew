@@ -269,6 +269,7 @@ struct ClipContextMenu: View {
             }
         }
         if item.kind == .image, let u = manager.imageURL(for: item) {
+            Button(L("Copiar texto da imagem")) { TextRecognizer.copyText(fromImageAt: u) }
             Button(L("Abrir imagem")) { NSWorkspace.shared.open(u) }
         }
         if item.snippetTitle == nil {
@@ -319,10 +320,18 @@ struct ClipPreview: View {
             HStack(spacing: 8) {
                 PillButton(title: L("Colar"), icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
                 PillButton(title: L("Copiar"), icon: "doc.on.doc") { manager.copy(item) }
-                if item.snippetTitle == nil {
+                if item.kind == .image, let u = manager.imageURL(for: item) {
+                    PillButton(title: L("Copiar texto"), icon: "text.viewfinder") { TextRecognizer.copyText(fromImageAt: u) }
+                        .help(L("Lê o texto da imagem no próprio Mac e copia"))
+                }
+                // imagem já tem o botão de texto: o fixar vira ícone para caber em todos os idiomas
+                if item.snippetTitle == nil, item.kind != .image {
                     PillButton(title: item.pinned ? L("Desafixar") : L("Fixar"), icon: item.pinned ? "pin.slash" : "pin") { manager.togglePin(item) }
                 }
                 Spacer()
+                if item.snippetTitle == nil, item.kind == .image {
+                    IconButton(icon: item.pinned ? "pin.slash" : "pin", help: item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
+                }
                 if item.snippetTitle == nil {
                     IconButton(icon: "trash", help: L("Apagar")) { manager.delete(item) }
                 }

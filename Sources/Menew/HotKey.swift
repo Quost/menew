@@ -46,6 +46,7 @@ struct Shortcut: Codable, Equatable {
     static let clipboardDefault = Shortcut(keyCode: UInt32(kVK_ANSI_V), modifiers: UInt32(cmdKey | shiftKey), key: "V")
     static let menuDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey), key: "M")
     static let micDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "M")
+    static let ocrDefault = Shortcut(keyCode: UInt32(kVK_ANSI_T), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "T")
     static let paletteDefault = Shortcut(keyCode: UInt32(kVK_Space), modifiers: UInt32(optionKey | controlKey), key: "Space")
 
     var display: String {
@@ -109,11 +110,13 @@ final class HotKeyCenter {
     static let menuKey = "shortcutMenu"
     static let micKey = "shortcutMic"
     static let paletteKey = "shortcutPalette"
+    static let ocrKey = "shortcutOCR"
 
     var onClipboard: (() -> Void)?
     var onMenu: (() -> Void)?
     var onMic: (() -> Void)?
     var onPalette: (() -> Void)?
+    var onOCR: (() -> Void)?
     private var hotKeys: [HotKey] = []
 
     func register() {
@@ -122,6 +125,7 @@ final class HotKeyCenter {
         let menu = Shortcut.load(Self.menuKey, default: .menuDefault)
         let mic = Shortcut.load(Self.micKey, default: .micDefault)
         let palette = Shortcut.load(Self.paletteKey, default: .paletteDefault)
+        let ocr = Shortcut.load(Self.ocrKey, default: .ocrDefault)
         hotKeys = [
             HotKey(keyCode: clip.keyCode, modifiers: clip.modifiers, id: 1) { [weak self] in
                 MainActor.assumeIsolated { self?.onClipboard?() }
@@ -134,6 +138,9 @@ final class HotKeyCenter {
             },
             HotKey(keyCode: palette.keyCode, modifiers: palette.modifiers, id: 4) { [weak self] in
                 MainActor.assumeIsolated { self?.onPalette?() }
+            },
+            HotKey(keyCode: ocr.keyCode, modifiers: ocr.modifiers, id: 5) { [weak self] in
+                MainActor.assumeIsolated { self?.onOCR?() }
             },
         ]
         WindowManager.shared.registerHotKeys()
