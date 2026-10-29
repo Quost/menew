@@ -7,10 +7,11 @@ import SwiftUI
 /// Uma coisa que a paleta encontra e executa: ação do Menew, app, layout de janela, snippet, nota ou item copiado
 struct PaletteItem: Identifiable {
     enum Kind: Int {
-        case action, profile, window, app, snippet, note, clip
+        case calc, action, profile, window, app, snippet, note, clip
 
         var label: String {
             switch self {
+            case .calc: L("Calculadora")
             case .action: L("Ação")
             case .profile: L("Perfil")
             case .window: L("Janela")
@@ -38,6 +39,8 @@ struct PaletteItem: Identifiable {
     var shortcut: String?
     /// Fica entre os recentes (itens do clipboard não ficam, por privacidade)
     var remember = true
+    /// Não fecha a paleta (buscar a cotação e mostrar o resultado ali mesmo)
+    var keepOpen = false
     let run: () -> Void
 }
 
@@ -168,6 +171,7 @@ final class PaletteModel: ObservableObject {
     func run(_ index: Int) {
         guard results.indices.contains(index) else { return }
         let item = results[index]
+        if item.keepOpen { item.run(); return }
         if item.remember && !isDemo { remember(item.id) }
         dismiss()
         // Deixa o painel sumir e o app da frente voltar a receber o teclado
@@ -202,15 +206,48 @@ final class PaletteModel: ObservableObject {
                 }
             }
         }
+        // Contas e conversões ficam sempre no topo
+        let calc = calculatorItems(q)
         let scored: [(PaletteItem, Int)] = pool.compactMap { item in
             let base = item.kind == .clip ? 200 : PaletteSearch.score(q, title: item.title, keywords: item.keywords)
             guard let base else { return nil }
             let bonus = recents.firstIndex(of: item.id).map { max(0, 60 - $0 * 3) } ?? 0
             return (item, base + bonus)
         }
-        results = scored
+        results = calc + scored
             .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0.kind.rawValue < $1.0.kind.rawValue }
             .prefix(40).map(\.0)
+    }
+
+    /// "12*7,5", "20% de 340", "5 km em mi" e "100 usd em brl"
+    private func calculatorItems(_ q: String) -> [PaletteItem] {
+        func copyItem(_ value: String, _ detail: String, id: String) -> PaletteItem {
+            PaletteItem(id: id, kind: .calc, title: value, subtitle: detail, icon: .symbol("equal", .gray), remember: false) {
+                let pb = NSPasteboard.general
+                pb.clearContents()
+                pb.setString(value, forType: .string)
+                HUD.show(icon: "doc.on.doc.fill", color: .gray, text: L("Copiado: %@", value))
+            }
+        }
+        if let (v, from, to) = Calculator.currencyQuery(q) {
+            let detail = Calculator.currencyText(v, from)
+            if let rate = Calculator.cachedRate(from, to) {
+                return [copyItem(Calculator.currencyText(v * rate, to), detail + " · " + L("cotação do BCE"), id: "calc.fx")]
+            }
+            // A internet só é usada quando você pede
+            return [PaletteItem(id: "calc.fx.fetch", kind: .calc, title: L("Converter %@ em %@", detail, to),
+                                subtitle: L("↩ busca a cotação do dia (frankfurter.app)"), icon: .symbol("dollarsign.arrow.circlepath", .green),
+                                remember: false, keepOpen: true) { [weak self] in
+                Task {
+                    if await Calculator.fetchRate(from, to) == nil {
+                        HUD.show(icon: "wifi.exclamationmark", color: .orange, text: L("Não deu para buscar a cotação"))
+                    }
+                    self?.update()
+                }
+            }]
+        }
+        guard let r = Calculator.evaluate(q) else { return [] }
+        return [copyItem(r.value, r.detail, id: "calc")]
     }
 
     private func remember(_ id: String) {
