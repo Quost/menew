@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.23.0
+
+- **Paste queue**: click the numbered-list button next to the clipboard search (or type “queue” in the command palette), then copy several things. Each ⌘V pastes the next one, in the order you copied them, and the queue turns itself off when it's empty. Great for filling forms or moving data between apps.
+- The menu bar shows how many items are left, the clipboard tab shows what the next ⌘V will paste, and you can add any history item with right-click → Add to paste queue.
+- Menew only watches for ⌘V while the queue is on (it uses the Accessibility permission it already asks for) and never changes the keystroke itself.
+
 ## 1.22.0
 
 - **Transform copied text from the command palette**: copy some text, press ⌃⌥Space and type what you want: “upper”, “lower”, “title”, “camel”, “snake”, “kebab”, “accents”, “sort lines”, “json”, “base64”, “url” or “count”. Each option previews the result, and picking one puts it on the clipboard (and pastes it, if auto-paste is on). Invalid JSON or Base64 shows a notice instead of mangling your text.

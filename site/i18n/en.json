@@ -26,7 +26,7 @@
   "f1_t": "System monitor",
   "f1_d": "CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health and cycles, and the busiest processes, which you can quit in one click. Optional alerts, and you choose what shows in the menu bar. Turn on your next meeting at the top of the menu, with a Join button for Zoom, Meet or Teams.",
   "f2_t": "Clipboard history",
-  "f2_d": "Text, links, images and files. Instant search, filters, pins and a rich preview. Opens with ⌘⇧V. Pause it for 15 minutes or an hour when you copy something private.",
+  "f2_d": "Text, links, images and files. Instant search, filters, pins and a rich preview. Opens with ⌘⇧V. Pause it for 15 minutes or an hour when you copy something private. Turn on the paste queue to copy several things and paste them one by one with ⌘V, in order.",
   "f3_t": "Quick actions",
   "f3_d": "Brightness for every screen, external monitors included. Mute the mic or the sound, hide the Dock, dark mode, keep awake with a timer, hidden files and desktop icons. Plus color picker, screenshot to clipboard, eject disks and more. Keep Awake also works until a set time or while an app is open.",
   "f4_t": "Free up space",

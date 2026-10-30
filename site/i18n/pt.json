@@ -26,7 +26,7 @@
   "f1_t": "Monitor do sistema",
   "f1_d": "CPU e GPU com gráfico ao vivo, pressão de memória e swap, espaço e velocidade de leitura/gravação do disco, saúde e ciclos da bateria e os processos que mais pesam, que você encerra com um clique. Alertas opcionais, e você escolhe o que aparece na barra de menus. Ligue a próxima reunião no topo do menu, com botão Entrar para Zoom, Meet ou Teams.",
   "f2_t": "Histórico do clipboard",
-  "f2_d": "Textos, links, imagens e arquivos. Busca instantânea, filtros, itens fixados e pré-visualização. Abre com ⌘⇧V. Pause por 15 minutos ou 1 hora quando for copiar algo privado.",
+  "f2_d": "Textos, links, imagens e arquivos. Busca instantânea, filtros, itens fixados e pré-visualização. Abre com ⌘⇧V. Pause por 15 minutos ou 1 hora quando for copiar algo privado. Ligue a fila de colagem para copiar várias coisas e colar uma por uma com ⌘V, na ordem.",
   "f3_t": "Ações rápidas",
   "f3_d": "Brilho de cada tela, monitores externos incluídos. Mute o microfone ou o som, esconda o Dock, modo escuro, manter acordado com timer, arquivos ocultos e ícones da mesa. E ainda conta-gotas, print para o clipboard, ejetar discos e mais. O manter acordado também vale até um horário ou enquanto um app estiver aberto.",
   "f4_t": "Liberar espaço",
