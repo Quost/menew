@@ -32,7 +32,7 @@
   "f4_t": "Free up space",
   "f4_d": "Clear caches, logs and developer junk in seconds. A deep scan finds old downloads, large files and duplicate files for you to review. Removed files go to the Trash.",
   "f5_t": "Internet",
-  "f5_d": "Live download and upload, local and public IP, and a real speed test powered by macOS itself.",
+  "f5_d": "Live download and upload, local and public IP, and a real speed test powered by macOS itself. See which apps are using the network right now.",
   "f6_t": "Notes, snippets &amp; devices",
   "f6_d": "Notes with #tags and Markdown checklists, protected notes that open with Touch ID, and reusable snippets in ⌘⇧V. Give a snippet an abbreviation like “;sig” and typing it anywhere turns it into the text.",
   "clip_eyebrow": "Clipboard history",

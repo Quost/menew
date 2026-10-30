@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.25.0
+
+- **Apps using the network**: in System → Internet, open “Apps using the network” to see which apps are downloading and uploading right now, with the speed of each. Helper processes count toward their app (Chrome's helpers show as Chrome).
+- It reads macOS's own `nettop`, with no extra permission and nothing sent anywhere. Measuring costs a bit of CPU, so it only runs while the list is open and on screen, and stops as soon as you close it.
+
 ## 1.24.0
 
 - **Duplicate files**: the deep scan in Free up space now finds identical copies of your files (1 MB and up) in your home folder. Files are compared byte for byte, the oldest copy is kept as the original, and each copy shows which file it duplicates.

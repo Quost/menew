@@ -32,7 +32,7 @@
   "f4_t": "Liberar espaço",
   "f4_d": "Limpe caches, logs e arquivos de desenvolvimento em segundos. A análise profunda encontra downloads antigos, arquivos grandes e arquivos duplicados para você revisar. O que sair vai para a Lixeira.",
   "f5_t": "Internet",
-  "f5_d": "Download e upload ao vivo, IP local e público, e um teste de velocidade real feito pelo próprio macOS.",
+  "f5_d": "Download e upload ao vivo, IP local e público, e um teste de velocidade real feito pelo próprio macOS. Veja quais apps estão usando a rede agora.",
   "f6_t": "Notas, snippets e dispositivos",
   "f6_d": "Notas com #tags e checklists em Markdown, notas protegidas que abrem com Touch ID e snippets reutilizáveis no ⌘⇧V. Dê a um snippet uma abreviação como “;ass” e, ao digitá-la em qualquer app, ela vira o texto.",
   "clip_eyebrow": "Histórico do clipboard",

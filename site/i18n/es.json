@@ -32,7 +32,7 @@
   "f4_t": "Liberar espacio",
   "f4_d": "Borra cachés, registros y archivos de desarrollo en segundos. El análisis profundo encuentra descargas antiguas, archivos grandes y archivos duplicados para que los revises. Lo eliminado va a la Papelera.",
   "f5_t": "Internet",
-  "f5_d": "Descarga y subida en vivo, IP local y pública, y una prueba de velocidad real hecha por el propio macOS.",
+  "f5_d": "Descarga y subida en vivo, IP local y pública, y una prueba de velocidad real hecha por el propio macOS. Mira qué apps están usando la red ahora.",
   "f6_t": "Notas, fragmentos y dispositivos",
   "f6_d": "Notas con #etiquetas y listas de tareas en Markdown, notas protegidas que se abren con Touch ID y fragmentos reutilizables en ⌘⇧V. Dale a un fragmento una abreviatura como “;firma” y al escribirla en cualquier app se convierte en el texto.",
   "clip_eyebrow": "Historial del portapapeles",

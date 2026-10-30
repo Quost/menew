@@ -32,7 +32,7 @@
   "f4_t": "Speicher freigeben",
   "f4_d": "Caches, Logs und Entwickler-Reste in Sekunden löschen. Die Tiefenanalyse findet alte Downloads, große und doppelte Dateien zum Prüfen. Entferntes landet im Papierkorb.",
   "f5_t": "Internet",
-  "f5_d": "Download und Upload live, lokale und öffentliche IP und ein echter Geschwindigkeitstest direkt von macOS.",
+  "f5_d": "Download und Upload live, lokale und öffentliche IP und ein echter Geschwindigkeitstest direkt von macOS. Sieh, welche Apps gerade das Netzwerk nutzen.",
   "f6_t": "Notizen, Textbausteine &amp; Geräte",
   "f6_d": "Notizen mit #Tags und Markdown-Checklisten, geschützte Notizen mit Touch ID und wiederverwendbare Textbausteine in ⌘⇧V. Gib einem Textbaustein ein Kürzel wie „;sig“ – tippst du es irgendwo, wird es zum Text.",
   "clip_eyebrow": "Zwischenablage-Verlauf",
