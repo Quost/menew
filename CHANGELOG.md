@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.24.0
+
+- **Duplicate files**: the deep scan in Free up space now finds identical copies of your files (1 MB and up) in your home folder. Files are compared byte for byte, the oldest copy is kept as the original, and each copy shows which file it duplicates.
+- **Large files**: the limit went down from 500 MB to 250 MB, and every file you review now shows the folder it's in.
+- As always, nothing is preselected and anything you remove goes to the Trash. iCloud files that aren't downloaded are skipped, so the scan never triggers downloads.
+
 ## 1.23.0
 
 - **Paste queue**: click the numbered-list button next to the clipboard search (or type “queue” in the command palette), then copy several things. Each ⌘V pastes the next one, in the order you copied them, and the queue turns itself off when it's empty. Great for filling forms or moving data between apps.

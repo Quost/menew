@@ -30,7 +30,7 @@
   "f3_t": "Acciones rápidas",
   "f3_d": "Brillo de cada pantalla, monitores externos incluidos. Silencia el micrófono o el sonido, oculta el Dock, modo oscuro, mantener despierto con temporizador, archivos ocultos e iconos del escritorio. Además cuentagotas, captura al portapapeles, expulsar discos y más. Mantener despierto también funciona hasta una hora o mientras una app esté abierta.",
   "f4_t": "Liberar espacio",
-  "f4_d": "Borra cachés, registros y archivos de desarrollo en segundos. El análisis profundo encuentra descargas antiguas y archivos grandes para que los revises.",
+  "f4_d": "Borra cachés, registros y archivos de desarrollo en segundos. El análisis profundo encuentra descargas antiguas, archivos grandes y archivos duplicados para que los revises. Lo eliminado va a la Papelera.",
   "f5_t": "Internet",
   "f5_d": "Descarga y subida en vivo, IP local y pública, y una prueba de velocidad real hecha por el propio macOS.",
   "f6_t": "Notas, fragmentos y dispositivos",
