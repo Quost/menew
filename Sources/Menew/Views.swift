@@ -659,6 +659,8 @@ struct SettingsView: View {
                     }
                 }
 
+                BackupSection()
+
                 GlassSection(title: L("Ajuda"),
                              footer: L("Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar.")) {
                     LinkRow(title: L("Reportar um problema…"), icon: "ladybug") { Feedback.reportBug() }
