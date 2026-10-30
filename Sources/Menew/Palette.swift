@@ -349,7 +349,10 @@ final class PaletteModel: ObservableObject {
             }
             action("ocr", L("Copiar texto da tela"), "text.viewfinder", .green, "ocr texto text capturar capture scan ler read textsniper",
                    shortcut: Shortcut.load(HotKeyCenter.ocrKey, default: .ocrDefault).display) { TextRecognizer.captureScreenText() }
-            action("screenshot", L("Print"), "camera.viewfinder", .pink, "print screenshot captura tela imagem") { tb.screenshotToClipboard() }
+            action("screenshot", L("Capturar tela"), "camera.viewfinder", .pink, "print screenshot captura capturar tela imagem anotar annotate cleanshot bildschirmfoto captura 截图",
+                   subtitle: L("Área ou janela, com anotações"),
+                   shortcut: Shortcut.load(ScreenCapture.key, default: .captureDefault).display) { ScreenCapture.area() }
+            action("screenshotfull", L("Capturar a tela inteira"), "display", .pink, "print screenshot tela inteira full screen captura") { ScreenCapture.fullScreen() }
             action("color", L("Conta-gotas"), "eyedropper.halffull", Theme.violet, "cor color picker hex conta-gotas eyedropper") { [clipboard] in
                 tb.pickColor(clipboard: clipboard)
             }

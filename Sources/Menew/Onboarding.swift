@@ -346,4 +346,5 @@ struct WelcomeView: View {
 
 extension Notification.Name {
     static let showWelcome = Notification.Name("MenewShowWelcome")
+    static let closeMenu = Notification.Name("MenewCloseMenu")
 }

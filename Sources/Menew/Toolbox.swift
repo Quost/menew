@@ -196,11 +196,6 @@ final class Toolbox: ObservableObject {
         Shell.run("/usr/bin/pmset", ["displaysleepnow"])
     }
 
-    func screenshotToClipboard() {
-        // vai direto pro clipboard → aparece no histórico
-        DispatchQueue.global().async { Shell.run("/usr/sbin/screencapture", ["-i", "-c"]) }
-    }
-
     func pickColor(clipboard: ClipboardManager) {
         NSColorSampler().show { [weak self] color in
             guard let c = color?.usingColorSpace(.sRGB) else { return }

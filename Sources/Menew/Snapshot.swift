@@ -107,6 +107,19 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                // Editor de captura sobre uma captura do próprio Menew, com uma marca de cada tipo
+                if let shot = NSImage(contentsOf: dir.appendingPathComponent("popover-system-\(suffix).png")),
+                   let doc = CaptureDocument(image: shot) {
+                    let w = doc.size.width, h = doc.size.height
+                    doc.marks = [
+                        CaptureMark(kind: .rect, a: CGPoint(x: w * 0.04, y: h * 0.27), b: CGPoint(x: w * 0.96, y: h * 0.5), color: .red),
+                        CaptureMark(kind: .arrow, a: CGPoint(x: w * 0.75, y: h * 0.72), b: CGPoint(x: w * 0.55, y: h * 0.52), color: .red),
+                        CaptureMark(kind: .text, a: CGPoint(x: w * 0.42, y: h * 0.73), b: .zero, color: .red, text: L("Seta")),
+                        CaptureMark(kind: .blur, a: CGPoint(x: w * 0.04, y: h * 0.05), b: CGPoint(x: w * 0.6, y: h * 0.12), color: .clear),
+                    ]
+                    render(CaptureEditor(doc: doc, close: {}), size: NSSize(width: 620, height: 820), dark: dark,
+                           to: dir.appendingPathComponent("capture-\(suffix).png"))
+                }
                 let state = ClipListState()
                 for (i, sel) in [0, 2, 3].enumerated() {
                     state.selection = sel

@@ -126,6 +126,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
         HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
         HotKeyCenter.shared.onOCR = { if Module.actions.isOn { TextRecognizer.captureScreenText() } }
+        HotKeyCenter.shared.onCapture = { if Module.actions.isOn { ScreenCapture.area() } }
         HotKeyCenter.shared.onPalette = { [weak self] in
             guard let self else { return }
             if popover.isShown { popover.performClose(nil) }
@@ -139,6 +140,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         HotKeyCenter.shared.register()
 
         welcome.onOpenMenu = { [weak self] in self?.showPopover() }
+        NotificationCenter.default.addObserver(forName: .closeMenu, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { if self?.popover.isShown == true { self?.popover.performClose(nil) } }
+        }
         NotificationCenter.default.addObserver(forName: .showWelcome, object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.popover.performClose(nil)
@@ -259,6 +263,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         add(L("Paleta de comandos"), "", "command", #selector(openPalette))
         if Module.clipboard.isOn { add(L("Histórico do clipboard"), "", "doc.on.clipboard", #selector(openClipPanel)) }
         if Module.actions.isOn {
+            add(L("Capturar tela"), "", "camera.viewfinder", #selector(captureScreen))
             add(L("Copiar texto da tela"), "", "text.viewfinder", #selector(captureText))
             add(L("Estante"), "", "tray.full", #selector(openShelf))
         }
@@ -284,6 +289,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func openPalette() { palette.show() }
     @objc private func openShelf() { shelf.toggle() }
     @objc private func captureText() { TextRecognizer.captureScreenText() }
+    @objc private func captureScreen() { ScreenCapture.area() }
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
     @objc private func checkForUpdates() { updater.checkForUpdates() }

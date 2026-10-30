@@ -42,6 +42,7 @@ enum TextRecognizer {
     /// A captura fica num arquivo temporário apagado logo em seguida.
     @MainActor
     static func captureScreenText() {
+        guard ScreenCapture.hasAccess() else { return }
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("menew-ocr-\(UUID().uuidString).png")
         Task {
             let text: String? = await Task.detached {

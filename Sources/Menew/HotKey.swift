@@ -47,6 +47,7 @@ struct Shortcut: Codable, Equatable {
     static let menuDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey), key: "M")
     static let micDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "M")
     static let ocrDefault = Shortcut(keyCode: UInt32(kVK_ANSI_T), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "T")
+    static let captureDefault = Shortcut(keyCode: UInt32(kVK_ANSI_S), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "S")
     static let paletteDefault = Shortcut(keyCode: UInt32(kVK_Space), modifiers: UInt32(optionKey | controlKey), key: "Space")
 
     var display: String {
@@ -117,6 +118,7 @@ final class HotKeyCenter {
     var onMic: (() -> Void)?
     var onPalette: (() -> Void)?
     var onOCR: (() -> Void)?
+    var onCapture: (() -> Void)?
     private var hotKeys: [HotKey] = []
 
     func register() {
@@ -126,6 +128,7 @@ final class HotKeyCenter {
         let mic = Shortcut.load(Self.micKey, default: .micDefault)
         let palette = Shortcut.load(Self.paletteKey, default: .paletteDefault)
         let ocr = Shortcut.load(Self.ocrKey, default: .ocrDefault)
+        let capture = Shortcut.load(ScreenCapture.key, default: .captureDefault)
         hotKeys = [
             HotKey(keyCode: clip.keyCode, modifiers: clip.modifiers, id: 1) { [weak self] in
                 MainActor.assumeIsolated { self?.onClipboard?() }
@@ -141,6 +144,9 @@ final class HotKeyCenter {
             },
             HotKey(keyCode: ocr.keyCode, modifiers: ocr.modifiers, id: 5) { [weak self] in
                 MainActor.assumeIsolated { self?.onOCR?() }
+            },
+            HotKey(keyCode: capture.keyCode, modifiers: capture.modifiers, id: 6) { [weak self] in
+                MainActor.assumeIsolated { self?.onCapture?() }
             },
         ]
         WindowManager.shared.registerHotKeys()

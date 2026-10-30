@@ -644,6 +644,10 @@ struct SettingsView: View {
                             ShortcutRecorder(name: HotKeyCenter.ocrKey, fallback: .ocrDefault)
                         }
                         RowDivider()
+                        SettingRow(title: L("Capturar tela")) {
+                            ShortcutRecorder(name: ScreenCapture.key, fallback: .captureDefault)
+                        }
+                        RowDivider()
                         ToggleRow(title: L("Abrir a estante ao chacoalhar arquivos"),
                                   detail: L("Ao arrastar arquivos, chacoalhe o mouse e a estante aparece para você soltar ali."),
                                   isOn: $shelfShake)

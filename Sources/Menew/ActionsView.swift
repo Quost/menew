@@ -175,9 +175,9 @@ struct ActionsView: View {
                 section(L("Atalhos")) {
                     GlassGroup {
                         LazyVGrid(columns: cols, spacing: 8) {
-                            ActionTile(icon: "camera.viewfinder", color: .pink, title: L("Print"), subtitle: L("vai pro clipboard"),
-                                       help: L("Selecione uma área da tela. A imagem vai para o clipboard e aparece no histórico.")) {
-                                tb.screenshotToClipboard()
+                            ActionTile(icon: "camera.viewfinder", color: .pink, title: L("Capturar tela"), subtitle: L("anotar e fixar"),
+                                       help: L("Selecione uma área (espaço captura uma janela). Depois anote com setas, texto e borrão, copie, salve ou fixe na tela.")) {
+                                ScreenCapture.area()
                             }
                             ActionTile(icon: "eyedropper.halffull", color: Theme.violet, title: L("Conta-gotas"), subtitle: L("copia o hex"),
                                        help: L("Clique em qualquer ponto da tela para copiar a cor em hexadecimal.")) {
