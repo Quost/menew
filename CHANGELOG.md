@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.27.3
+
+- **Lighter in the background**: with the menu closed, Menew no longer reads GPU and disk activity (they only show in the menu) and checks free disk space less often. Idle CPU dropped from 0.9% to 0.5%, wakeups from about 98 to 14 per second, and memory from 55 MB to 19 MB, so it's easier on the battery.
+- **Smaller download**: the app is roughly half the size, without debug symbols and unused Sparkle files.
+
 ## 1.27.2
 
 - **Software dimming for monitors without DDC**: monitors that don't accept brightness over the cable (often because a USB-C adapter or hub blocks it) now get a brightness slider too, marked “by software”. Menew dims the picture of that screen only, without talking to the monitor, so it can't freeze anything.
