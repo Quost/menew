@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.29.0
+
+- **Settings backup**: Settings → Backup exports your settings, keyboard shortcuts, snippets, work profiles, automations and “Never quit” list to a `.menew` file. Restore it later or on another Mac, and Menew reopens with everything in place.
+- Notes and clipboard history are optional. Protected and password notes are never included, since their contents stay in the macOS Keychain.
+- Restoring keeps the notes already on your Mac and adds the ones from the backup.
+
 ## 1.28.0
 
 - **Password notes**: a new note type for logins, Wi-Fi, PINs and the like. Each line is a name and a value; values stay hidden as •••, with an eye to reveal and a button to copy. Password notes are always protected with Touch ID and stored in the macOS Keychain. Create one with the key button next to New.

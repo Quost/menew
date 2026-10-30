@@ -63,7 +63,7 @@
   "priv1_t": "Sin telemetría",
   "priv1_d": "La app no envía nada sobre ti: sin analíticas, sin rastreo, sin cuenta. Nunca.",
   "priv2_t": "Todo local",
-  "priv2_d": "El historial y las notas se guardan en ~/Library/Application Support/Menew.",
+  "priv2_d": "El historial y las notas se guardan en ~/Library/Application Support/Menew. Haz una copia de tus ajustes, fragmentos, perfiles y automatizaciones en un archivo .menew en Ajustes → Copia de seguridad.",
   "priv3_t": "Licencia MIT",
   "priv3_d": "Léelo, haz un fork, mejóralo. Los pull requests son bienvenidos.",
   "final_h2": "Haz que tu barra de menús trabaje para ti.",

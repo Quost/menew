@@ -63,7 +63,7 @@
   "priv1_t": "Keine Telemetrie",
   "priv1_d": "Die App sendet nichts über dich: keine Analysen, kein Tracking, kein Konto. Niemals.",
   "priv2_t": "Alles lokal",
-  "priv2_d": "Verlauf und Notizen liegen in ~/Library/Application Support/Menew.",
+  "priv2_d": "Verlauf und Notizen liegen in ~/Library/Application Support/Menew. Sichere Einstellungen, Textbausteine, Profile und Automationen in Einstellungen → Backup als .menew-Datei.",
   "priv3_t": "MIT-Lizenz",
   "priv3_d": "Lesen, forken, verbessern. Pull Requests sind willkommen.",
   "final_h2": "Lass deine Menüleiste für dich arbeiten.",

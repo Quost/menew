@@ -63,7 +63,7 @@
   "priv1_t": "No telemetry",
   "priv1_d": "The app sends nothing about you: no analytics, no tracking, no account. Ever.",
   "priv2_t": "Local storage",
-  "priv2_d": "History and notes live in ~/Library/Application Support/Menew.",
+  "priv2_d": "History and notes live in ~/Library/Application Support/Menew. Back up your settings, snippets, profiles and automations to a .menew file in Settings → Backup.",
   "priv3_t": "MIT licensed",
   "priv3_d": "Read it, fork it, improve it. Pull requests welcome.",
   "final_h2": "Make your menu bar work for you.",

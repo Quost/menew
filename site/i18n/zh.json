@@ -63,7 +63,7 @@
   "priv1_t": "没有遥测",
   "priv1_d": "应用不会发送任何关于你的信息：没有分析、没有追踪、没有账户。永远如此。",
   "priv2_t": "本地存储",
-  "priv2_d": "历史记录和笔记保存在 ~/Library/Application Support/Menew。",
+  "priv2_d": "历史记录和笔记保存在 ~/Library/Application Support/Menew。在“设置 → 备份”中可将设置、文本片段、配置文件和自动化备份为 .menew 文件。",
   "priv3_t": "MIT 许可",
   "priv3_d": "阅读、Fork、改进。欢迎提交 Pull Request。",
   "final_h2": "让菜单栏为你工作。",
