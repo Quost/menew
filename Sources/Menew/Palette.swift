@@ -330,6 +330,12 @@ final class PaletteModel: ObservableObject {
                 action("focus", L("Iniciar foco"), "timer", .red, "foco focus pomodoro concentrar timer",
                        subtitle: L("Digite um tempo, como “foco 50”")) { focus.start(minutes: 25) }
             }
+            if Module.clipboard.isOn {
+                let queue = PasteQueue.shared
+                action("pastequeue", queue.isOn ? L("Parar a fila de colagem") : L("Fila de colagem"), "list.number", .purple,
+                       "fila queue colar paste sequência sequence stack pilha vários multiple warteschlange cola 队列 粘贴",
+                       subtitle: queue.isOn ? nil : L("Copie vários itens e cole um por um com ⌘V")) { queue.toggle() }
+            }
             action("ocr", L("Copiar texto da tela"), "text.viewfinder", .green, "ocr texto text capturar capture scan ler read textsniper",
                    shortcut: Shortcut.load(HotKeyCenter.ocrKey, default: .ocrDefault).display) { TextRecognizer.captureScreenText() }
             action("screenshot", L("Print"), "camera.viewfinder", .pink, "print screenshot captura tela imagem") { tb.screenshotToClipboard() }

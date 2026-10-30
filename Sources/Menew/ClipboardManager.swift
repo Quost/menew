@@ -197,6 +197,7 @@ final class ClipboardManager: ObservableObject {
         new.sourceApp = front?.localizedName
         new.sourceBundle = front?.bundleIdentifier
         insert(new)
+        PasteQueue.shared.captured(new)
     }
 
     private func insert(_ new: ClipItem) {
@@ -255,6 +256,18 @@ final class ClipboardManager: ObservableObject {
     // MARK: Ações
 
     func copy(_ item: ClipItem) {
+        write(item)
+        // Sobe o item pro topo, como se tivesse acabado de ser copiado
+        if let idx = items.firstIndex(where: { $0.id == item.id }) {
+            var moved = items.remove(at: idx)
+            moved.date = Date()
+            items.insert(moved, at: 0)
+            save()
+        }
+    }
+
+    /// Põe o item no clipboard sem mexer na ordem do histórico
+    func write(_ item: ClipItem) {
         let pb = NSPasteboard.general
         pb.clearContents()
         switch item.kind {
@@ -270,13 +283,6 @@ final class ClipboardManager: ObservableObject {
             }
         }
         lastChange = pb.changeCount
-        // Sobe o item pro topo, como se tivesse acabado de ser copiado
-        if let idx = items.firstIndex(where: { $0.id == item.id }) {
-            var moved = items.remove(at: idx)
-            moved.date = Date()
-            items.insert(moved, at: 0)
-            save()
-        }
     }
 
     /// O que está no clipboard agora foi escrito pelo próprio Menew e não entra no histórico

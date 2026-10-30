@@ -30,6 +30,7 @@ struct SearchField: View {
                 Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
             }
+            PasteQueueButton()
             ClipPauseMenu()
         }
         .modifier(SearchFieldChrome(large: large))
@@ -249,6 +250,7 @@ struct ClipContextMenu: View {
         Button(L("Colar")) { onActivate(item, false) }
         if item.kind == .text { Button(L("Colar como texto puro")) { onActivate(item, true) } }
         Button(L("Só copiar")) { manager.copy(item) }
+        Button(L("Adicionar à fila de colagem")) { PasteQueue.shared.add(item) }
         if item.snippetTitle == nil {
             Button(item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
         }
@@ -431,6 +433,7 @@ struct ClipboardPanelView: View {
         VStack(spacing: 0) {
             VStack(alignment: .leading, spacing: 12) {
                 SearchField(state: state, large: true)
+                PasteQueueBanner()
                 FilterChips(state: state)
             }
             .padding(.horizontal, 18).padding(.top, 18).padding(.bottom, 12)
@@ -493,6 +496,7 @@ struct ClipboardTabView: View {
                 SnippetsView(store: manager.snippets)
             } else {
                 SearchField(state: state)
+                PasteQueueBanner()
                 FilterChips(state: state, iconsOnly: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 let list = manager.filtered(state.query, state.filter)
