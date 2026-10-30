@@ -320,6 +320,13 @@ final class PaletteModel: ObservableObject {
                 action("meeting", L("Entrar na reunião"), "video.fill", .orange, "reunião meeting entrar join zoom meet teams call chamada",
                        subtitle: m.title) { MeetingStore.shared.join() }
             }
+            let focus = FocusTimer.shared
+            if focus.isRunning {
+                action("focus", L("Parar foco"), "stop.fill", .red, "foco focus pomodoro parar stop timer") { focus.stop() }
+            } else {
+                action("focus", L("Iniciar foco"), "timer", .red, "foco focus pomodoro concentrar timer",
+                       subtitle: L("Digite um tempo, como “foco 50”")) { focus.start(minutes: 25) }
+            }
             action("ocr", L("Copiar texto da tela"), "text.viewfinder", .green, "ocr texto text capturar capture scan ler read textsniper",
                    shortcut: Shortcut.load(HotKeyCenter.ocrKey, default: .ocrDefault).display) { TextRecognizer.captureScreenText() }
             action("screenshot", L("Print"), "camera.viewfinder", .pink, "print screenshot captura tela imagem") { tb.screenshotToClipboard() }
@@ -464,6 +471,13 @@ final class PaletteModel: ObservableObject {
                     HUD.show(icon: "cup.and.saucer.fill", color: .orange, text: L("Acordado por %@", label))
                 })
             }
+        }
+        if ["foco", "focus", "fokus", "pomodoro", "专注"].contains(where: { $0.hasPrefix(word) }),
+           let minutes = Int(arg.prefix { $0.isNumber }), (1...600).contains(minutes) {
+            out.append(PaletteItem(id: "focus.timed", kind: .action, title: L("Foco por %d min", minutes), keywords: word,
+                                   icon: .symbol("timer", .red), remember: false) {
+                FocusTimer.shared.start(minutes: minutes)
+            })
         }
         return out.map { item in var i = item; i.keywords = q; return i }
     }

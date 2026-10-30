@@ -106,6 +106,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         AutomationStore.shared.start(toolbox: toolbox)
         TextExpander.shared.start(clipboard: clipboard)
         MeetingStore.shared.refreshEnabled()
+        FocusTimer.shared.attach(toolbox)
         updateStatusItem()
 
         applyAppearance()
@@ -206,7 +207,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     private func updateStatusItem() {
         guard let button = statusItem?.button else { return }
-        let segments = MenuBarItem.selected.compactMap { $0.segment(monitor) }
+        var segments = MenuBarItem.selected.compactMap { $0.segment(monitor) }
+        if let focus = FocusTimer.shared.segment { segments.insert(focus, at: 0) }
         let pending = updater.pendingVersion != nil
         let key = segments.map(\.key).joined(separator: "|") + (pending ? "|update" : "")
         guard key != lastStatusKey || button.image == nil else { return }

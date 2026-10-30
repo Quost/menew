@@ -53,6 +53,8 @@ struct ActionsView: View {
                     }
                 }
 
+                section(L("Foco")) { FocusCard() }
+
                 section(L("Controles")) {
                     VStack(spacing: 0) {
                         ControlRow(icon: tb.micMuted ? "mic.slash.fill" : "mic.fill", color: .red,
