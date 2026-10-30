@@ -103,6 +103,10 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-editor-\(suffix).png"))
+                render(NotesView(store: notes, openID: notes.notes.first(where: \.isPasswords)?.id)
+                        .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
+                       size: NSSize(width: 400, height: 600), dark: dark,
+                       to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
                 let state = ClipListState()
                 for (i, sel) in [0, 2, 3].enumerated() {
                     state.selection = sel

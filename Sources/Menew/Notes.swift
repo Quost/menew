@@ -12,6 +12,16 @@ struct Note: Codable, Identifiable, Equatable {
     var secure = false
     var created = Date()
     var updated = Date()
+    /// nil é texto (Markdown); opcional para as notas salvas antes continuarem abrindo
+    var kind: Kind? = nil
+
+    enum Kind: String, Codable, CaseIterable {
+        case text, passwords
+        var title: String { self == .text ? L("Texto") : L("Senhas") }
+        var icon: String { self == .text ? "note.text" : "key.fill" }
+    }
+
+    var isPasswords: Bool { kind == .passwords }
 
     var title: String {
         let line = text.split(whereSeparator: \.isNewline)
@@ -43,6 +53,52 @@ struct Note: Codable, Identifiable, Equatable {
             if !seen.contains(t) { seen.append(t) }
         }
         return seen
+    }
+}
+
+/// Linha "chave: valor" de uma nota de senhas. O texto da nota continua sendo o título na primeira linha
+/// e um campo por linha, então trocar de tipo não perde nada.
+struct SecretField: Identifiable, Equatable {
+    var id = UUID()
+    var key: String
+    var value: String
+
+    static func parse(_ text: String) -> (title: String, fields: [SecretField]) {
+        var lines = text.components(separatedBy: "\n")
+        let title = lines.isEmpty ? "" : lines.removeFirst()
+        let fields = lines.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.map { line -> SecretField in
+            guard let colon = line.firstIndex(of: ":") else { return SecretField(key: line.trimmingCharacters(in: .whitespaces), value: "") }
+            var value = line[line.index(after: colon)...]
+            if value.first == " " { value = value.dropFirst() }
+            return SecretField(key: line[..<colon].trimmingCharacters(in: .whitespaces), value: String(value))
+        }
+        return (title, fields)
+    }
+
+    static func format(title: String, fields: [SecretField]) -> String {
+        let flat = { (s: String) in s.replacingOccurrences(of: "\n", with: " ") }
+        let rows = fields.map { f in
+            let key = flat(f.key).replacingOccurrences(of: ":", with: "")
+            return f.value.isEmpty ? "\(key):" : "\(key): \(flat(f.value))"
+        }
+        return ([flat(title)] + rows).joined(separator: "\n")
+    }
+}
+
+/// Copia um segredo marcado como confidencial: o Menew e outros gerenciadores de clipboard não guardam,
+/// e some do clipboard depois de 30 s se nada mais foi copiado
+@MainActor
+enum SecretCopy {
+    static func copy(_ value: String) {
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(value, forType: .string)
+        pb.setString("", forType: NSPasteboard.PasteboardType("org.nspasteboard.ConcealedType"))
+        let count = pb.changeCount
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30) {
+            if pb.changeCount == count { pb.clearContents() }
+        }
+        HUD.show(icon: "key.fill", color: .blue, text: L("Copiado · some em 30 s"), duration: 1.4)
     }
 }
 
@@ -86,6 +142,8 @@ final class NotesStore: ObservableObject {
     @Published private(set) var notes: [Note] = []
     /// Notas protegidas abertas nesta sessão (fecham quando o menu fecha)
     @Published private(set) var unlocked: [UUID: String] = [:]
+    /// Touch ID na tela: o menu não fecha enquanto isso (o pedido do sistema tira o foco dele)
+    private(set) var authenticating = false
 
     private let url: URL?
     private var saveWork: DispatchWorkItem?
@@ -109,14 +167,20 @@ final class NotesStore: ObservableObject {
         s.notes = pt ? [
             Note(text: "# Ideias pro Menew\n- [x] Snippets\n- [ ] Atalhos por app\n- [ ] Widget de clima\n\n#ideias #menew", updated: Date().addingTimeInterval(-600)),
             Note(text: "Reunião de sexta\n**Pauta:** orçamento e prazos\n> Levar os números do trimestre\n\n#trabalho", updated: Date().addingTimeInterval(-7200)),
-            Note(text: "Senhas do roteador", secure: true, updated: Date().addingTimeInterval(-86400)),
+            Note(text: "Wi-Fi de casa", secure: true, updated: Date().addingTimeInterval(-86400), kind: .passwords),
             Note(text: "Lista de compras\n- café\n- pão\n- queijo\n\n#casa", updated: Date().addingTimeInterval(-172800)),
         ] : [
             Note(text: "# Menew ideas\n- [x] Snippets\n- [ ] Per-app shortcuts\n- [ ] Weather widget\n\n#ideas #menew", updated: Date().addingTimeInterval(-600)),
             Note(text: "Friday meeting\n**Agenda:** budget and deadlines\n> Bring the quarterly numbers\n\n#work", updated: Date().addingTimeInterval(-7200)),
-            Note(text: "Router passwords", secure: true, updated: Date().addingTimeInterval(-86400)),
+            Note(text: "Home Wi-Fi", secure: true, updated: Date().addingTimeInterval(-86400), kind: .passwords),
             Note(text: "Groceries\n- coffee\n- bread\n- cheese\n\n#home", updated: Date().addingTimeInterval(-172800)),
         ]
+        if let wifi = s.notes.first(where: \.isPasswords) {
+            s.unlocked[wifi.id] = SecretField.format(title: wifi.text, fields: [
+                SecretField(key: L("Rede"), value: "Casa-5G"), SecretField(key: L("Senha"), value: "correct-horse-battery"),
+                SecretField(key: L("Roteador"), value: "http://192.168.0.1"), SecretField(key: "PIN", value: "4821"),
+            ])
+        }
         return s
     }
 
@@ -157,12 +221,31 @@ final class NotesStore: ObservableObject {
             guard unlocked[id] != nil else { return }
             unlocked[id] = text
             NoteVault.write(text, id: id)
-            notes[i].text = String(text.split(whereSeparator: \.isNewline).first ?? "")
+            notes[i].text = Self.firstLine(text)
         } else {
             notes[i].text = text
         }
         notes[i].updated = Date()
         scheduleSave()
+    }
+
+    /// Nota de senhas nova: já protegida, com usuário e senha para preencher
+    func createPasswords() -> UUID {
+        let id = create(text: SecretField.format(title: "", fields: [SecretField(key: L("Usuário"), value: ""), SecretField(key: L("Senha"), value: "")]))
+        setKind(.passwords, for: id)
+        return id
+    }
+
+    /// Senhas ficam sempre protegidas; voltar para texto mantém a proteção
+    func setKind(_ kind: Note.Kind, for id: UUID) {
+        guard let i = notes.firstIndex(where: { $0.id == id }) else { return }
+        notes[i].kind = kind == .text ? nil : kind
+        if kind == .passwords, !notes[i].secure { setSecure(true, for: id) } else { save() }
+    }
+
+    /// Só a primeira linha fica fora das Chaves, mesmo vazia
+    private static func firstLine(_ text: String) -> String {
+        String(text.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: false).first ?? "")
     }
 
     func delete(_ id: UUID) {
@@ -179,7 +262,7 @@ final class NotesStore: ObservableObject {
             let full = notes[i].text
             NoteVault.write(full, id: id)
             notes[i].secure = true
-            notes[i].text = String(full.split(whereSeparator: \.isNewline).first ?? "")
+            notes[i].text = Self.firstLine(full)
             unlocked[id] = full
         } else {
             guard let full = unlocked[id] else { return }
@@ -198,6 +281,8 @@ final class NotesStore: ObservableObject {
         var err: NSError?
         guard ctx.canEvaluatePolicy(.deviceOwnerAuthentication, error: &err) else { return false }
         NSApp.activate(ignoringOtherApps: true)
+        authenticating = true
+        defer { authenticating = false }
         let ok = (try? await ctx.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: L("abrir a nota protegida"))) ?? false
         guard ok else { return false }
         unlocked[id] = NoteVault.read(id) ?? note(id)?.text ?? ""

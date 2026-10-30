@@ -165,6 +165,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
     }
 
+    func popoverShouldClose(_ popover: NSPopover) -> Bool { !notes.authenticating }
+
     /// Fechar o menu tranca de novo as notas protegidas
     func popoverDidClose(_ notification: Notification) {
         notes.lockAll()

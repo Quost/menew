@@ -57,6 +57,7 @@ struct NotesView: View {
                 }
                 .font(.system(size: 13))
                 .glassField()
+                IconButton(icon: "key.fill", help: L("Nova nota de senhas")) { openID = store.createPasswords() }
                 PillButton(title: L("Nova"), icon: "square.and.pencil", primary: true) {
                     openID = store.create(text: tag.map { "\n\n#\($0)" } ?? "")
                 }
@@ -106,8 +107,9 @@ struct NotesView: View {
             HStack(alignment: .top, spacing: 10) {
                 ZStack {
                     RoundedRectangle(cornerRadius: 8, style: .continuous)
-                        .fill(n.secure ? AnyShapeStyle(Color.orange.gradient) : AnyShapeStyle(Color.yellow.gradient))
-                    Image(systemName: n.secure ? "lock.fill" : "note.text")
+                        .fill(n.isPasswords ? AnyShapeStyle(Color.blue.gradient)
+                              : n.secure ? AnyShapeStyle(Color.orange.gradient) : AnyShapeStyle(Color.yellow.gradient))
+                    Image(systemName: n.isPasswords ? "key.fill" : n.secure ? "lock.fill" : "note.text")
                         .font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
                 }
                 .frame(width: 30, height: 30)
@@ -132,11 +134,13 @@ struct NotesView: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button(L("Copiar")) { copy(n) }
+            if !n.isPasswords {
             Button(n.secure ? L("Remover proteção") : L("Proteger com Touch ID")) {
                 Task {
                     if n.secure { guard await store.unlock(n.id) else { return } }
                     store.setSecure(!n.secure, for: n.id)
                 }
+            }
             }
             Divider()
             Button(L("Apagar"), role: .destructive) { store.delete(n.id) }
@@ -151,6 +155,7 @@ struct NotesView: View {
     private func copy(_ n: Note) {
         Task {
             if n.secure { guard await store.unlock(n.id) else { return } }
+            if n.isPasswords { SecretCopy.copy(store.text(of: n.id)); return }
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(store.text(of: n.id), forType: .string)
         }
@@ -181,17 +186,25 @@ private struct NoteEditor: View {
                 }
                 Text(note?.title ?? "").font(.system(size: 13, weight: .semibold)).lineLimit(1)
                 Spacer()
-                GlassSegmented(selection: $reading, options: [
-                    .init(value: false, icon: "pencil", help: L("Editar")),
-                    .init(value: true, icon: "eye", help: L("Ler")),
-                ], expand: false)
+                if note?.isPasswords != true {
+                    GlassSegmented(selection: $reading, options: [
+                        .init(value: false, icon: "pencil", help: L("Editar")),
+                        .init(value: true, icon: "eye", help: L("Ler")),
+                    ], expand: false)
+                }
                 Menu {
                     Button(L("Copiar")) {
+                        if note?.isPasswords == true { SecretCopy.copy(store.text(of: id)); return }
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(store.text(of: id), forType: .string)
                     }
-                    Button(note?.secure == true ? L("Remover proteção") : L("Proteger com Touch ID")) {
-                        store.setSecure(!(note?.secure ?? false), for: id)
+                    Picker(L("Tipo"), selection: Binding(get: { note?.kind ?? .text }, set: { store.setKind($0, for: id) })) {
+                        ForEach(Note.Kind.allCases, id: \.self) { k in Label(k.title, systemImage: k.icon).tag(k) }
+                    }
+                    if note?.isPasswords != true {
+                        Button(note?.secure == true ? L("Remover proteção") : L("Proteger com Touch ID")) {
+                            store.setSecure(!(note?.secure ?? false), for: id)
+                        }
                     }
                     Divider()
                     Button(L("Apagar nota"), role: .destructive) { confirmDelete = true }
@@ -205,7 +218,9 @@ private struct NoteEditor: View {
             }
 
             Group {
-                if reading {
+                if note?.isPasswords == true {
+                    PasswordsEditor(store: store, id: id)
+                } else if reading {
                     ScrollView {
                         MarkdownView(text: store.text(of: id), onToggleTask: toggleTask, onTag: onTag)
                             .padding(4)
@@ -239,7 +254,7 @@ private struct NoteEditor: View {
             }
             .font(.system(size: 11))
         }
-        .onAppear { if !reading || store.text(of: id).isEmpty { reading = false; focused = true } }
+        .onAppear { if note?.isPasswords != true, !reading || store.text(of: id).isEmpty { reading = false; focused = true } }
         .confirmationDialog(L("Apagar esta nota?"), isPresented: $confirmDelete) {
             Button(L("Apagar"), role: .destructive) { store.delete(id); onClose() }
         }
@@ -256,5 +271,100 @@ private struct NoteEditor: View {
             lines[line] = l.replacingCharacters(in: r, with: "[ ]")
         }
         store.setText(lines.joined(separator: "\n"), of: id)
+    }
+}
+
+/// Nota de senhas: título e linhas de chave e valor. Valores escondidos, com olhinho para mostrar e botão de copiar.
+private struct PasswordsEditor: View {
+    @ObservedObject var store: NotesStore
+    let id: UUID
+    @State private var title = ""
+    @State private var fields: [SecretField] = []
+    @State private var shown: Set<UUID> = []
+    @FocusState private var focus: Focus?
+
+    enum Focus: Hashable { case title, key(UUID), value(UUID) }
+
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 8) {
+                TextField(L("Título (ex.: Wi-Fi de casa)"), text: $title)
+                    .textFieldStyle(.plain).font(.system(size: 15, weight: .semibold))
+                    .focused($focus, equals: .title)
+                    .padding(.horizontal, 4).padding(.bottom, 2)
+                ForEach($fields) { $f in row($f) }
+                Button {
+                    let f = SecretField(key: "", value: "")
+                    fields.append(f)
+                    focus = .key(f.id)
+                } label: {
+                    Label(L("Adicionar campo"), systemImage: "plus.circle.fill")
+                        .font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.violet)
+                }
+                .buttonStyle(.plain).padding(.horizontal, 4).padding(.top, 2)
+            }
+            .padding(2)
+        }
+        .noLiquidGlass()
+        .scrollIndicators(.never)
+        .onAppear {
+            let parsed = SecretField.parse(store.text(of: id))
+            title = parsed.title
+            fields = parsed.fields
+            if title.isEmpty { focus = .title }
+        }
+        .onChange(of: title) { save() }
+        .onChange(of: fields) { save() }
+    }
+
+    private func row(_ f: Binding<SecretField>) -> some View {
+        let fid = f.wrappedValue.id
+        let visible = shown.contains(fid)
+        return HStack(spacing: 8) {
+            TextField(L("Nome"), text: f.key)
+                .textFieldStyle(.plain).font(.system(size: 11.5, weight: .medium)).foregroundStyle(.secondary)
+                .focused($focus, equals: .key(fid))
+                .frame(width: keyWidth)
+            Group {
+                if visible {
+                    TextField(L("Valor"), text: f.value)
+                } else {
+                    SecureField(L("Valor"), text: f.value)
+                }
+            }
+            .textFieldStyle(.plain).font(.system(size: 12.5, design: .monospaced))
+            .focused($focus, equals: .value(fid))
+            iconButton(visible ? "eye.slash" : "eye", help: visible ? L("Esconder") : L("Mostrar")) {
+                if visible { shown.remove(fid) } else { shown.insert(fid) }
+            }
+            iconButton("doc.on.doc", help: L("Copiar")) { SecretCopy.copy(f.wrappedValue.value) }
+                .disabled(f.wrappedValue.value.isEmpty)
+            iconButton("minus.circle", help: L("Remover campo")) {
+                fields.removeAll { $0.id == fid }
+                shown.remove(fid)
+            }
+        }
+        .padding(.horizontal, 10).padding(.vertical, 7)
+        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.04)))
+    }
+
+    /// Coluna dos nomes do tamanho do maior nome (entre 60 e 160 pt); o valor fica com o resto
+    private var keyWidth: CGFloat {
+        let font = NSFont.systemFont(ofSize: 11.5, weight: .medium)
+        let widest = fields.map { ($0.key as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
+        return min(160, max(60, ceil(widest) + 6))
+    }
+
+    private func iconButton(_ icon: String, help: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: icon).font(.system(size: 11.5, weight: .medium)).foregroundStyle(.secondary)
+                .frame(width: 22, height: 22).contentShape(Rectangle())
+        }
+        .buttonStyle(.plain).help(help).accessibilityLabel(help)
+    }
+
+    private func save() {
+        let text = SecretField.format(title: title, fields: fields)
+        if text != store.text(of: id) { store.setText(text, of: id) }
     }
 }

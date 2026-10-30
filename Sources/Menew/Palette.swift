@@ -412,7 +412,7 @@ final class PaletteModel: ObservableObject {
         if Module.notes.isOn {
             for n in notes.notes {
                 out.append(PaletteItem(id: "note.\(n.id)", kind: .note, title: n.title, subtitle: n.preview,
-                                       keywords: n.secure ? "" : n.text, icon: .symbol(n.secure ? "lock.fill" : "note.text", .yellow)) { [weak self] in
+                                       keywords: n.secure ? "" : n.text, icon: .symbol(n.isPasswords ? "key.fill" : n.secure ? "lock.fill" : "note.text", n.isPasswords ? .blue : .yellow)) { [weak self] in
                     self?.openNote(n.id)
                 })
             }
