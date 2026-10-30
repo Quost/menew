@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.26.0
+
+- **App control**: a new Apps section in Actions to **quit all** apps, **quit others** (everything but the app you were using), **hide others**, or **force quit** a frozen app. Also from the command palette: “quit all”, “quit others”, “hide others”.
+- **Work profiles can quit every other app**: turn on “Quit the other apps” in a profile and it closes everything else before opening your apps, for a clean work mode.
+- **New automation action**: “Quit all apps”, for rules like “when the battery drops below 5%, quit all apps”.
+- Quitting is always a normal request, so apps with unsaved work ask you first; force quit is only ever manual. Finder and Menew are never quit, and a “Never quit” list keeps the apps you choose open.
+
 ## 1.25.0
 
 - **Apps using the network**: in System → Internet, open “Apps using the network” to see which apps are downloading and uploading right now, with the speed of each. Helper processes count toward their app (Chrome's helpers show as Chrome).

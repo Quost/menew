@@ -56,6 +56,7 @@
   "act_l7": "<b>Automationen</b> — um 9 Uhr das Arbeitsprofil aktivieren, das Mikro stummschalten, wenn Zoom startet, die Helligkeit senken, wenn du aussteckst. Einfache Auslöser, keine Skripte.",
   "act_l8": "<b>Text vom Bildschirm kopieren</b> — drücke ⌃⌥⌘T, wähle einen Bereich (ein Video, ein PDF, eine Fehlermeldung) und der Text landet in der Zwischenablage. Klappt auch mit kopierten Bildern. Alles läuft auf deinem Mac.",
   "act_l9": "<b>Fokus-Timer</b> — starte 25 Minuten (oder jede andere Zeit: tippe „fokus 50“ in die Palette) und der Countdown erscheint in der Menüleiste. Er kann das Mikrofon stummschalten, den Mac wach halten und die Zwischenablage pausieren, stellt danach alles zurück und gönnt dir 5 Minuten Pause.",
+  "act_l10": "<b>App-Steuerung</b> — beende alle Apps, alles außer der aktuellen, blende den Rest aus oder beende eine hängende App sofort. Ein Arbeitsprofil kann alles andere schließen und nur öffnen, was du brauchst, und eine Automation kann bei 5 % Akku alle Apps beenden.",
   "priv_eyebrow": "Datenschutz",
   "priv_h2": "Deine Daten verlassen nie deinen Mac.",
   "priv_sub": "Menew ist Open Source — du musst uns also nicht einfach glauben.",

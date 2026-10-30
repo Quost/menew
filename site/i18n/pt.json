@@ -56,6 +56,7 @@
   "act_l7": "<b>Automações</b> — às 9h ative o perfil de trabalho, mute o microfone quando o Zoom abrir, baixe o brilho ao tirar da tomada. Gatilhos simples, sem scripts.",
   "act_l8": "<b>Copiar texto da tela</b> — aperte ⌃⌥⌘T, selecione qualquer área (um vídeo, um PDF, uma mensagem de erro) e o texto vai para o clipboard. Funciona também com imagens copiadas. Tudo roda no seu Mac.",
   "act_l9": "<b>Timer de foco</b> — comece 25 minutos (ou o tempo que quiser: digite “foco 50” na paleta) e a contagem aparece na barra de menus. Pode mutar o microfone, manter o Mac acordado e pausar o clipboard, e no fim volta tudo como estava e dá uma pausa de 5 minutos.",
+  "act_l10": "<b>Controle de apps</b> — feche todos os apps, feche tudo menos o que você está usando, esconda o resto ou force o encerramento de um app travado. Um perfil de trabalho pode fechar o resto e abrir só o que você precisa, e uma automação pode fechar tudo quando a bateria chegar a 5%.",
   "priv_eyebrow": "Privacidade",
   "priv_h2": "Seus dados nunca saem do seu Mac.",
   "priv_sub": "O Menew é open source, então você não precisa acreditar só na nossa palavra.",
