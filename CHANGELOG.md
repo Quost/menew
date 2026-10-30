@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.21.0
+
+- **Focus timer**: in Actions → Focus, start 25 minutes (or 15, 45, 50, 90 from the ⋯ menu), or type “focus 50” in the command palette for any length. The time left shows in the menu bar, and you can add 5 minutes or stop at any time.
+- While you focus, Menew can mute the mic, keep the Mac awake and pause the clipboard. When the time is up it plays a sound, sends a notification, puts back only what it changed and starts a 5-minute break (you can turn the break off).
+
 ## 1.20.0
 
 - **Next meeting**: turn it on in Settings → Calendar and your next meeting shows at the top of the menu, with a countdown and a **Join** button that opens the Zoom, Meet, Teams, Webex, Whereby, Jitsi, Chime or FaceTime link found in the event. Ongoing meetings show until they end; all-day, canceled and declined events are skipped.

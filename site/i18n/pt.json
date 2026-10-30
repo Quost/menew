@@ -55,6 +55,7 @@
   "act_l6": "<b>Estante rápida</b> — chacoalhe arquivos enquanto arrasta e uma estante aparece. Solte ali arquivos, links e textos e depois arraste tudo junto. Os originais nunca saem do lugar.",
   "act_l7": "<b>Automações</b> — às 9h ative o perfil de trabalho, mute o microfone quando o Zoom abrir, baixe o brilho ao tirar da tomada. Gatilhos simples, sem scripts.",
   "act_l8": "<b>Copiar texto da tela</b> — aperte ⌃⌥⌘T, selecione qualquer área (um vídeo, um PDF, uma mensagem de erro) e o texto vai para o clipboard. Funciona também com imagens copiadas. Tudo roda no seu Mac.",
+  "act_l9": "<b>Timer de foco</b> — comece 25 minutos (ou o tempo que quiser: digite “foco 50” na paleta) e a contagem aparece na barra de menus. Pode mutar o microfone, manter o Mac acordado e pausar o clipboard, e no fim volta tudo como estava e dá uma pausa de 5 minutos.",
   "priv_eyebrow": "Privacidade",
   "priv_h2": "Seus dados nunca saem do seu Mac.",
   "priv_sub": "O Menew é open source, então você não precisa acreditar só na nossa palavra.",

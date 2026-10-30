@@ -55,6 +55,7 @@
   "act_l6": "<b>Schnellablage</b> — schüttle Dateien beim Ziehen, und eine Ablage erscheint. Lege Dateien, Links und Text dort ab und ziehe dann alles zusammen heraus. Originale bleiben, wo sie sind.",
   "act_l7": "<b>Automationen</b> — um 9 Uhr das Arbeitsprofil aktivieren, das Mikro stummschalten, wenn Zoom startet, die Helligkeit senken, wenn du aussteckst. Einfache Auslöser, keine Skripte.",
   "act_l8": "<b>Text vom Bildschirm kopieren</b> — drücke ⌃⌥⌘T, wähle einen Bereich (ein Video, ein PDF, eine Fehlermeldung) und der Text landet in der Zwischenablage. Klappt auch mit kopierten Bildern. Alles läuft auf deinem Mac.",
+  "act_l9": "<b>Fokus-Timer</b> — starte 25 Minuten (oder jede andere Zeit: tippe „fokus 50“ in die Palette) und der Countdown erscheint in der Menüleiste. Er kann das Mikrofon stummschalten, den Mac wach halten und die Zwischenablage pausieren, stellt danach alles zurück und gönnt dir 5 Minuten Pause.",
   "priv_eyebrow": "Datenschutz",
   "priv_h2": "Deine Daten verlassen nie deinen Mac.",
   "priv_sub": "Menew ist Open Source — du musst uns also nicht einfach glauben.",
