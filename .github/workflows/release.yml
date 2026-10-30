@@ -93,8 +93,18 @@ jobs:
           [ -f build/appcast.xml ] && ASSETS+=(build/appcast.xml)
           # Notas: seção da versão no CHANGELOG.md + lista automática de mudanças
           CHANGES=$(awk -v v="$VERSION" '/^## /{p = ($2 == v); next} p' CHANGELOG.md)
-          gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
-            --title "Menew $VERSION" --notes "$NOTE$CHANGES" --generate-notes
+          # A API do GitHub às vezes falha (502, resposta vazia) depois de já ter criado a release:
+          # tenta de novo e, se ela já existe, só substitui os arquivos. Assim rodar de novo também funciona.
+          for i in 1 2 3 4; do
+            if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+              gh release upload "$GITHUB_REF_NAME" "${ASSETS[@]}" --clobber && break
+            else
+              gh release create "$GITHUB_REF_NAME" "${ASSETS[@]}" \
+                --title "Menew $VERSION" --notes "$NOTE$CHANGES" --generate-notes && break
+            fi
+            [ "$i" = 4 ] && exit 1
+            echo "Nova tentativa em $((i * 10))s…"; sleep $((i * 10))
+          done
 
       # Mantém Casks/menew.rb (tap do Homebrew neste repo) na versão nova.
       # O commit vai pela API do GitHub, que o assina: aparece como "Verified".
@@ -104,12 +114,18 @@ jobs:
         run: |
           SHA256=$(shasum -a 256 build/Menew.dmg | cut -d' ' -f1)
           API="repos/$GITHUB_REPOSITORY/contents/Casks/menew.rb"
-          BLOB=$(gh api "$API?ref=main" --jq .sha)
-          gh api "$API?ref=main" --jq .content | base64 --decode > "$RUNNER_TEMP/menew.old.rb"
-          sed -E "s/^  version \".*\"/  version \"$VERSION\"/; s/^  sha256 .*/  sha256 \"$SHA256\"/" \
-            "$RUNNER_TEMP/menew.old.rb" > "$RUNNER_TEMP/menew.rb"
-          if cmp -s "$RUNNER_TEMP/menew.old.rb" "$RUNNER_TEMP/menew.rb"; then exit 0; fi
-          gh api -X PUT "$API" \
-            -f message="chore(homebrew): bump cask to $VERSION" \
-            -f content="$(base64 < "$RUNNER_TEMP/menew.rb" | tr -d '\n')" \
-            -f sha="$BLOB" -f branch=main --jq '.commit.html_url'
+          # Lê de novo a cada tentativa: se a anterior gravou e só a resposta se perdeu, não há o que fazer
+          for i in 1 2 3 4; do
+            if BLOB=$(gh api "$API?ref=main" --jq .sha) &&
+               gh api "$API?ref=main" --jq .content | base64 --decode > "$RUNNER_TEMP/menew.old.rb"; then
+              sed -E "s/^  version \".*\"/  version \"$VERSION\"/; s/^  sha256 .*/  sha256 \"$SHA256\"/" \
+                "$RUNNER_TEMP/menew.old.rb" > "$RUNNER_TEMP/menew.rb"
+              if cmp -s "$RUNNER_TEMP/menew.old.rb" "$RUNNER_TEMP/menew.rb"; then exit 0; fi
+              gh api -X PUT "$API" \
+                -f message="chore(homebrew): bump cask to $VERSION" \
+                -f content="$(base64 < "$RUNNER_TEMP/menew.rb" | tr -d '\n')" \
+                -f sha="$BLOB" -f branch=main --jq '.commit.html_url' && exit 0
+            fi
+            [ "$i" = 4 ] && exit 1
+            echo "Nova tentativa em $((i * 10))s…"; sleep $((i * 10))
+          done
