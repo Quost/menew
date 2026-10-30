@@ -199,7 +199,7 @@ enum HUD {
 
 /// Tela da Apple (embutida, Studio Display) via DisplayServices; monitor externo via DDC/CI.
 struct ScreenInfo: Identifiable {
-    enum Kind { case apple, ddc, unsupported }
+    enum Kind { case apple, ddc, software, unsupported }
     let id: CGDirectDisplayID
     let name: String
     let builtin: Bool
@@ -226,13 +226,20 @@ final class DisplayController: ObservableObject {
     private var pendingRefresh: DispatchWorkItem?
 
     init() {
+        SoftwareDim.reapplyAll()
         // Monitor ligado ou desligado com a aba aberta: atualiza a lista (com folga, a reconfiguração demora)
         observer = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
                                                           object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
-                guard let self, self.matched != nil else { return }
+                guard let self else { return }
                 self.pendingRefresh?.cancel()
-                let work = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.refresh() } }
+                let work = DispatchWorkItem { [weak self] in
+                    MainActor.assumeIsolated {
+                        // O macOS volta as cores ao reconfigurar as telas: reaplica o escurecimento
+                        SoftwareDim.reapplyAll()
+                        if self?.matched != nil { self?.refresh() }
+                    }
+                }
                 self.pendingRefresh = work
                 DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
             }
@@ -282,8 +289,9 @@ final class DisplayController: ObservableObject {
             }
             let old = screens.first { $0.id == id }
             let svc = ddc[id]
-            let kind: ScreenInfo.Kind = svc.map { $0.disabled ? .unsupported : $0.maxValue > 0 ? .ddc : (old?.kind ?? .ddc) }
-                ?? (matching ? (old?.kind ?? .ddc) : .unsupported)
+            let kind: ScreenInfo.Kind = svc.map { $0.disabled ? .software : $0.maxValue > 0 ? .ddc : (old?.kind ?? .ddc) }
+                ?? (matching ? (old?.kind ?? .ddc) : .software)
+            if kind == .software { return ScreenInfo(id: id, name: name, builtin: builtin, kind: .software, brightness: SoftwareDim.level(id)) }
             return ScreenInfo(id: id, name: name, builtin: builtin, kind: kind, brightness: old?.brightness ?? 0.5)
         }
     }
@@ -305,9 +313,13 @@ final class DisplayController: ObservableObject {
                     if let (cur, mx) = value, mx > 0, !slow {
                         self.screens[i].brightness = Double(cur) / Double(mx)
                         self.screens[i].kind = .ddc
+                        // O brilho de verdade assume: tira o escurecimento por software, se havia
+                        SoftwareDim.clear(id)
                     } else {
-                        // Não respondeu (ou demorou): o monitor não aceita DDC ou está numa porta que não repassa
-                        self.screens[i].kind = .unsupported
+                        // Não respondeu (ou demorou): o monitor não aceita DDC ou está numa porta que não repassa.
+                        // Fica o escurecimento por software, que não conversa com o monitor.
+                        self.screens[i].kind = .software
+                        self.screens[i].brightness = SoftwareDim.level(id)
                     }
                 }
             }
@@ -347,8 +359,57 @@ final class DisplayController: ObservableObject {
         switch screens[i].kind {
         case .apple: DisplayServices.setBrightness(id, value)
         case .ddc: if let svc = ddc[id], svc.maxValue > 0, !svc.disabled { writer.write(svc, value: value) }
+        case .software: SoftwareDim.set(id, value)
         case .unsupported: break
         }
+    }
+}
+
+/// Escurecimento por software para monitores sem DDC: baixa a curva de cor (gamma) só daquela tela.
+/// Não conversa com o monitor, então não trava nada; o macOS desfaz sozinho quando o Menew fecha.
+@MainActor
+enum SoftwareDim {
+    private static let key = "softwareDim"
+    /// Abaixo disso a tela fica preta demais para achar o slider de novo
+    private static let floor = 0.15
+
+    private static func id(_ d: CGDirectDisplayID) -> String {
+        "\(CGDisplayVendorNumber(d))-\(CGDisplayModelNumber(d))-\(CGDisplaySerialNumber(d))"
+    }
+
+    private static var saved: [String: Double] {
+        get { UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: key) }
+    }
+
+    static func level(_ d: CGDirectDisplayID) -> Double { saved[id(d)] ?? 1 }
+
+    static func set(_ d: CGDirectDisplayID, _ v: Double) {
+        let v = min(max(v, 0), 1)
+        var s = saved
+        s[id(d)] = v < 1 ? v : nil
+        saved = s
+        apply(d, v)
+    }
+
+    static func clear(_ d: CGDirectDisplayID) {
+        guard saved[id(d)] != nil else { return }
+        set(d, 1)
+    }
+
+    private static func apply(_ d: CGDirectDisplayID, _ v: Double) {
+        let m = Float(floor + (1 - floor) * v)
+        CGSetDisplayTransferByFormula(d, 0, m, 1, 0, m, 1, 0, m, 1)
+    }
+
+    static func reapplyAll() {
+        let s = saved
+        guard !s.isEmpty else { return }
+        var count: UInt32 = 0
+        CGGetOnlineDisplayList(0, nil, &count)
+        var ids = [CGDirectDisplayID](repeating: 0, count: Int(count))
+        CGGetOnlineDisplayList(count, &ids, &count)
+        for d in ids where CGDisplayIsBuiltin(d) == 0 { if let v = s[id(d)] { apply(d, v) } }
     }
 }
 

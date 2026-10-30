@@ -264,6 +264,10 @@ struct BrightnessRow: View {
                 HStack {
                     Text(screen.name).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
                     Spacer()
+                    if screen.kind == .software {
+                        Text(L("por software")).font(.system(size: 10, weight: .medium)).foregroundStyle(.tertiary)
+                            .help(L("Este monitor não aceita ajuste pelo cabo (DDC/CI). O Menew escurece a imagem, sem mexer na luz do monitor."))
+                    }
                     if screen.kind != .unsupported {
                         Text(Fmt.pct(value ?? screen.brightness)).font(.system(size: 11, weight: .medium, design: .rounded))
                             .monospacedDigit().foregroundStyle(.secondary)
