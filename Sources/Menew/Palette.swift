@@ -198,6 +198,9 @@ final class PaletteModel: ObservableObject {
             return
         }
         pool += parametric(q)
+        if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
+            pool += TextTransform.paletteItems(text: text, query: q)
+        }
         if Module.clipboard.isOn {
             pool += clipboard.filtered(query).prefix(6).map { item in
                 PaletteItem(id: "clip.\(item.id)", kind: .clip, title: item.title.isEmpty ? item.preview : item.title,
