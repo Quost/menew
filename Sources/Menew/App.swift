@@ -169,6 +169,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     func popoverDidClose(_ notification: Notification) {
         notes.lockAll()
         nav.isOpen = false
+        monitor.isVisible = false
     }
 
     /// Sem menu principal o macOS não entrega ⌘V, ⌘C, ⌘X, ⌘A e ⌘Z aos campos de texto.
@@ -305,6 +306,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         popoverClipState.focusToken += 1
         NSApp.activate(ignoringOtherApps: true)
         nav.isOpen = true
+        monitor.isVisible = true
         popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         popover.contentViewController?.view.window?.makeKey()
     }

@@ -148,6 +148,7 @@ final class ClipboardManager: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
         }
+        timer?.tolerance = 0.15
         // Itens vencidos saem mesmo sem nada novo ser copiado
         cleanupTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.pruneAndSaveIfNeeded() }

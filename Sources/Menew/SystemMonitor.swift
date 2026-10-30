@@ -66,6 +66,10 @@ final class SystemMonitor: ObservableObject {
     @Published var diskWriteHistory: [Double] = Array(repeating: 0, count: 40)
 
     var wantsProcesses = false
+    /// Menu aberto: GPU e leitura/gravação do disco só aparecem nele, então só são lidos aí
+    var isVisible = false {
+        didSet { if isVisible && !oldValue { prevDisk = nil; readGPU(); readDiskIO() } }
+    }
     /// Modo captura de tela: não sobrescreve IP e processos fictícios
     var isDemo = false
     var onTick: (() -> Void)?
@@ -85,21 +89,27 @@ final class SystemMonitor: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.tick() }
         }
+        // Folga para o macOS juntar este despertar com outros
+        timer?.tolerance = 0.5
     }
 
     private func tick() {
         tickCount += 1
         readCPU()
         readNetwork()
-        readGPU()
-        readDiskIO()
+        // Varrem o IORegistry: caros demais para rodar com o menu fechado
+        if isVisible || isDemo {
+            readGPU()
+            readDiskIO()
+        }
         uptime = ProcessInfo.processInfo.systemUptime
         thermal = ProcessInfo.processInfo.thermalState
         // Em modo captura, memória, bateria e IP ficam com os valores fictícios
         if !isDemo { readMemory() }
+        // Espaço livre pergunta a um serviço do sistema: a cada ~10 s com o menu aberto, ~1 min fechado
+        if tickCount % (isVisible ? 5 : 30) == 1 { readDisk() }
         // Itens que mudam devagar: a cada ~10s
         if tickCount % 5 == 1 {
-            readDisk()
             if !isDemo {
                 battery = Self.readBattery()
                 if battery != nil { batteryHealth = Self.readBatteryHealth() }
