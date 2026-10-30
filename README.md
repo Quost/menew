@@ -53,7 +53,7 @@
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
 | 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads, large files (over 250 MB) and duplicate files (identical copies, byte for byte; the oldest is kept as the original). You review everything, and your files go to the Trash. |
 | ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. Give one an abbreviation like `;sig` and typing it in any app turns it into the text (optional, off by default; never in password fields). |
-| 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. |
+| 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. **Password notes** keep name and value rows with hidden values, an eye to reveal and a copy button; copied values are marked confidential (no clipboard history) and cleared after 30 seconds. Switch a note's type at any time. |
 | 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. Turn off Clipboard, Actions or Notes in Settings → Modules and they disappear completely (with Clipboard off, Menew doesn't even read it). |
 | 🪟 **Liquid Glass** | Native macOS 26 design: glass tabs, search, filters and buttons, with a translucent fallback on macOS 14 and 15. |
 | 🌍 **5 languages** | English, Português, Deutsch, Español and 中文. Follows your Mac, or pick one in Settings. |
@@ -135,7 +135,7 @@ Menew only reads what it shows. With the menu closed it uses about **0.5% CPU, 1
 
 ## Privacy
 
-The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off). Text recognition (copy text from screen or images) uses Apple's Vision framework on your Mac; nothing is uploaded, and the screen capture is deleted right after. The next meeting is read from the Calendar app through EventKit, only if you turn it on, and stays on your Mac.
+The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. Values copied from password notes are marked the same way and cleared from the clipboard after 30 seconds. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off). Text recognition (copy text from screen or images) uses Apple's Vision framework on your Mac; nothing is uploaded, and the screen capture is deleted right after. The next meeting is read from the Calendar app through EventKit, only if you turn it on, and stays on your Mac.
 
 The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits and button clicks with [GoatCounter](https://www.goatcounter.com), which uses no cookies and stores no personal data. The app itself never does this.
 
@@ -166,6 +166,7 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 - [x] Network usage per app
 - [x] App control (quit all, quit others, force quit)
 - [x] Automations: meeting, focus and wake triggers, run a Shortcut
+- [x] Password notes and switchable note types
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

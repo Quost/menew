@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.28.0
+
+- **Password notes**: a new note type for logins, Wi-Fi, PINs and the like. Each line is a name and a value; values stay hidden as •••, with an eye to reveal and a button to copy. Password notes are always protected with Touch ID and stored in the macOS Keychain. Create one with the key button next to New.
+- **Safe copying**: values copied from a password note are marked confidential, so neither Menew nor other clipboard managers keep them in history, and they're cleared from the clipboard after 30 seconds.
+- **Switch a note's type**: in a note's ⋯ menu, choose Text or Passwords. Nothing is lost; text lines become name and value fields and back.
+- **Touch ID no longer closes the menu**: unlocking a protected note keeps Menew open and goes straight to the note.
+
 ## 1.27.3
 
 - **Lighter in the background**: with the menu closed, Menew no longer reads GPU and disk activity (they only show in the menu) and checks free disk space less often. Idle CPU dropped from 0.9% to 0.5%, wakeups from about 98 to 14 per second, and memory from 55 MB to 19 MB, so it's easier on the battery.
