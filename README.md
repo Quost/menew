@@ -47,7 +47,7 @@
 | 🚪 **App control** | Quit all apps, quit everything but the one you're using, hide the rest, or force quit a frozen app, from Actions or the command palette. Quitting is a normal request, so apps with unsaved work ask first, and a “Never quit” list keeps apps like Music or Zoom open. |
 | 🗂️ **Work profiles** | Save the apps you have open and where each window sits, then bring it all back with one click (or from the command palette). A profile can also keep the Mac awake, mute the mic, switch to dark mode and hide everything else. It can also quit every other app first, for a clean work mode. |
 | 📥 **Quick shelf** | Shake files while you drag them and a shelf pops up next to the cursor. Drop files, links, text or images there, then drag them all out together to another app or folder. Items are always copied, so the originals never move. Also from the right-click menu or the command palette. |
-| ⚙️ **Automations** | “When X happens, do Y”: at a time on chosen days, when the charger is plugged in or out, when the battery drops below a level, when an app opens or quits, or when a display connects. Actions: turn on a profile, keep awake, mute the mic, light/dark mode, brightness, pause the clipboard, open an app or quit all apps (say, when the battery drops to 5%). No scripts, a notice when a rule runs and a “Test now” button. |
+| ⚙️ **Automations** | “When X happens, do Y”: at a time on chosen days, when the charger is plugged in or out, when the battery drops below a level, when an app opens or quits, when a display connects, before a meeting starts, when a focus session starts or ends, or when the Mac wakes. Actions: turn on a profile, keep awake, mute the mic, light/dark mode, brightness, pause the clipboard, open an app, quit all apps (say, when the battery drops to 5%) or run one of your Shortcuts. No scripts, a notice when a rule runs and a “Test now” button. |
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. **Apps using the network**: download and upload per app, read from macOS `nettop` only while you have the list open. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
@@ -165,6 +165,7 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 - [x] Duplicate files in the cleaner
 - [x] Network usage per app
 - [x] App control (quit all, quit others, force quit)
+- [x] Automations: meeting, focus and wake triggers, run a Shortcut
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

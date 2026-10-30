@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.27.0
+
+- **New automation triggers**: when a meeting is about to start (on time or 1 to 15 minutes before), when a focus session starts or ends, and when the Mac wakes from sleep.
+- **Run a Shortcut**: any shortcut from the Shortcuts app can now be an automation action, so you can chain Menew with everything Shortcuts can do. If it fails, you get a notice.
+- **Tidier Apps section**: “Force quit” and “Never quit” now sit in a card that matches the rest of Actions, and “Never quit” shows which apps are protected.
+
 ## 1.26.0
 
 - **App control**: a new Apps section in Actions to **quit all** apps, **quit others** (everything but the app you were using), **hide others**, or **force quit** a frozen app. Also from the command palette: “quit all”, “quit others”, “hide others”.
