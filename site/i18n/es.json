@@ -50,7 +50,7 @@
   "act_l1": "<b>Brillo del monitor</b> — un control para cada pantalla, incluso monitores de otras marcas por DDC/CI.",
   "act_l2": "<b>Silencia el micrófono</b> — desde cualquier app con ⌃⌥⌘M, ideal para reuniones.",
   "act_l3": "<b>Gestor de ventanas</b> — coloca ventanas en mitades, esquinas y tercios con atajos ⌃⌥ o una cuadrícula, y envíalas a la otra pantalla.",
-  "act_l4": "<b>Paleta de comandos</b> — pulsa ⌃⌥Espacio y encuentra cualquier app, acción, disposición de ventana, snippet o nota. Escribe «brillo 60» o «despierto 2h». También hace cuentas y conversiones: «20% de 340», «5 km a mi».",
+  "act_l4": "<b>Paleta de comandos</b> — pulsa ⌃⌥Espacio y encuentra cualquier app, acción, disposición de ventana, snippet o nota. Escribe «brillo 60» o «despierto 2h». También hace cuentas y conversiones: «20% de 340», «5 km a mi». Y transforma el texto copiado: MAYÚSCULAS, camelCase, formatear JSON, Base64, contar palabras.",
   "act_l5": "<b>Perfiles de trabajo</b> — guarda las apps abiertas y la disposición de las ventanas y vuelve a todo con un clic: las apps se abren, las ventanas vuelven a su sitio y se ajustan el micrófono y mantener despierto.",
   "act_l6": "<b>Estantería rápida</b> — agita los archivos mientras arrastras y aparece una estantería. Suelta ahí archivos, enlaces y textos y luego arrástralos todos juntos. Los originales nunca se mueven.",
   "act_l7": "<b>Automatizaciones</b> — a las 9 h activa el perfil de trabajo, silencia el micro cuando se abra Zoom, baja el brillo al desenchufar. Disparadores simples, sin scripts.",

@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.22.0
+
+- **Transform copied text from the command palette**: copy some text, press ⌃⌥Space and type what you want: “upper”, “lower”, “title”, “camel”, “snake”, “kebab”, “accents”, “sort lines”, “json”, “base64”, “url” or “count”. Each option previews the result, and picking one puts it on the clipboard (and pastes it, if auto-paste is on). Invalid JSON or Base64 shows a notice instead of mangling your text.
+- **Fixed: freezes with external monitors**: opening Actions scanned the hardware and talked to monitors over DDC on the main thread, all at once. Turning off a second monitor could then spike the CPU, freeze the menu for a few seconds and hide its brightness slider. Monitor communication now runs in the background, one request at a time, gives up quickly on a monitor that doesn't answer, and the list updates by itself when a screen is connected or disconnected.
+
 ## 1.21.0
 
 - **Focus timer**: in Actions → Focus, start 25 minutes (or 15, 45, 50, 90 from the ⋯ menu), or type “focus 50” in the command palette for any length. The time left shows in the menu bar, and you can add 5 minutes or stop at any time.
