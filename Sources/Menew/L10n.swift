@@ -734,6 +734,8 @@ private let table: [String: [String]] = [
     "Arquivos duplicados": ["Duplicate files", "Doppelte Dateien", "Archivos duplicados", "重复文件"],
     "Cópias idênticas; o original fica": ["Identical copies; the original stays", "Identische Kopien; das Original bleibt", "Copias idénticas; el original se queda", "完全相同的副本，保留原件"],
     "Cópia de %@": ["Copy of %@", "Kopie von %@", "Copia de %@", "%@ 的副本"],
+    "Apps usando a rede": ["Apps using the network", "Apps im Netzwerk", "Apps que usan la red", "正在使用网络的应用"],
+    "Nenhum app usando a rede agora.": ["No app is using the network right now.", "Gerade nutzt keine App das Netzwerk.", "Ninguna app está usando la red ahora.", "目前没有应用在使用网络。"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],

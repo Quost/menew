@@ -270,6 +270,7 @@ struct SystemView: View {
                 CopyPill(label: L("IP público"), value: net.publicIP ?? "…")
             }
             speedTest
+            NetAppsSection()
         }
         .card()
     }

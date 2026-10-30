@@ -11,6 +11,7 @@ enum Snapshot {
         let monitor = SystemMonitor()
         let clipboard = ClipboardManager.demo()
         MeetingStore.shared.showDemo()
+        NetUsage.shared.showDemo()
         let toolbox = Toolbox()
         toolbox.keepAwake = true
         toolbox.displays.isDemo = true
