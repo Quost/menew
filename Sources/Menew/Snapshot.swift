@@ -10,6 +10,7 @@ enum Snapshot {
         Theme.flatGlass = !CommandLine.arguments.contains("--live-glass")
         let monitor = SystemMonitor()
         let clipboard = ClipboardManager.demo()
+        MeetingStore.shared.showDemo()
         let toolbox = Toolbox()
         toolbox.keepAwake = true
         toolbox.displays.isDemo = true

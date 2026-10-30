@@ -5,5 +5,8 @@
     <!-- AppleScript para modo escuro e esvaziar a lixeira -->
     <key>com.apple.security.automation.apple-events</key>
     <true/>
+    <!-- Próxima reunião (opcional, só quando ligada em Ajustes) -->
+    <key>com.apple.security.personal-information.calendars</key>
+    <true/>
 </dict>
 </plist>

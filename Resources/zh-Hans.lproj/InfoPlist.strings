@@ -1,1 +1,3 @@
 "NSAppleEventsUsageDescription" = "Menew 使用“访达”和 System Events 执行快捷操作（深色模式、清倒废纸篓）。";
+"NSCalendarsFullAccessUsageDescription" = "Menew 会显示你的下一个会议和加入按钮。日历只在你的 Mac 上读取，不会离开它。";
+"NSCalendarsUsageDescription" = "Menew 会显示你的下一个会议和加入按钮。日历只在你的 Mac 上读取，不会离开它。";

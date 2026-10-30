@@ -316,6 +316,10 @@ final class PaletteModel: ObservableObject {
                 if !tb.cleaning.lockKeyboard() { ClipboardManager.requestAccessibility() }
             }
             action("screen", L("Limpar tela"), "sparkles.tv", .cyan, "tela screen limpar preta black clean") { tb.cleaning.blackScreen() }
+            if let m = MeetingStore.shared.next, m.link != nil {
+                action("meeting", L("Entrar na reunião"), "video.fill", .orange, "reunião meeting entrar join zoom meet teams call chamada",
+                       subtitle: m.title) { MeetingStore.shared.join() }
+            }
             action("ocr", L("Copiar texto da tela"), "text.viewfinder", .green, "ocr texto text capturar capture scan ler read textsniper",
                    shortcut: Shortcut.load(HotKeyCenter.ocrKey, default: .ocrDefault).display) { TextRecognizer.captureScreenText() }
             action("screenshot", L("Print"), "camera.viewfinder", .pink, "print screenshot captura tela imagem") { tb.screenshotToClipboard() }

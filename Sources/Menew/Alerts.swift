@@ -105,6 +105,15 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
         center.add(UNNotificationRequest(identifier: kind.rawValue, content: content, trigger: nil))
     }
 
+    // Clicar no aviso de reunião abre o link da chamada
+    nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse,
+                                            withCompletionHandler completionHandler: @escaping () -> Void) {
+        if let s = response.notification.request.content.userInfo["url"] as? String, let url = URL(string: s) {
+            DispatchQueue.main.async { NSWorkspace.shared.open(url) }
+        }
+        completionHandler()
+    }
+
     // Mostra o aviso mesmo com o popover do Menew aberto
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification,
                                             withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {

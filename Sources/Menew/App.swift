@@ -105,6 +105,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         AutomationStore.shared.load(dir: clipboard.dir)
         AutomationStore.shared.start(toolbox: toolbox)
         TextExpander.shared.start(clipboard: clipboard)
+        MeetingStore.shared.refreshEnabled()
         updateStatusItem()
 
         applyAppearance()

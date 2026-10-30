@@ -20,6 +20,8 @@
     <key>SUPublicEDKey</key><string>2DSpKOddrdVfdSl5KAcyYc2TS8n8xEVOMQ4BEQn/8U0=</string>
     <key>SUEnableAutomaticChecks</key><true/>
     <key>SUScheduledCheckInterval</key><integer>86400</integer>
+    <key>NSCalendarsFullAccessUsageDescription</key><string>Menew shows your next meeting and a button to join it. Your calendar is read on your Mac and never leaves it.</string>
+    <key>NSCalendarsUsageDescription</key><string>Menew shows your next meeting and a button to join it. Your calendar is read on your Mac and never leaves it.</string>
     <key>NSAppleEventsUsageDescription</key><string>Menew uses Finder and System Events for quick actions (dark mode, empty trash).</string>
 </dict>
 </plist>

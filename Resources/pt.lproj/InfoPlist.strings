@@ -1,1 +1,3 @@
 "NSAppleEventsUsageDescription" = "O Menew usa o Finder e o System Events para ações rápidas (modo escuro, esvaziar lixeira).";
+"NSCalendarsFullAccessUsageDescription" = "O Menew mostra sua próxima reunião e um botão para entrar. O calendário é lido no seu Mac e nunca sai dele.";
+"NSCalendarsUsageDescription" = "O Menew mostra sua próxima reunião e um botão para entrar. O calendário é lido no seu Mac e nunca sai dele.";

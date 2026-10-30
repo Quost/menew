@@ -56,6 +56,7 @@ struct MainView: View {
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @AppStorage(Module.actions.key) private var actionsOn = true
     @AppStorage(Module.notes.key) private var notesOn = true
+    @ObservedObject private var meetings = MeetingStore.shared
 
     var body: some View {
         VStack(spacing: 0) {
@@ -63,6 +64,7 @@ struct MainView: View {
             VStack(spacing: 0) {
                 header
                 if let v = updater.pendingVersion { updateBanner(v) }
+                if !isSubpage, let m = meetings.next { MeetingBanner(meeting: m) { meetings.join() } }
                 if !isSubpage { tabBar }
             }
             .zIndex(1)
@@ -565,6 +567,8 @@ struct SettingsView: View {
                 }
 
                 AlertsSection()
+
+                MeetingsSection()
 
                 GlassSection(title: L("Permissões"), footer: L("Usada para colar automaticamente e para travar o teclado na limpeza.")) {
                     SettingRow(title: L("Acessibilidade"), icon: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill") {
