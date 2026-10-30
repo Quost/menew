@@ -34,7 +34,7 @@
   "f5_t": "Internet",
   "f5_d": "Live download and upload, local and public IP, and a real speed test powered by macOS itself.",
   "f6_t": "Notes, snippets &amp; devices",
-  "f6_d": "Notes with #tags and Markdown checklists, protected notes that open with Touch ID, and reusable snippets in ⌘⇧V.",
+  "f6_d": "Notes with #tags and Markdown checklists, protected notes that open with Touch ID, and reusable snippets in ⌘⇧V. Give a snippet an abbreviation like “;sig” and typing it anywhere turns it into the text.",
   "clip_eyebrow": "Clipboard history",
   "clip_h2": "Never lose something you copied.",
   "clip_sub": "Press <b>⌘⇧V</b> anywhere, type a few letters and hit return. It pastes straight into the app you were using.",

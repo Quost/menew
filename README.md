@@ -49,7 +49,7 @@
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
 | 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads and large files. You review everything, and your files go to the Trash. |
-| ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. |
+| ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. Give one an abbreviation like `;sig` and typing it in any app turns it into the text (optional, off by default; never in password fields). |
 | 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. |
 | 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. Turn off Clipboard, Actions or Notes in Settings → Modules and they disappear completely (with Clipboard off, Menew doesn't even read it). |
 | 🪟 **Liquid Glass** | Native macOS 26 design: glass tabs, search, filters and buttons, with a translucent fallback on macOS 14 and 15. |
@@ -103,7 +103,7 @@ cd menew
 
 | Permission | Why |
 |---|---|
-| **Accessibility** | Paste automatically after picking a clipboard item, and block keys in cleaning mode. Optional. |
+| **Accessibility** | Paste automatically after picking a clipboard item, expand snippet abbreviations as you type, and block keys in cleaning mode. Optional. |
 | **Automation** (Finder, System Events) | Empty the trash and toggle dark mode. Asked the first time you use them. |
 
 ## Keyboard shortcuts
@@ -153,6 +153,7 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 - [x] Simple automations (time, power and app triggers)
 - [x] Calculator and unit conversions in the command palette
 - [x] Copy text from the screen and from images (OCR, on device)
+- [x] Text expander (snippet abbreviations)
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

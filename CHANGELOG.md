@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.19.0
+
+- **Text expander**: give a snippet an abbreviation like “;sig” and typing it in any app replaces it with the snippet's text, `{date}`, `{time}` and `{clipboard}` included. Turn it on in Settings → Clipboard (it's off by default and uses the Accessibility permission Menew already asks for).
+- It never fires in password fields or in apps the clipboard ignores, doesn't trigger in the middle of a word, and puts back whatever you had copied, without adding the expanded text to the history. Menew only listens to the keyboard while it's on and at least one snippet has an abbreviation.
+
 ## 1.18.1
 
 - **Better contrast in dark mode**: on macOS 26 the menu's glass turned light gray over bright windows behind it, and the white text was hard to read. It now keeps a dark tint behind the content, so it stays readable over any background.
