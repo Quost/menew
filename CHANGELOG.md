@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.30.0
+
+- **Screenshots with annotations**: press ⌃⌥⌘S (or use Capture screen in Actions or the command palette) to select an area, or press Space to capture a window. The capture opens in an editor where you can add arrows, rectangles and text in 8 colors, and blur passwords, emails or numbers before sharing.
+- **Copy, save, drag or pin**: copy it (⌘C), save it as PNG (⌘S), drag it straight into Slack, Mail or Finder, or pin it floating above your windows to keep it in view; double-click a pinned capture to edit it again. “Copy text” reads the text in the capture, on your Mac.
+- “Capture the whole screen” in the command palette grabs the screen under the mouse.
+- **Clear permission prompt**: screenshots and Copy text from screen now ask for Screen Recording permission and show where to turn it on, instead of failing silently.
+
 ## 1.29.0
 
 - **Settings backup**: Settings → Backup exports your settings, keyboard shortcuts, snippets, work profiles, automations and “Never quit” list to a `.menew` file. Restore it later or on another Mac, and Menew reopens with everything in place.

@@ -28,7 +28,7 @@
   "f2_t": "Zwischenablage-Verlauf",
   "f2_d": "Texte, Links, Bilder und Dateien. Sofortsuche, Filter, Anheften und eine ausführliche Vorschau. Öffnet mit ⌘⇧V. Pausiere sie 15 Minuten oder 1 Stunde, wenn du etwas Privates kopierst. Mit der Einfüge-Warteschlange kopierst du mehrere Dinge und fügst sie der Reihe nach mit ⌘V ein.",
   "f3_t": "Schnellaktionen",
-  "f3_d": "Helligkeit für jeden Bildschirm, auch externe Monitore. Mikrofon oder Ton stummschalten, Dock ausblenden, Dunkelmodus, wach bleiben mit Timer, versteckte Dateien und Schreibtischsymbole. Dazu Farbpipette, Screenshot in die Zwischenablage, Laufwerke auswerfen und mehr. Wachhalten geht auch bis zu einer Uhrzeit oder solange eine App geöffnet ist.",
+  "f3_d": "Helligkeit für jeden Bildschirm, auch externe Monitore. Mikrofon oder Ton stummschalten, Dock ausblenden, Dunkelmodus, wach bleiben mit Timer, versteckte Dateien und Schreibtischsymbole. Dazu Farbpipette, Bildschirmfotos mit Pfeilen, Text, Verpixeln und Anheften (⌃⌥⌘S), Laufwerke auswerfen und mehr. Wachhalten geht auch bis zu einer Uhrzeit oder solange eine App geöffnet ist.",
   "f4_t": "Speicher freigeben",
   "f4_d": "Caches, Logs und Entwickler-Reste in Sekunden löschen. Die Tiefenanalyse findet alte Downloads, große und doppelte Dateien zum Prüfen. Entferntes landet im Papierkorb.",
   "f5_t": "Internet",

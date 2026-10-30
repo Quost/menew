@@ -28,7 +28,7 @@
   "f2_t": "Historial del portapapeles",
   "f2_d": "Textos, enlaces, imágenes y archivos. Búsqueda instantánea, filtros, fijados y vista previa. Se abre con ⌘⇧V. Páusalo 15 minutos o 1 hora cuando copies algo privado. Activa la cola de pegado para copiar varias cosas y pegarlas una a una con ⌘V, en orden.",
   "f3_t": "Acciones rápidas",
-  "f3_d": "Brillo de cada pantalla, monitores externos incluidos. Silencia el micrófono o el sonido, oculta el Dock, modo oscuro, mantener despierto con temporizador, archivos ocultos e iconos del escritorio. Además cuentagotas, captura al portapapeles, expulsar discos y más. Mantener despierto también funciona hasta una hora o mientras una app esté abierta.",
+  "f3_d": "Brillo de cada pantalla, monitores externos incluidos. Silencia el micrófono o el sonido, oculta el Dock, modo oscuro, mantener despierto con temporizador, archivos ocultos e iconos del escritorio. Además cuentagotas, capturas de pantalla con flechas, texto, difuminado y fijar en pantalla (⌃⌥⌘S), expulsar discos y más. Mantener despierto también funciona hasta una hora o mientras una app esté abierta.",
   "f4_t": "Liberar espacio",
   "f4_d": "Borra cachés, registros y archivos de desarrollo en segundos. El análisis profundo encuentra descargas antiguas, archivos grandes y archivos duplicados para que los revises. Lo eliminado va a la Papelera.",
   "f5_t": "Internet",
