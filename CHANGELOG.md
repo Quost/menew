@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.27.1
+
+- **Fixed: screens freezing with an external monitor**: on some Macs (like a MacBook Air M4 with a second display), opening Actions could freeze every screen for a few seconds. Menew now reads an external monitor's brightness only once per connection, gives up quickly on a monitor that doesn't answer, and never sends commands to one that hasn't answered correctly.
+- **New setting**: Settings → Shortcuts → “External monitor brightness” turns off brightness control over the cable (DDC/CI) entirely, in case your monitor or adapter still misbehaves.
+- Opening Actions no longer waits on slow network or USB hub volumes.
+
 ## 1.27.0
 
 - **New automation triggers**: when a meeting is about to start (on time or 1 to 15 minutes before), when a focus session starts or ends, and when the Mac wakes from sleep.
