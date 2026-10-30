@@ -547,7 +547,6 @@ struct PaletteView: View {
                             LazyVStack(spacing: 2) {
                                 ForEach(Array(model.results.enumerated()), id: \.element.id) { i, item in
                                     PaletteRow(item: item, index: i, selected: i == model.selection)
-                                        .id(i)
                                         .contentShape(Rectangle())
                                         .onTapGesture { model.run(i) }
                                 }
@@ -555,7 +554,9 @@ struct PaletteView: View {
                             .padding(8)
                         }
                         .scrollIndicators(.never)
-                        .onChange(of: model.selection) { _, s in proxy.scrollTo(s) }
+                        .onChange(of: model.selection) { _, s in
+                            if model.results.indices.contains(s) { proxy.scrollTo(model.results[s].id) }
+                        }
                     }
                 }
             }
