@@ -212,6 +212,9 @@ final class DisplayController: ObservableObject {
     @Published var screens: [ScreenInfo] = []
     /// Modo captura: mantém telas fictícias
     var isDemo = false
+    /// Ajuste: conversar com monitores externos por DDC/CI
+    static let ddcKey = "ddcBrightness"
+    static var ddcOn: Bool { UserDefaults.standard.object(forKey: ddcKey) as? Bool ?? true }
 
     private(set) var ddc: [CGDirectDisplayID: DDCService] = [:]
     private let writer = DDCWriter()
@@ -245,7 +248,7 @@ final class DisplayController: ObservableObject {
         // Espelhadas aparecem uma vez só
         ids = ids.filter { CGDisplayMirrorsDisplay($0) == kCGNullDirectDisplay }
 
-        let externals = ids.filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }.sorted()
+        let externals = Self.ddcOn ? ids.filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }.sorted() : []
         if externals != matched {
             matched = externals
             ddc = ddc.filter { externals.contains($0.key) }
@@ -278,26 +281,32 @@ final class DisplayController: ObservableObject {
                 return ScreenInfo(id: id, name: name, builtin: builtin, kind: .apple, brightness: b)
             }
             let old = screens.first { $0.id == id }
-            let kind: ScreenInfo.Kind = ddc[id] != nil ? (old?.kind ?? .ddc) : matching ? (old?.kind ?? .ddc) : .unsupported
+            let svc = ddc[id]
+            let kind: ScreenInfo.Kind = svc.map { $0.disabled ? .unsupported : $0.maxValue > 0 ? .ddc : (old?.kind ?? .ddc) }
+                ?? (matching ? (old?.kind ?? .ddc) : .unsupported)
             return ScreenInfo(id: id, name: name, builtin: builtin, kind: kind, brightness: old?.brightness ?? 0.5)
         }
     }
 
-    /// DDC é lento (dezenas de ms por leitura): lê fora da main, uma leitura por monitor de cada vez
+    /// Lê o brilho uma vez por conexão, fora da main. Monitor que não responde rápido é deixado de lado
+    /// até ser reconectado: insistir em I2C numa porta errada pode travar a imagem de todas as telas.
     private func readBrightness() {
-        for (id, svc) in ddc where !reading.contains(id) {
+        for (id, svc) in ddc where !reading.contains(id) && !svc.tried {
             reading.insert(id)
+            svc.tried = true
             DDCService.queue.async {
+                let started = Date()
                 let value = svc.read(vcp: 0x10)
+                let slow = Date().timeIntervalSince(started) > 0.8
                 Task { @MainActor in
                     self.reading.remove(id)
+                    if let (_, mx) = value, mx > 0, !slow { svc.maxValue = mx } else { svc.disabled = true }
                     guard self.ddc[id] === svc, let i = self.screens.firstIndex(where: { $0.id == id }) else { return }
-                    if let (cur, mx) = value, mx > 0 {
+                    if let (cur, mx) = value, mx > 0, !slow {
                         self.screens[i].brightness = Double(cur) / Double(mx)
                         self.screens[i].kind = .ddc
-                        svc.maxValue = mx
-                    } else if svc.maxValue == 0 {
-                        // Não respondeu: o monitor não aceita DDC (ou está numa porta que não repassa)
+                    } else {
+                        // Não respondeu (ou demorou): o monitor não aceita DDC ou está numa porta que não repassa
                         self.screens[i].kind = .unsupported
                     }
                 }
@@ -314,7 +323,14 @@ final class DisplayController: ObservableObject {
         var ids = [CGDirectDisplayID](repeating: 0, count: 16), n: UInt32 = 0
         CGGetOnlineDisplayList(16, &ids, &n)
         let externals = ids.prefix(Int(n)).filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }
-        for (id, svc) in DDCService.match(displays: Array(externals)) { print("ddc \(id) raw:", svc.read(vcp: 0x10).map { "\($0.0)/\($0.1)" } ?? "no reply") }
+        let t0 = Date()
+        let matched = DDCService.match(displays: Array(externals))
+        print("externals:", externals.count, "ddc matched:", matched.count, String(format: "match %.0f ms", Date().timeIntervalSince(t0) * 1000))
+        for (id, svc) in matched {
+            let t1 = Date()
+            let raw = svc.read(vcp: 0x10).map { "\($0.0)/\($0.1)" } ?? "no reply"
+            print("ddc \(id) raw:", raw, String(format: "(%.0f ms)", Date().timeIntervalSince(t1) * 1000))
+        }
         print("mic muted:", AudioControl.isMuted(input: true), "sound muted:", AudioControl.isMuted(input: false))
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             for s in c.screens {
@@ -330,7 +346,7 @@ final class DisplayController: ObservableObject {
         guard !isDemo else { return }
         switch screens[i].kind {
         case .apple: DisplayServices.setBrightness(id, value)
-        case .ddc: if let svc = ddc[id] { writer.write(svc, value: value) }
+        case .ddc: if let svc = ddc[id], svc.maxValue > 0, !svc.disabled { writer.write(svc, value: value) }
         case .unsupported: break
         }
     }
@@ -386,6 +402,9 @@ final class DDCService: @unchecked Sendable {
     private let service: CFTypeRef
     private let lock = NSLock()
     var maxValue: UInt16 = 0
+    /// Já tentou ler nesta conexão / não respondeu e não recebe mais nada
+    var tried = false
+    var disabled = false
 
     func sameService(as other: DDCService) -> Bool { CFEqual(service, other.service) }
 
@@ -438,7 +457,7 @@ final class DDCService: @unchecked Sendable {
         var req: [UInt8] = [0x82, 0x01, vcp, 0]
         req[3] = 0x6E ^ 0x51 ^ req[0] ^ req[1] ^ req[2]
         var failures = 0
-        for _ in 0..<4 {
+        for _ in 0..<2 {
             usleep(10_000)
             guard writeI2C(service, 0x37, 0x51, &req, UInt32(req.count)) == kIOReturnSuccess else {
                 // Monitor desligado ou saindo: não insiste

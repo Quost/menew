@@ -778,6 +778,8 @@ private let table: [String: [String]] = [
     "Escolher": ["Choose", "Auswählen", "Elegir", "选择"],
     "Nenhum app protegido": ["No protected apps", "Keine geschützten Apps", "Ninguna app protegida", "没有受保护的应用"],
     "%d apps protegidos": ["%d protected apps", "%d geschützte Apps", "%d apps protegidas", "%d 个受保护的应用"],
+    "Brilho de monitores externos": ["External monitor brightness", "Helligkeit externer Monitore", "Brillo de monitores externos", "外接显示器亮度"],
+    "Ajusta o brilho pelo cabo (DDC/CI). Se a tela travar ao abrir Ações com um monitor ligado, desligue aqui.": ["Changes brightness over the cable (DDC/CI). If the screen freezes when you open Actions with a monitor connected, turn this off.", "Ändert die Helligkeit über das Kabel (DDC/CI). Wenn der Bildschirm beim Öffnen von Aktionen mit angeschlossenem Monitor hängt, schalte das hier aus.", "Ajusta el brillo por el cable (DDC/CI). Si la pantalla se congela al abrir Acciones con un monitor conectado, desactívalo aquí.", "通过线缆（DDC/CI）调节亮度。如果连接显示器时打开“操作”导致屏幕卡住，请在此关闭。"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],

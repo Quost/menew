@@ -529,6 +529,7 @@ struct SettingsView: View {
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @AppStorage(Module.actions.key) private var actionsOn = true
     @AppStorage(WindowManager.shortcutsKey) private var windowShortcuts = true
+    @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
@@ -651,6 +652,10 @@ struct SettingsView: View {
                                   detail: L("⌃⌥ + setas para metades, U I J K para cantos, ↩ para maximizar. Desligue se usa outro app para isso."),
                                   isOn: $windowShortcuts)
                             .onChange(of: windowShortcuts) { _, _ in WindowManager.shared.registerHotKeys() }
+                        RowDivider()
+                        ToggleRow(title: L("Brilho de monitores externos"),
+                                  detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se a tela travar ao abrir Ações com um monitor ligado, desligue aqui."),
+                                  isOn: $ddcBrightness)
                     }
                 }
 

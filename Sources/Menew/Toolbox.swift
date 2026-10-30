@@ -122,7 +122,7 @@ final class Toolbox: ObservableObject {
         runAppleScript("tell application \"Finder\" to empty trash")
     }
 
-    private static func ejectableVolumes() -> [URL] {
+    nonisolated private static func ejectableVolumes() -> [URL] {
         let keys: [URLResourceKey] = [.volumeIsEjectableKey, .volumeIsRemovableKey, .volumeIsInternalKey]
         let vols = FileManager.default.mountedVolumeURLs(includingResourceValuesForKeys: keys, options: [.skipHiddenVolumes]) ?? []
         return vols.filter { v in
@@ -134,7 +134,11 @@ final class Toolbox: ObservableObject {
     /// Atualiza os estados que podem mudar fora do Menew (ao abrir a aba)
     func refresh() {
         darkMode = Self.systemIsDark
-        ejectableCount = Self.ejectableVolumes().count
+        // Volumes de rede ou de um hub USB podem demorar a responder: conta fora da main
+        Task {
+            let n = await Task.detached { Self.ejectableVolumes().count }.value
+            if n != ejectableCount { ejectableCount = n }
+        }
         micMuted = AudioControl.isMuted(input: true)
         soundMuted = AudioControl.isMuted(input: false)
         dockAutohide = Self.dockAutohideOn
