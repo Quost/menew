@@ -215,6 +215,26 @@ final class DisplayController: ObservableObject {
 
     private(set) var ddc: [CGDirectDisplayID: DDCService] = [:]
     private let writer = DDCWriter()
+    /// Monitores externos do último pareamento DDC: só varre o IORegistry de novo quando a lista muda
+    private var matched: [CGDirectDisplayID]?
+    private var matching = false
+    private var reading = Set<CGDirectDisplayID>()
+    private var observer: Any?
+    private var pendingRefresh: DispatchWorkItem?
+
+    init() {
+        // Monitor ligado ou desligado com a aba aberta: atualiza a lista (com folga, a reconfiguração demora)
+        observer = NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
+                                                          object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated {
+                guard let self, self.matched != nil else { return }
+                self.pendingRefresh?.cancel()
+                let work = DispatchWorkItem { [weak self] in MainActor.assumeIsolated { self?.refresh() } }
+                self.pendingRefresh = work
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
+            }
+        }
+    }
 
     func refresh() {
         guard !isDemo else { return }
@@ -225,9 +245,31 @@ final class DisplayController: ObservableObject {
         // Espelhadas aparecem uma vez só
         ids = ids.filter { CGDisplayMirrorsDisplay($0) == kCGNullDirectDisplay }
 
-        let externals = ids.filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }
-        ddc = DDCService.match(displays: externals)
+        let externals = ids.filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }.sorted()
+        if externals != matched {
+            matched = externals
+            ddc = ddc.filter { externals.contains($0.key) }
+            matching = !externals.isEmpty
+            if matching {
+                // Varre o IORegistry fora da main, na fila do DDC: nada de I2C em paralelo com um monitor sumindo
+                DDCService.queue.async {
+                    let found = DDCService.match(displays: externals)
+                    Task { @MainActor in
+                        guard self.matched == externals else { return }
+                        self.matching = false
+                        // Mantém o serviço que já sabe o máximo do monitor
+                        self.ddc = found.mapValues { svc in self.ddc.values.first { $0.sameService(as: svc) } ?? svc }
+                        self.build(ids)
+                        self.readBrightness()
+                    }
+                }
+            }
+        }
+        build(ids)
+        readBrightness()
+    }
 
+    private func build(_ ids: [CGDirectDisplayID]) {
         screens = ids.map { id in
             let builtin = CGDisplayIsBuiltin(id) != 0
             let name = NSScreen.screens.first { ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == id }?
@@ -236,17 +278,23 @@ final class DisplayController: ObservableObject {
                 return ScreenInfo(id: id, name: name, builtin: builtin, kind: .apple, brightness: b)
             }
             let old = screens.first { $0.id == id }
-            return ScreenInfo(id: id, name: name, builtin: builtin, kind: ddc[id] != nil ? .ddc : .unsupported,
-                              brightness: old?.brightness ?? 0.5)
+            let kind: ScreenInfo.Kind = ddc[id] != nil ? (old?.kind ?? .ddc) : matching ? (old?.kind ?? .ddc) : .unsupported
+            return ScreenInfo(id: id, name: name, builtin: builtin, kind: kind, brightness: old?.brightness ?? 0.5)
         }
-        // DDC é lento (dezenas de ms por leitura): lê fora da main
-        for (id, svc) in ddc {
-            Task.detached {
+    }
+
+    /// DDC é lento (dezenas de ms por leitura): lê fora da main, uma leitura por monitor de cada vez
+    private func readBrightness() {
+        for (id, svc) in ddc where !reading.contains(id) {
+            reading.insert(id)
+            DDCService.queue.async {
                 let value = svc.read(vcp: 0x10)
-                await MainActor.run {
-                    guard let i = self.screens.firstIndex(where: { $0.id == id }) else { return }
+                Task { @MainActor in
+                    self.reading.remove(id)
+                    guard self.ddc[id] === svc, let i = self.screens.firstIndex(where: { $0.id == id }) else { return }
                     if let (cur, mx) = value, mx > 0 {
                         self.screens[i].brightness = Double(cur) / Double(mx)
+                        self.screens[i].kind = .ddc
                         svc.maxValue = mx
                     } else if svc.maxValue == 0 {
                         // Não respondeu: o monitor não aceita DDC (ou está numa porta que não repassa)
@@ -263,7 +311,10 @@ final class DisplayController: ObservableObject {
         c.refresh()
         print("gpu:", HardwareStats.gpuUtilization().map { Fmt.pct($0) } ?? "n/a")
         print("disk bytes:", HardwareStats.diskBytes())
-        for (id, svc) in c.ddc { print("ddc \(id) raw:", svc.read(vcp: 0x10).map { "\($0.0)/\($0.1)" } ?? "no reply") }
+        var ids = [CGDirectDisplayID](repeating: 0, count: 16), n: UInt32 = 0
+        CGGetOnlineDisplayList(16, &ids, &n)
+        let externals = ids.prefix(Int(n)).filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }
+        for (id, svc) in DDCService.match(displays: Array(externals)) { print("ddc \(id) raw:", svc.read(vcp: 0x10).map { "\($0.0)/\($0.1)" } ?? "no reply") }
         print("mic muted:", AudioControl.isMuted(input: true), "sound muted:", AudioControl.isMuted(input: false))
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             for s in c.screens {
@@ -329,9 +380,14 @@ final class DDCService: @unchecked Sendable {
         return unsafeBitCast(p, to: T.self)
     }
 
+    /// Toda conversa I2C passa por esta fila: um monitor que não responde trava só ela, nunca a main
+    static let queue = DispatchQueue(label: "menew.ddc", qos: .userInitiated)
+
     private let service: CFTypeRef
     private let lock = NSLock()
     var maxValue: UInt16 = 0
+
+    func sameService(as other: DDCService) -> Bool { CFEqual(service, other.service) }
 
     private init(_ service: CFTypeRef) { self.service = service }
 
@@ -381,9 +437,15 @@ final class DDCService: @unchecked Sendable {
         lock.lock(); defer { lock.unlock() }
         var req: [UInt8] = [0x82, 0x01, vcp, 0]
         req[3] = 0x6E ^ 0x51 ^ req[0] ^ req[1] ^ req[2]
+        var failures = 0
         for _ in 0..<4 {
             usleep(10_000)
-            guard writeI2C(service, 0x37, 0x51, &req, UInt32(req.count)) == kIOReturnSuccess else { continue }
+            guard writeI2C(service, 0x37, 0x51, &req, UInt32(req.count)) == kIOReturnSuccess else {
+                // Monitor desligado ou saindo: não insiste
+                failures += 1
+                if failures >= 2 { return nil }
+                continue
+            }
             usleep(50_000)
             var reply = [UInt8](repeating: 0, count: 11)
             guard readI2C(service, 0x37, 0x51, &reply, UInt32(reply.count)) == kIOReturnSuccess else { continue }
@@ -412,7 +474,6 @@ final class DDCService: @unchecked Sendable {
 
 /// Junta os movimentos do slider: o monitor só recebe o valor mais recente
 private final class DDCWriter: @unchecked Sendable {
-    private let queue = DispatchQueue(label: "menew.ddc")
     private let lock = NSLock()
     private var pending: [ObjectIdentifier: (DDCService, Double)] = [:]
 
@@ -423,7 +484,7 @@ private final class DDCWriter: @unchecked Sendable {
         pending[key] = (svc, value)
         lock.unlock()
         guard !scheduled else { return }
-        queue.async { [self] in
+        DDCService.queue.async { [self] in
             lock.lock()
             let item = pending.removeValue(forKey: key)
             lock.unlock()
