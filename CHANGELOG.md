@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.20.0
+
+- **Next meeting**: turn it on in Settings → Calendar and your next meeting shows at the top of the menu, with a countdown and a **Join** button that opens the Zoom, Meet, Teams, Webex, Whereby, Jitsi, Chime or FaceTime link found in the event. Ongoing meetings show until they end; all-day, canceled and declined events are skipped.
+- **1-minute reminder**: a notification right before the meeting starts. Click it to join.
+- **From the command palette**: type “join” or “meeting”.
+- It reads the Calendar app on your Mac (the accounts you already added there) and nothing leaves your Mac. macOS asks for calendar access only when you turn it on.
+
 ## 1.19.0
 
 - **Text expander**: give a snippet an abbreviation like “;sig” and typing it in any app replaces it with the snippet's text, `{date}`, `{time}` and `{clipboard}` included. Turn it on in Settings → Clipboard (it's off by default and uses the Accessibility permission Menew already asks for).
