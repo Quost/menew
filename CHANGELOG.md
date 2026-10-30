@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.31.0
+
+- **Switch sound output and microphone**: a new Sound section in Actions shows what's playing and recording, and lets you switch to AirPods, headphones, speakers, displays or another microphone in one click. Alert sounds follow along. From the command palette, type “airpods” or “microphone”.
+- **Presentation mode**: one switch before presenting or sharing your screen. It hides desktop icons, keeps the Mac awake, pauses clipboard capture and shows only the icon in the menu bar, so no numbers or history leak on screen. Turning it off undoes only what it changed.
+- **Automations**: new trigger “When presentation mode turns on/off” (for example, to run a Shortcut that turns on Do Not Disturb) and a new action to turn presentation mode on or off.
+- **Pen in screenshots**: draw freely on a capture, in any of the 8 colors.
+
 ## 1.30.1
 
 - **Fixed: command palette search**: typing in the palette could keep showing the suggestions instead of the results. Results now update as you type.

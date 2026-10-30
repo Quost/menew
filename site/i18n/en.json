@@ -28,7 +28,7 @@
   "f2_t": "Clipboard history",
   "f2_d": "Text, links, images and files. Instant search, filters, pins and a rich preview. Opens with ⌘⇧V. Pause it for 15 minutes or an hour when you copy something private. Turn on the paste queue to copy several things and paste them one by one with ⌘V, in order.",
   "f3_t": "Quick actions",
-  "f3_d": "Brightness for every screen, external monitors included. Mute the mic or the sound, hide the Dock, dark mode, keep awake with a timer, hidden files and desktop icons. Plus color picker, screenshots you can annotate, blur and pin on screen (⌃⌥⌘S), eject disks and more. Keep Awake also works until a set time or while an app is open.",
+  "f3_d": "Brightness for every screen, external monitors included. Mute the mic or the sound, hide the Dock, dark mode, keep awake with a timer, hidden files and desktop icons. Plus color picker, screenshots you can annotate, blur and pin on screen (⌃⌥⌘S), eject disks and more. Keep Awake also works until a set time or while an app is open. Switch the sound output and microphone (AirPods, headphones, speakers) in one click, and turn on presentation mode before sharing your screen.",
   "f4_t": "Free up space",
   "f4_d": "Clear caches, logs and developer junk in seconds. A deep scan finds old downloads, large files and duplicate files for you to review. Removed files go to the Trash.",
   "f5_t": "Internet",
