@@ -39,6 +39,8 @@ APP=build/Menew.app
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN_DIR/Menew" "$APP/Contents/MacOS/Menew"
+# Sem símbolos de depuração: o binário cai para menos da metade
+strip -Sx "$APP/Contents/MacOS/Menew"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cp -R Resources/*.lproj "$APP/Contents/Resources/"
@@ -48,6 +50,14 @@ mkdir -p "$APP/Contents/Frameworks"
 cp -R "$BIN_DIR/Sparkle.framework" "$APP/Contents/Frameworks/"
 rm -rf "$APP/Contents/Frameworks/Sparkle.framework/Versions/B/XPCServices" \
        "$APP/Contents/Frameworks/Sparkle.framework/XPCServices"
+# Cabeçalhos só servem para compilar; das traduções do Sparkle ficam as dos idiomas do Menew
+FWB="$APP/Contents/Frameworks/Sparkle.framework/Versions/B"
+rm -rf "$FWB/Headers" "$FWB/PrivateHeaders" "$FWB/Modules" \
+       "$APP/Contents/Frameworks/Sparkle.framework/Headers" "$APP/Contents/Frameworks/Sparkle.framework/PrivateHeaders" \
+       "$APP/Contents/Frameworks/Sparkle.framework/Modules"
+find "$FWB/Resources" -maxdepth 1 -name '*.lproj' \
+  ! -name Base.lproj ! -name en.lproj ! -name de.lproj ! -name es.lproj ! -name 'pt*.lproj' ! -name 'zh_CN.lproj' ! -name 'zh-Hans.lproj' \
+  -exec rm -rf {} +
 
 # Sem VERSION, usa a última tag (o build local mostra a versão certa nos Ajustes)
 [ -z "${VERSION:-}" ] && VERSION=$(git describe --tags --abbrev=0 2>/dev/null | sed 's/^v//' || true)
