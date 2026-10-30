@@ -86,18 +86,15 @@ struct AppControlSection: View {
                                help: L("Esconde as janelas dos outros apps, sem fechar nada.")) { AppControl.hideOthers() }
                 }
             }
-            HStack(spacing: 14) {
-                Menu {
+            VStack(spacing: 0) {
+                menuRow(icon: "xmark.octagon.fill", color: .red, title: L("Forçar encerramento"),
+                        detail: L("Para um app travado. Fecha na hora, sem salvar."), button: L("Escolher")) {
                     ForEach(AppControl.running, id: \.processIdentifier) { app in
                         Button(app.localizedName ?? "?") { AppControl.forceQuit(app) }
                     }
-                } label: {
-                    Label(L("Forçar encerramento"), systemImage: "xmark.octagon").font(.system(size: 11, weight: .medium))
                 }
-                .menuStyle(.button).buttonStyle(.borderless).fixedSize()
-                .help(L("Para um app travado. Ele fecha na hora, sem salvar."))
-
-                Menu {
+                Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
+                menuRow(icon: "lock.fill", color: .teal, title: L("Nunca fechar"), detail: keptNames, button: L("Editar")) {
                     ForEach(AppControl.running, id: \.processIdentifier) { app in
                         if let id = app.bundleIdentifier {
                             Toggle(app.localizedName ?? id, isOn: Binding(get: { keep.contains(id) }, set: { on in
@@ -106,16 +103,11 @@ struct AppControlSection: View {
                             }))
                         }
                     }
-                } label: {
-                    Label(keep.isEmpty ? L("Nunca fechar…") : L("Nunca fechar: %d", keep.count), systemImage: "lock")
-                        .font(.system(size: 11, weight: .medium))
                 }
-                .menuStyle(.button).buttonStyle(.borderless).fixedSize()
                 .help(L("Apps que “Fechar todos”, os perfis e as automações nunca fecham"))
-                Spacer()
             }
-            .foregroundStyle(.secondary)
-            .padding(.leading, 4)
+            .padding(.vertical, 4)
+            .glass()
         }
         .confirmationDialog(L("Fechar todos os apps?"), isPresented: $confirmAll) {
             Button(L("Fechar todos"), role: .destructive) { AppControl.quitAllWithNotice(others: false) }
@@ -123,6 +115,39 @@ struct AppControlSection: View {
         .confirmationDialog(L("Fechar os outros apps?"), isPresented: $confirmOthers) {
             Button(L("Fechar os outros"), role: .destructive) { AppControl.quitAllWithNotice(others: true) }
         } message: { Text(L("Quem tiver algo sem salvar pergunta antes.")) }
+    }
+
+    private var keptNames: String {
+        let names = AppControl.running.filter { keep.contains($0.bundleIdentifier ?? "") }.compactMap(\.localizedName)
+        if names.isEmpty { return keep.isEmpty ? L("Nenhum app protegido") : L("%d apps protegidos", keep.count) }
+        return names.joined(separator: ", ")
+    }
+
+    /// Linha no estilo de "Controles": ícone, título e detalhe, e um menu em pílula à direita
+    private func menuRow<M: View>(icon: String, color: Color, title: String, detail: String, button: String,
+                                  @ViewBuilder menu: () -> M) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 13, weight: .semibold)).foregroundStyle(color)
+                .frame(width: 28, height: 28)
+                .background(Circle().fill(color.opacity(0.15)))
+            VStack(alignment: .leading, spacing: 1) {
+                Text(title).font(.system(size: 12.5, weight: .semibold))
+                Text(detail).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+            }
+            Spacer(minLength: 4)
+            Menu(content: menu) {
+                HStack(spacing: 4) {
+                    Text(button).lineLimit(1)
+                    Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold))
+                }
+                .font(.system(size: 12, weight: .semibold))
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .glass(in: Capsule(), interactive: true)
+            }
+            .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+        }
+        .padding(.horizontal, 12).padding(.vertical, 8)
     }
 
     private func count(_ n: Int) -> String { n == 1 ? L("1 app") : L("%d apps", n) }
