@@ -248,7 +248,7 @@ private let table: [String: [String]] = [
     "Análise rápida": ["Quick scan", "Schnellanalyse", "Análisis rápido", "快速扫描"],
     "Análise profunda": ["Deep scan", "Tiefenanalyse", "Análisis profundo", "深度扫描"],
     "Caches, logs e arquivos de desenvolvimento. Seguro: os apps recriam o que precisarem.": ["Caches, logs and developer files. Safe: apps recreate whatever they need.", "Caches, Logs und Entwicklerdateien. Sicher: Apps erstellen neu, was sie brauchen.", "Cachés, registros y archivos de desarrollo. Seguro: las apps recrean lo que necesiten.", "缓存、日志和开发文件。安全：应用会按需重新生成。"],
-    "Também procura downloads antigos, arquivos grandes e itens do Xcode. Você revisa, e o que for removido vai para a Lixeira.": ["Also looks for old downloads, large files and Xcode leftovers. You review it, and anything removed goes to the Trash.", "Sucht auch alte Downloads, große Dateien und Xcode-Reste. Du prüfst alles, Entferntes landet im Papierkorb.", "También busca descargas antiguas, archivos grandes y restos de Xcode. Tú revisas, y lo eliminado va a la Papelera.", "还会查找旧下载、大文件和 Xcode 残留。由你确认，删除的内容会移到废纸篓。"],
+    "Também procura downloads antigos, arquivos grandes, arquivos duplicados e itens do Xcode. Você revisa, e o que for removido vai para a Lixeira.": ["Also looks for old downloads, large files, duplicate files and Xcode leftovers. You review it, and anything removed goes to the Trash.", "Sucht auch alte Downloads, große Dateien, doppelte Dateien und Xcode-Reste. Du prüfst alles, Entferntes landet im Papierkorb.", "También busca descargas antiguas, archivos grandes, archivos duplicados y restos de Xcode. Tú revisas, y lo eliminado va a la Papelera.", "还会查找旧下载、大文件、重复文件和 Xcode 残留。由你确认，删除的内容会移到废纸篓。"],
     "Analisando o disco…": ["Scanning your disk…", "Festplatte wird analysiert…", "Analizando el disco…", "正在扫描磁盘…"],
     "Limpando…": ["Cleaning…", "Wird bereinigt…", "Limpiando…", "正在清理…"],
     "Limpar": ["Clean", "Bereinigen", "Limpiar", "清理"],
@@ -311,7 +311,7 @@ private let table: [String: [String]] = [
     "Downloads antigos": ["Old downloads", "Alte Downloads", "Descargas antiguas", "旧下载"],
     "Mais de 90 dias; revise antes": ["Older than 90 days; review first", "Älter als 90 Tage; vorher prüfen", "Más de 90 días; revisa antes", "超过 90 天，请先确认"],
     "Arquivos grandes": ["Large files", "Große Dateien", "Archivos grandes", "大文件"],
-    "Mais de 500 MB; revise antes": ["Over 500 MB; review first", "Über 500 MB; vorher prüfen", "Más de 500 MB; revisa antes", "超过 500 MB，请先确认"],
+    "Mais de 250 MB; revise antes": ["Over 250 MB; review first", "Über 250 MB; vorher prüfen", "Más de 250 MB; revisa antes", "超过 250 MB，请先确认"],
 
     // Notas (várias, tags, protegidas)
     "Buscar notas": ["Search notes", "Notizen durchsuchen", "Buscar notas", "搜索笔记"],
@@ -731,6 +731,9 @@ private let table: [String: [String]] = [
     "Fila de colagem: copie vários itens e cole um por um com ⌘V": ["Paste queue: copy several items, then paste them one by one with ⌘V", "Einfüge-Warteschlange: mehrere Einträge kopieren und einzeln mit ⌘V einfügen", "Cola de pegado: copia varios elementos y pégalos uno a uno con ⌘V", "粘贴队列：拷贝多项，再用 ⌘V 逐个粘贴"],
     "Copie vários itens e cole um por um com ⌘V": ["Copy several items, then paste them one by one with ⌘V", "Mehrere Einträge kopieren und einzeln mit ⌘V einfügen", "Copia varios elementos y pégalos uno a uno con ⌘V", "拷贝多项，再用 ⌘V 逐个粘贴"],
     "Adicionar à fila de colagem": ["Add to paste queue", "Zur Einfüge-Warteschlange hinzufügen", "Añadir a la cola de pegado", "添加到粘贴队列"],
+    "Arquivos duplicados": ["Duplicate files", "Doppelte Dateien", "Archivos duplicados", "重复文件"],
+    "Cópias idênticas; o original fica": ["Identical copies; the original stays", "Identische Kopien; das Original bleibt", "Copias idénticas; el original se queda", "完全相同的副本，保留原件"],
+    "Cópia de %@": ["Copy of %@", "Kopie von %@", "Copia de %@", "%@ 的副本"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],

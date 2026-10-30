@@ -1,4 +1,5 @@
 import AppKit
+import CryptoKit
 import SwiftUI
 
 // MARK: Modelo
@@ -8,6 +9,8 @@ struct CleanItem: Identifiable {
     let url: URL
     let size: Int64
     var selected: Bool
+    /// Duplicados: caminho do original
+    var note: String? = nil
 }
 
 struct CleanCategory: Identifiable {
@@ -31,6 +34,7 @@ private struct ScanResult: Sendable {
     let id: String
     let review: Bool
     let items: [(URL, Int64)]
+    var notes: [URL: String] = [:]
 }
 
 @MainActor
@@ -120,7 +124,7 @@ final class Cleaner: ObservableObject {
     // MARK: Categorias
 
     private func makeCategory(_ r: ScanResult) -> CleanCategory? {
-        let items = r.items.map { CleanItem(url: $0.0, size: $0.1, selected: !r.review) }
+        let items = r.items.map { CleanItem(url: $0.0, size: $0.1, selected: !r.review, note: r.notes[$0.0]) }
         func cat(_ title: String, _ detail: String, _ icon: String, _ color: Color) -> CleanCategory {
             CleanCategory(id: r.id, title: title, detail: detail, icon: icon, color: color, review: r.review, items: items)
         }
@@ -133,7 +137,8 @@ final class Cleaner: ObservableObject {
         case "devicesupport": return cat(L("Xcode: suporte a dispositivos"), L("Baixado de novo ao conectar o aparelho"), "cable.connector", .purple)
         case "archives": return cat(L("Xcode: Archives"), L("Builds antigos exportados; revise antes"), "archivebox", .pink)
         case "downloads": return cat(L("Downloads antigos"), L("Mais de 90 dias; revise antes"), "arrow.down.circle.fill", .green)
-        case "large": return cat(L("Arquivos grandes"), L("Mais de 500 MB; revise antes"), "externaldrive.fill", .red)
+        case "large": return cat(L("Arquivos grandes"), L("Mais de 250 MB; revise antes"), "externaldrive.fill", .red)
+        case "duplicates": return cat(L("Arquivos duplicados"), L("Cópias idênticas; o original fica"), "doc.on.doc.fill", .mint)
         default: return nil
         }
     }
@@ -160,8 +165,10 @@ final class Cleaner: ObservableObject {
             ScanResult(id: "devicesupport", review: false, items: children(lib.appendingPathComponent("Developer/Xcode/iOS DeviceSupport"))),
             ScanResult(id: "archives", review: true, items: children(lib.appendingPathComponent("Developer/Xcode/Archives"))),
             ScanResult(id: "downloads", review: true, items: oldDownloads(home.appendingPathComponent("Downloads"))),
-            ScanResult(id: "large", review: true, items: largeFiles(in: home)),
         ]
+        let (large, dups) = walkHome(home)
+        out.append(ScanResult(id: "large", review: true, items: large))
+        out.append(dups)
         return out
     }
 
@@ -204,22 +211,70 @@ final class Cleaner: ObservableObject {
         .sorted { $0.1 > $1.1 }
     }
 
-    /// Arquivos acima de 500 MB na pasta pessoal, fora da Biblioteca e de pastas ocultas
-    nonisolated private static func largeFiles(in home: URL) -> [(URL, Int64)] {
-        let limit: Int64 = 500 * 1_048_576
-        let keys: [URLResourceKey] = [.isRegularFileKey, .totalFileAllocatedSizeKey]
+    /// Uma passada pela pasta pessoal (fora da Biblioteca, de Aplicativos e de pastas ocultas):
+    /// arquivos acima de 250 MB e cópias idênticas de arquivos a partir de 1 MB
+    nonisolated private static func walkHome(_ home: URL) -> (large: [(URL, Int64)], duplicates: ScanResult) {
+        let largeLimit: Int64 = 250 * 1_048_576
+        let dupMin = 1_048_576
+        let keys: [URLResourceKey] = [.isRegularFileKey, .totalFileAllocatedSizeKey, .fileSizeKey, .fileResourceIdentifierKey,
+                                      .creationDateKey, .isUbiquitousItemKey, .ubiquitousItemDownloadingStatusKey]
+        let empty = ScanResult(id: "duplicates", review: true, items: [])
         guard let e = FileManager.default.enumerator(at: home, includingPropertiesForKeys: keys,
                                                      options: [.skipsHiddenFiles, .skipsPackageDescendants],
-                                                     errorHandler: { _, _ in true }) else { return [] }
+                                                     errorHandler: { _, _ in true }) else { return ([], empty) }
         let skip = Set(["Library", "Applications"].map { home.appendingPathComponent($0).path })
-        var found: [(URL, Int64)] = []
+        var large: [(URL, Int64)] = []
+        var bySize: [Int: [(url: URL, created: Date)]] = [:]
+        var seen = Set<AnyHashable>()
         for case let f as URL in e {
             if skip.contains(f.path) { e.skipDescendants(); continue }
             guard let v = try? f.resourceValues(forKeys: Set(keys)), v.isRegularFile == true else { continue }
-            let s = Int64(v.totalFileAllocatedSize ?? 0)
-            if s >= limit { found.append((f, s)) }
+            let allocated = Int64(v.totalFileAllocatedSize ?? 0)
+            if allocated >= largeLimit { large.append((f, allocated)) }
+            // Arquivo do iCloud que não está no Mac: ler faria baixar
+            if v.isUbiquitousItem == true, v.ubiquitousItemDownloadingStatus != .current { continue }
+            guard let size = v.fileSize, size >= dupMin else { continue }
+            // Hard links do mesmo arquivo não são cópias
+            if let id = v.fileResourceIdentifier as? AnyHashable, !seen.insert(id).inserted { continue }
+            bySize[size, default: []].append((f, v.creationDate ?? .distantFuture))
         }
-        return found.sorted { $0.1 > $1.1 }.prefix(50).map { $0 }
+
+        var items: [(URL, Int64)] = []
+        var notes: [URL: String] = [:]
+        for (size, files) in bySize where files.count > 1 {
+            // Primeiro um pedaço do começo, depois o arquivo inteiro: só cópias idênticas byte a byte entram
+            let byHead = Dictionary(grouping: files) { digest($0.url, limit: 65_536) ?? UUID().uuidString }
+            for (_, sameHead) in byHead where sameHead.count > 1 {
+                let byFull = Dictionary(grouping: sameHead) { digest($0.url, limit: nil) ?? UUID().uuidString }
+                for (_, copies) in byFull where copies.count > 1 {
+                    // O mais antigo é o original e fica de fora
+                    let sorted = copies.sorted { ($0.created, $0.url.path) < ($1.created, $1.url.path) }
+                    let original = sorted[0].url.path.replacingOccurrences(of: home.path + "/", with: "~/")
+                    for c in sorted.dropFirst() {
+                        items.append((c.url, Int64(size)))
+                        notes[c.url] = original
+                    }
+                }
+            }
+        }
+        items.sort { $0.1 > $1.1 }
+        return (large.sorted { $0.1 > $1.1 }.prefix(50).map { $0 },
+                ScanResult(id: "duplicates", review: true, items: Array(items.prefix(200)), notes: notes))
+    }
+
+    /// SHA-256 do arquivo (ou dos primeiros `limit` bytes), lido aos poucos
+    nonisolated private static func digest(_ url: URL, limit: Int?) -> String? {
+        guard let h = try? FileHandle(forReadingFrom: url) else { return nil }
+        defer { try? h.close() }
+        var hasher = SHA256()
+        var left = limit ?? .max
+        while left > 0 {
+            let chunk = autoreleasepool { try? h.read(upToCount: min(1 << 20, left)) }
+            guard let chunk, !chunk.isEmpty else { break }
+            hasher.update(data: chunk)
+            left -= chunk.count
+        }
+        return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
 }
 
@@ -261,7 +316,7 @@ struct CleanerView: View {
                     cleaner.scan(deep: false)
                 }
                 ModeButton(icon: "magnifyingglass.circle.fill", color: .purple, title: L("Análise profunda"),
-                           detail: L("Também procura downloads antigos, arquivos grandes e itens do Xcode. Você revisa, e o que for removido vai para a Lixeira.")) {
+                           detail: L("Também procura downloads antigos, arquivos grandes, arquivos duplicados e itens do Xcode. Você revisa, e o que for removido vai para a Lixeira.")) {
                     cleaner.scan(deep: true)
                 }
 
@@ -375,7 +430,14 @@ struct CleanerView: View {
                         HStack(spacing: 8) {
                             Toggle("", isOn: Binding(get: { item.selected }, set: { _ in cleaner.toggle(item: item.id, in: c.id) }))
                                 .toggleStyle(.checkbox).labelsHidden().controlSize(.small)
-                            Text(item.url.lastPathComponent).font(.system(size: 11.5)).lineLimit(1).truncationMode(.middle)
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(item.url.lastPathComponent).font(.system(size: 11.5)).lineLimit(1).truncationMode(.middle)
+                                if c.review {
+                                    Text(item.note.map { L("Cópia de %@", $0) } ?? item.url.deletingLastPathComponent().path
+                                        .replacingOccurrences(of: NSHomeDirectory(), with: "~"))
+                                        .font(.system(size: 10)).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
+                                }
+                            }
                             Spacer()
                             Text(Fmt.bytes(item.size)).font(.system(size: 11)).foregroundStyle(.secondary).monospacedDigit()
                             Button { NSWorkspace.shared.activateFileViewerSelecting([item.url]) } label: {
