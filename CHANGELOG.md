@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.30.1
+
+- **Fixed: command palette search**: typing in the palette could keep showing the suggestions instead of the results. Results now update as you type.
+
 ## 1.30.0
 
 - **Screenshots with annotations**: press ⌃⌥⌘S (or use Capture screen in Actions or the command palette) to select an area, or press Space to capture a window. The capture opens in an editor where you can add arrows, rectangles and text in 8 colors, and blur passwords, emails or numbers before sharing.
