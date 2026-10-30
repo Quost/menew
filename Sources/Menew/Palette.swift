@@ -299,6 +299,20 @@ final class PaletteModel: ObservableObject {
             }
             action("dark", tb.darkMode ? L("Modo claro") : L("Modo escuro"), tb.darkMode ? "sun.max.fill" : "moon.fill", .indigo,
                    "dark mode escuro claro light tema theme aparência appearance") { tb.toggleDarkMode() }
+            let presenting = PresentationMode.shared.isOn
+            action("presentation", presenting ? L("Desligar modo apresentação") : L("Modo apresentação"), "play.rectangle.fill", .green,
+                   "apresentação apresentar presentation present compartilhar share tela screen reunião meeting präsentation presentación 演示",
+                   subtitle: presenting ? nil : L("Esconde a mesa, mantém acordado e pausa o clipboard")) { PresentationMode.shared.toggle() }
+            let audio = AudioRouter.shared
+            audio.refresh()
+            for d in audio.outputs where d.id != audio.output {
+                action("out.\(d.name)", L("Saída de som: %@", d.name), d.icon(input: false), .blue,
+                       "som saída output audio áudio speaker fone headphone airpods caixa ausgabe salida 输出 \(d.name)") { audio.select(d, input: false) }
+            }
+            for d in audio.inputs where d.id != audio.input {
+                action("in.\(d.name)", L("Microfone: %@", d.name), d.icon(input: true), .red,
+                       "microfone mic input entrada audio áudio mikrofon micrófono 麦克风 \(d.name)") { audio.select(d, input: true) }
+            }
             action("awake", tb.keepAwake ? L("Desligar manter acordado") : L("Manter acordado"), "cup.and.saucer.fill", .orange,
                    "awake acordado caffeine cafe café sleep dormir tela amphetamine",
                    subtitle: tb.keepAwake ? nil : L("Digite um tempo, como “acordado 2h”")) {

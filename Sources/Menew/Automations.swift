@@ -14,6 +14,7 @@ struct Automation: Codable, Equatable, Identifiable {
         case meeting(minutesBefore: Int)
         case focus(started: Bool)
         case wake
+        case presentation(started: Bool)
     }
 
     enum Action: Codable, Equatable, Hashable {
@@ -26,6 +27,7 @@ struct Automation: Codable, Equatable, Identifiable {
         case clipboardPaused(Bool)
         case quitApps
         case shortcut(name: String)
+        case presentation(Bool)
     }
 
     var id = UUID()
@@ -40,7 +42,7 @@ struct Automation: Codable, Equatable, Identifiable {
 }
 
 extension Automation.Trigger {
-    enum Kind: String, CaseIterable { case time, power, battery, app, display, meeting, focus, wake }
+    enum Kind: String, CaseIterable { case time, power, battery, app, display, meeting, focus, presentation, wake }
 
     var kind: Kind {
         switch self {
@@ -52,6 +54,7 @@ extension Automation.Trigger {
         case .meeting: .meeting
         case .focus: .focus
         case .wake: .wake
+        case .presentation: .presentation
         }
     }
 
@@ -65,6 +68,7 @@ extension Automation.Trigger {
         case .meeting: .meeting(minutesBefore: 1)
         case .focus: .focus(started: true)
         case .wake: .wake
+        case .presentation: .presentation(started: true)
         }
     }
 
@@ -78,6 +82,7 @@ extension Automation.Trigger {
         case .meeting: L("Reunião começando")
         case .focus: L("Timer de foco")
         case .wake: L("O Mac acordar")
+        case .presentation: L("Modo apresentação")
         }
     }
 
@@ -96,6 +101,7 @@ extension Automation.Trigger {
         case .meeting(let m): return m == 0 ? L("Quando uma reunião começar") : L("%d min antes de uma reunião", m)
         case .focus(let started): return started ? L("Ao iniciar o foco") : L("Ao terminar o foco")
         case .wake: return L("Quando o Mac acordar")
+        case .presentation(let started): return started ? L("Ao ligar o modo apresentação") : L("Ao desligar o modo apresentação")
         }
     }
 
@@ -109,6 +115,7 @@ extension Automation.Trigger {
         case .meeting: "video.fill"
         case .focus: "timer"
         case .wake: "sunrise.fill"
+        case .presentation: "play.rectangle.fill"
         }
     }
 
@@ -133,6 +140,7 @@ extension Automation.Action {
         case .clipboardPaused(let on): on ? L("Pausar o clipboard") : L("Retomar captura do clipboard")
         case .quitApps: L("Fechar todos os apps")
         case .shortcut(let name): L("Rodar o atalho “%@”", name)
+        case .presentation(let on): on ? L("Ligar o modo apresentação") : L("Desligar o modo apresentação")
         }
     }
 
@@ -147,6 +155,7 @@ extension Automation.Action {
         case .clipboardPaused(let on): on ? "pause.circle.fill" : "play.circle.fill"
         case .quitApps: "xmark.circle.fill"
         case .shortcut: "square.stack.3d.forward.dottedline.fill"
+        case .presentation: "play.rectangle.fill"
         }
     }
 }
@@ -271,6 +280,11 @@ final class AutomationStore: ObservableObject {
         }
     }
 
+    /// Ao ligar ou desligar o modo apresentação (para, por exemplo, rodar um atalho de Não Perturbe)
+    func presentationChanged(started: Bool) {
+        fire { $0 == .presentation(started: started) }
+    }
+
     /// Chamado pelo timer de foco
     func focusChanged(started: Bool) {
         fire { $0 == .focus(started: started) }
@@ -317,6 +331,8 @@ final class AutomationStore: ObservableObject {
                 AppControl.quitAll()
             case .shortcut(let name):
                 Shortcuts.run(name)
+            case .presentation(let on):
+                PresentationMode.shared.set(on)
             }
         }
         var r = rule
@@ -580,6 +596,14 @@ struct AutomationEditor: View {
                 }
                 .labelsHidden().fixedSize()
             }
+        case .presentation(let started):
+            SettingRow(title: L("Quando o modo apresentação")) {
+                Picker("", selection: Binding(get: { started }, set: { rule.trigger = .presentation(started: $0) })) {
+                    Text(L("ligar")).tag(true)
+                    Text(L("desligar")).tag(false)
+                }
+                .labelsHidden().fixedSize()
+            }
         case .wake:
             Text(L("Ao voltar do repouso, por exemplo quando você abre a tampa."))
                 .font(.system(size: 11)).foregroundStyle(.secondary)
@@ -614,6 +638,10 @@ struct AutomationEditor: View {
                 Button(L("Retomar captura")) { add(.clipboardPaused(false)) }
             }
             Button(L("Fechar todos os apps")) { add(.quitApps) }
+            Menu(L("Modo apresentação")) {
+                Button(L("Ligar")) { add(.presentation(true)) }
+                Button(L("Desligar")) { add(.presentation(false)) }
+            }
             Menu(L("Rodar um atalho")) {
                 if shortcuts.isEmpty {
                     Text(L("Nenhum atalho no app Atalhos"))

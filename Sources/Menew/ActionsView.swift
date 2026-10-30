@@ -11,6 +11,7 @@ struct ActionsView: View {
     @ObservedObject var profiles = ProfileStore.shared
     @State private var editingProfile: UUID?
     @ObservedObject var automations = AutomationStore.shared
+    @ObservedObject var presentation = PresentationMode.shared
     @State private var editingAutomation: UUID?
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
@@ -116,10 +117,17 @@ struct ActionsView: View {
                                    title: L("Esconder o Dock"), state: tb.dockAutohide ? L("Aparece ao levar o mouse") : L("Sempre visível"),
                                    help: L("Esconde o Dock automaticamente e libera espaço na tela."),
                                    isOn: Binding(get: { tb.dockAutohide }, set: { _ in tb.toggleDockAutohide() }))
+                        Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
+                        ControlRow(icon: "play.rectangle.fill", color: .green,
+                                   title: L("Modo apresentação"), state: presentation.isOn ? L("Ligado") : L("Desligado"),
+                                   help: L("Antes de apresentar ou compartilhar a tela: esconde os ícones da mesa, mantém o Mac acordado, pausa o clipboard e deixa só o ícone na barra de menus. Desligar desfaz tudo."),
+                                   isOn: Binding(get: { presentation.isOn }, set: { presentation.set($0) }))
                     }
                     .padding(.vertical, 4)
                     .glass()
                 }
+
+                section(L("Som")) { AudioSection() }
 
                 section(L("Janelas")) {
                     VStack(spacing: 6) {

@@ -115,6 +115,8 @@ enum Snapshot {
                         CaptureMark(kind: .rect, a: CGPoint(x: w * 0.04, y: h * 0.27), b: CGPoint(x: w * 0.96, y: h * 0.5), color: .red),
                         CaptureMark(kind: .arrow, a: CGPoint(x: w * 0.75, y: h * 0.72), b: CGPoint(x: w * 0.55, y: h * 0.52), color: .red),
                         CaptureMark(kind: .text, a: CGPoint(x: w * 0.42, y: h * 0.73), b: .zero, color: .red, text: L("Seta")),
+                        CaptureMark(kind: .pen, a: .zero, b: .zero, color: .yellow,
+                                    points: (0...40).map { i in CGPoint(x: w * (0.1 + Double(i) * 0.008), y: h * (0.9 + sin(Double(i) / 4) * 0.015)) }),
                         CaptureMark(kind: .blur, a: CGPoint(x: w * 0.04, y: h * 0.05), b: CGPoint(x: w * 0.6, y: h * 0.12), color: .clear),
                     ]
                     render(CaptureEditor(doc: doc, close: {}), size: NSSize(width: 620, height: 820), dark: dark,

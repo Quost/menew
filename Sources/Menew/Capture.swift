@@ -111,7 +111,7 @@ enum ScreenCapture {
 // MARK: Documento
 
 struct CaptureMark: Identifiable, Equatable {
-    enum Kind: String, CaseIterable { case arrow, rect, text, blur }
+    enum Kind: String, CaseIterable { case pen, arrow, rect, text, blur }
     var id = UUID()
     var kind: Kind
     /// Em pontos da imagem
@@ -119,6 +119,8 @@ struct CaptureMark: Identifiable, Equatable {
     var b: CGPoint
     var color: Color
     var text = ""
+    /// Traço livre da caneta
+    var points: [CGPoint] = []
 
     var rect: CGRect { CGRect(x: min(a.x, b.x), y: min(a.y, b.y), width: abs(b.x - a.x), height: abs(b.y - a.y)) }
 }
@@ -179,6 +181,10 @@ struct CaptureCanvas: View {
                         layer.clip(to: Path(r))
                         layer.draw(Image(decorative: doc.pixelated, scale: 1), in: full)
                     }
+                case .pen:
+                    var p = Path()
+                    p.addLines(m.points.map { CGPoint(x: $0.x * k, y: $0.y * k) })
+                    ctx.stroke(p, with: .color(m.color), style: StrokeStyle(lineWidth: lw, lineCap: .round, lineJoin: .round))
                 case .rect:
                     ctx.stroke(Path(roundedRect: r, cornerRadius: lw * 1.5), with: .color(m.color), lineWidth: lw)
                 case .arrow:
@@ -291,6 +297,7 @@ struct CaptureEditor: View {
     private var toolbar: some View {
         HStack(spacing: 10) {
             GlassSegmented(selection: $tool, options: [
+                .init(value: .pen, icon: "scribble", help: L("Caneta (risco livre)")),
                 .init(value: .arrow, icon: "arrow.up.right", help: L("Seta")),
                 .init(value: .rect, icon: "rectangle", help: L("Retângulo")),
                 .init(value: .text, icon: "textformat", help: L("Texto")),
@@ -353,6 +360,13 @@ struct CaptureEditor: View {
                 let p = CGPoint(x: v.location.x / k, y: v.location.y / k)
                 let start = CGPoint(x: v.startLocation.x / k, y: v.startLocation.y / k)
                 guard tool != .text else { return }
+                if tool == .pen {
+                    var d = draft ?? CaptureMark(kind: .pen, a: start, b: start, color: color, points: [start])
+                    d.points.append(p)
+                    d.b = p
+                    draft = d
+                    return
+                }
                 draft = CaptureMark(kind: tool, a: start, b: p, color: color)
             }
             .onEnded { v in
@@ -364,7 +378,7 @@ struct CaptureEditor: View {
                     DispatchQueue.main.async { textFocus = true }
                     return
                 }
-                if let d = draft, hypot(d.b.x - d.a.x, d.b.y - d.a.y) > 4 { doc.marks.append(d) }
+                if let d = draft, d.kind == .pen ? d.points.count > 2 : hypot(d.b.x - d.a.x, d.b.y - d.a.y) > 4 { doc.marks.append(d) }
                 draft = nil
             }
     }
