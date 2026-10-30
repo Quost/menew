@@ -279,6 +279,9 @@ final class ClipboardManager: ObservableObject {
         }
     }
 
+    /// O que está no clipboard agora foi escrito pelo próprio Menew e não entra no histórico
+    func ignoreCurrentChange() { lastChange = NSPasteboard.general.changeCount }
+
     /// Copia texto novo (ex.: transformado) e registra no histórico
     func copyText(_ text: String) {
         let pb = NSPasteboard.general

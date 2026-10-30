@@ -104,6 +104,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         shelf.startShakeDetection()
         AutomationStore.shared.load(dir: clipboard.dir)
         AutomationStore.shared.start(toolbox: toolbox)
+        TextExpander.shared.start(clipboard: clipboard)
         updateStatusItem()
 
         applyAppearance()
@@ -112,6 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
                 self?.updateStatusItem()
                 self?.applyAppearance()
                 self?.shelf.startShakeDetection()
+                TextExpander.shared.refresh()
             }
         }
 

@@ -5,6 +5,8 @@ struct Snippet: Codable, Identifiable, Equatable {
     var id = UUID()
     var title: String
     var text: String
+    /// Digitar isto em qualquer app troca pelo texto (expansor de texto, opcional)
+    var abbreviation: String? = nil
 }
 
 /// Textos prontos. Aparecem no ⌘⇧V pelo filtro "Snippets" e nunca entram no histórico.
@@ -21,7 +23,7 @@ final class SnippetStore: ObservableObject {
         } else {
             // Exemplos na primeira vez, para mostrar como funciona
             snippets = [
-                Snippet(title: L("Data de hoje"), text: "{date}"),
+                Snippet(title: L("Data de hoje"), text: "{date}", abbreviation: ";date"),
                 Snippet(title: L("Assinatura de e-mail"), text: L("Abraços,\nSeu nome")),
             ]
             if url != nil { save() }
@@ -59,6 +61,7 @@ final class SnippetStore: ObservableObject {
     }
 
     private func save() {
+        TextExpander.shared.refresh()
         guard let url, let data = try? JSONEncoder().encode(snippets) else { return }
         try? data.write(to: url, options: .atomic)
     }
@@ -107,6 +110,7 @@ struct SnippetsView: View {
                                             .font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
                                     }
                                     Spacer()
+                                    if let a = s.abbreviation { Keycap(text: a) }
                                     IconButton(icon: "pencil", help: L("Editar")) { isNew = false; editing = s }
                                     IconButton(icon: "trash", help: L("Apagar")) { store.delete(s) }
                                 }
@@ -135,12 +139,22 @@ private struct SnippetEditor: View {
                 .textFieldStyle(.plain)
                 .font(.system(size: 13))
                 .glassField()
+            TextField(L("Abreviação (ex.: ;email)"), text: Binding(
+                get: { snippet.abbreviation ?? "" },
+                set: { snippet.abbreviation = $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ? nil : $0.trimmingCharacters(in: .whitespacesAndNewlines) }))
+                .textFieldStyle(.plain)
+                .font(.system(size: 13, design: .monospaced))
+                .glassField()
             TextEditor(text: $snippet.text)
                 .font(.system(size: 13))
                 .scrollContentBackground(.hidden)
                 .padding(8)
                 .glass(cornerRadius: 14)
             Text(L("Use {date}, {time} e {clipboard} para preencher na hora de colar."))
+                .font(.system(size: 10.5)).foregroundStyle(.secondary)
+            Text(UserDefaults.standard.bool(forKey: TextExpander.key)
+                 ? L("Digite a abreviação em qualquer app e ela vira o texto. Comece com ; para não disparar sem querer.")
+                 : L("Para a abreviação funcionar, ligue Expandir abreviações em Ajustes → Clipboard."))
                 .font(.system(size: 10.5)).foregroundStyle(.secondary)
             HStack {
                 Spacer()

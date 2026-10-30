@@ -517,6 +517,7 @@ struct SettingsView: View {
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
+    @AppStorage(TextExpander.key) private var textExpander = false
     @AppStorage("maxItems") private var maxItems = 300
     @AppStorage("autoDeleteDays") private var autoDeleteDays = 0
     @AppStorage("ignoreConcealed") private var ignoreConcealed = true
@@ -581,6 +582,12 @@ struct SettingsView: View {
                 if clipboardOn {
                 GlassSection(title: L("Clipboard")) {
                     ToggleRow(title: L("Colar automaticamente ao escolher"), isOn: $autoPaste)
+                    RowDivider()
+                    ToggleRow(title: L("Expandir abreviações dos snippets ao digitar"), isOn: $textExpander)
+                        .onChange(of: textExpander) { _, on in
+                            if on, !AXIsProcessTrusted() { ClipboardManager.requestAccessibility() }
+                            TextExpander.shared.refresh()
+                        }
                     RowDivider()
                     ToggleRow(title: L("Pausar captura"), isOn: $paused)
                     RowDivider()
