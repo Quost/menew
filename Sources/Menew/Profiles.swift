@@ -25,6 +25,8 @@ struct WorkProfile: Codable, Equatable, Identifiable {
     var mic = Mic.keep
     var look = Look.keep
     var hideOthers = false
+    /// Opcional para ler perfis salvos antes de existir
+    var quitOthers: Bool?
 
     static let icons = ["briefcase.fill", "chevron.left.forwardslash.chevron.right", "person.2.fill", "play.rectangle.fill",
                         "paintbrush.pointed.fill", "book.fill", "gamecontroller.fill", "leaf.fill"]
@@ -148,6 +150,7 @@ final class ProfileStore: ObservableObject {
         if (p.look == .dark && !tb.darkMode) || (p.look == .light && tb.darkMode) { tb.toggleDarkMode() }
 
         let wanted = Set(p.apps.map(\.bundleID))
+        if p.quitOthers == true { AppControl.quitAll(sparing: wanted) }
         var failed: [String] = []
         for app in p.apps {
             if let running = NSRunningApplication.runningApplications(withBundleIdentifier: app.bundleID).first {
@@ -160,7 +163,7 @@ final class ProfileStore: ObservableObject {
                 NSWorkspace.shared.openApplication(at: url, configuration: config)
             }
         }
-        if p.hideOthers {
+        if p.hideOthers && p.quitOthers != true {
             let me = Bundle.main.bundleIdentifier
             for app in NSWorkspace.shared.runningApplications where app.activationPolicy == .regular {
                 if let b = app.bundleIdentifier, !wanted.contains(b), b != me { app.hide() }
@@ -379,6 +382,9 @@ struct ProfileEditor: View {
                     }
                     RowDivider()
                     ToggleRow(title: L("Esconder os outros apps"), icon: "eye.slash", isOn: $profile.hideOthers)
+                    RowDivider()
+                    ToggleRow(title: L("Fechar os outros apps"), detail: L("Quem tiver algo sem salvar pergunta antes"), icon: "xmark.circle",
+                              isOn: Binding(get: { profile.quitOthers == true }, set: { profile.quitOthers = $0 }))
                 }
 
                 Button(role: .destructive) {

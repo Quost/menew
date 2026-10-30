@@ -323,6 +323,17 @@ final class PaletteModel: ObservableObject {
                 action("meeting", L("Entrar na reunião"), "video.fill", .orange, "reunião meeting entrar join zoom meet teams call chamada",
                        subtitle: m.title) { MeetingStore.shared.join() }
             }
+            action("quitall", L("Fechar todos os apps"), "xmark.circle.fill", .red,
+                   "fechar todos quit all close apps encerrar sair alle beenden cerrar todas 退出 全部") {
+                AppControl.quitAllWithNotice(others: false)
+            }
+            if let front = AppControl.front?.localizedName {
+                action("quitothers", L("Fechar os outros apps"), "rectangle.portrait.and.arrow.right.fill", .orange,
+                       "fechar outros quit others close other apps andere beenden cerrar otras 退出 其他",
+                       subtitle: L("menos %@", front)) { AppControl.quitAllWithNotice(others: true) }
+            }
+            action("hideothers", L("Esconder os outros apps"), "eye.slash.fill", .gray,
+                   "esconder outros hide others andere ausblenden ocultar otras 隐藏 其他") { AppControl.hideOthers() }
             let focus = FocusTimer.shared
             if focus.isRunning {
                 action("focus", L("Parar foco"), "stop.fill", .red, "foco focus pomodoro parar stop timer") { focus.stop() }

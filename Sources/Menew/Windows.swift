@@ -88,6 +88,8 @@ final class WindowManager {
 
     /// O último app que não é o Menew: é a janela dele que os botões do menu movem
     private var lastApp: NSRunningApplication?
+    /// O último app (fora o Menew) que esteve na frente
+    var previousApp: NSRunningApplication? { lastApp }
     /// Tamanho antes do primeiro encaixe, por janela, para "voltar ao tamanho anterior"
     private var saved: [WindowKey: CGRect] = [:]
     private var hotKeys: [HotKey] = []

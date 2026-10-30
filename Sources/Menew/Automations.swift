@@ -21,6 +21,7 @@ struct Automation: Codable, Equatable, Identifiable {
         case openApp(path: String)
         case brightness(Int)
         case clipboardPaused(Bool)
+        case quitApps
     }
 
     var id = UUID()
@@ -111,6 +112,7 @@ extension Automation.Action {
         case .openApp(let path): L("Abrir %@", FileManager.default.displayName(atPath: path).replacingOccurrences(of: ".app", with: ""))
         case .brightness(let v): L("Brilho em %d%%", v)
         case .clipboardPaused(let on): on ? L("Pausar o clipboard") : L("Retomar captura do clipboard")
+        case .quitApps: L("Fechar todos os apps")
         }
     }
 
@@ -123,6 +125,7 @@ extension Automation.Action {
         case .openApp: "app.fill"
         case .brightness: "sun.max.fill"
         case .clipboardPaused(let on): on ? "pause.circle.fill" : "play.circle.fill"
+        case .quitApps: "xmark.circle.fill"
         }
     }
 }
@@ -266,6 +269,8 @@ final class AutomationStore: ObservableObject {
                 for s in screens { tb.displays.set(Double(v) / 100, for: s.id) }
             case .clipboardPaused(let on):
                 on ? ClipboardManager.pause(minutes: nil) : ClipboardManager.resume()
+            case .quitApps:
+                AppControl.quitAll()
             }
         }
         var r = rule
@@ -533,6 +538,7 @@ struct AutomationEditor: View {
                 Button(L("Pausar captura")) { add(.clipboardPaused(true)) }
                 Button(L("Retomar captura")) { add(.clipboardPaused(false)) }
             }
+            Button(L("Fechar todos os apps")) { add(.quitApps) }
             Menu(L("Abrir um app")) {
                 ForEach(AppIndex.all(), id: \.path) { app in Button(app.name) { add(.openApp(path: app.path)) } }
             }

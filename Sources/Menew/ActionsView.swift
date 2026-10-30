@@ -143,6 +143,8 @@ struct ActionsView: View {
                     }
                 }
 
+                section(L("Apps")) { AppControlSection() }
+
                 section(L("Perfis")) {
                     ProfilesSection(store: profiles, tb: tb, editing: $editingProfile)
                 }
