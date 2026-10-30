@@ -47,7 +47,7 @@
   "act_eyebrow": "Quick actions",
   "act_h2": "Toggles you'd otherwise Google every time.",
   "act_sub": "Show hidden files, hide the desktop, keep the Mac awake for an hour or pick a color from anywhere on screen — without opening Terminal. Every switch shows its current state.",
-  "act_l1": "<b>Monitor brightness</b> — a slider for every screen, including third-party monitors over DDC/CI.",
+  "act_l1": "<b>Monitor brightness</b> — a slider for every screen, including third-party monitors over DDC/CI. Monitors behind an adapter that blocks DDC are dimmed by software instead.",
   "act_l2": "<b>Mute your mic</b> — from any app with ⌃⌥⌘M, great for meetings.",
   "act_l3": "<b>Window manager</b> — snap windows to halves, corners and thirds with ⌃⌥ shortcuts or a grid, and send them to the other display.",
   "act_l4": "<b>Command palette</b> — press ⌃⌥Space to find any app, action, window layout, snippet or note. Type “brightness 60” or “awake 2h”. Do math and conversions too: “20% of 340”, “5 km to mi”. And it transforms the text you copied: UPPERCASE, camelCase, format JSON, Base64, count words.",

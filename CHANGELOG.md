@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.27.2
+
+- **Software dimming for monitors without DDC**: monitors that don't accept brightness over the cable (often because a USB-C adapter or hub blocks it) now get a brightness slider too, marked “by software”. Menew dims the picture of that screen only, without talking to the monitor, so it can't freeze anything.
+- The level is remembered per monitor and comes back when you reconnect it or reopen Menew; quitting Menew restores the normal picture. Brightness automations work on these monitors as well.
+
 ## 1.27.1
 
 - **Fixed: screens freezing with an external monitor**: on some Macs (like a MacBook Air M4 with a second display), opening Actions could freeze every screen for a few seconds. Menew now reads an external monitor's brightness only once per connection, gives up quickly on a monitor that doesn't answer, and never sends commands to one that hasn't answered correctly.

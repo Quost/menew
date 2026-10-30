@@ -47,7 +47,7 @@
   "act_eyebrow": "Schnellaktionen",
   "act_h2": "Einstellungen, die du sonst jedes Mal googelst.",
   "act_sub": "Versteckte Dateien zeigen, den Schreibtisch ausblenden, den Mac eine Stunde wach halten oder eine Farbe vom Bildschirm aufnehmen — ohne Terminal. Jeder Schalter zeigt seinen aktuellen Zustand.",
-  "act_l1": "<b>Monitorhelligkeit</b> — ein Regler für jeden Bildschirm, auch für Monitore anderer Hersteller per DDC/CI.",
+  "act_l1": "<b>Monitorhelligkeit</b> — ein Regler für jeden Bildschirm, auch für Monitore anderer Hersteller per DDC/CI. Monitore hinter einem Adapter, der DDC blockiert, werden per Software abgedunkelt.",
   "act_l2": "<b>Mikrofon stumm</b> — aus jeder App mit ⌃⌥⌘M, ideal für Meetings.",
   "act_l3": "<b>Fensterverwaltung</b> — Fenster per ⌃⌥-Kurzbefehl oder Raster auf Hälften, Ecken und Drittel legen und auf den anderen Bildschirm schicken.",
   "act_l4": "<b>Befehlspalette</b> — drücke ⌃⌥Leertaste und finde jede App, Aktion, Fensteranordnung, jedes Snippet und jede Notiz. Tippe „helligkeit 60“ oder „wach 2h“. Rechnet und rechnet um: „20% von 340“, „5 km in mi“. Und sie wandelt kopierten Text um: GROSSBUCHSTABEN, camelCase, JSON formatieren, Base64, Wörter zählen.",

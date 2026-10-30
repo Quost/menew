@@ -47,7 +47,7 @@
   "act_eyebrow": "Ações rápidas",
   "act_h2": "Aqueles ajustes que você sempre precisa procurar no Google.",
   "act_sub": "Mostre arquivos ocultos, esconda a mesa, mantenha o Mac acordado por uma hora ou pegue uma cor de qualquer lugar da tela — sem abrir o Terminal. Cada interruptor mostra o estado atual.",
-  "act_l1": "<b>Brilho do monitor</b> — um slider para cada tela, inclusive monitores de outras marcas via DDC/CI.",
+  "act_l1": "<b>Brilho do monitor</b> — um slider para cada tela, inclusive monitores de outras marcas via DDC/CI. Monitores atrás de um adaptador que bloqueia o DDC são escurecidos por software.",
   "act_l2": "<b>Mute o microfone</b> — de qualquer app com ⌃⌥⌘M, ótimo para reuniões.",
   "act_l3": "<b>Gerenciador de janelas</b> — encaixe janelas em metades, cantos e terços com atalhos ⌃⌥ ou por uma grade, e mande para a outra tela.",
   "act_l4": "<b>Paleta de comandos</b> — aperte ⌃⌥Espaço e encontre qualquer app, ação, layout de janela, snippet ou nota. Digite “brilho 60” ou “acordado 2h”. Também faz contas e conversões: “20% de 340”, “5 km em mi”. E transforma o texto copiado: MAIÚSCULAS, camelCase, formatar JSON, Base64, contar palavras.",
