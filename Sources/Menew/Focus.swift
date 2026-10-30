@@ -41,6 +41,7 @@ final class FocusTimer: ObservableObject {
         }
         run(.focus, minutes: minutes)
         HUD.show(icon: "timer", color: .red, text: L("Foco por %d min", minutes))
+        AutomationStore.shared.focusChanged(started: true)
     }
 
     func extend(minutes: Int = 5) {
@@ -53,9 +54,11 @@ final class FocusTimer: ObservableObject {
     func stop(silently: Bool = false) {
         guard isRunning else { return }
         timer?.invalidate(); timer = nil
+        let wasFocus = phase == .focus
         restore()
         phase = nil
         if !silently { HUD.show(icon: "timer", color: .secondary, text: L("Foco encerrado")) }
+        if wasFocus, !silently { AutomationStore.shared.focusChanged(started: false) }
     }
 
     private func run(_ p: Phase, minutes: Int) {
@@ -81,6 +84,7 @@ final class FocusTimer: ObservableObject {
             notify(L("Foco concluído"), breaks ? L("Hora de uma pausa de 5 minutos.") : L("Bom trabalho!"))
             HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Foco concluído"))
             if breaks { run(.rest, minutes: 5) } else { phase = nil }
+            AutomationStore.shared.focusChanged(started: false)
         } else {
             phase = nil
             notify(L("Pausa encerrada"), L("Pronto para outro foco?"))

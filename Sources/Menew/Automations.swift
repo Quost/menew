@@ -3,7 +3,7 @@ import SwiftUI
 
 // MARK: Modelo
 
-/// "Quando X acontecer, faça Y". Só gatilhos e ações do próprio Menew: nada de scripts.
+/// "Quando X acontecer, faça Y". Gatilhos e ações do próprio Menew, mais os Atalhos que você já tem no app Atalhos.
 struct Automation: Codable, Equatable, Identifiable {
     enum Trigger: Codable, Equatable {
         case time(hour: Int, minute: Int, weekdays: Set<Int>)  // 1 = domingo … 7 = sábado
@@ -11,6 +11,9 @@ struct Automation: Codable, Equatable, Identifiable {
         case batteryBelow(Int)
         case app(bundleID: String, name: String, opened: Bool)
         case display(connected: Bool)
+        case meeting(minutesBefore: Int)
+        case focus(started: Bool)
+        case wake
     }
 
     enum Action: Codable, Equatable, Hashable {
@@ -22,6 +25,7 @@ struct Automation: Codable, Equatable, Identifiable {
         case brightness(Int)
         case clipboardPaused(Bool)
         case quitApps
+        case shortcut(name: String)
     }
 
     var id = UUID()
@@ -36,7 +40,7 @@ struct Automation: Codable, Equatable, Identifiable {
 }
 
 extension Automation.Trigger {
-    enum Kind: String, CaseIterable { case time, power, battery, app, display }
+    enum Kind: String, CaseIterable { case time, power, battery, app, display, meeting, focus, wake }
 
     var kind: Kind {
         switch self {
@@ -45,6 +49,9 @@ extension Automation.Trigger {
         case .batteryBelow: .battery
         case .app: .app
         case .display: .display
+        case .meeting: .meeting
+        case .focus: .focus
+        case .wake: .wake
         }
     }
 
@@ -55,6 +62,9 @@ extension Automation.Trigger {
         case .battery: .batteryBelow(20)
         case .app: .app(bundleID: "", name: "", opened: true)
         case .display: .display(connected: true)
+        case .meeting: .meeting(minutesBefore: 1)
+        case .focus: .focus(started: true)
+        case .wake: .wake
         }
     }
 
@@ -65,6 +75,9 @@ extension Automation.Trigger {
         case .battery: L("Bateria baixa")
         case .app: L("Um app abrir ou fechar")
         case .display: L("Monitor externo")
+        case .meeting: L("Reunião começando")
+        case .focus: L("Timer de foco")
+        case .wake: L("O Mac acordar")
         }
     }
 
@@ -80,6 +93,9 @@ extension Automation.Trigger {
             let n = name.isEmpty ? L("um app") : name
             return opened ? L("Ao abrir %@", n) : L("Ao fechar %@", n)
         case .display(let connected): return connected ? L("Ao conectar um monitor") : L("Ao desconectar o monitor")
+        case .meeting(let m): return m == 0 ? L("Quando uma reunião começar") : L("%d min antes de uma reunião", m)
+        case .focus(let started): return started ? L("Ao iniciar o foco") : L("Ao terminar o foco")
+        case .wake: return L("Quando o Mac acordar")
         }
     }
 
@@ -90,6 +106,9 @@ extension Automation.Trigger {
         case .batteryBelow: "battery.25percent"
         case .app: "app.badge.fill"
         case .display: "display"
+        case .meeting: "video.fill"
+        case .focus: "timer"
+        case .wake: "sunrise.fill"
         }
     }
 
@@ -113,6 +132,7 @@ extension Automation.Action {
         case .brightness(let v): L("Brilho em %d%%", v)
         case .clipboardPaused(let on): on ? L("Pausar o clipboard") : L("Retomar captura do clipboard")
         case .quitApps: L("Fechar todos os apps")
+        case .shortcut(let name): L("Rodar o atalho “%@”", name)
         }
     }
 
@@ -126,6 +146,7 @@ extension Automation.Action {
         case .brightness: "sun.max.fill"
         case .clipboardPaused(let on): on ? "pause.circle.fill" : "play.circle.fill"
         case .quitApps: "xmark.circle.fill"
+        case .shortcut: "square.stack.3d.forward.dottedline.fill"
         }
     }
 }
@@ -142,6 +163,7 @@ final class AutomationStore: ObservableObject {
     private var lastPercent: Int?
     private var lastScreens = NSScreen.screens.count
     private var lastMinute = -1
+    private var firedMeetings = Set<String>()
     private var observers: [Any] = []
 
     private init() {}
@@ -197,6 +219,9 @@ final class AutomationStore: ObservableObject {
                 }
             })
         }
+        observers.append(ws.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.fire { $0 == .wake } }
+        })
         observers.append(NotificationCenter.default.addObserver(forName: NSApplication.didChangeScreenParametersNotification,
                                                                 object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
@@ -219,6 +244,7 @@ final class AutomationStore: ObservableObject {
         if minute != lastMinute {
             lastMinute = minute
             fire { if case .time(let h, let mm, let days) = $0 { h * 60 + mm == minute && days.contains(c.weekday ?? 0) } else { false } }
+            checkMeeting(now)
         }
         guard let b = m.battery else { return }
         if let lastAC, lastAC != b.onAC {
@@ -230,6 +256,24 @@ final class AutomationStore: ObservableObject {
         }
         lastAC = b.onAC
         lastPercent = b.percent
+    }
+
+    /// "N min antes": confere a próxima reunião a cada virada de minuto, uma vez por reunião e regra
+    private func checkMeeting(_ now: Date) {
+        guard let m = MeetingStore.shared.next else { return }
+        let left = Int(ceil(m.start.timeIntervalSince(now) / 60))
+        guard left >= 0 else { return }
+        for r in rules where r.enabled {
+            guard case .meeting(let before) = r.trigger, before == left else { continue }
+            let key = "\(r.id)|\(m.id)|\(m.start.timeIntervalSince1970)"
+            guard firedMeetings.insert(key).inserted else { continue }
+            run(r)
+        }
+    }
+
+    /// Chamado pelo timer de foco
+    func focusChanged(started: Bool) {
+        fire { $0 == .focus(started: started) }
     }
 
     private func fire(_ matches: (Automation.Trigger) -> Bool) {
@@ -271,6 +315,8 @@ final class AutomationStore: ObservableObject {
                 on ? ClipboardManager.pause(minutes: nil) : ClipboardManager.resume()
             case .quitApps:
                 AppControl.quitAll()
+            case .shortcut(let name):
+                Shortcuts.run(name)
             }
         }
         var r = rule
@@ -361,6 +407,7 @@ struct AutomationEditor: View {
     @ObservedObject var profiles = ProfileStore.shared
     @State var rule: Automation
     var onClose: () -> Void
+    @State private var shortcuts: [String] = []
 
     var body: some View {
         ScrollView {
@@ -433,6 +480,7 @@ struct AutomationEditor: View {
         .noLiquidGlass()
         .scrollIndicators(.never)
         .onChange(of: rule) { _, r in store.upsert(r) }
+        .task { shortcuts = await Shortcuts.list() }
     }
 
     @ViewBuilder private var triggerDetail: some View {
@@ -509,6 +557,33 @@ struct AutomationEditor: View {
                 }
                 .labelsHidden().fixedSize()
             }
+        case .meeting(let before):
+            SettingRow(title: L("Quando")) {
+                Picker("", selection: Binding(get: { before }, set: { rule.trigger = .meeting(minutesBefore: $0) })) {
+                    Text(L("na hora")).tag(0)
+                    ForEach([1, 5, 10, 15], id: \.self) { m in Text(L("%d min antes", m)).tag(m) }
+                }
+                .labelsHidden().fixedSize()
+            }
+            if !MeetingStore.shared.isOn {
+                RowDivider()
+                Text(L("Ligue “Mostrar a próxima reunião” em Ajustes → Calendário para este gatilho funcionar."))
+                    .font(.system(size: 11)).foregroundStyle(.orange)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+            }
+        case .focus(let started):
+            SettingRow(title: L("Quando o foco")) {
+                Picker("", selection: Binding(get: { started }, set: { rule.trigger = .focus(started: $0) })) {
+                    Text(L("começar")).tag(true)
+                    Text(L("terminar")).tag(false)
+                }
+                .labelsHidden().fixedSize()
+            }
+        case .wake:
+            Text(L("Ao voltar do repouso, por exemplo quando você abre a tampa."))
+                .font(.system(size: 11)).foregroundStyle(.secondary)
+                .padding(.horizontal, 12).padding(.vertical, 8)
         }
     }
 
@@ -539,6 +614,13 @@ struct AutomationEditor: View {
                 Button(L("Retomar captura")) { add(.clipboardPaused(false)) }
             }
             Button(L("Fechar todos os apps")) { add(.quitApps) }
+            Menu(L("Rodar um atalho")) {
+                if shortcuts.isEmpty {
+                    Text(L("Nenhum atalho no app Atalhos"))
+                } else {
+                    ForEach(shortcuts, id: \.self) { s in Button(s) { add(.shortcut(name: s)) } }
+                }
+            }
             Menu(L("Abrir um app")) {
                 ForEach(AppIndex.all(), id: \.path) { app in Button(app.name) { add(.openApp(path: app.path)) } }
             }
@@ -555,5 +637,32 @@ struct AutomationEditor: View {
 
     private func add(_ a: Automation.Action) {
         if !rule.actions.contains(a) { rule.actions.append(a) }
+    }
+}
+
+/// Os atalhos do app Atalhos, pela ferramenta `shortcuts` do próprio macOS
+enum Shortcuts {
+    static func list() async -> [String] {
+        await Task.detached {
+            Shell.run("/usr/bin/shortcuts", ["list"]).split(separator: "\n").map(String.init)
+                .filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }.sorted()
+        }.value
+    }
+
+    /// Roda sem esperar; avisa só se falhar
+    @MainActor static func run(_ name: String) {
+        Task.detached {
+            let p = Process()
+            p.executableURL = URL(fileURLWithPath: "/usr/bin/shortcuts")
+            p.arguments = ["run", name]
+            p.standardOutput = FileHandle.nullDevice
+            p.standardError = FileHandle.nullDevice
+            let ok = (try? p.run()) != nil && { p.waitUntilExit(); return p.terminationStatus == 0 }()
+            if !ok {
+                await MainActor.run {
+                    HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("O atalho “%@” falhou", name), duration: 2.5)
+                }
+            }
+        }
     }
 }
