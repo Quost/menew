@@ -133,6 +133,7 @@ struct ShelfImageMenu: View {
             }
             Divider()
             Button(L("Remover localização e metadados")) { store.process(.stripMetadata) }
+            Button(L("Juntar em um PDF")) { store.process(PDFTool.fromImages) }
         } label: {
             Image(systemName: "photo.badge.arrow.down")
                 .font(.system(size: 12, weight: .semibold))

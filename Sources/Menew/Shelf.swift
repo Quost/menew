@@ -77,6 +77,13 @@ final class ShelfStore: ObservableObject {
 
     func remove(_ item: ShelfItem) { items.removeAll { $0.id == item.id } }
 
+    /// Vários arquivos viram outros (juntar PDFs, páginas em imagens): os novos entram onde estava o primeiro
+    func replace(_ originals: [URL], with new: [URL]) {
+        let at = items.firstIndex { if case .file(let u) = $0.kind { originals.contains(u) } else { false } } ?? items.count
+        items.removeAll { if case .file(let u) = $0.kind { originals.contains(u) } else { false } }
+        items.insert(contentsOf: new.map { ShelfItem(kind: .file($0)) }, at: min(at, items.count))
+    }
+
     /// O arquivo processado entra no lugar do original, na mesma posição
     func replace(_ original: URL, with new: URL) {
         if let i = items.firstIndex(where: { $0.kind == .file(original) }) {
@@ -252,6 +259,7 @@ struct ShelfView: View {
                     Text("\(store.items.count)").font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
                 }
                 Spacer()
+                if !store.pdfURLs.isEmpty { ShelfPDFMenu(store: store) }
                 if !store.imageURLs.isEmpty { ShelfImageMenu(store: store) }
                 if !store.items.isEmpty {
                     IconButton(icon: "trash", help: L("Esvaziar estante")) { store.clear() }
