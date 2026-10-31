@@ -108,6 +108,11 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                if let m = MeetingStore.shared.next {
+                    render(MeetingBanner(meeting: m, today: MeetingStore.shared.today, expanded: true, onJoin: {})
+                            .padding(.top, 14).frame(width: 400, height: 260, alignment: .top).background(Theme.windowFill),
+                           size: NSSize(width: 400, height: 260), dark: dark, to: dir.appendingPathComponent("agenda-\(suffix).png"))
+                }
                 // Editor de captura sobre uma captura do próprio Menew, com uma marca de cada tipo
                 if let shot = NSImage(contentsOf: dir.appendingPathComponent("popover-system-\(suffix).png")),
                    let doc = CaptureDocument(image: shot) {

@@ -64,7 +64,7 @@ struct MainView: View {
             VStack(spacing: 0) {
                 header
                 if let v = updater.pendingVersion { updateBanner(v) }
-                if !isSubpage, let m = meetings.next { MeetingBanner(meeting: m) { meetings.join() } }
+                if !isSubpage, let m = meetings.next { MeetingBanner(meeting: m, today: meetings.today) { meetings.join() } }
                 if !isSubpage { tabBar }
             }
             .zIndex(1)

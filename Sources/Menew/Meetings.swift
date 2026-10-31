@@ -19,8 +19,12 @@ final class MeetingStore: ObservableObject {
     static let shared = MeetingStore()
     static let key = "meetings"
     static let remindKey = "meetingsRemind"
+    static let workStartKey = "workStartHour"
+    static let workEndKey = "workEndHour"
 
     @Published private(set) var next: Meeting?
+    /// Reuniões de hoje (as que já passaram também), para a agenda do dia
+    @Published private(set) var today: [Meeting] = []
     @Published private(set) var denied = false
 
     private let store = EKEventStore()
@@ -84,11 +88,92 @@ final class MeetingStore: ObservableObject {
                     link: Self.link(in: $0), color: $0.calendar.map { Color(cgColor: $0.cgColor) } ?? Theme.indigo)
         }
         if meeting != next { next = meeting }
+        let day = Calendar.current.startOfDay(for: now)
+        let list = store.events(matching: store.predicateForEvents(withStart: day, end: day.addingTimeInterval(86400), calendars: nil))
+            .filter { !$0.isAllDay && $0.status != .canceled && !Self.declined($0) }
+            .sorted { $0.startDate < $1.startDate }
+            .map(Self.meeting)
+        if list != today { today = list }
         scheduleReminder()
     }
 
     func join() {
         if let url = next?.link { NSWorkspace.shared.open(url) }
+    }
+
+    private static func meeting(_ e: EKEvent) -> Meeting {
+        Meeting(id: e.eventIdentifier ?? UUID().uuidString, title: e.title ?? "", start: e.startDate, end: e.endDate,
+                link: link(in: e), color: e.calendar.map { Color(cgColor: $0.cgColor) } ?? Theme.indigo)
+    }
+
+    /// Abre a chamada, se tiver link, ou o evento no Calendário
+    func open(_ m: Meeting) {
+        if let url = m.link { NSWorkspace.shared.open(url); return }
+        let t = Int(m.start.timeIntervalSinceReferenceDate)
+        if let url = URL(string: "ical://ekevent/\(m.id)?method=show&options=more") ?? URL(string: "calshow:\(t)") {
+            NSWorkspace.shared.open(url)
+        }
+    }
+
+    // MARK: Horários livres
+
+    /// Texto pronto para mandar a alguém: os horários livres nos próximos dias úteis, dentro do horário de trabalho
+    func freeSlotsText(days: Int = 5) -> String {
+        let d = UserDefaults.standard
+        let startHour = d.object(forKey: Self.workStartKey) as? Int ?? 9
+        let endHour = d.object(forKey: Self.workEndKey) as? Int ?? 18
+        let cal = Calendar.current
+        let now = Date()
+        var lines: [String] = []
+        var day = cal.startOfDay(for: now)
+        var counted = 0
+        while counted < days {
+            defer { day = cal.date(byAdding: .day, value: 1, to: day) ?? day.addingTimeInterval(86400) }
+            let weekday = cal.component(.weekday, from: day)
+            guard weekday != 1 && weekday != 7 else { continue }
+            counted += 1
+            guard var from = cal.date(bySettingHour: startHour, minute: 0, second: 0, of: day),
+                  let to = cal.date(bySettingHour: endHour, minute: 0, second: 0, of: day), to > now else { continue }
+            // Hoje: só a partir da próxima meia hora cheia
+            if from < now {
+                var c = cal.dateComponents([.year, .month, .day, .hour, .minute], from: now)
+                let past30 = (c.minute ?? 0) >= 30
+                c.minute = past30 ? 0 : 30
+                if let rounded = cal.date(from: c) { from = past30 ? rounded.addingTimeInterval(3600) : rounded }
+                guard from < to else { continue }
+            }
+            let busy = store.events(matching: store.predicateForEvents(withStart: from, end: to, calendars: nil))
+                .filter { !$0.isAllDay && $0.status != .canceled && $0.availability != .free && !Self.declined($0) }
+                .map { ($0.startDate!, $0.endDate!) }
+                .sorted { $0.0 < $1.0 }
+            var free: [(Date, Date)] = []
+            var cursor = from
+            for (s, e) in busy {
+                if s > cursor { free.append((cursor, min(s, to))) }
+                cursor = max(cursor, e)
+                if cursor >= to { break }
+            }
+            if cursor < to { free.append((cursor, to)) }
+            let slots = free.filter { $0.1.timeIntervalSince($0.0) >= 30 * 60 }
+            guard !slots.isEmpty else { continue }
+            let time = Date.FormatStyle.dateTime.hour().minute().locale(L10n.locale)
+            let label = day.formatted(.dateTime.weekday(.abbreviated).day().month(.twoDigits).locale(L10n.locale))
+            lines.append(label + ": " + slots.map { $0.0.formatted(time) + "–" + $0.1.formatted(time) }.joined(separator: ", "))
+        }
+        guard !lines.isEmpty else { return L("Sem horários livres nos próximos dias úteis.") }
+        return L("Meus horários livres:") + "\n" + lines.joined(separator: "\n")
+    }
+
+    func copyFreeSlots() {
+        guard isOn, !denied else {
+            HUD.show(icon: "calendar.badge.exclamationmark", color: .orange,
+                     text: L("Ligue o Calendário em Ajustes → Calendário"), duration: 2.5)
+            return
+        }
+        let text = freeSlotsText()
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(text, forType: .string)
+        HUD.show(icon: "calendar.badge.checkmark", color: .green, text: L("Horários livres copiados"))
     }
 
     private static func declined(_ e: EKEvent) -> Bool {
@@ -137,6 +222,13 @@ final class MeetingStore: ObservableObject {
         demo = true
         next = Meeting(id: "demo", title: L("Alinhamento semanal"), start: Date().addingTimeInterval(12 * 60 + 30),
                        end: Date().addingTimeInterval(42 * 60), link: URL(string: "https://zoom.us/j/1"), color: .orange)
+        today = [
+            Meeting(id: "d1", title: L("Daily"), start: Date().addingTimeInterval(-3 * 3600), end: Date().addingTimeInterval(-2.75 * 3600),
+                    link: nil, color: .blue),
+            next!,
+            Meeting(id: "d3", title: L("Revisão do trimestre"), start: Date().addingTimeInterval(3 * 3600),
+                    end: Date().addingTimeInterval(4 * 3600), link: nil, color: .purple),
+        ]
     }
 }
 
@@ -148,19 +240,68 @@ extension UNUserNotificationCenter {
 /// Faixa da próxima reunião no topo do menu
 struct MeetingBanner: View {
     let meeting: Meeting
+    var today: [Meeting] = []
     let onJoin: () -> Void
+    @State private var expanded: Bool
+
+    init(meeting: Meeting, today: [Meeting] = [], expanded: Bool = false, onJoin: @escaping () -> Void) {
+        self.meeting = meeting
+        self.today = today
+        self.onJoin = onJoin
+        _expanded = State(initialValue: expanded)
+    }
 
     var body: some View {
         TimelineView(.periodic(from: .now, by: 30)) { ctx in
-            HStack(spacing: 10) {
-                RoundedRectangle(cornerRadius: 2).fill(meeting.color).frame(width: 4, height: 28)
-                VStack(alignment: .leading, spacing: 1) {
-                    Text(meeting.title).font(.system(size: 12, weight: .semibold)).lineLimit(1)
-                    Text(when(ctx.date)).font(.system(size: 11)).foregroundStyle(soon(ctx.date) ? Color.orange : .secondary)
+            VStack(alignment: .leading, spacing: 8) {
+                HStack(spacing: 10) {
+                    RoundedRectangle(cornerRadius: 2).fill(meeting.color).frame(width: 4, height: 28)
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(meeting.title).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                        Text(when(ctx.date)).font(.system(size: 11)).foregroundStyle(soon(ctx.date) ? Color.orange : .secondary)
+                    }
+                    Spacer(minLength: 6)
+                    if today.count > 1 {
+                        Button { withAnimation(.snappy) { expanded.toggle() } } label: {
+                            HStack(spacing: 3) {
+                                Text(L("Hoje · %d", today.count)).font(.system(size: 10.5, weight: .medium))
+                                Image(systemName: "chevron.down").font(.system(size: 8, weight: .bold))
+                                    .rotationEffect(.degrees(expanded ? 180 : 0))
+                            }
+                            .foregroundStyle(.secondary)
+                            .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.plain)
+                        .help(L("Agenda de hoje"))
+                    }
+                    if meeting.link != nil {
+                        PillButton(title: L("Entrar"), icon: "video.fill", primary: true, action: onJoin)
+                    }
                 }
-                Spacer(minLength: 6)
-                if meeting.link != nil {
-                    PillButton(title: L("Entrar"), icon: "video.fill", primary: true, action: onJoin)
+                if expanded {
+                    VStack(alignment: .leading, spacing: 5) {
+                        ForEach(today, id: \.id) { m in
+                            Button { MeetingStore.shared.open(m) } label: {
+                                HStack(spacing: 8) {
+                                    Text(m.start.formatted(.dateTime.hour().minute().locale(L10n.locale)))
+                                        .font(.system(size: 11, weight: .medium)).monospacedDigit().frame(width: 52, alignment: .leading)
+                                    Circle().fill(m.color).frame(width: 6, height: 6)
+                                    Text(m.title).font(.system(size: 11.5)).lineLimit(1)
+                                    Spacer(minLength: 4)
+                                    if m.link != nil { Image(systemName: "video.fill").font(.system(size: 9)).foregroundStyle(.secondary) }
+                                }
+                                .opacity(m.end < ctx.date ? 0.45 : 1)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        Button { MeetingStore.shared.copyFreeSlots() } label: {
+                            Label(L("Copiar meus horários livres"), systemImage: "calendar.badge.checkmark")
+                                .font(.system(size: 11, weight: .medium)).foregroundStyle(Theme.violet)
+                        }
+                        .buttonStyle(.plain).padding(.top, 2)
+                    }
+                    .padding(.leading, 14)
                 }
             }
         }
@@ -185,6 +326,8 @@ struct MeetingBanner: View {
 struct MeetingsSection: View {
     @AppStorage(MeetingStore.key) private var on = false
     @AppStorage(MeetingStore.remindKey) private var remind = true
+    @AppStorage(MeetingStore.workStartKey) private var workStart = 9
+    @AppStorage(MeetingStore.workEndKey) private var workEnd = 18
     @ObservedObject private var store = MeetingStore.shared
 
     var body: some View {
@@ -197,6 +340,16 @@ struct MeetingsSection: View {
                     if v, remind { Alerts.shared.requestPermission { _ in } }
                 }
             if on {
+                RowDivider()
+                SettingRow(title: L("Horário de trabalho"), detail: L("Para “Copiar meus horários livres”")) {
+                    HStack(spacing: 4) {
+                        Picker("", selection: $workStart) { ForEach(5...12, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) } }
+                            .labelsHidden().fixedSize()
+                        Text("–").foregroundStyle(.secondary)
+                        Picker("", selection: $workEnd) { ForEach(13...23, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) } }
+                            .labelsHidden().fixedSize()
+                    }
+                }
                 RowDivider()
                 ToggleRow(title: L("Avisar 1 minuto antes"), isOn: $remind)
                     .onChange(of: remind) { _, v in

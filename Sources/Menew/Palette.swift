@@ -417,6 +417,18 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Área ou janela, com anotações"),
                    shortcut: Shortcut.load(ScreenCapture.key, default: .captureDefault).display) { ScreenCapture.area() }
             action("screenshotfull", L("Capturar a tela inteira"), "display", .pink, "print screenshot tela inteira full screen captura") { ScreenCapture.fullScreen() }
+            let meetings = MeetingStore.shared
+            if meetings.isOn {
+                action("freeslots", L("Copiar meus horários livres"), "calendar.badge.checkmark", .green,
+                       "horários livres agenda disponibilidade free slots availability calendar calendário reunião meeting freie zeiten disponibilidad 空闲时间",
+                       subtitle: L("Próximos 5 dias úteis, prontos para mandar")) { meetings.copyFreeSlots() }
+                for m in meetings.today where m.end > Date() {
+                    let time = m.start.formatted(.dateTime.hour().minute().locale(L10n.locale))
+                    action("meeting.\(m.id)", "\(time) · \(m.title)", m.link != nil ? "video.fill" : "calendar", .orange,
+                           "agenda hoje today reunião reuniao meeting calendário calendar heute hoy 今天 \(m.title)",
+                           subtitle: m.link != nil ? L("Entrar na reunião") : L("Abrir no Calendário")) { meetings.open(m) }
+                }
+            }
             action("uuid", L("Gerar UUID"), "number.square.fill", .gray, "uuid guid id gerar generate novo new erzeugen generar 生成") {
                 let id = UUID().uuidString.lowercased()
                 NSPasteboard.general.clearContents()
