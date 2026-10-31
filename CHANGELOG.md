@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.41.0
+
+- **Smart clipboard**: Menew recognizes what you just copied and offers the right action at the top of the command palette and in the item's right-click menu in the history.
+- **Phone numbers**: call with FaceTime or your iPhone, or open a WhatsApp chat. **Addresses**: open in Maps. **Emails**: write to them. **Tracking codes** (Correios and other international codes, UPS): track the package. **Colors**: copy as HEX, RGB or HSL. **Meeting links** (Zoom, Meet, Teams…): join the call.
+- Recognition happens on your Mac, and only when the copied text is basically just that (a sentence with a number in the middle won't trigger anything).
+
 ## 1.40.0
 
 - **Ask AI in the command palette**: type “ai” (or “ia”, “ki”, “?”) followed by any question, like “ai how do I politely decline a meeting?”. The answer streams into a small window, in the language you asked, and ⌘C copies it.
