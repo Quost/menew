@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.34.0
+
+- **World clocks**: add the cities you work with in Settings → World clocks and they show at the top of the System tab, with the time difference and a “tomorrow” or “yesterday” note when it's already another day there.
+- **Time zone conversion in the command palette**: type “3pm ny to london”, “15h em Lisboa”, “9:30 in Shanghai” or just a city like “tokyo” to see the time there, daylight saving included. ↩ copies it. City names work in all five languages, plus nicknames like NY, SF and SP.
+- Calculated results in the palette (times, timestamps) now always show first, even with a “:” in what you typed.
+
 ## 1.33.0
 
 - **Image tools on the shelf**: drop photos on the shelf and a new image menu appears. Convert them to JPG, PNG or HEIC, shrink them all at once (longest side 3000, 2000, 1200 or 800 px), or remove location and other metadata before sharing.
