@@ -202,6 +202,7 @@ final class PaletteModel: ObservableObject {
         }
         pool += parametric(q)
         pool += devItems(q)
+        pool += QuickLinkStore.shared.paletteItems(raw: query)
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
             pool += AIText.paletteItems(text: text, query: q)
@@ -226,6 +227,8 @@ final class PaletteModel: ObservableObject {
         results = calc + scored
             .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0.kind.rawValue < $1.0.kind.rawValue }
             .prefix(40).map(\.0)
+        // Sempre por último: buscar o texto na web
+        if let search = QuickLinkStore.shared.webSearchItem(raw: query) { results.append(search) }
     }
 
     /// Para quem programa: portas em uso ("porta", "3000") e timestamps Unix ("1793400000" vira data)

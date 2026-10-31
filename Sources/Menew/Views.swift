@@ -666,6 +666,8 @@ struct SettingsView: View {
 
                 WorldClockSettings()
 
+                QuickLinkSettings()
+
                 BackupSection()
 
                 GlassSection(title: L("Ajuda"),
