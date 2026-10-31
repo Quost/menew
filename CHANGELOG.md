@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.38.0
+
+- **Quick links in the command palette**: type a keyword and what you're looking for to open the right page in your browser. Built in: “g” (Google), “ddg” (DuckDuckGo), “yt” (YouTube), “wiki” (Wikipedia), “gh” (GitHub) and “maps” (Apple Maps).
+- **Your own links**: add them in Settings → Quick links with {q} where the text goes, like “jira” → `https://company.atlassian.net/browse/{q}`, then type “jira ABC-123”. Letter case is kept.
+- Type an address like “github.com/quost” to open it directly, and any search ends with “Search on Google” (or your first search link). Menew itself doesn't access the internet for this; your browser does.
+
 ## 1.37.0
 
 - **PDF tools on the shelf**: drop PDFs on the shelf and a new PDF menu appears. Combine them into one (in shelf order), compress them with the same “Reduce File Size” filter as Preview (text stays selectable), rotate every page 90°, or turn each page into a PNG image.
