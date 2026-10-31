@@ -2,6 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.41.1
+
+- **Support Menew**: if Menew saves you time, you can now buy the author a coffee from Settings → Help, the menu bar icon's right-click menu or the command palette (type “coffee”). Nothing ever pops up asking for it.
+
 ## 1.41.0
 
 - **Smart clipboard**: Menew recognizes what you just copied and offers the right action at the top of the command palette and in the item's right-click menu in the history.
