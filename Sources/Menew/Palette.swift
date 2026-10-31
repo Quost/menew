@@ -197,7 +197,9 @@ final class PaletteModel: ObservableObject {
             let byID = Dictionary(pool.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
             let recent = recents.compactMap { byID[$0] }
             let suggested = Self.suggestions.compactMap { byID[$0] }.filter { s in !recent.contains { $0.id == s.id } }
-            results = Array((recent + suggested).prefix(12))
+            // O que acabou de ser copiado vem primeiro: um telefone, um endereço, uma cor, um link de reunião
+            let smart = Module.clipboard.isOn && !isDemo ? TextTransform.clipboardText().map { Array(SmartClip.paletteItems(text: $0).prefix(3)) } ?? [] : []
+            results = Array((smart + recent + suggested).prefix(12))
             return
         }
         pool += parametric(q)
@@ -207,6 +209,7 @@ final class PaletteModel: ObservableObject {
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
             pool += AIText.paletteItems(text: text, query: q)
+            pool += SmartClip.paletteItems(text: text)
         }
         if Module.clipboard.isOn {
             pool += clipboard.filtered(query).prefix(6).map { item in

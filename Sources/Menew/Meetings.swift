@@ -186,6 +186,13 @@ final class MeetingStore: ObservableObject {
         #"https://[\w.-]*(zoom\.us/(j|my|w)/|meet\.google\.com/|teams\.microsoft\.com/l/meetup-join/|teams\.live\.com/meet/|[\w-]+\.webex\.com/|whereby\.com/|meet\.jit\.si/|chime\.aws/|facetime\.apple\.com/join)[^\s<>"')\]]*"#,
         options: .caseInsensitive)
 
+    /// Link de Zoom, Meet, Teams… num texto qualquer (o clipboard esperto usa)
+    static func meetingLink(in t: String) -> URL? {
+        let range = NSRange(t.startIndex..., in: t)
+        guard let m = linkPattern.firstMatch(in: t, range: range), let r = Range(m.range, in: t) else { return nil }
+        return URL(string: String(t[r]))
+    }
+
     /// Procura o link de Zoom, Meet, Teams, Webex… na URL, no local e nas notas do evento
     static func link(in e: EKEvent) -> URL? {
         let texts = [e.url?.absoluteString, e.location, e.notes].compactMap { $0 }

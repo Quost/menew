@@ -264,6 +264,14 @@ struct ClipContextMenu: View {
                 }
             }
         }
+        if item.kind == .text, let t = item.text {
+            let smart = SmartClip.actions(for: t).filter { $0.id != "link" }
+            if !smart.isEmpty {
+                Divider()
+                ForEach(smart, id: \.id) { a in Button(a.title, action: a.run) }
+                Divider()
+            }
+        }
         if let u = item.url { Button(L("Abrir link")) { NSWorkspace.shared.open(u) } }
         if item.kind == .file, let p = item.text?.split(separator: "\n").first {
             Button(L("Mostrar no Finder")) {
