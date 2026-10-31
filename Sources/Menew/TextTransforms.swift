@@ -7,7 +7,7 @@ enum TextTransform: String, CaseIterable {
     case upper, lower, title, sentence, noAccents, trim
     case sortLines, reverseLines, uniqueLines
     case jsonPretty, jsonMinify, base64Encode, base64Decode, urlEncode, urlDecode
-    case count, camel, snake, kebab
+    case count, camel, snake, kebab, jwt
 
     var title: String {
         switch self {
@@ -30,6 +30,7 @@ enum TextTransform: String, CaseIterable {
         case .camel: L("camelCase")
         case .snake: L("snake_case")
         case .kebab: L("kebab-case")
+        case .jwt: L("Decodificar JWT")
         }
     }
 
@@ -46,6 +47,7 @@ enum TextTransform: String, CaseIterable {
         case .urlEncode, .urlDecode: "link"
         case .count: "number"
         case .camel, .snake, .kebab: "chevron.left.forwardslash.chevron.right"
+        case .jwt: "key.horizontal.fill"
         }
     }
 
@@ -72,6 +74,7 @@ enum TextTransform: String, CaseIterable {
         case .camel: "camel camelcase código code variável variable 驼峰"
         case .snake: "snake snakecase underline underscore código code variável variable 下划线"
         case .kebab: "kebab kebabcase hífen hyphen dash slug código code 连字符"
+        case .jwt: "jwt token bearer decodificar decode auth oauth payload claims dekodieren decodificar 令牌 解码"
         }
         return own + " " + common
     }
@@ -84,6 +87,7 @@ enum TextTransform: String, CaseIterable {
         switch self {
         case .jsonPretty, .jsonMinify: L("JSON inválido")
         case .base64Decode: L("Não é Base64 válido")
+        case .jwt: L("Não é um JWT válido")
         default: L("Não deu para transformar este texto")
         }
     }
@@ -111,6 +115,7 @@ enum TextTransform: String, CaseIterable {
         }
         case .snake: Self.identifiers(s) { $0.map { $0.lowercased() }.joined(separator: "_") }
         case .kebab: Self.identifiers(s) { $0.map { $0.lowercased() }.joined(separator: "-") }
+        case .jwt: Self.jwt(s)
         }
     }
 
@@ -169,6 +174,25 @@ enum TextTransform: String, CaseIterable {
         b += String(repeating: "=", count: (4 - b.count % 4) % 4)
         guard let data = Data(base64Encoded: b) else { return nil }
         return String(data: data, encoding: .utf8)
+    }
+
+    /// Cabeçalho e conteúdo de um JWT, formatados, com as datas (exp, iat, nbf) legíveis no fim. Não confere a assinatura.
+    private static func jwt(_ s: String) -> String? {
+        var token = s.trimmingCharacters(in: .whitespacesAndNewlines)
+        if token.lowercased().hasPrefix("bearer ") { token = String(token.dropFirst(7)).trimmingCharacters(in: .whitespaces) }
+        let parts = token.split(separator: ".", omittingEmptySubsequences: false)
+        guard parts.count == 3, let header = base64Decode(String(parts[0])), let payload = base64Decode(String(parts[1])),
+              let h = json(header, [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]),
+              let p = json(payload, [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]) else { return nil }
+        var out = h + "\n" + p
+        if let claims = try? JSONSerialization.jsonObject(with: Data(payload.utf8)) as? [String: Any] {
+            let dates = ["exp", "iat", "nbf"].compactMap { k -> String? in
+                guard let t = claims[k] as? Double else { return nil }
+                return "\(k): " + Date(timeIntervalSince1970: t).formatted(.dateTime.locale(L10n.locale))
+            }
+            if !dates.isEmpty { out += "\n\n" + dates.joined(separator: "\n") }
+        }
+        return out
     }
 
     private static func stats(_ s: String) -> String {

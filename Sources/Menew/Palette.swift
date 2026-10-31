@@ -158,10 +158,13 @@ final class PaletteModel: ObservableObject {
         self.toolbox = toolbox
         self.clipboard = clipboard
         self.notes = notes
+        // As portas chegam depois do lsof; a lista se atualiza se a busca estiver mostrando alguma
+        Ports.shared.onChange = { [weak self] in if self?.query.isEmpty == false { self?.update() } }
     }
 
     func reset() {
         toolbox.refresh()
+        if Module.actions.isOn { Ports.shared.refresh() }
         query = ""
         selection = 0
         update()
@@ -198,6 +201,7 @@ final class PaletteModel: ObservableObject {
             return
         }
         pool += parametric(q)
+        pool += devItems(q)
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
         }
@@ -220,6 +224,33 @@ final class PaletteModel: ObservableObject {
         results = calc + scored
             .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0.kind.rawValue < $1.0.kind.rawValue }
             .prefix(40).map(\.0)
+    }
+
+    /// Para quem programa: portas em uso ("porta", "3000") e timestamps Unix ("1793400000" vira data)
+    private func devItems(_ q: String) -> [PaletteItem] {
+        guard Module.actions.isOn else { return [] }
+        var out: [PaletteItem] = []
+        let ports = Ports.shared.list
+        let wantsAll = ["porta", "portas", "port", "ports", "lsof", "localhost", "servidor", "server", "puerto", "puertos", "端口"]
+            .contains { $0.hasPrefix(q) && q.count >= 3 }
+        for p in ports where wantsAll || String(p.port).hasPrefix(q) {
+            let name = p.name
+            out.append(PaletteItem(id: "port.\(p.port)", kind: .action, title: L("Parar %@ na porta %d", name, p.port),
+                                   subtitle: L("Processo %d", Int(p.pid)), keywords: q,
+                                   icon: .symbol("network", .indigo), remember: false) { Ports.shared.stop(p) })
+        }
+        if q.allSatisfy(\.isNumber), q.count == 10 || q.count == 13, let n = Double(q) {
+            let date = Date(timeIntervalSince1970: q.count == 13 ? n / 1000 : n)
+            let text = date.formatted(.dateTime.day().month().year().hour().minute().second().locale(L10n.locale))
+            let iso = date.ISO8601Format()
+            out.append(PaletteItem(id: "timestamp.date", kind: .calc, title: text, subtitle: L("Timestamp Unix · ↩ copia %@", iso),
+                                   keywords: q, icon: .symbol("calendar.badge.clock", .gray), remember: false) {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(iso, forType: .string)
+                HUD.show(icon: "doc.on.doc.fill", color: .gray, text: L("Copiado: %@", iso))
+            })
+        }
+        return out
     }
 
     /// "12*7,5", "20% de 340", "5 km em mi" e "100 usd em brl"
@@ -367,6 +398,20 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Área ou janela, com anotações"),
                    shortcut: Shortcut.load(ScreenCapture.key, default: .captureDefault).display) { ScreenCapture.area() }
             action("screenshotfull", L("Capturar a tela inteira"), "display", .pink, "print screenshot tela inteira full screen captura") { ScreenCapture.fullScreen() }
+            action("uuid", L("Gerar UUID"), "number.square.fill", .gray, "uuid guid id gerar generate novo new erzeugen generar 生成") {
+                let id = UUID().uuidString.lowercased()
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(id, forType: .string)
+                HUD.show(icon: "doc.on.doc.fill", color: .gray, text: L("Copiado: %@", id))
+            }
+            action("timestamp", L("Copiar timestamp Unix"), "clock.badge.checkmark.fill", .gray,
+                   "timestamp unix epoch agora now segundos seconds zeitstempel marca tiempo 时间戳",
+                   subtitle: String(Int(Date().timeIntervalSince1970))) {
+                let ts = String(Int(Date().timeIntervalSince1970))
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(ts, forType: .string)
+                HUD.show(icon: "doc.on.doc.fill", color: .gray, text: L("Copiado: %@", ts))
+            }
             action("color", L("Conta-gotas"), "eyedropper.halffull", Theme.violet, "cor color picker hex conta-gotas eyedropper") { [clipboard] in
                 tb.pickColor(clipboard: clipboard)
             }

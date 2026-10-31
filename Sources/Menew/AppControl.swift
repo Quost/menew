@@ -71,6 +71,7 @@ struct AppControlSection: View {
     @State private var confirmAll = false
     @State private var confirmOthers = false
     @State private var keep = AppControl.kept
+    @ObservedObject private var ports = Ports.shared
     private let cols = Array(repeating: GridItem(.flexible(), spacing: 8), count: 3)
 
     var body: some View {
@@ -105,16 +106,33 @@ struct AppControlSection: View {
                     }
                 }
                 .help(L("Apps que “Fechar todos”, os perfis e as automações nunca fecham"))
+                Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
+                menuRow(icon: "network", color: .indigo, title: L("Portas em uso"), detail: portsDetail, button: L("Parar")) {
+                    if ports.list.isEmpty {
+                        Text(L("Nenhum servidor local"))
+                    } else {
+                        ForEach(ports.list) { p in
+                            Button(L("Porta %d · %@", p.port, p.name)) { ports.stop(p) }
+                        }
+                    }
+                }
+                .help(L("Servidores rodando neste Mac (node, Docker, bancos de dados). Parar encerra o processo."))
             }
             .padding(.vertical, 4)
             .glass()
         }
+        .onAppear { ports.refresh() }
         .confirmationDialog(L("Fechar todos os apps?"), isPresented: $confirmAll) {
             Button(L("Fechar todos"), role: .destructive) { AppControl.quitAllWithNotice(others: false) }
         } message: { Text(L("Quem tiver algo sem salvar pergunta antes.")) }
         .confirmationDialog(L("Fechar os outros apps?"), isPresented: $confirmOthers) {
             Button(L("Fechar os outros"), role: .destructive) { AppControl.quitAllWithNotice(others: true) }
         } message: { Text(L("Quem tiver algo sem salvar pergunta antes.")) }
+    }
+
+    private var portsDetail: String {
+        guard !ports.list.isEmpty else { return L("Nenhum servidor local") }
+        return ports.list.prefix(4).map { "\($0.port) \($0.name)" }.joined(separator: ", ")
     }
 
     private var keptNames: String {
