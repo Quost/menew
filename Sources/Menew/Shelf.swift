@@ -77,6 +77,15 @@ final class ShelfStore: ObservableObject {
 
     func remove(_ item: ShelfItem) { items.removeAll { $0.id == item.id } }
 
+    /// O arquivo processado entra no lugar do original, na mesma posição
+    func replace(_ original: URL, with new: URL) {
+        if let i = items.firstIndex(where: { $0.kind == .file(original) }) {
+            items[i] = ShelfItem(kind: .file(new))
+        } else {
+            add([ShelfItem(kind: .file(new))])
+        }
+    }
+
     func clear() { items = [] }
 
     func demo() {
@@ -243,6 +252,7 @@ struct ShelfView: View {
                     Text("\(store.items.count)").font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
                 }
                 Spacer()
+                if !store.imageURLs.isEmpty { ShelfImageMenu(store: store) }
                 if !store.items.isEmpty {
                     IconButton(icon: "trash", help: L("Esvaziar estante")) { store.clear() }
                 }
