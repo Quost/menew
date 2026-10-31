@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.37.0
+
+- **PDF tools on the shelf**: drop PDFs on the shelf and a new PDF menu appears. Combine them into one (in shelf order), compress them with the same “Reduce File Size” filter as Preview (text stays selectable), rotate every page 90°, or turn each page into a PNG image.
+- **Images to PDF**: the image menu can now combine the photos on the shelf into a single PDF.
+- As with images, the originals are never changed: results are new files next to them, ready to drag out. If compressing wouldn't make a file smaller, Menew keeps the original.
+
 ## 1.36.0
 
 - **On-device AI in the command palette**: copy some text, open the palette and type “summarize”, “formal”, “friendly”, “clearer”, “shorter”, “fix” or “translate english”. The result is copied (and pasted, if auto-paste is on), in the same language as your text unless you asked for a translation.
