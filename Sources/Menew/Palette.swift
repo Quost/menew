@@ -216,7 +216,8 @@ final class PaletteModel: ObservableObject {
         // Contas e conversões ficam sempre no topo
         let calc = calculatorItems(q)
         let scored: [(PaletteItem, Int)] = pool.compactMap { item in
-            let base = item.kind == .clip ? 200 : PaletteSearch.score(q, title: item.title, keywords: item.keywords)
+            // Clipboard já veio filtrado; contas, horários e timestamps vêm da própria busca e ficam no topo
+            let base = item.kind == .clip ? 200 : item.kind == .calc ? 900 : PaletteSearch.score(q, title: item.title, keywords: item.keywords)
             guard let base else { return nil }
             let bonus = recents.firstIndex(of: item.id).map { max(0, 60 - $0 * 3) } ?? 0
             return (item, base + bonus)
@@ -238,6 +239,20 @@ final class PaletteModel: ObservableObject {
             out.append(PaletteItem(id: "port.\(p.port)", kind: .action, title: L("Parar %@ na porta %d", name, p.port),
                                    subtitle: L("Processo %d", Int(p.pid)), keywords: q,
                                    icon: .symbol("network", .indigo), remember: false) { Ports.shared.stop(p) })
+        }
+        if let (date, from, to) = WorldClock.paletteQuery(q) {
+            let there = WorldClock.time(date, in: to)
+            let here = from == .current && to != .current
+                ? L("%@ aqui", WorldClock.time(date, in: .current))
+                : L("%@ em %@", WorldClock.time(date, in: from), WorldClock.city(from))
+            let day = WorldClock.dayNote(date, in: to, from: from).map { " · " + $0 } ?? ""
+            out.append(PaletteItem(id: "clock.\(to.identifier)", kind: .calc, title: L("%@ em %@", there, WorldClock.city(to)),
+                                   subtitle: here + " · " + WorldClock.offset(to, at: date, from: from) + day, keywords: q,
+                                   icon: .symbol("globe", .teal), remember: false) {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(there, forType: .string)
+                HUD.show(icon: "doc.on.doc.fill", color: .gray, text: L("Copiado: %@", there))
+            })
         }
         if q.allSatisfy(\.isNumber), q.count == 10 || q.count == 13, let n = Double(q) {
             let date = Date(timeIntervalSince1970: q.count == 13 ? n / 1000 : n)

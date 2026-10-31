@@ -173,6 +173,7 @@ struct SystemView: View {
         ScrollView {
             VStack(spacing: 10) {
                 overview
+                WorldClockCard()
                 cpuCard
                 MemoryCard(m: m)
                 if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
@@ -662,6 +663,8 @@ struct SettingsView: View {
                                   isOn: $ddcBrightness)
                     }
                 }
+
+                WorldClockSettings()
 
                 BackupSection()
 

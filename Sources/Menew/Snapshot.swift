@@ -27,6 +27,7 @@ enum Snapshot {
             BTDevice(name: "Magic Mouse", kind: .mouse, levels: [("", 17)]),
         ]
         let notes = NotesStore.demo()
+        WorldClock.shared.demo()
         ProfileStore.shared.demo()
         AutomationStore.shared.demo()
         monitor.start()
