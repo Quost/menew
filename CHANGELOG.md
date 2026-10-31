@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.35.0
+
+- **Siri, Shortcuts and Spotlight**: Menew's actions now show up across macOS with no setup. Capture the screen, copy text from screen, mute the microphone, keep the Mac awake, presentation mode, dark mode, start a focus timer, activate a work profile, create a note, or open the clipboard history and command palette.
+- Ask Siri (“Mute my microphone with Menew”, “Activate Work in Menew”), type the action in Spotlight, or combine Menew's actions with other apps in the Shortcuts app. Phrases and names work in all five languages, and your work profiles are offered by name.
+
 ## 1.34.0
 
 - **World clocks**: add the cities you work with in Settings → World clocks and they show at the top of the System tab, with the time difference and a “tomorrow” or “yesterday” note when it's already another day there.
