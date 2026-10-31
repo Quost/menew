@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.36.0
+
+- **On-device AI in the command palette**: copy some text, open the palette and type “summarize”, “formal”, “friendly”, “clearer”, “shorter”, “fix” or “translate english”. The result is copied (and pasted, if auto-paste is on), in the same language as your text unless you asked for a translation.
+- It uses Apple Intelligence's model on your Mac only, never the cloud: no account, no API key, no cost, and the text never leaves your Mac. Needs macOS 26 or later with Apple Intelligence turned on; otherwise the palette tells you why it's unavailable.
+
 ## 1.35.0
 
 - **Siri, Shortcuts and Spotlight**: Menew's actions now show up across macOS with no setup. Capture the screen, copy text from screen, mute the microphone, keep the Mac awake, presentation mode, dark mode, start a focus timer, activate a work profile, create a note, or open the clipboard history and command palette.
