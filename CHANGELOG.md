@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.39.0
+
+- **Today's agenda**: the next-meeting card now has a “Today · N” button that opens the day's meetings. Past ones are dimmed; click one to join the call or open it in Calendar. Today's meetings also show up in the command palette.
+- **Copy my free times**: one click puts your free slots for the next 5 working days on the clipboard, ready to paste into an email or chat (“Mon 11/02: 9:00–10:30, 14:00–18:00”). Meetings you declined or marked as free don't count, and you can set your working hours in Settings → Calendar.
+
 ## 1.38.0
 
 - **Quick links in the command palette**: type a keyword and what you're looking for to open the right page in your browser. Built in: “g” (Google), “ddg” (DuckDuckGo), “yt” (YouTube), “wiki” (Wikipedia), “gh” (GitHub) and “maps” (Apple Maps).

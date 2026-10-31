@@ -24,7 +24,7 @@
   "features_h2": "The little things you do every day,<br>one click away.",
   "features_sub": "Menew replaces a handful of paid menu bar utilities with one fast, native app built in Swift. With the Liquid Glass look of macOS 26. Use only what you need: turn modules off in Settings.",
   "f1_t": "System monitor",
-  "f1_d": "CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health and cycles, and the busiest processes, which you can quit in one click. Optional alerts, and you choose what shows in the menu bar. Turn on your next meeting at the top of the menu, with a Join button for Zoom, Meet or Teams. World clocks show other cities' time, and the command palette converts times like “3pm in Lisbon”.",
+  "f1_d": "CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health and cycles, and the busiest processes, which you can quit in one click. Optional alerts, and you choose what shows in the menu bar. Turn on your next meeting at the top of the menu, with a Join button for Zoom, Meet or Teams. World clocks show other cities' time, and the command palette converts times like “3pm in Lisbon”. Open today's agenda from the meeting card and copy your free times for the next working days, ready to send.",
   "f2_t": "Clipboard history",
   "f2_d": "Text, links, images and files. Instant search, filters, pins and a rich preview. Opens with ⌘⇧V. Pause it for 15 minutes or an hour when you copy something private. Turn on the paste queue to copy several things and paste them one by one with ⌘V, in order.",
   "f3_t": "Quick actions",
