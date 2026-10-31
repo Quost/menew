@@ -1,0 +1,11 @@
+/* Frases da Siri (MenewShortcuts em Sources/Menew/Intents.swift) */
+"Capture the screen with ${applicationName}" = "用${applicationName}截屏";
+"Copy text from screen with ${applicationName}" = "用${applicationName}从屏幕复制文字";
+"Mute my microphone with ${applicationName}" = "用${applicationName}将麦克风静音";
+"Keep my Mac awake with ${applicationName}" = "用${applicationName}保持 Mac 唤醒";
+"Start presentation mode in ${applicationName}" = "在${applicationName}中开启演示模式";
+"Start a focus session in ${applicationName}" = "在${applicationName}中开始专注";
+"Activate ${profile} in ${applicationName}" = "在${applicationName}中启用${profile}";
+"Activate a work profile in ${applicationName}" = "在${applicationName}中启用工作配置";
+"Open clipboard history in ${applicationName}" = "在${applicationName}中打开剪贴板历史";
+"Create a note in ${applicationName}" = "在${applicationName}中新建笔记";

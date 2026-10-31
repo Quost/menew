@@ -140,6 +140,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             MuteHUD.show(muted: toolbox.toggleMic())
         }
         HotKeyCenter.shared.register()
+        // Perfis aparecem nas frases da Siri ("Ativar Trabalho no Menew")
+        MenewShortcuts.updateAppShortcutParameters()
 
         welcome.onOpenMenu = { [weak self] in self?.showPopover() }
         NotificationCenter.default.addObserver(forName: .closeMenu, object: nil, queue: .main) { [weak self] _ in

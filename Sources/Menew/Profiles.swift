@@ -99,6 +99,7 @@ final class ProfileStore: ObservableObject {
     private func save() {
         guard let url, let data = try? JSONEncoder().encode(profiles) else { return }
         try? data.write(to: url, options: .atomic)
+        MenewShortcuts.updateAppShortcutParameters()
     }
 
     // MARK: Captura

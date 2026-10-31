@@ -32,8 +32,13 @@ ARCH_FLAGS=()
 SDK_FLAGS=()
 [ "${UNIVERSAL:-0}" = 1 ] || SDK_FLAGS=(-Xlinker -platform_version -Xlinker macos -Xlinker 14.0 -Xlinker "$(xcrun --sdk macosx --show-sdk-version)")
 
-swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} ${SDK_FLAGS[@]+"${SDK_FLAGS[@]}"}
-BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} ${SDK_FLAGS[@]+"${SDK_FLAGS[@]}"} --show-bin-path)
+# App Intents (Siri, Atalhos, Spotlight): o compilador anota as intents (.swiftconstvalues) e o
+# appintentsmetadataprocessor do Xcode gera o Metadata.appintents que o macOS lê do app
+INTENT_FLAGS=(-Xswiftc -Xfrontend -Xswiftc -const-gather-protocols-file -Xswiftc -Xfrontend -Xswiftc "$PWD/Resources/intent-protocols.json"
+              -Xswiftc -emit-const-values)
+
+swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} ${SDK_FLAGS[@]+"${SDK_FLAGS[@]}"} "${INTENT_FLAGS[@]}"
+BIN_DIR=$(swift build -c release ${ARCH_FLAGS[@]+"${ARCH_FLAGS[@]}"} ${SDK_FLAGS[@]+"${SDK_FLAGS[@]}"} "${INTENT_FLAGS[@]}" --show-bin-path)
 
 APP=build/Menew.app
 rm -rf "$APP"
@@ -44,6 +49,17 @@ strip -Sx "$APP/Contents/MacOS/Menew"
 cp Resources/Info.plist "$APP/Contents/Info.plist"
 cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cp -R Resources/*.lproj "$APP/Contents/Resources/"
+
+INTENTS_TMP=$(mktemp -d)
+find "$PWD/.build" -path "*Release*" -path "*Menew*" -path "*arm64*" -name "*.swiftconstvalues" -newer Package.swift > "$INTENTS_TMP/constvalues.txt"
+ls "$PWD"/Sources/Menew/*.swift > "$INTENTS_TMP/sources.txt"
+xcrun appintentsmetadataprocessor --output "$APP/Contents/Resources" \
+  --toolchain-dir "$(dirname "$(dirname "$(dirname "$(xcrun --find swift)")")")" --module-name Menew \
+  --sdk-root "$(xcrun --sdk macosx --show-sdk-path)" --xcode-version "$(xcodebuild -version | awk '/Build version/{print $3}')" \
+  --platform-family macOS --deployment-target 14.0 --target-triple arm64-apple-macos14.0 \
+  --source-file-list "$INTENTS_TMP/sources.txt" --swift-const-vals-list "$INTENTS_TMP/constvalues.txt" --quiet-warnings > /dev/null
+rm -rf "$INTENTS_TMP"
+[ -d "$APP/Contents/Resources/Metadata.appintents" ] || { echo "App Intents: Metadata.appintents não foi gerado" >&2; exit 1; }
 
 # Sparkle (atualização automática). App sem sandbox: os serviços XPC não são necessários.
 mkdir -p "$APP/Contents/Frameworks"

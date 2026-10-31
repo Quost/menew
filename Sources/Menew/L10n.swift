@@ -884,6 +884,7 @@ private let table: [String: [String]] = [
     "mesma hora": ["same time", "gleiche Zeit", "misma hora", "时间相同"],
     "ontem": ["yesterday", "gestern", "ayer", "昨天"],
     "Índia": ["India", "Indien", "India", "印度"],
+    "Nota criada": ["Note created", "Notiz erstellt", "Nota creada", "笔记已创建"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],
