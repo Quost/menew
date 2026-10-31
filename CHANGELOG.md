@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.40.0
+
+- **Ask AI in the command palette**: type “ai” (or “ia”, “ki”, “?”) followed by any question, like “ai how do I politely decline a meeting?”. The answer streams into a small window, in the language you asked, and ⌘C copies it.
+- **AI in notes**: a note's ⋯ menu can now summarize it or extract its to-dos, added at the end as a “Summary” section or a checklist (including tasks assigned to other people).
+- Like the other AI features, everything runs on Apple Intelligence's model on your Mac: no internet, no account, no cost. Needs macOS 26 or later with Apple Intelligence on.
+
 ## 1.39.0
 
 - **Today's agenda**: the next-meeting card now has a “Today · N” button that opens the day's meetings. Past ones are dimmed; click one to join the call or open it in Calendar. Today's meetings also show up in the command palette.
