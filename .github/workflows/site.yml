@@ -35,3 +35,11 @@ jobs:
           projectId: menew-prd
           target: menew
           channelId: live
+
+      # IndexNow: avisa o Bing (e Yandex, Naver, Seznam…) que o site mudou, para reindexar em horas em vez de semanas.
+      # O Bing alimenta a busca do ChatGPT. A chave é pública por definição (fica em docs/df850856e8360dcdd128c85eb1c159fd.txt).
+      - name: Avisar buscadores (IndexNow)
+        run: |
+          curl -s -o /dev/null -w "IndexNow: HTTP %{http_code}\n" -X POST https://api.indexnow.org/indexnow \
+            -H "Content-Type: application/json; charset=utf-8" \
+            -d '{"host":"menew.web.app","key":"df850856e8360dcdd128c85eb1c159fd","keyLocation":"https://menew.web.app/df850856e8360dcdd128c85eb1c159fd.txt","urlList":["https://menew.web.app/","https://menew.web.app/pt","https://menew.web.app/de","https://menew.web.app/es","https://menew.web.app/zh","https://menew.web.app/llms.txt","https://menew.web.app/sitemap.xml"]}' || true

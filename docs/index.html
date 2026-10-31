@@ -38,6 +38,9 @@
 <script data-goatcounter="https://menew.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="/assets/icon.png">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="apple-touch-icon" href="/assets/icon.png">
+<meta name="theme-color" content="#7c5cff">
 <style>
   :root {
     --bg: #f7f7fa;
@@ -322,12 +325,12 @@
 
 <nav>
   <div class="wrap">
-    <a class="logo" href="#"><img src="/assets/icon.png" alt="">Menew</a>
+    <a class="logo" href="#"><img src="/assets/icon.webp" alt="">Menew</a>
     <div class="nav-links">
       <a class="text" href="#features">Features</a>
       <a class="text" href="#clipboard">Clipboard</a>
       <a class="text" href="#privacy">Privacy</a>
-      <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}var u={en:'/',pt:'/pt/',de:'/de/',es:'/es/',zh:'/zh/'}[this.value];if(u)location.href=u"><option value="en" selected>English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es">Español</option><option value="zh">中文</option></select>
+      <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}var u={en:'/',pt:'/pt',de:'/de',es:'/es',zh:'/zh'}[this.value];if(u)location.href=u"><option value="en" selected>English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es">Español</option><option value="zh">中文</option></select>
       <a class="btn small star-btn" data-goatcounter-click="github-nav" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
         Star<span class="count" data-stars hidden></span>
@@ -357,17 +360,17 @@
 
     <div class="menubar reveal" aria-hidden="true">
       <div class="left"><span>&#63743;</span><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Window</span></div>
-      <div class="status"><img src="/assets/statusbar-all.png" alt=""></div>
+      <div class="status"><img src="/assets/statusbar-all.webp" alt="Menew: CPU, RAM, network"></div>
       <span>Mon 17:42</span>
     </div>
     <div class="stage reveal">
       <div>
-        <img class="shot light-only" src="/assets/panel0-light.png" alt="Clipboard history panel with search, filters and preview">
-        <img class="shot dark-only" src="/assets/panel0-dark.png" alt="Clipboard history panel with search, filters and preview">
+        <img class="shot light-only" src="/assets/panel0-light.webp" alt="Clipboard history panel with search, filters and preview">
+        <img class="shot dark-only" src="/assets/panel0-dark.webp" alt="Clipboard history panel with search, filters and preview">
       </div>
       <div class="popover">
-        <img class="shot light-only" src="/assets/popover-system-light.png" alt="System monitor with CPU, memory, disk and battery rings">
-        <img class="shot dark-only" src="/assets/popover-system-dark.png" alt="System monitor with CPU, memory, disk and battery rings">
+        <img class="shot light-only" src="/assets/popover-system-light.webp" alt="System monitor with CPU, memory, disk and battery rings">
+        <img class="shot dark-only" src="/assets/popover-system-dark.webp" alt="System monitor with CPU, memory, disk and battery rings">
       </div>
     </div>
   </div>
@@ -433,8 +436,8 @@
       </div>
     </div>
     <div class="reveal">
-      <img class="shot light-only" src="/assets/panel2-light.png" alt="Clipboard preview of a color">
-      <img class="shot dark-only" src="/assets/panel2-dark.png" alt="Clipboard preview of a color">
+      <img loading="lazy" decoding="async" class="shot light-only" src="/assets/panel2-light.webp" alt="Clipboard preview of a color">
+      <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/panel2-dark.webp" alt="Clipboard preview of a color">
     </div>
   </div>
 </section>
@@ -459,10 +462,10 @@
       </ul>
     </div>
     <div class="reveal" style="display:flex;gap:18px;justify-content:center">
-      <img class="shot light-only" style="width:min(340px,48%)" src="/assets/popover-actions-light.png" alt="Quick actions grid">
-      <img class="shot dark-only" style="width:min(340px,48%)" src="/assets/popover-actions-dark.png" alt="Quick actions grid">
-      <img class="shot light-only" style="width:min(340px,48%)" src="/assets/popover-notes-light.png" alt="Quick notes">
-      <img class="shot dark-only" style="width:min(340px,48%)" src="/assets/popover-notes-dark.png" alt="Quick notes">
+      <img loading="lazy" decoding="async" class="shot light-only" style="width:min(340px,48%)" src="/assets/popover-actions-light.webp" alt="Quick actions grid">
+      <img loading="lazy" decoding="async" class="shot dark-only" style="width:min(340px,48%)" src="/assets/popover-actions-dark.webp" alt="Quick actions grid">
+      <img loading="lazy" decoding="async" class="shot light-only" style="width:min(340px,48%)" src="/assets/popover-notes-light.webp" alt="Quick notes">
+      <img loading="lazy" decoding="async" class="shot dark-only" style="width:min(340px,48%)" src="/assets/popover-notes-dark.webp" alt="Quick notes">
     </div>
   </div>
 </section>
@@ -521,7 +524,7 @@
 
 <div class="wrap">
   <div class="final reveal">
-    <img class="appicon" src="/assets/icon.png" alt="">
+    <img class="appicon" src="/assets/icon.webp" alt="">
     <h2>Make your menu bar work for you.</h2>
     <p class="sub" style="margin:0 auto">Free forever. Takes ten seconds to install.</p>
     <div class="cta" style="margin-top:28px">

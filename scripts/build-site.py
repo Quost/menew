@@ -7,7 +7,7 @@ Inglês fica em docs/index.html; os outros em docs/<idioma>/index.html.
 Edite o modelo e os textos, nunca os HTML gerados.
 As imagens de prévia de links (docs/assets/og) saem de: swift scripts/make-og.swift
 """
-import datetime, html as htmllib, json, re, subprocess
+import datetime, html as htmllib, json, re, shutil, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -53,7 +53,7 @@ DETECT = """<script>
   })();
 </script>"""
 
-LANG_PATHS = "{" + ",".join(f"{c}:'" + ("/" if c == "en" else f"/{c}/") + "'" for c in LANGS) + "}"
+LANG_PATHS = "{" + ",".join(f"{c}:'" + ("/" if c == "en" else f"/{c}") + "'" for c in LANGS) + "}"
 
 def switch(current):
     options = "".join(
@@ -96,6 +96,28 @@ def jsonld(lang, texts):
     }
     return json.dumps({"@context": "https://schema.org", "@graph": [app, faq]}, ensure_ascii=False).replace("</", "<\\/")
 
+# Capturas em WebP (cerca de 1/3 do tamanho do PNG): o site carrega mais rápido, o que também conta para o Google.
+# Só as que as páginas mostram, e só onde o cwebp existe (brew install webp); no CI os .webp já vêm no repositório.
+CWEBP = shutil.which("cwebp")
+
+def webp_for(png):
+    webp = png.with_suffix(".webp")
+    if CWEBP and png.exists() and (not webp.exists() or webp.stat().st_mtime < png.stat().st_mtime):
+        subprocess.run([CWEBP, "-quiet", "-q", "88", str(png), "-o", str(webp)], check=True)
+    return webp
+
+HERO = ("panel0", "popover-system")  # na primeira tela: carregam já; o resto só quando chega perto
+
+def optimize_images(page):
+    def fix(m):
+        tag, src = m.group(0), m.group(1)
+        if webp_for(ROOT / "docs" / src.lstrip("/")).exists():
+            tag = tag.replace(f'src="{src}"', f'src="{src[:-4]}.webp"')
+        if 'class="shot' in tag and not any(h in src for h in HERO):
+            tag = tag.replace("<img ", '<img loading="lazy" decoding="async" ', 1)
+        return tag
+    return re.sub(r'<img [^>]*src="(/assets/[^"]+\.png)"[^>]*>', fix, page)
+
 template = (ROOT / "site/template.html").read_text()
 english = json.loads((ROOT / "site/i18n/en.json").read_text())
 hreflang = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}">' for c in LANGS)
@@ -122,6 +144,7 @@ for lang in LANGS:
     })
     page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], template)
     assert "{{" not in page, f"{lang}: marcador sem valor"
+    page = optimize_images(page)
     out = ROOT / "docs" / ("index.html" if lang == "en" else f"{lang}/index.html")
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page)
