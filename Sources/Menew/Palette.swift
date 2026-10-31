@@ -204,6 +204,7 @@ final class PaletteModel: ObservableObject {
         pool += devItems(q)
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
+            pool += AIText.paletteItems(text: text, query: q)
         }
         if Module.clipboard.isOn {
             pool += clipboard.filtered(query).prefix(6).map { item in
