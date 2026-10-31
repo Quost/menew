@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Your Mac's menu bar, supercharged.</b><br>
-  Command palette · System monitor · Clipboard history · Quick actions<br>
+  Command palette · Clipboard history · Window manager · Screenshots · System monitor · On-device AI<br>
   Free, open source, native. No account, no telemetry.
 </p>
 
@@ -113,6 +113,21 @@ cd menew
 | **Calendars** | Show your next meeting with a Join button. Only asked if you turn it on in Settings → Calendar; read on your Mac, never uploaded. |
 | **Automation** (Finder, System Events) | Empty the trash and toggle dark mode. Asked the first time you use them. |
 
+## One app instead of many
+
+Menew covers the everyday features of these popular Mac utilities in one free, native app. Keep using them if you need their advanced features.
+
+| Instead of | Menew gives you |
+|---|---|
+| Raycast · Alfred | Command palette: apps, actions, math, conversions, quick links and AI (⌃⌥Space). |
+| Maccy · Paste | Clipboard history with search, preview, snippets and a paste queue (⌘⇧V). |
+| Rectangle · Magnet | Snap windows to halves, corners and thirds with the same ⌃⌥ shortcuts. |
+| iStat Menus · Stats | CPU, GPU, memory, disk, network and battery in the menu bar. |
+| CleanShot X | Screenshots with arrows, text, blur and pinning on screen (⌃⌥⌘S). |
+| Amphetamine · Caffeine | Keep the Mac awake for a while, until a time or while an app is open. |
+| CleanMyMac | Disk cleaner for caches, logs, big files and duplicates; files go to the Trash. |
+| Dropover · Yoink | A shelf for dragging files between apps, plus image and PDF tools. |
+
 ## Keyboard shortcuts
 
 | Shortcut | Action |
@@ -142,6 +157,26 @@ Menew only reads what it shows. With the menu closed it uses about **0.5% CPU, 1
 The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. Values copied from password notes are marked the same way and cleared from the clipboard after 30 seconds. Backups are files you save yourself; protected notes are never included in them. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off). Text recognition (copy text from screen or images) uses Apple's Vision framework on your Mac; nothing is uploaded, and the screen capture is deleted right after. AI text actions use only Apple's on-device model (never Private Cloud Compute), so the text stays on your Mac. The next meeting is read from the Calendar app through EventKit, only if you turn it on, and stays on your Mac.
 
 The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits and button clicks with [GoatCounter](https://www.goatcounter.com), which uses no cookies and stores no personal data. The app itself never does this.
+
+## FAQ
+
+**Is Menew really free?**  
+Yes. Menew is free and open source under the MIT license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
+
+**Does Menew collect my data?**  
+No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.
+
+**Which Macs does it run on?**  
+macOS 14 Sonoma or later, on Apple Silicon and Intel. The AI features need macOS 26 or later with Apple Intelligence turned on.
+
+**How do I install it?**  
+Download the DMG and drag Menew to Applications, or use Homebrew: brew install --cask menew after adding the quost/menew tap. Updates arrive automatically.
+
+**Is it safe to install?**  
+Menew is signed with an Apple Developer ID and notarized by Apple, and all of its source code is public on GitHub.
+
+**Can I turn off the parts I don't use?**  
+Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.
 
 ## Roadmap
 

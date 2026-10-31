@@ -7,7 +7,7 @@ Inglês fica em docs/index.html; os outros em docs/<idioma>/index.html.
 Edite o modelo e os textos, nunca os HTML gerados.
 As imagens de prévia de links (docs/assets/og) saem de: swift scripts/make-og.swift
 """
-import html as htmllib, json, re
+import datetime, html as htmllib, json, re, subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -25,6 +25,17 @@ LANGS = {  # código: (atributo lang, nome nativo)
 GOATCOUNTER = "menew"
 ANALYTICS = (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
              if GOATCOUNTER else "")
+
+# Versão atual (primeira seção do CHANGELOG) e data da última mudança no site, para buscadores e IAs
+VERSION = re.search(r"^## (\d+\.\d+\.\d+)", (ROOT / "CHANGELOG.md").read_text(), re.M).group(1)
+# Só commits que mexem no site ou nas novidades: o bump automático do Homebrew não muda a data (e não quebra a checagem do CI)
+UPDATED = subprocess.run(["git", "log", "-1", "--format=%cs", "--", "site", "CHANGELOG.md"], cwd=ROOT,
+                         capture_output=True, text=True).stdout.strip() \
+    or datetime.date.today().isoformat()
+
+def plain(text):
+    """Texto sem HTML, para os dados estruturados"""
+    return htmllib.unescape(re.sub(r"<[^>]+>", "", text))
 
 def url(lang):
     return SITE + "/" if lang == "en" else f"{SITE}/{lang}"
@@ -54,11 +65,10 @@ def switch(current):
             # Endereços fixos: o valor do <select> nunca vira URL direto (alerta do CodeQL)
             "var u=" + LANG_PATHS + "[this.value];if(u)location.href=u\">" + options + "</select>")
 
-# Dados estruturados para o Google mostrar o Menew como aplicativo (grátis, macOS)
+# Dados estruturados: o Menew como aplicativo (grátis, macOS) e as perguntas frequentes da página
 def jsonld(lang, texts):
     shots = "/assets" if lang == "en" else f"/assets/{lang}"
-    return json.dumps({
-        "@context": "https://schema.org",
+    app = {
         "@type": "SoftwareApplication",
         "name": "Menew",
         "url": url(lang),
@@ -69,12 +79,22 @@ def jsonld(lang, texts):
         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
         "downloadUrl": "https://github.com/Quost/menew/releases/latest/download/Menew.dmg",
         "image": f"{SITE}/assets/og/{lang}.png",
-        "screenshot": [f"{SITE}{shots}/panel0-dark.png", f"{SITE}{shots}/popover-system-dark.png"],
+        "screenshot": [f"{SITE}{shots}/{name}-dark.png" for name in
+                       ("panel0", "popover-system", "popover-actions", "palette", "capture", "popover-notes")],
+        "softwareVersion": VERSION,
+        "dateModified": UPDATED,
+        "featureList": [plain(texts[f"rep{i}_d"]) for i in range(1, 9)],
         "license": "https://opensource.org/licenses/MIT",
         "isAccessibleForFree": True,
         "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"},
         "sameAs": ["https://github.com/Quost/menew"],
-    }, ensure_ascii=False).replace("</", "<\\/")
+    }
+    faq = {
+        "@type": "FAQPage",
+        "mainEntity": [{"@type": "Question", "name": plain(texts[f"faq{i}_q"]),
+                        "acceptedAnswer": {"@type": "Answer", "text": plain(texts[f"faq{i}_a"])}} for i in range(1, 7)],
+    }
+    return json.dumps({"@context": "https://schema.org", "@graph": [app, faq]}, ensure_ascii=False).replace("</", "<\\/")
 
 template = (ROOT / "site/template.html").read_text()
 english = json.loads((ROOT / "site/i18n/en.json").read_text())
@@ -110,10 +130,34 @@ for lang in LANGS:
 
 # Mapa do site (com as versões em cada idioma) e robots.txt para os buscadores
 alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}"/>' for c in LANGS)
-entries = "".join(f"\n  <url>\n    <loc>{url(c)}</loc>{alternates}\n  </url>" for c in LANGS)
+entries = "".join(f"\n  <url>\n    <loc>{url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{alternates}\n  </url>" for c in LANGS)
 (ROOT / "docs/sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
     + entries + "\n</urlset>\n")
 (ROOT / "docs/robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 print("docs/sitemap.xml, docs/robots.txt")
+
+# llms.txt (llmstxt.org): resumo em texto para assistentes de IA (ChatGPT, Claude, Perplexity…) lerem e citarem
+e = english
+lines = [
+    "# Menew", "",
+    f"> {plain(e['meta_desc'])}", "",
+    f"Menew {VERSION} (updated {UPDATED}). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. "
+    "Free and open source (MIT). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
+    "## One app instead of many", "",
+    *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, 9)], "",
+    "## Features", "",
+    *[f"- {plain(e[f'f{i}_t'])}: {plain(e[f'f{i}_d'])}" for i in range(1, 7)], "",
+    "## FAQ", "",
+    *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, 7)],
+    "## Install", "",
+    "- Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg",
+    "- Homebrew: `brew tap quost/menew https://github.com/Quost/menew && brew install --cask menew`", "",
+    "## Links", "",
+    f"- Website: {SITE}/ (also in Portuguese, German, Spanish and Chinese: {SITE}/pt, {SITE}/de, {SITE}/es, {SITE}/zh)",
+    "- Source code and README: https://github.com/Quost/menew",
+    "- Releases and changelog: https://github.com/Quost/menew/releases",
+]
+(ROOT / "docs/llms.txt").write_text("\n".join(lines) + "\n")
+print("docs/llms.txt")

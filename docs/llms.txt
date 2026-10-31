@@ -1,0 +1,62 @@
+# Menew
+
+> Free, open source Mac menu bar app: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI. No account, no tracking.
+
+Menew 1.41.1 (updated 2026-10-31). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (MIT). Signed with an Apple Developer ID and notarized. Made by Quost.
+
+## One app instead of many
+
+- Instead of Raycast or Alfred: Command palette: apps, actions, math, conversions, quick links and AI (⌃⌥Space).
+- Instead of Maccy or Paste: Clipboard history with search, preview, snippets and a paste queue (⌘⇧V).
+- Instead of Rectangle or Magnet: Snap windows to halves, corners and thirds with the same ⌃⌥ shortcuts.
+- Instead of iStat Menus or Stats: CPU, GPU, memory, disk, network and battery in the menu bar.
+- Instead of CleanShot X: Screenshots with arrows, text, blur and pinning on screen (⌃⌥⌘S).
+- Instead of Amphetamine or Caffeine: Keep the Mac awake for a while, until a time or while an app is open.
+- Instead of CleanMyMac: Disk cleaner for caches, logs, big files and duplicates; files go to the Trash.
+- Instead of Dropover or Yoink: A shelf for dragging files between apps, plus image and PDF tools.
+
+## Features
+
+- System monitor: CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health and cycles, and the busiest processes, which you can quit in one click. Optional alerts, and you choose what shows in the menu bar. Turn on your next meeting at the top of the menu, with a Join button for Zoom, Meet or Teams. World clocks show other cities' time, and the command palette converts times like “3pm in Lisbon”. Open today's agenda from the meeting card and copy your free times for the next working days, ready to send.
+- Clipboard history: Text, links, images and files. Instant search, filters, pins and a rich preview. Opens with ⌘⇧V. Pause it for 15 minutes or an hour when you copy something private. Turn on the paste queue to copy several things and paste them one by one with ⌘V, in order. Copy a phone, address, email, tracking code, color or meeting link and Menew offers the right action: call, open in Maps, track, convert or join.
+- Quick actions: Brightness for every screen, external monitors included. Mute the mic or the sound, hide the Dock, dark mode, keep awake with a timer, hidden files and desktop icons. Plus color picker, screenshots you can annotate, blur and pin on screen (⌃⌥⌘S), eject disks and more. Keep Awake also works until a set time or while an app is open. Switch the sound output and microphone (AirPods, headphones, speakers) in one click, and turn on presentation mode before sharing your screen.
+- Free up space: Clear caches, logs and developer junk in seconds. A deep scan finds old downloads, large files and duplicate files for you to review. Removed files go to the Trash.
+- Internet: Live download and upload, local and public IP, and a real speed test powered by macOS itself. See which apps are using the network right now.
+- Notes, snippets & devices: Notes with #tags and Markdown checklists, protected notes that open with Touch ID, password notes with hidden fields you copy in one click, and reusable snippets in ⌘⇧V. Give a snippet an abbreviation like “;sig” and typing it anywhere turns it into the text.
+
+## FAQ
+
+### Is Menew really free?
+
+Yes. Menew is free and open source under the MIT license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
+
+### Does Menew collect my data?
+
+No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.
+
+### Which Macs does it run on?
+
+macOS 14 Sonoma or later, on Apple Silicon and Intel. The AI features need macOS 26 or later with Apple Intelligence turned on.
+
+### How do I install it?
+
+Download the DMG and drag Menew to Applications, or use Homebrew: brew install --cask menew after adding the quost/menew tap. Updates arrive automatically.
+
+### Is it safe to install?
+
+Menew is signed with an Apple Developer ID and notarized by Apple, and all of its source code is public on GitHub.
+
+### Can I turn off the parts I don't use?
+
+Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.
+
+## Install
+
+- Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg
+- Homebrew: `brew tap quost/menew https://github.com/Quost/menew && brew install --cask menew`
+
+## Links
+
+- Website: https://menew.web.app/ (also in Portuguese, German, Spanish and Chinese: https://menew.web.app/pt, https://menew.web.app/de, https://menew.web.app/es, https://menew.web.app/zh)
+- Source code and README: https://github.com/Quost/menew
+- Releases and changelog: https://github.com/Quost/menew/releases

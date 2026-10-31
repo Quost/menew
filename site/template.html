@@ -209,6 +209,14 @@
   .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
 
   .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
+  .replaces div { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .02em; margin-bottom: 6px; }
+  .replaces p { font-size: 14.5px; }
+  .faq { max-width: 760px; margin: 40px auto 0; display: grid; gap: 10px; }
+  .faq details { padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .faq summary { font-weight: 600; font-size: 16px; cursor: pointer; }
+  .faq details p { color: var(--muted); font-size: 15px; margin-top: 8px; }
   .privacy div { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
   .privacy h3 { font-size: 16px; margin-bottom: 4px; }
   .privacy p { color: var(--muted); font-size: 14.5px; }
@@ -281,13 +289,13 @@
   @media (max-width: 900px) {
     .stage { grid-template-columns: 1fr; padding: 18px; }
     .stage .popover { justify-self: center; width: min(340px, 100%); }
-    .grid, .privacy { grid-template-columns: 1fr 1fr; }
+    .grid, .privacy, .replaces { grid-template-columns: 1fr 1fr; }
     .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
     .split.rev .copy { order: 0; }
     .menubar .left span:not(:first-child) { display: none; }
   }
   @media (max-width: 600px) {
-    .grid, .privacy { grid-template-columns: 1fr; }
+    .grid, .privacy, .replaces { grid-template-columns: 1fr; }
     .nav-links a.text { display: none; }
     .hero { padding-top: 56px; }
     h1 br { display: none; }
@@ -444,6 +452,26 @@
   </div>
 </section>
 
+<section id="replaces">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{rep_eyebrow}}</div>
+      <h2>{{rep_h2}}</h2>
+      <p class="sub">{{rep_sub}}</p>
+    </div>
+    <div class="replaces">
+      <div class="reveal"><h3>{{rep1_t}}</h3><p>{{rep1_d}}</p></div>
+      <div class="reveal"><h3>{{rep2_t}}</h3><p>{{rep2_d}}</p></div>
+      <div class="reveal"><h3>{{rep3_t}}</h3><p>{{rep3_d}}</p></div>
+      <div class="reveal"><h3>{{rep4_t}}</h3><p>{{rep4_d}}</p></div>
+      <div class="reveal"><h3>{{rep5_t}}</h3><p>{{rep5_d}}</p></div>
+      <div class="reveal"><h3>{{rep6_t}}</h3><p>{{rep6_d}}</p></div>
+      <div class="reveal"><h3>{{rep7_t}}</h3><p>{{rep7_d}}</p></div>
+      <div class="reveal"><h3>{{rep8_t}}</h3><p>{{rep8_d}}</p></div>
+    </div>
+  </div>
+</section>
+
 <section id="privacy">
   <div class="wrap">
     <div class="center reveal">
@@ -455,6 +483,23 @@
       <div class="reveal"><h3>{{priv1_t}}</h3><p>{{priv1_d}}</p></div>
       <div class="reveal"><h3>{{priv2_t}}</h3><p>{{priv2_d}}</p></div>
       <div class="reveal"><h3>{{priv3_t}}</h3><p>{{priv3_d}}</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{faq_eyebrow}}</div>
+      <h2>{{faq_h2}}</h2>
+    </div>
+    <div class="faq">
+      <details class="reveal"><summary>{{faq1_q}}</summary><p>{{faq1_a}}</p></details>
+      <details class="reveal"><summary>{{faq2_q}}</summary><p>{{faq2_a}}</p></details>
+      <details class="reveal"><summary>{{faq3_q}}</summary><p>{{faq3_a}}</p></details>
+      <details class="reveal"><summary>{{faq4_q}}</summary><p>{{faq4_a}}</p></details>
+      <details class="reveal"><summary>{{faq5_q}}</summary><p>{{faq5_a}}</p></details>
+      <details class="reveal"><summary>{{faq6_q}}</summary><p>{{faq6_a}}</p></details>
     </div>
   </div>
 </section>

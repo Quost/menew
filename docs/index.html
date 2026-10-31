@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Menew: free Mac menu bar app with system monitor &amp; clipboard manager</title>
-<meta name="description" content="Menew is a free, open source menu bar app for macOS: system monitor, clipboard history with search (⌘⇧V), quick actions, keyboard cleaning mode and more.">
-<meta property="og:title" content="Menew: free Mac menu bar app with system monitor &amp; clipboard manager">
-<meta property="og:description" content="System monitor, clipboard history, quick actions and cleaning mode. Free and open source.">
+<title>Menew – Free Mac menu bar app: clipboard, windows, screenshots</title>
+<meta name="description" content="Free, open source Mac menu bar app: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI. No account, no tracking.">
+<meta property="og:title" content="Menew – Free Mac menu bar app: clipboard, windows, screenshots">
+<meta property="og:description" content="One free, native app instead of several: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI.">
 <meta property="og:image" content="https://menew.web.app/assets/og/en.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -34,7 +34,7 @@
   })();
 </script>
 <meta name="google-site-verification" content="7nUa02yHHnURE0VIOnhThWTAFmDwuhQRcBlR5jfaB7E">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Menew", "url": "https://menew.web.app/", "description": "Menew is a free, open source menu bar app for macOS: system monitor, clipboard history with search (⌘⇧V), quick actions, keyboard cleaning mode and more.", "inLanguage": "en", "operatingSystem": "macOS 14 or later", "applicationCategory": "UtilitiesApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "downloadUrl": "https://github.com/Quost/menew/releases/latest/download/Menew.dmg", "image": "https://menew.web.app/assets/og/en.png", "screenshot": ["https://menew.web.app/assets/panel0-dark.png", "https://menew.web.app/assets/popover-system-dark.png"], "license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"}, "sameAs": ["https://github.com/Quost/menew"]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "SoftwareApplication", "name": "Menew", "url": "https://menew.web.app/", "description": "Free, open source Mac menu bar app: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI. No account, no tracking.", "inLanguage": "en", "operatingSystem": "macOS 14 or later", "applicationCategory": "UtilitiesApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "downloadUrl": "https://github.com/Quost/menew/releases/latest/download/Menew.dmg", "image": "https://menew.web.app/assets/og/en.png", "screenshot": ["https://menew.web.app/assets/panel0-dark.png", "https://menew.web.app/assets/popover-system-dark.png", "https://menew.web.app/assets/popover-actions-dark.png", "https://menew.web.app/assets/palette-dark.png", "https://menew.web.app/assets/capture-dark.png", "https://menew.web.app/assets/popover-notes-dark.png"], "softwareVersion": "1.41.1", "dateModified": "2026-10-31", "featureList": ["Command palette: apps, actions, math, conversions, quick links and AI (⌃⌥Space).", "Clipboard history with search, preview, snippets and a paste queue (⌘⇧V).", "Snap windows to halves, corners and thirds with the same ⌃⌥ shortcuts.", "CPU, GPU, memory, disk, network and battery in the menu bar.", "Screenshots with arrows, text, blur and pinning on screen (⌃⌥⌘S).", "Keep the Mac awake for a while, until a time or while an app is open.", "Disk cleaner for caches, logs, big files and duplicates; files go to the Trash.", "A shelf for dragging files between apps, plus image and PDF tools."], "license": "https://opensource.org/licenses/MIT", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"}, "sameAs": ["https://github.com/Quost/menew"]}, {"@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is Menew really free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Menew is free and open source under the MIT license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it."}}, {"@type": "Question", "name": "Does Menew collect my data?", "acceptedAnswer": {"@type": "Answer", "text": "No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only."}}, {"@type": "Question", "name": "Which Macs does it run on?", "acceptedAnswer": {"@type": "Answer", "text": "macOS 14 Sonoma or later, on Apple Silicon and Intel. The AI features need macOS 26 or later with Apple Intelligence turned on."}}, {"@type": "Question", "name": "How do I install it?", "acceptedAnswer": {"@type": "Answer", "text": "Download the DMG and drag Menew to Applications, or use Homebrew: brew install --cask menew after adding the quost/menew tap. Updates arrive automatically."}}, {"@type": "Question", "name": "Is it safe to install?", "acceptedAnswer": {"@type": "Answer", "text": "Menew is signed with an Apple Developer ID and notarized by Apple, and all of its source code is public on GitHub."}}, {"@type": "Question", "name": "Can I turn off the parts I don't use?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it."}}]}]}</script>
 <script data-goatcounter="https://menew.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="/assets/icon.png">
@@ -224,6 +224,14 @@
   .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
 
   .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
+  .replaces div { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .02em; margin-bottom: 6px; }
+  .replaces p { font-size: 14.5px; }
+  .faq { max-width: 760px; margin: 40px auto 0; display: grid; gap: 10px; }
+  .faq details { padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .faq summary { font-weight: 600; font-size: 16px; cursor: pointer; }
+  .faq details p { color: var(--muted); font-size: 15px; margin-top: 8px; }
   .privacy div { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
   .privacy h3 { font-size: 16px; margin-bottom: 4px; }
   .privacy p { color: var(--muted); font-size: 14.5px; }
@@ -296,13 +304,13 @@
   @media (max-width: 900px) {
     .stage { grid-template-columns: 1fr; padding: 18px; }
     .stage .popover { justify-self: center; width: min(340px, 100%); }
-    .grid, .privacy { grid-template-columns: 1fr 1fr; }
+    .grid, .privacy, .replaces { grid-template-columns: 1fr 1fr; }
     .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
     .split.rev .copy { order: 0; }
     .menubar .left span:not(:first-child) { display: none; }
   }
   @media (max-width: 600px) {
-    .grid, .privacy { grid-template-columns: 1fr; }
+    .grid, .privacy, .replaces { grid-template-columns: 1fr; }
     .nav-links a.text { display: none; }
     .hero { padding-top: 56px; }
     h1 br { display: none; }
@@ -334,7 +342,7 @@
       <b data-version>New</b> Free &amp; open source · macOS 14+
     </a>
     <h1>Your Mac's menu bar, <br><span class="grad">supercharged.</span></h1>
-    <p class="lead">System monitor, clipboard history with instant search, one-click quick actions and a cleaning mode — in one tiny, native app. No subscription. No account. No telemetry.</p>
+    <p class="lead">Command palette, clipboard history, window snapping, screenshots with annotations, system monitor and on-device AI — in one fast, native app. No subscription. No account. No telemetry.</p>
     <div class="cta">
       <a class="btn primary" data-download data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
@@ -459,6 +467,26 @@
   </div>
 </section>
 
+<section id="replaces">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">One app instead of many</div>
+      <h2>The everyday features of the apps you'd install anyway.</h2>
+      <p class="sub">Menew covers the essentials of these tools in one free, native app. Keep using the others if you need their advanced features.</p>
+    </div>
+    <div class="replaces">
+      <div class="reveal"><h3>Raycast · Alfred</h3><p>Command palette: apps, actions, math, conversions, quick links and AI (⌃⌥Space).</p></div>
+      <div class="reveal"><h3>Maccy · Paste</h3><p>Clipboard history with search, preview, snippets and a paste queue (⌘⇧V).</p></div>
+      <div class="reveal"><h3>Rectangle · Magnet</h3><p>Snap windows to halves, corners and thirds with the same ⌃⌥ shortcuts.</p></div>
+      <div class="reveal"><h3>iStat Menus · Stats</h3><p>CPU, GPU, memory, disk, network and battery in the menu bar.</p></div>
+      <div class="reveal"><h3>CleanShot X</h3><p>Screenshots with arrows, text, blur and pinning on screen (⌃⌥⌘S).</p></div>
+      <div class="reveal"><h3>Amphetamine · Caffeine</h3><p>Keep the Mac awake for a while, until a time or while an app is open.</p></div>
+      <div class="reveal"><h3>CleanMyMac</h3><p>Disk cleaner for caches, logs, big files and duplicates; files go to the Trash.</p></div>
+      <div class="reveal"><h3>Dropover · Yoink</h3><p>A shelf for dragging files between apps, plus image and PDF tools.</p></div>
+    </div>
+  </div>
+</section>
+
 <section id="privacy">
   <div class="wrap">
     <div class="center reveal">
@@ -470,6 +498,23 @@
       <div class="reveal"><h3>No telemetry</h3><p>The app sends nothing about you: no analytics, no tracking, no account. Ever.</p></div>
       <div class="reveal"><h3>Local storage</h3><p>History and notes live in ~/Library/Application Support/Menew. Back up your settings, snippets, profiles and automations to a .menew file in Settings → Backup.</p></div>
       <div class="reveal"><h3>MIT licensed</h3><p>Read it, fork it, improve it. Pull requests welcome.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">FAQ</div>
+      <h2>Questions people ask</h2>
+    </div>
+    <div class="faq">
+      <details class="reveal"><summary>Is Menew really free?</summary><p>Yes. Menew is free and open source under the MIT license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.</p></details>
+      <details class="reveal"><summary>Does Menew collect my data?</summary><p>No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.</p></details>
+      <details class="reveal"><summary>Which Macs does it run on?</summary><p>macOS 14 Sonoma or later, on Apple Silicon and Intel. The AI features need macOS 26 or later with Apple Intelligence turned on.</p></details>
+      <details class="reveal"><summary>How do I install it?</summary><p>Download the DMG and drag Menew to Applications, or use Homebrew: brew install --cask menew after adding the quost/menew tap. Updates arrive automatically.</p></details>
+      <details class="reveal"><summary>Is it safe to install?</summary><p>Menew is signed with an Apple Developer ID and notarized by Apple, and all of its source code is public on GitHub.</p></details>
+      <details class="reveal"><summary>Can I turn off the parts I don't use?</summary><p>Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.</p></details>
     </div>
   </div>
 </section>
