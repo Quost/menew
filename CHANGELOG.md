@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.32.0
+
+- **Ports in use**: Actions → Apps now lists the servers running on your Mac (node, Docker, databases) with their ports, and stops the one you pick. In the command palette, type “port” or a port number like “3000”.
+- **Developer tools in the command palette**: “Generate UUID”, “Copy Unix timestamp”, paste a 10 or 13 digit timestamp to see its date, and “Decode JWT” to read a copied token's header and payload with readable dates (the signature isn't checked).
+
 ## 1.31.0
 
 - **Switch sound output and microphone**: a new Sound section in Actions shows what's playing and recording, and lets you switch to AirPods, headphones, speakers, displays or another microphone in one click. Alert sounds follow along. From the command palette, type “airpods” or “microphone”.
