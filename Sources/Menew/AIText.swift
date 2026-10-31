@@ -1,5 +1,6 @@
 import AppKit
 import NaturalLanguage
+import SwiftUI
 #if canImport(FoundationModels)
 import FoundationModels
 #endif
@@ -151,5 +152,163 @@ enum AIText {
         }
         #endif
         throw CancellationError()
+    }
+}
+
+// MARK: Pergunte à IA
+
+/// Pergunta livre na paleta ("ia como recuso uma reunião com educação?"). A resposta aparece aos poucos numa janelinha.
+@MainActor
+final class AIAnswer: ObservableObject {
+    @Published var question = ""
+    @Published var text = ""
+    @Published var working = false
+    @Published var failed = false
+
+    func ask(_ q: String) {
+        question = q
+        text = ""
+        failed = false
+        working = true
+        Task {
+            do {
+                try await AIText.stream(q) { partial in self.text = partial }
+            } catch {
+                failed = true
+            }
+            working = false
+        }
+    }
+}
+
+extension AIText {
+    /// Palavras que começam uma pergunta na paleta, nos cinco idiomas
+    static let askPrefixes = ["ia ", "ai ", "ki ", "? ", "perguntar ", "ask ", "fragen ", "preguntar ", "问 "]
+
+    static func askItem(raw: String) -> PaletteItem? {
+        let text = raw.trimmingCharacters(in: .whitespaces)
+        guard let prefix = askPrefixes.first(where: { text.lowercased().hasPrefix($0) }) else { return nil }
+        let question = text.dropFirst(prefix.count).trimmingCharacters(in: .whitespaces)
+        guard question.count >= 3 else { return nil }
+        if let reason = unavailableReason {
+            return PaletteItem(id: "ai.ask", kind: .calc, title: L("IA do Mac indisponível"), subtitle: reason, keywords: text,
+                               icon: .symbol("apple.intelligence", .gray), remember: false) {
+                HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: reason, duration: 2.5)
+            }
+        }
+        return PaletteItem(id: "ai.ask", kind: .calc, title: L("Perguntar à IA: %@", question), subtitle: L("No seu Mac, sem internet"),
+                           keywords: text, icon: .symbol("apple.intelligence", .pink), remember: false) {
+            AIAnswerWindow.shared.ask(question)
+        }
+    }
+
+    /// Resposta aos poucos (cada parte traz o texto inteiro até ali)
+    static func stream(_ question: String, onPartial: @escaping @MainActor (String) -> Void) async throws {
+        #if canImport(FoundationModels)
+        if #available(macOS 26, *) {
+            let session = LanguageModelSession(model: .default, instructions: """
+                You are a helpful assistant inside a Mac utility. Answer clearly and concisely. \
+                Reply in the same language as the question.
+                """)
+            for try await snapshot in session.streamResponse(to: question) {
+                await onPartial(snapshot.content)
+            }
+            return
+        }
+        #endif
+        throw CancellationError()
+    }
+
+    static let noteSummary = "Summarize the note in two to four short sentences, in your own words."
+    static let noteTasks = """
+        List the action items in the note as a Markdown checklist, one per line, each line starting with "- [ ] ". \
+        Include every concrete action someone has to do, including the ones assigned to other people (keep their names), \
+        but never the note's title, subject or topics. \
+        Reply with the checklist only. If there are no action items, reply with an empty message.
+        """
+
+    /// Para as notas: pede algo sobre o texto e devolve a resposta inteira
+    static func ask(_ instruction: String, about text: String) async throws -> String {
+        #if canImport(FoundationModels)
+        if #available(macOS 26, *) {
+            let session = LanguageModelSession(model: .default, instructions: """
+                You help organize notes. Reply with the result only: no introduction and no explanations.
+                """)
+            var prompt = instruction
+            if let lang = language(of: text) { prompt += " Write the result in \(lang)." }
+            return try await session.respond(to: prompt + "\n\nNote:\n" + text).content
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        #endif
+        throw CancellationError()
+    }
+}
+
+@MainActor
+final class AIAnswerWindow: NSObject, NSWindowDelegate {
+    static let shared = AIAnswerWindow()
+    private let model = AIAnswer()
+    private var window: NSPanel?
+
+    func ask(_ question: String) {
+        model.ask(question)
+        let w = window ?? make()
+        window = w
+        if !w.isVisible { w.center() }
+        NSApp.activate(ignoringOtherApps: true)
+        w.makeKeyAndOrderFront(nil)
+    }
+
+    private func make() -> NSPanel {
+        let p = NSPanel(contentRect: NSRect(x: 0, y: 0, width: 460, height: 340),
+                        styleMask: [.titled, .closable, .resizable, .fullSizeContentView, .utilityWindow], backing: .buffered, defer: false)
+        p.titlebarAppearsTransparent = true
+        p.titleVisibility = .hidden
+        p.isFloatingPanel = true
+        p.level = .floating
+        p.hidesOnDeactivate = false
+        p.isReleasedWhenClosed = false
+        p.delegate = self
+        p.contentView = NSHostingView(rootView: AIAnswerView(model: model) { [weak p] in p?.close() })
+        return p
+    }
+}
+
+struct AIAnswerView: View {
+    @ObservedObject var model: AIAnswer
+    var close: () -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                Image(systemName: "apple.intelligence").foregroundStyle(.pink)
+                Text(model.question).font(.system(size: 13, weight: .semibold)).lineLimit(2)
+                Spacer()
+                if model.working { ProgressView().controlSize(.small) }
+            }
+            ScrollView {
+                Text(model.failed ? L("A IA não conseguiu responder") : (model.text.isEmpty ? L("Pensando…") : model.text))
+                    .font(.system(size: 13)).lineSpacing(3)
+                    .foregroundStyle(model.text.isEmpty || model.failed ? .secondary : .primary)
+                    .textSelection(.enabled)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .card(padding: 10)
+            HStack {
+                Text(L("No seu Mac, sem internet")).font(.system(size: 10.5)).foregroundStyle(.tertiary)
+                Spacer()
+                PillButton(title: L("Fechar"), icon: "xmark", action: close)
+                    .keyboardShortcut(.cancelAction)
+                PillButton(title: L("Copiar"), icon: "doc.on.doc", primary: true) {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(model.text, forType: .string)
+                    HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Copiado"))
+                }
+                .disabled(model.text.isEmpty || model.working)
+                .keyboardShortcut("c", modifiers: .command)
+            }
+        }
+        .padding(.horizontal, 14).padding(.top, 28).padding(.bottom, 14)
+        .background(VisualEffect(material: .popover).ignoresSafeArea())
     }
 }

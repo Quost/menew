@@ -205,6 +205,11 @@ private struct NoteEditor: View {
                         Button(note?.secure == true ? L("Remover proteção") : L("Proteger com Touch ID")) {
                             store.setSecure(!(note?.secure ?? false), for: id)
                         }
+                        if AIText.unavailableReason == nil {
+                            Divider()
+                            Button(L("Resumir com IA")) { aiAppend(.summary) }
+                            Button(L("Extrair tarefas com IA")) { aiAppend(.tasks) }
+                        }
                     }
                     Divider()
                     Button(L("Apagar nota"), role: .destructive) { confirmDelete = true }
@@ -257,6 +262,30 @@ private struct NoteEditor: View {
         .onAppear { if note?.isPasswords != true, !reading || store.text(of: id).isEmpty { reading = false; focused = true } }
         .confirmationDialog(L("Apagar esta nota?"), isPresented: $confirmDelete) {
             Button(L("Apagar"), role: .destructive) { store.delete(id); onClose() }
+        }
+    }
+
+    private enum NoteAI { case summary, tasks }
+
+    /// Pede ao modelo do Mac um resumo ou as tarefas da nota e acrescenta no fim, numa seção própria
+    private func aiAppend(_ kind: NoteAI) {
+        let text = store.text(of: id)
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return }
+        HUD.show(icon: "apple.intelligence", color: .pink, text: L("Pensando…"), duration: nil)
+        Task {
+            do {
+                let instruction = kind == .summary ? AIText.noteSummary : AIText.noteTasks
+                let result = try await AIText.ask(instruction, about: text)
+                guard !result.isEmpty else {
+                    HUD.show(icon: "checklist", color: .secondary, text: L("Nenhuma tarefa encontrada"))
+                    return
+                }
+                let title = kind == .summary ? L("Resumo") : L("Tarefas")
+                store.setText(text.trimmingCharacters(in: .newlines) + "\n\n## " + title + "\n" + result + "\n", of: id)
+                HUD.show(icon: "checkmark.circle.fill", color: .green, text: kind == .summary ? L("Resumo adicionado") : L("Tarefas adicionadas"))
+            } catch {
+                HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("A IA não conseguiu responder"), duration: 2.5)
+            }
         }
     }
 

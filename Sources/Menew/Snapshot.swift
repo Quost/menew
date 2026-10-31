@@ -108,6 +108,11 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                let answer = AIAnswer()
+                answer.question = L("Como recuso uma reunião com educação?")
+                answer.text = L("Agradeça o convite, explique em uma frase por que não vai conseguir participar e ofereça uma alternativa, como mandar suas ideias por escrito ou sugerir outro horário.")
+                render(AIAnswerView(model: answer, close: {}), size: NSSize(width: 460, height: 300), dark: dark,
+                       to: dir.appendingPathComponent("ai-answer-\(suffix).png"))
                 if let m = MeetingStore.shared.next {
                     render(MeetingBanner(meeting: m, today: MeetingStore.shared.today, expanded: true, onJoin: {})
                             .padding(.top, 14).frame(width: 400, height: 260, alignment: .top).background(Theme.windowFill),

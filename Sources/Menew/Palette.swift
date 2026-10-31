@@ -203,6 +203,7 @@ final class PaletteModel: ObservableObject {
         pool += parametric(q)
         pool += devItems(q)
         pool += QuickLinkStore.shared.paletteItems(raw: query)
+        if let ask = AIText.askItem(raw: query) { pool.append(ask) }
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
             pool += AIText.paletteItems(text: text, query: q)
