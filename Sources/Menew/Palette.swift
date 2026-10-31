@@ -433,6 +433,9 @@ final class PaletteModel: ObservableObject {
                            subtitle: m.link != nil ? L("Entrar na reunião") : L("Abrir no Calendário")) { meetings.open(m) }
                 }
             }
+            action("coffee", L("Pagar um café ao autor ☕"), "cup.and.saucer.fill", .brown,
+                   "café cafe coffee apoiar support doar donate buy me a coffee kaffee spenden apoyar donar 咖啡 支持",
+                   subtitle: L("O Menew é grátis e feito no tempo livre")) { Feedback.buyCoffee() }
             action("uuid", L("Gerar UUID"), "number.square.fill", .gray, "uuid guid id gerar generate novo new erzeugen generar 生成") {
                 let id = UUID().uuidString.lowercased()
                 NSPasteboard.general.clearContents()

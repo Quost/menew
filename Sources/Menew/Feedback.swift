@@ -8,6 +8,8 @@ enum Feedback {
     static func reportBug() { open(template: "bug_report.yml", fields: environment) }
     static func suggestIdea() { open(template: "feature_request.yml", fields: ["version": appVersion]) }
     static func openRepo() { NSWorkspace.shared.open(URL(string: repo)!) }
+    /// O Menew é feito no tempo livre; quem quiser pode pagar um café (nada aparece sozinho pedindo isso)
+    static func buyCoffee() { NSWorkspace.shared.open(URL(string: "https://buymeacoffee.com/quost")!) }
 
     private static var appVersion: String {
         Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "?"

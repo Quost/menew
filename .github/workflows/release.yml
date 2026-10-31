@@ -93,6 +93,7 @@ jobs:
           [ -f build/appcast.xml ] && ASSETS+=(build/appcast.xml)
           # Notas: seção da versão no CHANGELOG.md + lista automática de mudanças
           CHANGES=$(awk -v v="$VERSION" '/^## /{p = ($2 == v); next} p' CHANGELOG.md)
+          CHANGES+=$'\n\n☕ Menew is free and made in spare time. If it helps you, [buy me a coffee](https://buymeacoffee.com/quost).'
           # A API do GitHub às vezes falha (502, resposta vazia) depois de já ter criado a release:
           # tenta de novo e, se ela já existe, só substitui os arquivos. Assim rodar de novo também funciona.
           for i in 1 2 3 4; do

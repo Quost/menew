@@ -678,6 +678,8 @@ struct SettingsView: View {
                     RowDivider()
                     LinkRow(title: L("Ver no GitHub"), icon: "chevron.left.forwardslash.chevron.right") { Feedback.openRepo() }
                     RowDivider()
+                    LinkRow(title: L("Pagar um café ao autor ☕"), icon: "cup.and.saucer") { Feedback.buyCoffee() }
+                    RowDivider()
                     LinkRow(title: L("Ver a apresentação de novo"), icon: "sparkles") {
                         NotificationCenter.default.post(name: .showWelcome, object: nil)
                     }

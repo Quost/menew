@@ -278,6 +278,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         menu.addItem(.separator())
         add(L("Reportar um problema…"), "", "ladybug", #selector(reportBug))
         add(L("Sugerir uma ideia…"), "", "lightbulb", #selector(suggestIdea))
+        add(L("Pagar um café ao autor…"), "", "cup.and.saucer", #selector(buyCoffee))
         menu.addItem(.separator())
         if let v = updater.pendingVersion {
             add(L("Atualizar para a versão %@…", v), "", "arrow.down.circle.fill", #selector(showPendingUpdate))
@@ -302,6 +303,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func showPendingUpdate() { updater.showPendingUpdate() }
     @objc private func reportBug() { popover.performClose(nil); Feedback.reportBug() }
     @objc private func suggestIdea() { popover.performClose(nil); Feedback.suggestIdea() }
+    @objc private func buyCoffee() { popover.performClose(nil); Feedback.buyCoffee() }
     @objc private func openSettings() { nav.tab = .settings; showPopover() }
     @objc private func quit() { NSApp.terminate(nil) }
 

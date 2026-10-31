@@ -32,8 +32,10 @@ cat <<XML
   li { margin: 0 0 7px; }
   code { font: 12px ui-monospace, Menlo, monospace; padding: 1px 4px; border-radius: 4px; background: rgba(127,127,127,.18); }
   a { color: #6c5ce7; }
+  .coffee { margin-top: 14px; padding-top: 10px; border-top: 1px solid rgba(127,127,127,.25); color: #888; font-size: 12px; }
 </style>
 $HTML
+<p class="coffee">Menew is free and made in spare time. If it helps you, <a href="https://buymeacoffee.com/quost">buy me a coffee ☕</a></p>
 ]]></description>
       <enclosure url="https://github.com/Quost/menew/releases/download/$TAG/Menew.zip" type="application/octet-stream" $SIG />
     </item>
