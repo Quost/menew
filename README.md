@@ -47,7 +47,7 @@
 | 🪟 **Window manager** | Snap the front window to halves, corners, thirds or full screen with <kbd>⌃</kbd><kbd>⌥</kbd> shortcuts (the same as Rectangle) or from a grid in Actions. Send it to the other display, or put it back the way it was. |
 | 🚪 **App control** | Quit all apps, quit everything but the one you're using, hide the rest, or force quit a frozen app, from Actions or the command palette. Quitting is a normal request, so apps with unsaved work ask first, and a “Never quit” list keeps apps like Music or Zoom open. **Ports in use** lists the servers running on your Mac (node, Docker, databases) so you can stop one; type “port” or “3000” in the palette too. |
 | 🗂️ **Work profiles** | Save the apps you have open and where each window sits, then bring it all back with one click (or from the command palette). A profile can also keep the Mac awake, mute the mic, switch to dark mode and hide everything else. It can also quit every other app first, for a clean work mode. |
-| 📥 **Quick shelf** | Shake files while you drag them and a shelf pops up next to the cursor. Drop files, links, text or images there, then drag them all out together to another app or folder. Items are always copied, so the originals never move. Also from the right-click menu or the command palette. |
+| 📥 **Quick shelf** | Shake files while you drag them and a shelf pops up next to the cursor. Drop files, links, text or images there, then drag them all out together to another app or folder. Items are always copied, so the originals never move. Also from the right-click menu or the command palette. With photos on the shelf, its image menu converts them to JPG, PNG or HEIC, shrinks them in bulk (3000 to 800 px) or removes location and metadata; results are new files next to the originals, ready to drag out. |
 | ⚙️ **Automations** | “When X happens, do Y”: at a time on chosen days, when the charger is plugged in or out, when the battery drops below a level, when an app opens or quits, when a display connects, before a meeting starts, when a focus session starts or ends, when presentation mode turns on or off, or when the Mac wakes. Actions: turn on a profile, keep awake, mute the mic, light/dark mode, brightness, pause the clipboard, open an app, quit all apps (say, when the battery drops to 5%) or run one of your Shortcuts. No scripts, a notice when a rule runs and a “Test now” button. |
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. **Apps using the network**: download and upload per app, read from macOS `nettop` only while you have the list open. |
@@ -174,6 +174,7 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 - [x] Screenshots with annotations, blur and pinning
 - [x] Sound output and microphone switcher, presentation mode
 - [x] Developer kit: ports in use, UUID, timestamps, JWT
+- [x] Image tools on the shelf (convert, shrink, strip metadata)
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

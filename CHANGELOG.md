@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.33.0
+
+- **Image tools on the shelf**: drop photos on the shelf and a new image menu appears. Convert them to JPG, PNG or HEIC, shrink them all at once (longest side 3000, 2000, 1200 or 800 px), or remove location and other metadata before sharing.
+- The originals are never changed: each result is a new file next to the original (or in Downloads), and it takes the original's place on the shelf, ready to drag into a chat or email. Rotated photos come out upright, and everything runs on your Mac.
+
 ## 1.32.0
 
 - **Ports in use**: Actions → Apps now lists the servers running on your Mac (node, Docker, databases) with their ports, and stops the one you pick. In the command palette, type “port” or a port number like “3000”.
