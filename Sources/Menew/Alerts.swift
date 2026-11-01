@@ -95,6 +95,17 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
         }
     }
 
+    /// Aviso avulso (bateria de acessório, por exemplo); só aparece se as notificações estiverem permitidas
+    func notify(id: String, title: String, body: String) {
+        guard let center else { return }
+        center.delegate = self
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        center.add(UNNotificationRequest(identifier: id, content: content, trigger: nil))
+    }
+
     private func post(_ kind: Kind, body: String) {
         guard let center else { return }
         center.delegate = self

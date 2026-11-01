@@ -177,6 +177,7 @@ struct SystemView: View {
                 cpuCard
                 MemoryCard(m: m)
                 if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
+                AccessoriesCard()
                 networkCard
                 diskCard
                 if !net.devices.isEmpty { devicesCard }
@@ -196,6 +197,7 @@ struct SystemView: View {
             net.refreshIfNeeded()
         }
         .onDisappear { m.wantsProcesses = false }
+        .task { AccessoryMonitor.shared.start() }
     }
 
     private var overview: some View {
