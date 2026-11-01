@@ -2,6 +2,15 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.64.0
+
+### New
+- **“Why is my Mac slow?”** A button at the bottom of the System tab (and in the command palette) checks memory pressure and swap, CPU now and over the last hour, heat, disk space, Low Power Mode and uptime, then tells you what is wrong and which apps are to blame. With Apple Intelligence it also explains it in plain words with suggestions. It never suggests quitting macOS system processes, and it works without Apple Intelligence too.
+- **Share clipboard items.** Right-click an item (or use the new button in the preview) to send it with the macOS share menu: AirDrop, Messages, Mail, Notes or any app that accepts it.
+
+### Fixed
+- The SSD health line in the Disk card never appeared. It does now.
+
 ## 1.63.0
 
 ### New
