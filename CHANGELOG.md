@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.67.0
+
+### New
+- **Rewrite anywhere.** Select text in any app, press ⌃⌥⌘R (or pick “Rewrite selected text” in the command palette) and choose Fix, Clearer, More formal, Friendlier, Shorter or In English, or press 1 to 6. Press Replace and the new text takes the place of your selection; your clipboard goes back to what it held before, and the rewrite never lands in your clipboard history. Runs on your Mac’s on-device AI; nothing leaves your Mac. The shortcut can be changed in Settings › Shortcuts and actions.
+
 ## 1.66.0
 
 ### New
