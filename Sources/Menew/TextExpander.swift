@@ -79,32 +79,42 @@ final class TextExpander {
         guard let clipboard else { return }
         expanding = true
         buffer = ""
-        let text = SnippetStore.expand(s.text)
+        // Campos {input:…}: pergunta antes (o app volta para a frente depois)
+        let target = NSWorkspace.shared.frontmostApplication
+        let asked = !SnippetStore.fields(in: s.text).isEmpty
+        guard let filled = SnippetStore.fill(s.text) else { expanding = false; return }
+        if asked { target?.activate() }
+        let (text, back) = SnippetStore.expandWithCursor(filled)
         let pb = NSPasteboard.general
         let saved = (pb.pasteboardItems ?? []).map { item in
             item.types.reduce(into: [NSPasteboard.PasteboardType: Data]()) { d, t in d[t] = item.data(forType: t) }
         }
-        let src = CGEventSource(stateID: .combinedSessionState)
-        for _ in 0..<count {
-            CGEvent(keyboardEventSource: src, virtualKey: CGKeyCode(kVK_Delete), keyDown: true)?.post(tap: .cghidEventTap)
-            CGEvent(keyboardEventSource: src, virtualKey: CGKeyCode(kVK_Delete), keyDown: false)?.post(tap: .cghidEventTap)
-        }
-        pb.clearContents()
-        pb.setString(text, forType: .string)
-        clipboard.ignoreCurrentChange()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            ClipboardManager.postCommandV()
-            // tempo para o app ler o ⌘V antes de devolver o conteúdo anterior
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
-                pb.clearContents()
-                pb.writeObjects(saved.map { dict in
-                    let item = NSPasteboardItem()
-                    for (t, d) in dict { item.setData(d, forType: t) }
-                    return item
-                })
-                clipboard.ignoreCurrentChange()
-                self.expanding = false
+        // Com campos, espera o app voltar para a frente antes de apagar a abreviação e colar
+        let run = { [self] in
+            let src = CGEventSource(stateID: .combinedSessionState)
+            for _ in 0..<count {
+                CGEvent(keyboardEventSource: src, virtualKey: CGKeyCode(kVK_Delete), keyDown: true)?.post(tap: .cghidEventTap)
+                CGEvent(keyboardEventSource: src, virtualKey: CGKeyCode(kVK_Delete), keyDown: false)?.post(tap: .cghidEventTap)
+            }
+            pb.clearContents()
+            pb.setString(text, forType: .string)
+            clipboard.ignoreCurrentChange()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+                ClipboardManager.postCommandV()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { SnippetStore.moveCursorBack(back) }
+                // tempo para o app ler o ⌘V antes de devolver o conteúdo anterior
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) {
+                    pb.clearContents()
+                    pb.writeObjects(saved.map { dict in
+                        let item = NSPasteboardItem()
+                        for (t, d) in dict { item.setData(d, forType: t) }
+                        return item
+                    })
+                    clipboard.ignoreCurrentChange()
+                    self.expanding = false
+                }
             }
         }
+        if asked { DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: run) } else { run() }
     }
 }

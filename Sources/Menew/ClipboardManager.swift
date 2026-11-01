@@ -299,6 +299,25 @@ final class ClipboardManager: ObservableObject {
 
     /// Copia e simula ⌘V no app que estava na frente
     func paste(_ item: ClipItem, plainText: Bool = false) {
+        // Snippets: pergunta os campos {input:…}, cola e põe o cursor onde estava o {cursor}
+        if item.snippetTitle != nil, let raw = item.text {
+            let target = WindowManager.shared.previousApp ?? NSWorkspace.shared.frontmostApplication
+            let asked = !SnippetStore.fields(in: raw).isEmpty
+            guard let filled = SnippetStore.fill(raw) else { return }
+            let (text, back) = SnippetStore.expandWithCursor(filled)
+            let pb = NSPasteboard.general
+            pb.clearContents()
+            pb.setString(text, forType: .string)
+            lastChange = pb.changeCount
+            guard defaults.bool(forKey: "autoPaste") else { return }
+            guard AXIsProcessTrusted() else { Self.requestAccessibility(); return }
+            if asked { target?.activate() }
+            DispatchQueue.main.asyncAfter(deadline: .now() + (asked ? 0.35 : 0.12)) {
+                Self.postCommandV()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { SnippetStore.moveCursorBack(back) }
+            }
+            return
+        }
         if plainText, let t = item.text {
             copyText(item.snippetTitle != nil ? SnippetStore.expand(t) : t)
             lastChange = NSPasteboard.general.changeCount

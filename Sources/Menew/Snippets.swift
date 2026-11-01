@@ -48,16 +48,90 @@ final class SnippetStore: ObservableObject {
             .map { ClipItem(id: $0.id, kind: .text, text: $0.text, snippetTitle: $0.title) }
     }
 
-    /// {date}, {time} e {clipboard} são preenchidos na hora de colar
+    /// {date}, {time}, {weekday}, {tomorrow} e {clipboard} são preenchidos na hora de colar; {cursor} sai do texto
+    /// (`expandWithCursor` diz onde o cursor fica) e {input:Nome} é perguntado antes (`fill`)
     static func expand(_ text: String) -> String {
+        expandWithCursor(text).text
+    }
+
+    /// Texto pronto e quantos caracteres o cursor volta depois de colar, por causa do {cursor}
+    static func expandWithCursor(_ text: String) -> (text: String, back: Int) {
         let now = Date()
         var out = text
         out = out.replacingOccurrences(of: "{date}", with: now.formatted(.dateTime.day().month().year().locale(L10n.locale)))
         out = out.replacingOccurrences(of: "{time}", with: now.formatted(.dateTime.hour().minute().locale(L10n.locale)))
+        out = out.replacingOccurrences(of: "{weekday}", with: now.formatted(.dateTime.weekday(.wide).locale(L10n.locale)))
+        if let tomorrow = Calendar.current.date(byAdding: .day, value: 1, to: now) {
+            out = out.replacingOccurrences(of: "{tomorrow}", with: tomorrow.formatted(.dateTime.day().month().year().locale(L10n.locale)))
+        }
         if out.contains("{clipboard}") {
             out = out.replacingOccurrences(of: "{clipboard}", with: NSPasteboard.general.string(forType: .string) ?? "")
         }
+        guard let r = out.range(of: "{cursor}") else { return (out, 0) }
+        let back = out[r.upperBound...].count
+        out.removeSubrange(r)
+        return (out.replacingOccurrences(of: "{cursor}", with: ""), back)
+    }
+
+    /// Campos {input:Nome} do snippet, na ordem e sem repetir
+    static func fields(in text: String) -> [String] {
+        guard let re = try? NSRegularExpression(pattern: #"\{input:([^}]+)\}"#) else { return [] }
+        var seen: [String] = []
+        for m in re.matches(in: text, range: NSRange(text.startIndex..., in: text)) {
+            if let r = Range(m.range(at: 1), in: text) {
+                let name = String(text[r]).trimmingCharacters(in: .whitespaces)
+                if !seen.contains(name) { seen.append(name) }
+            }
+        }
+        return seen
+    }
+
+    /// Pergunta os campos {input:Nome} numa janelinha e devolve o texto preenchido (nil = cancelou)
+    @MainActor static func fill(_ text: String) -> String? {
+        let names = fields(in: text)
+        guard !names.isEmpty else { return text }
+        let alert = NSAlert()
+        alert.messageText = L("Preencha o snippet")
+        alert.addButton(withTitle: L("Colar"))
+        alert.addButton(withTitle: L("Cancelar"))
+        let stack = NSStackView()
+        stack.orientation = .vertical
+        stack.alignment = .leading
+        stack.spacing = 6
+        var inputs: [NSTextField] = []
+        for name in names {
+            stack.addArrangedSubview(NSTextField(labelWithString: name))
+            let field = NSTextField(frame: NSRect(x: 0, y: 0, width: 260, height: 24))
+            field.widthAnchor.constraint(equalToConstant: 260).isActive = true
+            stack.addArrangedSubview(field)
+            inputs.append(field)
+        }
+        stack.frame = NSRect(x: 0, y: 0, width: 260, height: CGFloat(names.count) * 48)
+        alert.accessoryView = stack
+        alert.window.initialFirstResponder = inputs.first
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return nil }
+        return apply(text, values: Dictionary(uniqueKeysWithValues: zip(names, inputs.map(\.stringValue))))
+    }
+
+    /// Troca cada {input:Nome} pelo valor digitado
+    static func apply(_ text: String, values: [String: String]) -> String {
+        var out = text
+        for (name, value) in values {
+            out = out.replacingOccurrences(of: #"\{input:\s*\#(NSRegularExpression.escapedPattern(for: name))\s*\}"#,
+                                           with: NSRegularExpression.escapedTemplate(for: value), options: .regularExpression)
+        }
         return out
+    }
+
+    /// Depois de colar, volta o cursor até onde estava o {cursor}
+    @MainActor static func moveCursorBack(_ count: Int) {
+        guard count > 0, AXIsProcessTrusted() else { return }
+        let src = CGEventSource(stateID: .combinedSessionState)
+        for _ in 0..<min(count, 2000) {
+            CGEvent(keyboardEventSource: src, virtualKey: 0x7B, keyDown: true)?.post(tap: .cghidEventTap)
+            CGEvent(keyboardEventSource: src, virtualKey: 0x7B, keyDown: false)?.post(tap: .cghidEventTap)
+        }
     }
 
     private func save() {
@@ -150,7 +224,7 @@ private struct SnippetEditor: View {
                 .scrollContentBackground(.hidden)
                 .padding(8)
                 .glass(cornerRadius: 14)
-            Text(L("Use {date}, {time} e {clipboard} para preencher na hora de colar."))
+            Text(L("Use {date}, {time}, {weekday}, {tomorrow} e {clipboard} para preencher na hora, {cursor} para onde o cursor fica e {input:Nome} para perguntar antes de colar."))
                 .font(.system(size: 10.5)).foregroundStyle(.secondary)
             Text(UserDefaults.standard.bool(forKey: TextExpander.key)
                  ? L("Digite a abreviação em qualquer app e ela vira o texto. Comece com ; para não disparar sem querer.")
