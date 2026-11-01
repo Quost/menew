@@ -2,6 +2,14 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.54.0
+
+- **Performance and efficiency cores**: the Processor card shows every core of your Apple Silicon Mac, grouped into performance and efficiency, with their average.
+- **Power in watts**: the Battery card shows how much the whole Mac is drawing right now, the real time remaining (or until full) and, when plugged in, how much of the charger's power is being used.
+- **SSD health**: the Disk card shows the health your internal SSD reports (SMART), and turns red if it starts failing.
+- **Runaway app alert**: turn it on in Settings → Alerts to get a notice when an app stays above 90% CPU for about 6 minutes.
+- **Copy report**: one click at the bottom of the System tab copies model, chip, macOS, memory, disk, battery, SSD health and uptime, ready to send to support or IT.
+
 ## 1.53.0
 
 - **A tidier Menew**: with so many features, the menu got long, so this version reorganizes it.
