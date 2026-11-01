@@ -221,6 +221,7 @@ final class PaletteModel: ObservableObject {
         pool += parametric(q)
         pool += devItems(q)
         pool += QuickLinkStore.shared.paletteItems(raw: query)
+        pool += ScriptCommands.paletteItems(raw: query)
         if let ask = AIText.askItem(raw: query) { pool.append(ask) }
         if let reminder = QuickReminder.paletteItem(raw: query) { pool.append(reminder) }
         pool += EmojiSearch.paletteItems(raw: query, query: q)
