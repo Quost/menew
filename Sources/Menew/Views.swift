@@ -436,7 +436,11 @@ struct SystemView: View {
                 CopyPill(label: L("IP local"), value: m.localIP)
                 CopyPill(label: L("IP público"), value: net.publicIP ?? "…")
             }
-            if !m.isDemo { WiFiRow() }
+            if m.isDemo {
+                WiFiDetails(w: .demo)
+            } else {
+                WiFiRow()
+            }
             speedTest
             NetAppsSection()
         }

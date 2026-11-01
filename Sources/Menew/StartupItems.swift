@@ -54,6 +54,18 @@ enum StartupItems {
 
     private static var window: NSWindow?
 
+    /// Para as capturas de tela
+    static let demo: [Item] = [
+        Item(label: "com.spotify.webhelper", url: URL(fileURLWithPath: "/tmp/a.plist"), program: "/Applications/Spotify.app/Contents/MacOS/SpotifyWebHelper",
+             scope: .user, disabled: false, atLoad: true),
+        Item(label: "com.google.keystone.agent", url: URL(fileURLWithPath: "/tmp/b.plist"), program: "/Users/me/Library/Google/GoogleSoftwareUpdate/Agent",
+             scope: .user, disabled: true, atLoad: false),
+        Item(label: "us.zoom.updater", url: URL(fileURLWithPath: "/tmp/c.plist"), program: "/Applications/zoom.us.app/Contents/Frameworks/updater",
+             scope: .agents, disabled: false, atLoad: true),
+        Item(label: "com.docker.vmnetd", url: URL(fileURLWithPath: "/tmp/d.plist"), program: "/Library/PrivilegedHelperTools/com.docker.vmnetd",
+             scope: .daemons, disabled: false, atLoad: true),
+    ]
+
     static func show() {
         NotificationCenter.default.post(name: .closeMenu, object: nil)
         let w = window ?? {
@@ -77,6 +89,7 @@ enum StartupItems {
 }
 
 struct StartupItemsView: View {
+    var demo: [StartupItems.Item]? = nil
     @State private var items: [StartupItems.Item] = []
     @State private var loading = true
 
@@ -117,6 +130,7 @@ struct StartupItemsView: View {
         .frame(minWidth: 480, minHeight: 400)
         .background(Theme.windowFill)
         .task {
+            if let demo { items = demo; loading = false; return }
             items = await Task.detached { StartupItems.scan() }.value
             loading = false
         }
@@ -125,7 +139,8 @@ struct StartupItemsView: View {
     private func row(_ item: StartupItems.Item) -> some View {
         HStack(spacing: 10) {
             Group {
-                if let owner = item.owner, let path = item.program.range(of: owner + ".app").map({ String(item.program[..<$0.upperBound]) }) {
+                if let owner = item.owner, let path = item.program.range(of: owner + ".app").map({ String(item.program[..<$0.upperBound]) }),
+                   FileManager.default.fileExists(atPath: path) {
                     Image(nsImage: NSWorkspace.shared.icon(forFile: path)).resizable()
                 } else {
                     Image(systemName: "gearshape.2").foregroundStyle(.secondary)
@@ -134,7 +149,9 @@ struct StartupItemsView: View {
             .frame(width: 22, height: 22)
             VStack(alignment: .leading, spacing: 1) {
                 Text(item.owner ?? item.label).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
-                Text(item.label).font(.system(size: 10.5)).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                // Sem app dono, o nome já é o rótulo: embaixo vai o programa que ele roda
+                Text(item.owner == nil ? item.program : item.label).font(.system(size: 10.5)).foregroundStyle(.secondary)
+                    .lineLimit(1).truncationMode(.middle)
             }
             Spacer(minLength: 6)
             if item.disabled {

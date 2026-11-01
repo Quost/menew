@@ -14,6 +14,9 @@ struct WiFiInfo: Equatable {
 
     var snr: Int { rssi - noise }
 
+    /// Para as capturas de tela
+    static let demo = WiFiInfo(rssi: -52, noise: -94, rate: 864, channel: 44, band: "5 GHz", width: 80, standard: "Wi-Fi 6")
+
     /// Pela relação sinal/ruído, que diz mais que o sinal sozinho
     var quality: (label: String, color: Color, bars: Int) {
         switch snr {
@@ -57,30 +60,37 @@ struct WiFiRow: View {
     private let timer = Timer.publish(every: 5, on: .main, in: .common).autoconnect()
 
     var body: some View {
-        Group {
-            if let w = info {
-                VStack(alignment: .leading, spacing: 6) {
-                    HStack(spacing: 6) {
-                        Image(systemName: "wifi").foregroundStyle(w.quality.color)
-                        Text("Wi-Fi").font(.system(size: 12, weight: .semibold))
-                        Text(w.quality.label).font(.system(size: 11.5, weight: .medium)).foregroundStyle(w.quality.color)
-                        Spacer()
-                        Text("\(w.standard) · \(w.band)").font(.system(size: 11)).foregroundStyle(.secondary)
-                    }
-                    HStack(spacing: 0) {
-                        stat(L("Sinal"), "\(w.rssi) dBm")
-                        stat(L("Ruído"), "\(w.noise) dBm")
-                        stat(L("Velocidade"), "\(Int(w.rate)) Mbps")
-                        stat(L("Canal"), w.width > 0 ? "\(w.channel) · \(w.width) MHz" : "\(w.channel)")
-                    }
-                }
-                .padding(10)
-                .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.04)))
-                .help(L("Relação sinal/ruído: %d dB. Acima de 25 dB é uma boa conexão.", w.snr))
-            }
+        // VStack (não Group): um Group vazio não recebe onAppear, e a leitura nunca acontecia
+        VStack(spacing: 0) {
+            if let info { WiFiDetails(w: info) }
         }
         .onAppear { info = WiFiInfo.read() }
         .onReceive(timer) { _ in info = WiFiInfo.read() }
+    }
+}
+
+struct WiFiDetails: View {
+    let w: WiFiInfo
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            HStack(spacing: 6) {
+                Image(systemName: "wifi").foregroundStyle(w.quality.color)
+                Text("Wi-Fi").font(.system(size: 12, weight: .semibold))
+                Text(w.quality.label).font(.system(size: 11.5, weight: .medium)).foregroundStyle(w.quality.color)
+                Spacer()
+                Text("\(w.standard) · \(w.band)").font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+            HStack(spacing: 0) {
+                stat(L("Sinal"), "\(w.rssi) dBm")
+                stat(L("Ruído"), "\(w.noise) dBm")
+                stat(L("Velocidade"), "\(Int(w.rate)) Mbps")
+                stat(L("Canal"), w.width > 0 ? "\(w.channel) · \(w.width) MHz" : "\(w.channel)")
+            }
+        }
+        .padding(10)
+        .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.04)))
+        .help(L("Relação sinal/ruído: %d dB. Acima de 25 dB é uma boa conexão.", w.snr))
     }
 
     private func stat(_ title: String, _ value: String) -> some View {

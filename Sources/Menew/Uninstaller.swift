@@ -23,6 +23,21 @@ final class Uninstaller: ObservableObject {
     private static var window: NSWindow?
     private static let shared = Uninstaller()
 
+    /// Para as capturas de tela: um app inventado com sobras
+    static func demo() -> Uninstaller {
+        let m = Uninstaller()
+        m.app = URL(fileURLWithPath: "/Applications/Video Editor.app")
+        m.appName = "Video Editor"
+        m.appIcon = NSWorkspace.shared.icon(for: .applicationBundle)
+        m.appSize = 1_240_000_000
+        let lib = "/Users/me/Library/"
+        m.leftovers = [("Application Support/Video Editor", 2_310_000_000), ("Caches/com.example.videoeditor", 845_000_000),
+                       ("Containers/com.example.videoeditor", 120_000_000), ("Preferences/com.example.videoeditor.plist", 12_000),
+                       ("Saved Application State/com.example.videoeditor.savedState", 48_000)]
+            .map { Leftover(url: URL(fileURLWithPath: lib + $0.0), size: $0.1) }
+        return m
+    }
+
     static func show(app: URL? = nil) {
         NotificationCenter.default.post(name: .closeMenu, object: nil)
         let w = window ?? {

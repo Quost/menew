@@ -130,6 +130,7 @@ struct MetricPanel: View {
                     NetStat(title: L("Download"), icon: "arrow.down", color: Theme.download, value: m.netIn, history: m.netInHistory)
                     NetStat(title: L("Upload"), icon: "arrow.up", color: Theme.upload, value: m.netOut, history: m.netOutHistory)
                 }
+                if m.isDemo { WiFiDetails(w: .demo) } else { WiFiRow() }
                 NetAppsSection()
             }
             .card()

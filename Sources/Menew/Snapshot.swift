@@ -121,6 +121,12 @@ enum Snapshot {
                        size: NSSize(width: 400, height: 380), dark: dark, to: dir.appendingPathComponent("sensors-\(suffix).png"))
                 render(MetricPanel(item: .cpu, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 330), dark: dark,
                        to: dir.appendingPathComponent("metric-cpu-\(suffix).png"))
+                render(MetricPanel(item: .net, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 400), dark: dark,
+                       to: dir.appendingPathComponent("metric-net-\(suffix).png"))
+                render(UninstallerView(model: Uninstaller.demo()), size: NSSize(width: 520, height: 440), dark: dark,
+                       to: dir.appendingPathComponent("uninstaller-\(suffix).png"))
+                render(StartupItemsView(demo: StartupItems.demo), size: NSSize(width: 520, height: 460), dark: dark,
+                       to: dir.appendingPathComponent("startup-\(suffix).png"))
                 let qr = QRModel()
                 qr.text = "https://menew.web.app"
                 render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,
