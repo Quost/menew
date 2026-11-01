@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.47.0
+
+- **Offline translation**: copy some text, open the command palette and type “translate english” (or Portuguese, Spanish, German, French, Italian, Japanese or Chinese). Apple's translator does it on your Mac and the result is copied, shown in a small window.
+- It works on macOS 15 or later **without Apple Intelligence**, so many more Macs get translation. The first time you use a language, macOS offers to download it. Translations now always use Apple's translator, which is more faithful than the AI model.
+
 ## 1.46.0
 
 - **Emoji in the command palette**: type “emoji” or “:” followed by a word, like “emoji rocket”, “emoji coração” or “:fire”, and press ↩ to paste it into the app you're using. Common words work in all five languages.
