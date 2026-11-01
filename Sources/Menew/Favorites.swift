@@ -3,7 +3,7 @@ import SwiftUI
 /// Favoritos no topo da aba Ações: os atalhos que você mais usa, num toque. Você escolhe quais e em que ordem.
 /// Cada um chama a mesma função do botão que já existe mais abaixo.
 enum FavoriteAction: String, CaseIterable, Identifiable {
-    case mic, sound, dark, awake, present, dock, desktop, hiddenFiles, capture, ocr, qr, color, plain, lock, eject, trash, focus, timer, cleaner, record, gif, scroll, uninstall
+    case mic, sound, dark, awake, present, dock, desktop, hiddenFiles, capture, ocr, qr, color, plain, lock, eject, trash, focus, timer, cleaner, record, gif, scroll, uninstall, screenAsk
     var id: String { rawValue }
 
     static let key = "actionFavorites"
@@ -34,6 +34,7 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .gif: "photo.stack"
         case .scroll: "arrow.down.doc"
         case .uninstall: "trash.square"
+        case .screenAsk: "text.bubble"
         }
     }
 
@@ -62,6 +63,7 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .gif: .orange
         case .scroll: .blue
         case .uninstall: .red
+        case .screenAsk: .pink
         }
     }
 
@@ -90,6 +92,7 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .gif: L("Gravar GIF")
         case .scroll: L("Captura com rolagem")
         case .uninstall: L("Desinstalar app")
+        case .screenAsk: L("Perguntar à tela")
         }
     }
 
@@ -143,6 +146,7 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .gif: ScreenRecorder.shared.start(gif: true)
         case .scroll: ScrollCapture.start()
         case .uninstall: Uninstaller.show()
+        case .screenAsk: ScreenAsk.shared.start()
         }
     }
 

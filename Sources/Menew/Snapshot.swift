@@ -127,6 +127,18 @@ enum Snapshot {
                        to: dir.appendingPathComponent("uninstaller-\(suffix).png"))
                 render(StartupItemsView(demo: StartupItems.demo), size: NSSize(width: 520, height: 460), dark: dark,
                        to: dir.appendingPathComponent("startup-\(suffix).png"))
+                let ask = ScreenAsk()
+                ask.image = NSImage(size: NSSize(width: 320, height: 60), flipped: false) { r in
+                    NSColor.white.setFill(); r.fill()
+                    ("error: cannot find 'userName' in scope" as NSString).draw(at: NSPoint(x: 8, y: 22),
+                        withAttributes: [.font: NSFont.monospacedSystemFont(ofSize: 13, weight: .regular), .foregroundColor: NSColor.systemRed])
+                    return true
+                }
+                ask.screenText = "error: cannot find 'userName' in scope\nProfileView.swift:42:17\nBuild failed: 1 error, 3 warnings"
+                ask.asked = L("Explicar")
+                ask.answer = L("O projeto não compilou porque o código usa “userName”, mas nada com esse nome existe ali. Declare a variável ou corrija o nome na linha 42 de ProfileView.swift.")
+                render(ScreenAskView(model: ask), size: NSSize(width: 500, height: 440), dark: dark,
+                       to: dir.appendingPathComponent("screen-ask-\(suffix).png"))
                 let qr = QRModel()
                 qr.text = "https://menew.web.app"
                 render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,

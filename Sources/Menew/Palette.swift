@@ -453,6 +453,9 @@ final class PaletteModel: ObservableObject {
             action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
                 ScreenRecorder.shared.start(gif: true)
             }
+            action("screenask", L("Pergunte sobre a tela"), "text.viewfinder", .pink,
+                   "perguntar tela screen ask explicar explain erro error traduzir translate ia ai bildschirm pantalla 屏幕 询问",
+                   subtitle: L("Selecione uma área e pergunte à IA do Mac")) { ScreenAsk.shared.start() }
             action("diagnosis", L("Por que meu Mac está lento?"), "stethoscope", .teal,
                    "lento slow lentidão diagnóstico diagnosis travando lag desempenho performance langsam lento 慢") {
                 if let m = (NSApp.delegate as? AppDelegate)?.monitor { DiagnosisWindow.shared.show(m) }
