@@ -3,7 +3,7 @@ import SwiftUI
 /// Favoritos no topo da aba Ações: os atalhos que você mais usa, num toque. Você escolhe quais e em que ordem.
 /// Cada um chama a mesma função do botão que já existe mais abaixo.
 enum FavoriteAction: String, CaseIterable, Identifiable {
-    case mic, sound, dark, awake, present, dock, desktop, hiddenFiles, capture, ocr, qr, color, plain, lock, eject, trash, focus, timer, cleaner
+    case mic, sound, dark, awake, present, dock, desktop, hiddenFiles, capture, ocr, qr, color, plain, lock, eject, trash, focus, timer, cleaner, record, gif, scroll
     var id: String { rawValue }
 
     static let key = "actionFavorites"
@@ -30,6 +30,9 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .focus: "timer"
         case .timer: "hourglass"
         case .cleaner: "sparkles"
+        case .record: "record.circle"
+        case .gif: "photo.stack"
+        case .scroll: "arrow.down.doc"
         }
     }
 
@@ -54,6 +57,9 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .focus: .red
         case .timer: .orange
         case .cleaner: .blue
+        case .record: .red
+        case .gif: .orange
+        case .scroll: .blue
         }
     }
 
@@ -78,6 +84,9 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .focus: L("Foco 25 min")
         case .timer: L("Timer 10 min")
         case .cleaner: L("Liberar espaço")
+        case .record: L("Gravar tela")
+        case .gif: L("Gravar GIF")
+        case .scroll: L("Captura com rolagem")
         }
     }
 
@@ -127,6 +136,9 @@ enum FavoriteAction: String, CaseIterable, Identifiable {
         case .focus: FocusTimer.shared.start(minutes: 25)
         case .timer: TimerStore.shared.add(label: "", end: Date().addingTimeInterval(600), isAlarm: false)
         case .cleaner: openCleaner()
+        case .record: ScreenRecorder.shared.start(gif: false)
+        case .gif: ScreenRecorder.shared.start(gif: true)
+        case .scroll: ScrollCapture.start()
         }
     }
 

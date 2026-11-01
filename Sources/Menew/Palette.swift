@@ -443,6 +443,15 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Área ou janela, com anotações"),
                    shortcut: Shortcut.load(ScreenCapture.key, default: .captureDefault).display) { ScreenCapture.area() }
             action("screenshotfull", L("Capturar a tela inteira"), "display", .pink, "print screenshot tela inteira full screen captura") { ScreenCapture.fullScreen() }
+            action("record", ScreenRecorder.shared.isRecording ? L("Parar gravação") : L("Gravar a tela"), "record.circle", .red,
+                   "gravar gravação record recording video vídeo screen recorder aufnahme grabar 录屏", subtitle: L("Uma área ou a tela toda, em vídeo")) {
+                ScreenRecorder.shared.start(gif: false)
+            }
+            action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
+                ScreenRecorder.shared.start(gif: true)
+            }
+            action("scrollcapture", L("Captura com rolagem"), "arrow.down.doc", .blue,
+                   "captura rolagem scrolling screenshot página inteira full page longa long scroll") { ScrollCapture.start() }
             let meetings = MeetingStore.shared
             if meetings.isOn {
                 action("freeslots", L("Copiar meus horários livres"), "calendar.badge.checkmark", .green,

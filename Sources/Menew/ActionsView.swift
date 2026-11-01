@@ -194,6 +194,15 @@ struct ActionsView: View {
                                        help: L("Selecione uma área (espaço captura uma janela). Depois anote com setas, texto e borrão, copie, salve ou fixe na tela.")) {
                                 ScreenCapture.area()
                             }
+                            ActionTile(icon: "record.circle", color: .red, title: L("Gravar tela"), subtitle: L("vídeo ou GIF"),
+                                       help: L("Escolha uma área (ou ↩ para a tela toda) e grave. O arquivo vai para a Mesa.")) {
+                                ScreenRecorder.shared.start(gif: false)
+                            }
+                            .contextMenu { Button(L("Gravar GIF")) { ScreenRecorder.shared.start(gif: true) } }
+                            ActionTile(icon: "arrow.down.doc", color: .blue, title: L("Captura com rolagem"), subtitle: L("página inteira"),
+                                       help: L("Escolha a área que rola: o Menew rola sozinho e junta tudo numa imagem comprida.")) {
+                                ScrollCapture.start()
+                            }
                             ActionTile(icon: "eyedropper.halffull", color: Theme.violet, title: L("Conta-gotas"), subtitle: L("copia o hex"),
                                        help: L("Clique em qualquer ponto da tela para copiar a cor em hexadecimal.")) {
                                 tb.pickColor(clipboard: clipboard)
