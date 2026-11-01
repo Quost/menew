@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.45.0
+
+- **Quick reminders from the command palette**: type “remind pay the bill tomorrow at 9”, “lembrar ligar pro João sexta 14h” or “erinnern Arzt morgen um 9 Uhr”, press ↩, and it's in the Reminders app with the date and an alert. Without a time it becomes an all-day reminder; without a date, a simple to-do.
+- Dates are understood on your Mac in English, Portuguese, German, Spanish and Chinese. Menew asks for Reminders access the first time you use it.
+
 ## 1.44.0
 
 - **Accessory batteries**: the System tab now shows the battery of your connected Magic Mouse, Magic Keyboard, Magic Trackpad and AirPods (left, right and case), in red when it's running low.
