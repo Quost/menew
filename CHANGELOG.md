@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.66.0
+
+### New
+- **Ask about the screen.** Choose “Ask about the screen” in the command palette (or add it to your favorites), select any area, an error message, a chart, a page in another language, and ask: Explain, Summarize, Translate, What should I do?, or type your own question. Menew reads the text on your Mac and your Mac’s on-device AI answers; nothing is uploaded. Without Apple Intelligence you still get the recognized text, ready to copy.
+
 ## 1.65.0
 
 ### New
