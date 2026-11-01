@@ -989,6 +989,7 @@ private let table: [String: [String]] = [
     "Permita os Lembretes em Ajustes do Sistema": ["Allow Reminders in System Settings", "Erinnerungen in den Systemeinstellungen erlauben", "Permite Recordatorios en Ajustes del Sistema", "请在“系统设置”中允许提醒事项"],
     "Lembrete criado": ["Reminder created", "Erinnerung erstellt", "Recordatorio creado", "提醒已创建"],
     "Não deu para criar o lembrete": ["Couldn't create the reminder", "Erinnerung konnte nicht erstellt werden", "No se pudo crear el recordatorio", "无法创建提醒"],
+    "↩ cola no app da frente": ["↩ pastes into the front app", "↩ fügt in die vordere App ein", "↩ pega en la app de delante", "↩ 粘贴到前台应用"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],

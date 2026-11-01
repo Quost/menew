@@ -27,6 +27,7 @@ struct PaletteItem: Identifiable {
         case symbol(String, Color)
         case app(String)            // caminho do .app
         case layout(WindowLayout)
+        case glyph(String)          // emoji ou símbolo, desenhado como texto
     }
 
     let id: String
@@ -207,6 +208,7 @@ final class PaletteModel: ObservableObject {
         pool += QuickLinkStore.shared.paletteItems(raw: query)
         if let ask = AIText.askItem(raw: query) { pool.append(ask) }
         if let reminder = QuickReminder.paletteItem(raw: query) { pool.append(reminder) }
+        pool += EmojiSearch.paletteItems(raw: query, query: q)
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
             pool += AIText.paletteItems(text: text, query: q)
@@ -233,7 +235,9 @@ final class PaletteModel: ObservableObject {
             .sorted { $0.1 != $1.1 ? $0.1 > $1.1 : $0.0.kind.rawValue < $1.0.kind.rawValue }
             .prefix(40).map(\.0)
         // Sempre por último: buscar o texto na web
-        if let search = QuickLinkStore.shared.webSearchItem(raw: query) { results.append(search) }
+        let lower = query.lowercased()
+        let commandPrefix = (EmojiSearch.prefixes + QuickReminder.prefixes + AIText.askPrefixes).contains { lower.hasPrefix($0) }
+        if !commandPrefix, let search = QuickLinkStore.shared.webSearchItem(raw: query) { results.append(search) }
     }
 
     /// Para quem programa: portas em uso ("porta", "3000") e timestamps Unix ("1793400000" vira data)
@@ -731,6 +735,9 @@ struct PaletteRow: View {
             Image(nsImage: AppIndex.icon(path)).resizable().interpolation(.high)
         case .layout(let l):
             LayoutIcon(layout: l).padding(.vertical, 3)
+        case .glyph(let g):
+            RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.primary.opacity(0.06))
+                .overlay(Text(g).font(.system(size: 17)))
         }
     }
 }
