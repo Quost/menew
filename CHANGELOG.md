@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.56.0
+
+- **Separate menu bar icons**: turn on Settings → Menu bar → Separate icons and each metric you show (CPU, memory, network, disk, battery, temperature) gets its own icon. Click one for a panel with just that metric: CPU with cores and the busiest apps, memory pressure, network with apps using it, disk with SSD health, battery with watts and accessories, or temperatures and fan.
+- **Temperature in the menu bar**: the chip temperature can now be one of the menu bar items, in the single icon or as its own.
+- The Menew icon still opens the full menu. Arrange the icons by holding ⌘ and dragging them.
+
 ## 1.55.0
 
 - **Temperatures and fans**: a new Temperatures card in the System tab shows the chip (hottest sensor and average), SSD and battery in °C, each with a color from green to red, and the fan speed in rpm. “See all sensors” lists every one your Mac reports.
