@@ -686,6 +686,7 @@ struct SettingsView: View {
     /// nil = tudo numa lista (capturas de tela); na janela de Ajustes, só a categoria escolhida
     var category: SettingsCategory? = nil
     @AppStorage(MenuBarItem.key) private var menuBarItems = "cpu,ram"
+    @AppStorage(MenuBarPro.key) private var menuBarSeparate = false
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
@@ -733,6 +734,10 @@ struct SettingsView: View {
                 if show(.menubar) {
                 GlassSection(title: L("Barra de menus")) {
                     MenuBarItemsPicker(selection: $menuBarItems, monitor: monitor)
+                    RowDivider()
+                    ToggleRow(title: L("Ícones separados"),
+                              detail: L("Cada métrica ganha seu próprio ícone na barra, e clicar abre um painel só dela, com gráfico e detalhes."),
+                              isOn: $menuBarSeparate)
                     RowDivider()
                     ToggleRow(title: L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
                         .onChange(of: launchAtLogin) { _, on in
@@ -1084,7 +1089,7 @@ enum AppAppearance: String, CaseIterable {
 
 /// O que aparece ao lado do ícone na barra de menus, na ordem abaixo
 enum MenuBarItem: String, CaseIterable {
-    case cpu, cpuGraph, ram, net, disk, battery
+    case cpu, cpuGraph, ram, net, disk, battery, temp
 
     static let key = "menuBarItems"
 
@@ -1113,6 +1118,7 @@ enum MenuBarItem: String, CaseIterable {
         case .net: L("Rede")
         case .disk: L("Disco")
         case .battery: L("Bateria")
+        case .temp: L("Temperatura")
         }
     }
 
@@ -1124,6 +1130,7 @@ enum MenuBarItem: String, CaseIterable {
         case .net: "arrow.up.arrow.down"
         case .disk: "internaldrive"
         case .battery: "battery.75percent"
+        case .temp: "thermometer.medium"
         }
     }
 
@@ -1135,6 +1142,7 @@ enum MenuBarItem: String, CaseIterable {
         case .net: .net(Fmt.shortRate(m.netIn), Fmt.shortRate(m.netOut))
         case .disk: .stat("SSD", Fmt.pct(m.diskFraction))
         case .battery: m.battery.map { .stat("BAT", "\($0.percent)%") }
+        case .temp: Sensors.shared.chip.map { .stat("TEMP", "\(Int($0.rounded()))°") }
         }
     }
 
@@ -1147,6 +1155,7 @@ enum MenuBarItem: String, CaseIterable {
         case .net: .net("1.2M", "48K")
         case .disk: .stat("SSD", "58%")
         case .battery: .stat("BAT", "80%")
+        case .temp: .stat("TEMP", "48°")
         }
     }
 }

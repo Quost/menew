@@ -1143,6 +1143,8 @@ private let table: [String: [String]] = [
     "Ventoinha": ["Fan", "Lüfter", "Ventilador", "风扇"],
     "Ver os %d sensores": ["See the %d sensors", "Die %d Sensoren zeigen", "Ver los %d sensores", "查看 %d 个传感器"],
     "média %d °C": ["average %d °C", "Schnitt %d °C", "media %d °C", "平均 %d °C"],
+    "Ícones separados": ["Separate icons", "Getrennte Symbole", "Iconos separados", "分开的图标"],
+    "Cada métrica ganha seu próprio ícone na barra, e clicar abre um painel só dela, com gráfico e detalhes.": ["Each metric gets its own menu bar icon; click it for a panel with its chart and details.", "Jede Kennzahl bekommt ein eigenes Symbol; ein Klick öffnet ein Fenster mit Diagramm und Details.", "Cada métrica tiene su propio icono; al hacer clic se abre un panel con su gráfico y detalles.", "每个指标都有自己的菜单栏图标，点按即可打开带图表和详情的面板。"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],

@@ -119,6 +119,8 @@ enum Snapshot {
                 render(VStack(spacing: 10) { SensorsCard(); CoreBars(loads: [0.12, 0.08, 0.15, 0.05, 0.09, 0.11, 0.42, 0.31, 0.18, 0.25]).card() }
                         .padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 380), dark: dark, to: dir.appendingPathComponent("sensors-\(suffix).png"))
+                render(MetricPanel(item: .cpu, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 330), dark: dark,
+                       to: dir.appendingPathComponent("metric-cpu-\(suffix).png"))
                 let qr = QRModel()
                 qr.text = "https://menew.web.app"
                 render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,

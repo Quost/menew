@@ -58,6 +58,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     private var statusItem: NSStatusItem!
     private let popover = NSPopover()
+    var isMenuOpen: Bool { popover.isShown }
     private var previousApp: NSRunningApplication?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
@@ -112,6 +113,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         PasteQueue.shared.onChange = { [weak self] in self?.updateStatusItem() }
         TimerStore.shared.onChange = { [weak self] in self?.updateStatusItem() }
         PresentationMode.shared.attach(toolbox)
+        MenuBarPro.shared.attach(monitor)
+        MenuBarPro.shared.openMenew = { [weak self] in self?.showPopover() }
         PresentationMode.shared.onChange = { [weak self] in self?.updateStatusItem() }
         updateStatusItem()
 
@@ -225,7 +228,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     private func updateStatusItem() {
         guard let button = statusItem?.button else { return }
-        var segments = MenuBarItem.selected.compactMap { $0.segment(monitor) }
+        // Com ícones separados, as métricas ficam nos ícones próprios; aqui sobra o ícone do Menew
+        if MenuBarItem.selected.contains(.temp) { Sensors.shared.refresh() }
+        var segments = MenuBarPro.shared.isOn ? [] : MenuBarItem.selected.compactMap { $0.segment(monitor) }
+        MenuBarPro.shared.update()
         if let focus = FocusTimer.shared.segment { segments.insert(focus, at: 0) }
         if let timer = TimerStore.shared.segment { segments.insert(timer, at: 0) }
         if let queue = PasteQueue.shared.segment { segments.insert(queue, at: 0) }
@@ -359,7 +365,7 @@ enum StatusSegment {
 }
 
 enum StatusRenderer {
-    static func image(segments: [StatusSegment]) -> NSImage {
+    static func image(segments: [StatusSegment], showIcon: Bool = true) -> NSImage {
         let height: CGFloat = 22
         let iconSize: CGFloat = 15
         let gap: CGFloat = 7
@@ -383,14 +389,15 @@ enum StatusRenderer {
                 return CGFloat(v.count) * 2.5
             }
         }
-        let total = segments.isEmpty ? iconSize : iconSize + widths.reduce(0) { $0 + $1 + gap } - gap + 4
+        let lead = showIcon ? iconSize + gap : 2
+        let total = segments.isEmpty ? iconSize : lead + widths.reduce(0) { $0 + $1 + gap } - gap + (showIcon ? 4 : 2)
         let img = NSImage(size: NSSize(width: ceil(total), height: height), flipped: false) { _ in
             let cfg = NSImage.SymbolConfiguration(pointSize: 13, weight: .semibold)
-            if let sym = NSImage(systemSymbolName: "square.grid.2x2.fill", accessibilityDescription: nil)?.withSymbolConfiguration(cfg) {
+            if showIcon || segments.isEmpty, let sym = NSImage(systemSymbolName: "square.grid.2x2.fill", accessibilityDescription: nil)?.withSymbolConfiguration(cfg) {
                 let s = sym.size
                 sym.draw(in: NSRect(x: (iconSize - s.width) / 2, y: (height - s.height) / 2, width: s.width, height: s.height))
             }
-            var x = iconSize + gap
+            var x = lead
             for (seg, w) in zip(segments, widths) {
                 switch seg {
                 case .stat(let l, let v):
