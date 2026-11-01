@@ -436,6 +436,13 @@ final class PaletteModel: ObservableObject {
             action("coffee", L("Pagar um café ao autor ☕"), "cup.and.saucer.fill", .brown,
                    "café cafe coffee apoiar support doar donate buy me a coffee kaffee spenden apoyar donar 咖啡 支持",
                    subtitle: L("O Menew é grátis e feito no tempo livre")) { Feedback.buyCoffee() }
+            action("qrscan", L("Ler QR code da tela"), "qrcode.viewfinder", .indigo,
+                   "qr qrcode ler scan escanear código code barcode lesen escanear 二维码 扫描") { QRCode.scanScreen() }
+            action("qrshow", L("Mostrar QR code do texto copiado"), "qrcode", .indigo,
+                   "qr qrcode gerar generate mostrar show celular phone link compartilhar share 二维码 生成",
+                   subtitle: L("Para abrir no celular")) { QRCode.show() }
+            action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
+                   "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
             action("uuid", L("Gerar UUID"), "number.square.fill", .gray, "uuid guid id gerar generate novo new erzeugen generar 生成") {
                 let id = UUID().uuidString.lowercased()
                 NSPasteboard.general.clearContents()

@@ -103,6 +103,10 @@ enum SmartClip {
                                            icon: "safari.fill", color: .blue, keywords: "abrir link open url öffnen abrir 打开") {
                         NSWorkspace.shared.open(url)
                     })
+                    out.append(SmartAction(id: "qr", title: L("Mostrar QR code do link"), subtitle: L("Para abrir no celular"),
+                                           icon: "qrcode", color: .indigo, keywords: "qr qrcode celular phone") {
+                        QRCode.show(text: url.absoluteString)
+                    })
                 }
             default: break
             }

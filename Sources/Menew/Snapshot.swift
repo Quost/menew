@@ -108,6 +108,10 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                let qr = QRModel()
+                qr.text = "https://menew.web.app"
+                render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,
+                       to: dir.appendingPathComponent("qr-\(suffix).png"))
                 let answer = AIAnswer()
                 answer.question = L("Como recuso uma reunião com educação?")
                 answer.text = L("Agradeça o convite, explique em uma frase por que não vai conseguir participar e ofereça uma alternativa, como mandar suas ideias por escrito ou sugerir outro horário.")

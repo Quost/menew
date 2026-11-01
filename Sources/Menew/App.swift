@@ -271,6 +271,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         if Module.actions.isOn {
             add(L("Capturar tela"), "", "camera.viewfinder", #selector(captureScreen))
             add(L("Copiar texto da tela"), "", "text.viewfinder", #selector(captureText))
+            add(L("Ler QR code da tela"), "", "qrcode.viewfinder", #selector(scanQR))
             add(L("Estante"), "", "tray.full", #selector(openShelf))
         }
         add(L("Limpar teclado"), "", "keyboard", #selector(lockKeyboard))
@@ -296,6 +297,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func openPalette() { palette.show() }
     @objc private func openShelf() { shelf.toggle() }
     @objc private func captureText() { TextRecognizer.captureScreenText() }
+    @objc private func scanQR() { QRCode.scanScreen() }
     @objc private func captureScreen() { ScreenCapture.area() }
     @objc private func lockKeyboard() { toolbox.cleaning.lockKeyboard() }
     @objc private func blackScreen() { toolbox.cleaning.blackScreen() }
