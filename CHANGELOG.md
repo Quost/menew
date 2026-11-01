@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.43.0
+
+- **Read QR codes from the screen**: select the area with a QR code (from the command palette or the menu bar icon's right-click menu) and its content goes to the clipboard. Links are never opened on their own, since a QR code can be misleading.
+- **Show a QR code**: turn the copied text or link into a big QR code your phone can scan, or create a Wi-Fi QR code so guests can join your network by pointing the camera. Copied links also offer “Show QR code” in the command palette.
+
 ## 1.41.1
 
 - **Support Menew**: if Menew saves you time, you can now buy the author a coffee from Settings → Help, the menu bar icon's right-click menu or the command palette (type “coffee”). Nothing ever pops up asking for it.
