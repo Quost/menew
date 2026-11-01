@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.49.0
+
+- **Snippets with fields**: write `{input:Name}` in a snippet and Menew asks for it in a small window before pasting, so one snippet becomes a real template (“Hi {input:Name}, about order {input:Order}…”). The same field can appear several times.
+- **Cursor position**: put `{cursor}` where you want to keep typing; after pasting, the cursor goes right there.
+- **More variables**: `{weekday}` and `{tomorrow}` join `{date}`, `{time}` and `{clipboard}`. Works both in ⌘⇧V and with snippet abbreviations.
+
 ## 1.48.0
 
 - **Transcribe audio and video**: drop a meeting recording, voice memo or video on the shelf and choose Transcribe (Portuguese, English, Spanish, German, Chinese, French, Italian or Japanese). The text is saved as a note in Menew and copied to the clipboard.
