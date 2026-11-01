@@ -206,6 +206,7 @@ final class PaletteModel: ObservableObject {
                 (L("timer 10m chá"), L("Contagem na barra de menus"), "timer"),
                 (L("lembrar pagar boleto amanhã 9h"), L("Cria no app Lembretes"), "checklist"),
                 (L("ia como recuso uma reunião?"), L("Pergunte à IA do Mac"), "apple.intelligence"),
+                (L("faz modo escuro e abre o Safari"), L("Comandos em linguagem natural"), "wand.and.sparkles"),
                 (L("emoji foguete"), L("Emoji e símbolos"), "face.smiling"),
                 (L("15h em Lisboa"), L("Fusos horários"), "globe"),
                 (L("20% de 340"), L("Contas e conversões"), "equal"),
@@ -223,6 +224,7 @@ final class PaletteModel: ObservableObject {
         pool += QuickLinkStore.shared.paletteItems(raw: query)
         pool += ScriptCommands.paletteItems(raw: query)
         if let ask = AIText.askItem(raw: query) { pool.append(ask) }
+        if let agent = AIAgent.item(raw: query, catalog: pool) { pool.append(agent) }
         if let reminder = QuickReminder.paletteItem(raw: query) { pool.append(reminder) }
         pool += EmojiSearch.paletteItems(raw: query, query: q)
         pool += TimerStore.shared.paletteItems(raw: query)
@@ -254,7 +256,7 @@ final class PaletteModel: ObservableObject {
             .prefix(40).map(\.0)
         // Sempre por último: buscar o texto na web
         let lower = query.lowercased()
-        let commandPrefix = (EmojiSearch.prefixes + QuickReminder.prefixes + AIText.askPrefixes).contains { lower.hasPrefix($0) }
+        let commandPrefix = (EmojiSearch.prefixes + QuickReminder.prefixes + AIText.askPrefixes + AIAgent.prefixes).contains { lower.hasPrefix($0) }
         if !commandPrefix, let search = QuickLinkStore.shared.webSearchItem(raw: query) { results.append(search) }
     }
 
@@ -767,8 +769,15 @@ struct PaletteRow: View {
             .fill(selected ? Color.accentColor.opacity(0.22) : .clear))
     }
 
-    @ViewBuilder private var icon: some View {
-        switch item.icon {
+    private var icon: some View { PaletteIcon(icon: item.icon) }
+}
+
+/// Ícone de um item da paleta (também usado na janela de comandos da IA)
+struct PaletteIcon: View {
+    let icon: PaletteItem.Icon
+
+    var body: some View {
+        switch icon {
         case .symbol(let name, let color):
             RoundedRectangle(cornerRadius: 7, style: .continuous)
                 .fill(LinearGradient(colors: [color.opacity(0.85), color], startPoint: .top, endPoint: .bottom))

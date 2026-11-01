@@ -79,6 +79,8 @@ enum AIAction: String, CaseIterable {
 enum AIText {
     /// nil = pronto; senão, o motivo para mostrar na paleta
     static var unavailableReason: String? {
+        // Para testar Macs sem a IA: Menew -aiSimulateUnavailable YES (só pela linha de comando)
+        if UserDefaults.standard.bool(forKey: "aiSimulateUnavailable") { return L("Ligue a Apple Intelligence em Ajustes do Sistema") }
         #if canImport(FoundationModels)
         guard #available(macOS 26, *) else { return L("Precisa do macOS 26 ou mais novo") }
         switch SystemLanguageModel.default.availability {
