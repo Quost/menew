@@ -142,7 +142,7 @@ struct MainView: View {
             }
             Spacer()
             if !isSubpage {
-                IconButton(icon: "gearshape", help: L("Ajustes")) { nav.tab = .settings }
+                IconButton(icon: "gearshape", help: L("Ajustes")) { SettingsWindow.shared.show() }
             }
         }
         .padding(.horizontal, 14).padding(.top, 14).padding(.bottom, 10)
@@ -157,7 +157,7 @@ struct MainView: View {
     /// ⌘, abre os Ajustes (botão invisível, só pelo atalho)
     private var tabShortcuts: some View {
         ZStack {
-            Button("") { nav.tab = .settings }.keyboardShortcut(",", modifiers: .command)
+            Button("") { SettingsWindow.shared.show() }.keyboardShortcut(",", modifiers: .command)
         }
         .opacity(0).frame(width: 0, height: 0).accessibilityHidden(true)
     }
@@ -168,21 +168,25 @@ struct MainView: View {
 struct SystemView: View {
     @ObservedObject var m: SystemMonitor
     @ObservedObject var net: InternetInfo
+    /// Cartões abertos; os outros aparecem como uma linha com o número principal
+    @AppStorage("systemOpen") private var openRaw = "cpu"
+    @AppStorage("systemOrder") private var orderRaw = ""
+    @AppStorage("systemHidden") private var hiddenRaw = ""
+    @State private var organizing = false
 
     var body: some View {
         ScrollView {
             VStack(spacing: 10) {
                 overview
                 WorldClockCard()
-                cpuCard
-                MemoryCard(m: m)
-                if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
-                AccessoriesCard()
-                SystemHistoryCard()
-                networkCard
-                diskCard
-                if !net.devices.isEmpty { devicesCard }
-                processesCard
+                if organizing {
+                    organizer
+                } else {
+                    ForEach(order.filter { !hiddenSet.contains($0) }, id: \.self) { id in card(id) }
+                }
+                Button(organizing ? L("Concluir") : L("Organizar cartões")) { withAnimation(.snappy) { organizing.toggle() } }
+                    .buttonStyle(.plain).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.accentColor)
+                    .padding(.vertical, 4)
                 HStack(spacing: 10) {
                     MiniStat(icon: "clock.fill", color: .indigo, title: L("Ligado há"), value: Fmt.duration(m.uptime))
                     MiniStat(icon: "thermometer.medium", color: thermalColor, title: L("Temperatura"), value: thermalText)
@@ -199,6 +203,151 @@ struct SystemView: View {
         }
         .onDisappear { m.wantsProcesses = false }
         .task { AccessoryMonitor.shared.start() }
+    }
+
+    private var openSet: Set<String> { Set(openRaw.split(separator: ",").map(String.init)) }
+
+    static let cardIDs = ["cpu", "memory", "battery", "history", "network", "disk", "processes"]
+
+    /// Ordem escolhida (cartões novos de versões futuras entram no fim)
+    private var order: [String] {
+        let saved = orderRaw.split(separator: ",").map(String.init).filter { Self.cardIDs.contains($0) }
+        return saved + Self.cardIDs.filter { !saved.contains($0) }
+    }
+    private var hiddenSet: Set<String> { Set(hiddenRaw.split(separator: ",").map(String.init)) }
+
+    private func cardTitle(_ id: String) -> (String, String, Color) {
+        switch id {
+        case "cpu": (L("Processador"), "cpu", Theme.cpu)
+        case "memory": (L("Memória"), "memorychip", Theme.memory)
+        case "battery": (L("Bateria e acessórios"), "battery.75percent", Theme.battery)
+        case "history": (L("Últimas 24 horas"), "chart.xyaxis.line", .indigo)
+        case "network": (L("Rede"), "network", Theme.download)
+        case "disk": (L("Disco"), "internaldrive", Theme.disk)
+        default: (L("Processos"), "list.bullet.rectangle", .gray)
+        }
+    }
+
+    /// Modo organizar: setas para a ordem, olho para mostrar ou esconder
+    private var organizer: some View {
+        VStack(spacing: 0) {
+            ForEach(Array(order.enumerated()), id: \.element) { i, id in
+                let (title, icon, color) = cardTitle(id)
+                let hidden = hiddenSet.contains(id)
+                HStack(spacing: 10) {
+                    Image(systemName: icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(color)
+                        .frame(width: 28, height: 28).background(Circle().fill(color.opacity(0.15)))
+                    Text(title).font(.system(size: 12.5, weight: .medium)).foregroundStyle(hidden ? .secondary : .primary)
+                    Spacer()
+                    Button { move(id, by: -1) } label: { Image(systemName: "arrow.up") }
+                        .buttonStyle(.borderless).disabled(i == 0).accessibilityLabel(L("Subir %@", title))
+                    Button { move(id, by: 1) } label: { Image(systemName: "arrow.down") }
+                        .buttonStyle(.borderless).disabled(i == order.count - 1).accessibilityLabel(L("Descer %@", title))
+                    let isOpen = openSet.contains(id)
+                    Button {
+                        var set = openSet
+                        if isOpen { set.remove(id) } else { set.insert(id) }
+                        openRaw = set.sorted().joined(separator: ",")
+                    } label: { Image(systemName: isOpen ? "rectangle.expand.vertical" : "rectangle.compress.vertical") }
+                        .buttonStyle(.borderless).help(isOpen ? L("Aberto: toque para deixar fechado") : L("Fechado: toque para deixar aberto"))
+                        .accessibilityLabel(isOpen ? L("Deixar %@ fechado", title) : L("Deixar %@ aberto", title))
+                    Button {
+                        var set = hiddenSet
+                        if hidden { set.remove(id) } else { set.insert(id) }
+                        hiddenRaw = set.sorted().joined(separator: ",")
+                    } label: { Image(systemName: hidden ? "eye.slash" : "eye") }
+                        .buttonStyle(.borderless).help(hidden ? L("Mostrar") : L("Esconder"))
+                        .accessibilityLabel(hidden ? L("Mostrar %@", title) : L("Esconder %@", title))
+                }
+                .font(.system(size: 12, weight: .semibold))
+                .padding(.horizontal, 12).padding(.vertical, 7)
+                if i < order.count - 1 { Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 50) }
+            }
+        }
+        .card(padding: 0)
+    }
+
+    private func move(_ id: String, by delta: Int) {
+        var list = order
+        guard let i = list.firstIndex(of: id), list.indices.contains(i + delta) else { return }
+        list.swapAt(i, i + delta)
+        withAnimation(.snappy) { orderRaw = list.joined(separator: ",") }
+    }
+
+    @ViewBuilder
+    private func card(_ id: String) -> some View {
+        switch id {
+        case "cpu":
+                fold("cpu", L("Processador"), "cpu", Theme.cpu, "\(Int(m.cpu * 100))%",
+                     m.gpu.map { L("GPU %d%%", Int($0 * 100)) } ?? L("%d núcleos", m.cores)) { cpuCard }
+        case "memory":
+                fold("memory", L("Memória"), "memorychip", Theme.memory, "\(Int(m.memFraction * 100))%",
+                     m.memPressure == .normal ? L("Pressão normal") : m.memPressure == .warning ? L("Pressão alta") : L("Pressão crítica")) { MemoryCard(m: m) }
+        case "battery":
+                if let b = m.battery, let h = m.batteryHealth {
+                    fold("battery", L("Bateria"), "battery.75percent", Theme.battery, "\(b.percent)%", batteryText(b)) {
+                        VStack(spacing: 10) { BatteryCard(battery: b, health: h); AccessoriesCard() }
+                    }
+                } else {
+                    AccessoriesCard()
+                }
+        case "history":
+                fold("history", L("Últimas 24 horas"), "chart.xyaxis.line", .indigo, "", L("CPU, memória e bateria")) { SystemHistoryCard() }
+        case "network":
+                fold("network", L("Rede"), "network", Theme.download, "",
+                     "↓ " + Fmt.shortRate(m.netIn) + "  ↑ " + Fmt.shortRate(m.netOut)) { networkCard }
+        case "disk":
+                fold("disk", L("Disco"), "internaldrive", Theme.disk, Fmt.bytes(m.diskFree),
+                     net.devices.isEmpty ? L("livres") : L("livres · %d externos", net.devices.count)) {
+                    VStack(spacing: 10) { diskCard; if !net.devices.isEmpty { devicesCard } }
+                }
+        case "processes":
+                fold("processes", L("Processos"), "list.bullet.rectangle", .gray, "", L("Os que mais usam o Mac")) { processesCard }
+        default: EmptyView()
+        }
+    }
+
+    /// Fechado: uma linha com ícone, título, resumo e o número principal. Aberto: o cartão completo, com um botão para fechar.
+    @ViewBuilder
+    private func fold<C: View>(_ id: String, _ title: String, _ icon: String, _ color: Color, _ value: String, _ summary: String,
+                               @ViewBuilder content: () -> C) -> some View {
+        let open = openSet.contains(id)
+        let toggle = {
+            var set = openSet
+            if open { set.remove(id) } else { set.insert(id) }
+            withAnimation(.snappy) { openRaw = set.sorted().joined(separator: ",") }
+        }
+        if open {
+            content()
+                .overlay(alignment: .bottomTrailing) {
+                    Button(action: toggle) {
+                        Image(systemName: "chevron.up").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
+                            .frame(width: 22, height: 22).background(Circle().fill(Color.primary.opacity(0.06)))
+                    }
+                    .buttonStyle(.plain).padding(8)
+                    .help(L("Recolher"))
+                    .accessibilityLabel(L("Recolher %@", title))
+                }
+        } else {
+            Button(action: toggle) {
+                HStack(spacing: 10) {
+                    Image(systemName: icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(color)
+                        .frame(width: 28, height: 28).background(Circle().fill(color.opacity(0.15)))
+                    VStack(alignment: .leading, spacing: 1) {
+                        Text(title).font(.system(size: 12.5, weight: .semibold))
+                        Text(summary).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                    }
+                    Spacer(minLength: 6)
+                    Text(value).font(.system(size: 13, weight: .semibold)).monospacedDigit()
+                    Image(systemName: "chevron.down").font(.system(size: 9, weight: .bold)).foregroundStyle(.tertiary)
+                }
+                .padding(.horizontal, 12).padding(.vertical, 8)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .card(padding: 0)
+            .accessibilityLabel(L("Abrir %@", title))
+        }
     }
 
     private var overview: some View {
@@ -520,6 +669,8 @@ struct SettingsView: View {
     @ObservedObject var clipboard: ClipboardManager
     let monitor: SystemMonitor
     @ObservedObject var updater: UpdaterModel
+    /// nil = tudo numa lista (capturas de tela); na janela de Ajustes, só a categoria escolhida
+    var category: SettingsCategory? = nil
     @AppStorage(MenuBarItem.key) private var menuBarItems = "cpu,ram"
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
@@ -543,6 +694,7 @@ struct SettingsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                if show(.general) {
                 GlassSection(title: L("Aparência")) {
                     SettingRow(title: L("Tema")) {
                         GlassSegmented(selection: $appearance, options: AppAppearance.allCases.map {
@@ -562,7 +714,9 @@ struct SettingsView: View {
                         ModuleToggle(m)
                     }
                 }
+                }
 
+                if show(.menubar) {
                 GlassSection(title: L("Barra de menus")) {
                     MenuBarItemsPicker(selection: $menuBarItems, monitor: monitor)
                     RowDivider()
@@ -572,11 +726,13 @@ struct SettingsView: View {
                             catch { launchAtLogin = SMAppService.mainApp.status == .enabled }
                         }
                 }
+                }
 
-                AlertsSection()
+                if show(.alerts) { AlertsSection() }
 
-                MeetingsSection()
+                if show(.calendar) { MeetingsSection() }
 
+                if show(.privacy) {
                 GlassSection(title: L("Permissões"), footer: L("Usada para colar automaticamente e para travar o teclado na limpeza.")) {
                     SettingRow(title: L("Acessibilidade"), icon: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill") {
                         if axTrusted {
@@ -589,8 +745,9 @@ struct SettingsView: View {
                         }
                     }
                 }
+                }
 
-                if clipboardOn {
+                if clipboardOn && show(.clipboard) {
                 GlassSection(title: L("Clipboard")) {
                     ToggleRow(title: L("Colar automaticamente ao escolher"), isOn: $autoPaste)
                     RowDivider()
@@ -630,6 +787,7 @@ struct SettingsView: View {
                 }
                 }
 
+                if show(.shortcuts) {
                 GlassSection(title: L("Atalhos")) {
                     if clipboardOn {
                         SettingRow(title: L("Histórico do clipboard")) {
@@ -672,13 +830,15 @@ struct SettingsView: View {
                                   isOn: $ddcBrightness)
                     }
                 }
+                }
 
-                WorldClockSettings()
+                if show(.calendar) { WorldClockSettings() }
 
-                QuickLinkSettings()
+                if show(.links) { QuickLinkSettings() }
 
-                BackupSection()
+                if show(.backup) { BackupSection() }
 
+                if show(.about) {
                 GlassSection(title: L("Ajuda"),
                              footer: L("Abre o GitHub com a versão do app e do macOS já preenchidas. Você revisa antes de enviar.")) {
                     LinkRow(title: L("Reportar um problema…"), icon: "ladybug") { Feedback.reportBug() }
@@ -706,6 +866,7 @@ struct SettingsView: View {
                     Spacer()
                     PillButton(title: L("Sair do Menew"), icon: "power") { NSApp.terminate(nil) }
                 }
+                }
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
         }
@@ -713,6 +874,8 @@ struct SettingsView: View {
         .scrollIndicators(.never)
         .onAppear { axTrusted = AXIsProcessTrusted() }
     }
+
+    private func show(_ c: SettingsCategory) -> Bool { category == nil || category == c }
 }
 
 /// Apps cujo conteúdo copiado não entra no histórico: escolha da lista de apps abertos ou do Finder

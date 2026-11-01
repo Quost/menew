@@ -112,6 +112,8 @@ enum Snapshot {
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
                 render(SystemHistoryCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 330), dark: dark, to: dir.appendingPathComponent("history-\(suffix).png"))
+                render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .clipboard),
+                       size: NSSize(width: 760, height: 560), dark: dark, to: dir.appendingPathComponent("settings-window-\(suffix).png"))
                 let qr = QRModel()
                 qr.text = "https://menew.web.app"
                 render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,

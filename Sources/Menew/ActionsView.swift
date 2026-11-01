@@ -13,6 +13,8 @@ struct ActionsView: View {
     @ObservedObject var automations = AutomationStore.shared
     @ObservedObject var presentation = PresentationMode.shared
     @State private var editingAutomation: UUID?
+    /// Seções de "Mais ações" abertas (as outras ficam recolhidas, só com o resumo)
+    @AppStorage("actionsOpen") private var openRaw = ""
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
 
@@ -41,8 +43,10 @@ struct ActionsView: View {
     private var list: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 16) {
+                FavoritesSection(tb: tb, clipboard: clipboard, openCleaner: openCleaner)
+
                 if !displays.screens.isEmpty {
-                    section(L("Brilho")) {
+                    section(L("Brilho"), collapsible: false) {
                         VStack(spacing: 0) {
                             ForEach(Array(displays.screens.enumerated()), id: \.element.id) { i, screen in
                                 if i > 0 { Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52) }
@@ -53,6 +57,9 @@ struct ActionsView: View {
                         .glass()
                     }
                 }
+
+                Text(L("Mais ações")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                    .padding(.leading, 4).padding(.bottom, -8)
 
                 section(L("Foco")) { FocusCard() }
 
@@ -247,10 +254,56 @@ struct ActionsView: View {
         return L("Até %@", until.formatted(.dateTime.hour().minute().locale(L10n.locale)))
     }
 
-    private func section<C: View>(_ title: String, @ViewBuilder _ content: () -> C) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.leading, 4)
-            content()
+    private var openSet: Set<String> { Set(openRaw.split(separator: "|").map(String.init)) }
+
+    /// Seção que abre e fecha; fechada, mostra só o título e um resumo do que tem dentro
+    @ViewBuilder
+    private func section<C: View>(_ title: String, collapsible: Bool = true, @ViewBuilder _ content: () -> C) -> some View {
+        let open = !collapsible || openSet.contains(title)
+        if collapsible {
+            VStack(alignment: .leading, spacing: 8) {
+                Button {
+                    var set = openSet
+                    if open { set.remove(title) } else { set.insert(title) }
+                    withAnimation(.snappy) { openRaw = set.sorted().joined(separator: "|") }
+                } label: {
+                    HStack(spacing: 8) {
+                        Text(title).font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.primary)
+                        if !open, let s = summary(title) {
+                            Text(s).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
+                        }
+                        Spacer(minLength: 4)
+                        Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold)).foregroundStyle(.tertiary)
+                            .rotationEffect(.degrees(open ? 90 : 0))
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 9)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .glass()
+                .accessibilityValue(open ? L("Aberta") : L("Fechada"))
+                if open { content() }
+            }
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Text(title).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.leading, 4)
+                content()
+            }
+        }
+    }
+
+    private func summary(_ title: String) -> String? {
+        switch title {
+        case L("Foco"): FocusTimer.shared.segment != nil ? L("Em andamento") : L("25 min, com pausa no fim")
+        case L("Controles"): L("Microfone, som, modo escuro e mais")
+        case L("Som"): AudioRouter.shared.currentOutput?.name
+        case L("Janelas"): L("Metades, cantos e terços")
+        case L("Apps"): L("%d abertos", AppControl.running.count)
+        case L("Perfis"): profiles.profiles.isEmpty ? L("Nenhum ainda") : profiles.profiles.map(\.name).joined(separator: ", ")
+        case L("Automações"): automations.rules.isEmpty ? L("Nenhuma ainda") : L("%d ativas", automations.rules.filter(\.enabled).count)
+        case L("Limpeza"): L("Espaço, teclado e tela")
+        case L("Atalhos"): L("Captura, conta-gotas e mais")
+        default: nil
         }
     }
 }

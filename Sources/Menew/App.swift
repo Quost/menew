@@ -311,7 +311,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func reportBug() { popover.performClose(nil); Feedback.reportBug() }
     @objc private func suggestIdea() { popover.performClose(nil); Feedback.suggestIdea() }
     @objc private func buyCoffee() { popover.performClose(nil); Feedback.buyCoffee() }
-    @objc private func openSettings() { nav.tab = .settings; showPopover() }
+    @objc private func openSettings() { SettingsWindow.shared.show() }
     @objc private func quit() { NSApp.terminate(nil) }
 
     private func togglePopover() {

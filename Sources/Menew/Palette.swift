@@ -7,7 +7,7 @@ import SwiftUI
 /// Uma coisa que a paleta encontra e executa: ação do Menew, app, layout de janela, snippet, nota ou item copiado
 struct PaletteItem: Identifiable {
     enum Kind: Int {
-        case calc, action, profile, window, app, snippet, note, clip
+        case calc, action, profile, window, app, snippet, note, clip, tip
 
         var label: String {
             switch self {
@@ -19,6 +19,7 @@ struct PaletteItem: Identifiable {
             case .snippet: L("Snippet")
             case .note: L("Nota")
             case .clip: L("Clipboard")
+            case .tip: L("Dica")
             }
         }
     }
@@ -200,7 +201,21 @@ final class PaletteModel: ObservableObject {
             let suggested = Self.suggestions.compactMap { byID[$0] }.filter { s in !recent.contains { $0.id == s.id } }
             // O que acabou de ser copiado vem primeiro: um telefone, um endereço, uma cor, um link de reunião
             let smart = Module.clipboard.isOn && !isDemo ? TextTransform.clipboardText().map { Array(SmartClip.paletteItems(text: $0).prefix(3)) } ?? [] : []
-            results = Array((smart + recent + suggested).prefix(12))
+            // Depois dos recentes, exemplos do que dá para digitar: clicar escreve o comando na busca
+            let tips: [(String, String, String)] = [
+                (L("timer 10m chá"), L("Contagem na barra de menus"), "timer"),
+                (L("lembrar pagar boleto amanhã 9h"), L("Cria no app Lembretes"), "checklist"),
+                (L("ia como recuso uma reunião?"), L("Pergunte à IA do Mac"), "apple.intelligence"),
+                (L("emoji foguete"), L("Emoji e símbolos"), "face.smiling"),
+                (L("15h em Lisboa"), L("Fusos horários"), "globe"),
+                (L("20% de 340"), L("Contas e conversões"), "equal"),
+            ]
+            let tipItems = tips.map { cmd, what, icon in
+                PaletteItem(id: "tip.\(cmd)", kind: .tip, title: cmd, subtitle: what, icon: .symbol(icon, .gray), remember: false, keepOpen: true) { [weak self] in
+                    self?.query = cmd
+                }
+            }
+            results = Array((smart + recent + suggested).prefix(5)) + tipItems
             return
         }
         pool += parametric(q)
@@ -535,7 +550,8 @@ final class PaletteModel: ObservableObject {
         action("system", L("Monitor do sistema"), "gauge.with.dots.needle.67percent", .green,
                "sistema system cpu memória memory ram bateria battery rede network monitor") { [weak self] in self?.openTab(.system) }
         action("settings", L("Ajustes do Menew"), "gearshape.fill", .gray, "ajustes settings preferências preferences config") { [weak self] in
-            self?.openTab(.settings)
+            _ = self
+            SettingsWindow.shared.show()
         }
         action("update", L("Procurar atualizações…"), "arrow.down.circle", .blue, "update atualizar atualização versão version") { [weak self] in
             self?.checkForUpdates()
@@ -657,6 +673,12 @@ struct PaletteView: View {
                         ScrollView {
                             LazyVStack(spacing: 2) {
                                 ForEach(Array(model.results.enumerated()), id: \.element.id) { i, item in
+                                    if item.kind == .tip, i == model.results.firstIndex(where: { $0.kind == .tip }) {
+                                        Text(L("Experimente digitar"))
+                                            .font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                            .padding(.horizontal, 12).padding(.top, 10).padding(.bottom, 2)
+                                    }
                                     PaletteRow(item: item, index: i, selected: i == model.selection)
                                         .contentShape(Rectangle())
                                         .onTapGesture { model.run(i) }
