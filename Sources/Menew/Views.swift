@@ -185,6 +185,12 @@ struct SystemView: View {
                 } else {
                     ForEach(order.filter { !hiddenSet.contains($0) }, id: \.self) { id in card(id) }
                 }
+                Button { DiagnosisWindow.shared.show(m) } label: {
+                    Label(L("Por que meu Mac está lento?"), systemImage: "stethoscope")
+                        .font(.system(size: 12.5, weight: .semibold)).frame(maxWidth: .infinity).padding(.vertical, 9)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(Color.accentColor.opacity(0.12)))
+                }
+                .buttonStyle(.plain).foregroundStyle(Color.accentColor)
                 HStack(spacing: 16) {
                     Button(organizing ? L("Concluir") : L("Organizar cartões")) { withAnimation(.snappy) { organizing.toggle() } }
                     Button(L("Copiar relatório")) { SystemReport.copy(m) }

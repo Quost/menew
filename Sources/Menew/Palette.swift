@@ -453,6 +453,10 @@ final class PaletteModel: ObservableObject {
             action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
                 ScreenRecorder.shared.start(gif: true)
             }
+            action("diagnosis", L("Por que meu Mac está lento?"), "stethoscope", .teal,
+                   "lento slow lentidão diagnóstico diagnosis travando lag desempenho performance langsam lento 慢") {
+                if let m = (NSApp.delegate as? AppDelegate)?.monitor { DiagnosisWindow.shared.show(m) }
+            }
             action("startup", L("Itens de login e em segundo plano"), "power.circle", .orange,
                    "login itens items inicialização startup background segundo plano launch agents daemons anmeldeobjekte inicio 登录项") {
                 StartupItems.show()

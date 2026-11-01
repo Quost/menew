@@ -241,6 +241,25 @@ struct ClipList: View {
     }
 }
 
+/// Menu Compartilhar do macOS para um item do clipboard (AirDrop, Mensagens, Mail, Notas e apps de terceiros)
+struct ClipShareLink<Label: View>: View {
+    let item: ClipItem
+    let manager: ClipboardManager
+    @ViewBuilder var label: () -> Label
+
+    var body: some View {
+        if let u = item.url {
+            ShareLink(item: u, label: label)
+        } else if item.kind == .image, let u = manager.imageURL(for: item) {
+            ShareLink(item: u, label: label)
+        } else if item.kind == .file, let t = item.text {
+            ShareLink(items: t.split(separator: "\n").map { URL(fileURLWithPath: String($0)) }, label: label)
+        } else if let t = item.text, !t.isEmpty {
+            ShareLink(item: t, label: label)
+        }
+    }
+}
+
 struct ClipContextMenu: View {
     let item: ClipItem
     let manager: ClipboardManager
@@ -250,6 +269,7 @@ struct ClipContextMenu: View {
         Button(L("Colar")) { onActivate(item, false) }
         if item.kind == .text { Button(L("Colar como texto puro")) { onActivate(item, true) } }
         Button(L("Só copiar")) { manager.copy(item) }
+        ClipShareLink(item: item, manager: manager) { Label(L("Compartilhar…"), systemImage: "square.and.arrow.up") }
         Button(L("Adicionar à fila de colagem")) { PasteQueue.shared.add(item) }
         if item.snippetTitle == nil {
             Button(item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
@@ -342,6 +362,12 @@ struct ClipPreview: View {
                 if item.snippetTitle == nil, item.kind == .image {
                     IconButton(icon: item.pinned ? "pin.slash" : "pin", help: item.pinned ? L("Desafixar") : L("Fixar")) { manager.togglePin(item) }
                 }
+                ClipShareLink(item: item, manager: manager) {
+                    // Mesmo visual do IconButton ao lado
+                    Image(systemName: "square.and.arrow.up").font(.system(size: 12, weight: .semibold)).frame(width: 28, height: 28)
+                        .background(Circle().fill(Color.primary.opacity(0.05))).contentShape(Circle())
+                }
+                .buttonStyle(.plain).foregroundStyle(.secondary).help(L("Compartilhar…")).accessibilityLabel(L("Compartilhar…"))
                 if item.snippetTitle == nil {
                     IconButton(icon: "trash", help: L("Apagar")) { manager.delete(item) }
                 }

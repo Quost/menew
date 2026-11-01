@@ -82,7 +82,8 @@ struct DiskHealthRow: View {
     @ObservedObject var health = DiskHealth.shared
 
     var body: some View {
-        Group {
+        // VStack (não Group): um Group vazio não recebe onAppear, e a leitura nunca começava
+        VStack(spacing: 0) {
             if let label = health.label {
                 HStack(spacing: 6) {
                     Image(systemName: health.ok ? "checkmark.seal.fill" : "exclamationmark.triangle.fill")
