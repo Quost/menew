@@ -279,7 +279,9 @@ final class ClipboardManager: ObservableObject {
                 $0.range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             }
         }
-        return matches.filter(\.pinned) + matches.filter { !$0.pinned }
+        // Busca pelo sentido e por data/tipo ("o link do hotel de ontem") vem depois dos que batem pelo texto
+        let smart = q.isEmpty ? [] : SmartClipSearch.extra(q, in: base, excluding: Set(matches.map(\.id)))
+        return matches.filter(\.pinned) + matches.filter { !$0.pinned } + smart
     }
 
     // MARK: Ações
