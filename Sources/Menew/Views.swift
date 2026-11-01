@@ -171,6 +171,7 @@ struct SystemView: View {
     /// Cartões abertos; os outros aparecem como uma linha com o número principal
     @AppStorage("systemOpen") private var openRaw = "cpu"
     @AppStorage("systemOrder") private var orderRaw = ""
+    @ObservedObject private var sensors = Sensors.shared
     @AppStorage("systemHidden") private var hiddenRaw = ""
     @State private var organizing = false
 
@@ -206,12 +207,13 @@ struct SystemView: View {
             net.refreshIfNeeded()
         }
         .onDisappear { m.wantsProcesses = false }
+        .onReceive(m.$cpu) { _ in sensors.refresh() }
         .task { AccessoryMonitor.shared.start() }
     }
 
     private var openSet: Set<String> { Set(openRaw.split(separator: ",").map(String.init)) }
 
-    static let cardIDs = ["cpu", "memory", "battery", "history", "network", "disk", "processes"]
+    static let cardIDs = ["cpu", "sensors", "memory", "battery", "history", "network", "disk", "processes"]
 
     /// Ordem escolhida (cartões novos de versões futuras entram no fim)
     private var order: [String] {
@@ -223,12 +225,13 @@ struct SystemView: View {
     private func cardTitle(_ id: String) -> (String, String, Color) {
         switch id {
         case "cpu": (L("Processador"), "cpu", Theme.cpu)
+        case "sensors": (L("Temperaturas"), "thermometer.medium", Color.orange)
         case "memory": (L("Memória"), "memorychip", Theme.memory)
         case "battery": (L("Bateria e acessórios"), "battery.75percent", Theme.battery)
-        case "history": (L("Últimas 24 horas"), "chart.xyaxis.line", .indigo)
+        case "history": (L("Últimas 24 horas"), "chart.xyaxis.line", Color.indigo)
         case "network": (L("Rede"), "network", Theme.download)
         case "disk": (L("Disco"), "internaldrive", Theme.disk)
-        default: (L("Processos"), "list.bullet.rectangle", .gray)
+        default: (L("Processos"), "list.bullet.rectangle", Color.gray)
         }
     }
 
@@ -284,6 +287,12 @@ struct SystemView: View {
         case "cpu":
                 fold("cpu", L("Processador"), "cpu", Theme.cpu, "\(Int(m.cpu * 100))%",
                      m.gpu.map { L("GPU %d%%", Int($0 * 100)) } ?? L("%d núcleos", m.cores)) { cpuCard }
+        case "sensors":
+            if sensors.hasData {
+                fold("sensors", L("Temperaturas"), "thermometer.medium", .orange, sensors.chip.map { String(format: "%.0f °C", $0) } ?? "",
+                     [sensors.ssd.map { String(format: "SSD %.0f °C", $0) }, sensors.fans.first.map { L("Ventoinha %d rpm", Int($0.rpm)) }]
+                        .compactMap { $0 }.joined(separator: " · ")) { SensorsCard() }
+            }
         case "memory":
                 fold("memory", L("Memória"), "memorychip", Theme.memory, "\(Int(m.memFraction * 100))%",
                      m.memPressure == .normal ? L("Pressão normal") : m.memPressure == .warning ? L("Pressão alta") : L("Pressão crítica")) { MemoryCard(m: m) }

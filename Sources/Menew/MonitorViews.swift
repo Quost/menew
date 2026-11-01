@@ -141,39 +141,44 @@ struct BatteryCard: View {
     }
 }
 
-/// Núcleos de desempenho e de eficiência, cada um com sua barrinha (Apple Silicon)
+/// Núcleos de desempenho e de eficiência, cada um com sua barrinha e a porcentagem ao passar o mouse (Apple Silicon)
 struct CoreBars: View {
     let loads: [Double]
 
     var body: some View {
         let e = SystemMonitor.efficiencyCores, p = SystemMonitor.performanceCores
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 8) {
             if e > 0, p > 0, loads.count >= e + p {
-                group(L("Desempenho"), Array(loads[e..<(e + p)]), .pink)
-                group(L("Eficiência"), Array(loads[0..<e]), .teal)
+                group(L("Desempenho"), L("%d núcleos · tarefas pesadas", p), Array(loads[e..<(e + p)]), .pink)
+                group(L("Eficiência"), L("%d núcleos · tarefas leves, poupam bateria", e), Array(loads[0..<e]), .teal)
             } else {
-                group(L("Núcleos"), loads, Theme.cpu)
+                group(L("Núcleos"), L("%d núcleos", loads.count), loads, Theme.cpu)
             }
         }
     }
 
-    private func group(_ title: String, _ values: [Double], _ color: Color) -> some View {
-        HStack(alignment: .center, spacing: 8) {
-            Text(title).font(.system(size: 10.5, weight: .semibold)).foregroundStyle(.secondary).frame(width: 72, alignment: .leading)
+    private func group(_ title: String, _ detail: String, _ values: [Double], _ color: Color) -> some View {
+        let avg = Int((values.reduce(0, +) / Double(max(values.count, 1))) * 100)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(title).font(.system(size: 11, weight: .semibold))
+                Text(detail).font(.system(size: 10)).foregroundStyle(.secondary).lineLimit(1)
+                Spacer(minLength: 4)
+                Text("\(avg)%").font(.system(size: 11.5, weight: .semibold)).monospacedDigit()
+            }
             HStack(alignment: .bottom, spacing: 3) {
-                ForEach(Array(values.enumerated()), id: \.offset) { _, v in
+                ForEach(Array(values.enumerated()), id: \.offset) { i, v in
                     ZStack(alignment: .bottom) {
                         RoundedRectangle(cornerRadius: 2).fill(Color.primary.opacity(0.08))
-                        RoundedRectangle(cornerRadius: 2).fill(color.gradient).frame(height: max(2, 22 * v))
+                        RoundedRectangle(cornerRadius: 2).fill(color.gradient).frame(height: max(2, 18 * v))
                     }
-                    .frame(height: 22)
+                    .frame(height: 18)
+                    .help(L("Núcleo %d: %d%%", i + 1, Int(v * 100)))
                 }
             }
-            Text("\(Int((values.reduce(0, +) / Double(max(values.count, 1))) * 100))%")
-                .font(.system(size: 11, weight: .semibold)).monospacedDigit().frame(width: 34, alignment: .trailing)
         }
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel("\(title): \(Int((values.reduce(0, +) / Double(max(values.count, 1))) * 100))%")
+        .accessibilityLabel("\(title), \(detail): \(avg)%")
     }
 }
 
