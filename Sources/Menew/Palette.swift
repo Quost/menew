@@ -451,6 +451,10 @@ final class PaletteModel: ObservableObject {
             action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
                 ScreenRecorder.shared.start(gif: true)
             }
+            action("startup", L("Itens de login e em segundo plano"), "power.circle", .orange,
+                   "login itens items inicialização startup background segundo plano launch agents daemons anmeldeobjekte inicio 登录项") {
+                StartupItems.show()
+            }
             action("uninstall", L("Desinstalar app…"), "trash.square", .red,
                    "desinstalar uninstall remover remove apagar app appcleaner deinstallieren desinstalar 卸载", subtitle: L("Com as preferências, caches e dados")) {
                 Uninstaller.show()
