@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.52.0
+
+- **Timers and alarms from the command palette**: type “timer 10m tea”, “timer 90s”, “timer 1h30” or “alarm 7:30 meeting” (also “temporizador”, “alarme”, “wecker”, “alarma”) and press ↩. The countdown shows in the menu bar and, on time, Menew plays a sound and sends a notice.
+- Several timers can run at once; the next one shows in the menu bar. Type “timer” in the palette to cancel one.
+
 ## 1.51.0
 
 - **Last 24 hours**: the System tab now has a chart of CPU, memory and battery over the last day, so you can see when the Mac got busy or how fast the battery went down.
