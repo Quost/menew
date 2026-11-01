@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.44.0
+
+- **Accessory batteries**: the System tab now shows the battery of your connected Magic Mouse, Magic Keyboard, Magic Trackpad and AirPods (left, right and case), in red when it's running low.
+- **Low-battery alert**: turn on “Accessory battery” in Settings → Alerts to get a notice when one drops to 15% or less, so your mouse doesn't die in the middle of a call.
+
 ## 1.43.0
 
 - **Read QR codes from the screen**: select the area with a QR code (from the command palette or the menu bar icon's right-click menu) and its content goes to the clipboard. Links are never opened on their own, since a QR code can be misleading.
