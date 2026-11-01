@@ -209,6 +209,7 @@ final class PaletteModel: ObservableObject {
         if let ask = AIText.askItem(raw: query) { pool.append(ask) }
         if let reminder = QuickReminder.paletteItem(raw: query) { pool.append(reminder) }
         pool += EmojiSearch.paletteItems(raw: query, query: q)
+        pool += TimerStore.shared.paletteItems(raw: query)
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
             pool += AIText.paletteItems(text: text, query: q)

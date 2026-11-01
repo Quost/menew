@@ -110,6 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         FocusTimer.shared.attach(toolbox)
         PasteQueue.shared.attach(clipboard)
         PasteQueue.shared.onChange = { [weak self] in self?.updateStatusItem() }
+        TimerStore.shared.onChange = { [weak self] in self?.updateStatusItem() }
         PresentationMode.shared.attach(toolbox)
         PresentationMode.shared.onChange = { [weak self] in self?.updateStatusItem() }
         updateStatusItem()
@@ -225,6 +226,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         guard let button = statusItem?.button else { return }
         var segments = MenuBarItem.selected.compactMap { $0.segment(monitor) }
         if let focus = FocusTimer.shared.segment { segments.insert(focus, at: 0) }
+        if let timer = TimerStore.shared.segment { segments.insert(timer, at: 0) }
         if let queue = PasteQueue.shared.segment { segments.insert(queue, at: 0) }
         // Apresentando: só o ícone, sem números de CPU, memória ou rede na tela compartilhada
         if PresentationMode.shared.isOn { segments = [] }
