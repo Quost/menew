@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.68.0
+
+### New
+- **Screen time.** A new card in the System tab shows how long you spend in each app, today or as a daily average over 7 or 30 days, split into focus, neutral and distraction, with an hour-by-hour timeline for today and a bar per day for the week and month. Right-click an app to change its category. It counts only the app in front and only while you are using the Mac (it pauses after 2 minutes without input). It starts off: turn it on in the card. Everything stays in a small file on your Mac, and Delete history erases it.
+
 ## 1.67.0
 
 ### New
