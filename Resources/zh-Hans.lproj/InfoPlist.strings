@@ -3,3 +3,4 @@
 "NSCalendarsUsageDescription" = "Menew 会显示你的下一个会议和加入按钮。日历只在你的 Mac 上读取，不会离开它。";
 "NSRemindersFullAccessUsageDescription" = "Menew 会创建你在命令面板中输入的提醒事项，例如“提醒 明天9点交账单”。数据不会离开你的 Mac。";
 "NSRemindersUsageDescription" = "Menew 会创建你在命令面板中输入的提醒事项，例如“提醒 明天9点交账单”。数据不会离开你的 Mac。";
+"NSSpeechRecognitionUsageDescription" = "Menew 会在你的 Mac 上转写你拖到暂存架的音频和视频。";

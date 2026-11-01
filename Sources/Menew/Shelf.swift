@@ -259,6 +259,7 @@ struct ShelfView: View {
                     Text("\(store.items.count)").font(.system(size: 11, weight: .medium)).foregroundStyle(.secondary)
                 }
                 Spacer()
+                if !store.mediaURLs.isEmpty { ShelfMediaMenu(store: store) }
                 if !store.pdfURLs.isEmpty { ShelfPDFMenu(store: store) }
                 if !store.imageURLs.isEmpty { ShelfImageMenu(store: store) }
                 if !store.items.isEmpty {

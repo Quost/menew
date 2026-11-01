@@ -3,3 +3,4 @@
 "NSCalendarsUsageDescription" = "Menew muestra tu próxima reunión y un botón para unirte. Tu calendario se lee en tu Mac y nunca sale de él.";
 "NSRemindersFullAccessUsageDescription" = "Menew crea los recordatorios que escribes en la paleta, como “recordar pagar la factura mañana a las 9”. Nada sale de tu Mac.";
 "NSRemindersUsageDescription" = "Menew crea los recordatorios que escribes en la paleta, como “recordar pagar la factura mañana a las 9”. Nada sale de tu Mac.";
+"NSSpeechRecognitionUsageDescription" = "Menew transcribe los audios y vídeos que sueltas en la estantería, en tu Mac.";

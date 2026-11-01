@@ -3,3 +3,4 @@
 "NSCalendarsUsageDescription" = "Menew shows your next meeting and a button to join it. Your calendar is read on your Mac and never leaves it.";
 "NSRemindersFullAccessUsageDescription" = "Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.";
 "NSRemindersUsageDescription" = "Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.";
+"NSSpeechRecognitionUsageDescription" = "Menew transcribes the audio and video files you drop on the shelf, on your Mac.";

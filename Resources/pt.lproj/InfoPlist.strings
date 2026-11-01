@@ -3,3 +3,4 @@
 "NSCalendarsUsageDescription" = "O Menew mostra sua próxima reunião e um botão para entrar. O calendário é lido no seu Mac e nunca sai dele.";
 "NSRemindersFullAccessUsageDescription" = "O Menew cria os lembretes que você digita na paleta, como “lembrar pagar boleto amanhã 9h”. Nada sai do seu Mac.";
 "NSRemindersUsageDescription" = "O Menew cria os lembretes que você digita na paleta, como “lembrar pagar boleto amanhã 9h”. Nada sai do seu Mac.";
+"NSSpeechRecognitionUsageDescription" = "O Menew transcreve os áudios e vídeos que você solta na estante, no seu Mac.";
