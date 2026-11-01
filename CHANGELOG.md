@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.58.0
+
+### New
+- **7- and 30-day history.** The History card in System now goes back a week or a month, hour by hour, and the list of apps that used the most CPU, memory or battery follows the period you pick. Everything stays in a small file on your Mac.
+- **Custom alert rules.** In Settings › Alerts, build your own: pick a metric (CPU, memory, chip temperature, battery, free space, download or upload), above or below a limit, and for how long. For example “CPU above 80% for 10 min” or “battery below 30%”. Each rule notifies once and again only after the condition clears.
+
 ## 1.57.0
 
 ### New
