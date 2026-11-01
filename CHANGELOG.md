@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.61.0
+
+### New
+- **Script commands.** Run your own scripts from the command palette, like Raycast. Choose “Open scripts folder” in the palette, drop in any shell, Python, Node, Ruby or AppleScript file, and it shows up as a command. Raycast script headers work as they are: title, emoji icon, mode (silent, compact or full output) and one argument, typed after the script’s name (“greet Ana”). Scripts run only when you pick them, with Homebrew on the PATH, and stop after 2 minutes.
+
 ## 1.60.0
 
 ### New
