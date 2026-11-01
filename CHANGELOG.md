@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.51.0
+
+- **Last 24 hours**: the System tab now has a chart of CPU, memory and battery over the last day, so you can see when the Mac got busy or how fast the battery went down.
+- **Which apps used the most battery**: while the Mac is on battery, Menew notes every few minutes which apps use the most energy and shows the top five for the day.
+- The history is a small file on your Mac, and the energy check only runs on battery, every 5 minutes.
+
 ## 1.50.0
 
 - **Search inside clipboard images**: Menew now reads the text in the screenshots and images you copy, so searching ⌘⇧V for “order 4821” finds that screenshot with the order number. Images already in your history are read too, slowly in the background.
