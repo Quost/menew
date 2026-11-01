@@ -228,7 +228,7 @@ struct SystemView: View {
         case "sensors": (L("Temperaturas"), "thermometer.medium", Color.orange)
         case "memory": (L("Memória"), "memorychip", Theme.memory)
         case "battery": (L("Bateria e acessórios"), "battery.75percent", Theme.battery)
-        case "history": (L("Últimas 24 horas"), "chart.xyaxis.line", Color.indigo)
+        case "history": (L("Histórico"), "chart.xyaxis.line", Color.indigo)
         case "network": (L("Rede"), "network", Theme.download)
         case "disk": (L("Disco"), "internaldrive", Theme.disk)
         default: (L("Processos"), "list.bullet.rectangle", Color.gray)
@@ -305,7 +305,7 @@ struct SystemView: View {
                     AccessoriesCard()
                 }
         case "history":
-                fold("history", L("Últimas 24 horas"), "chart.xyaxis.line", .indigo, "", L("CPU, memória e bateria")) { SystemHistoryCard() }
+                fold("history", L("Histórico"), "chart.xyaxis.line", .indigo, "", L("CPU, memória e bateria")) { SystemHistoryCard() }
         case "network":
                 fold("network", L("Rede"), "network", Theme.download, "",
                      "↓ " + Fmt.shortRate(m.netIn) + "  ↑ " + Fmt.shortRate(m.netOut)) { networkCard }
@@ -748,7 +748,7 @@ struct SettingsView: View {
                 }
                 }
 
-                if show(.alerts) { AlertsSection() }
+                if show(.alerts) { AlertsSection(); AlertRulesSection() }
 
                 if show(.calendar) { MeetingsSection() }
 

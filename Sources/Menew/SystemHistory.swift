@@ -2,8 +2,8 @@ import AppKit
 import Charts
 import SwiftUI
 
-/// Histórico das últimas 24 horas: CPU, memória e bateria minuto a minuto, e quais apps mais gastaram energia
-/// enquanto o Mac estava na bateria. Tudo fica num arquivo pequeno no Mac (Application Support/Menew).
+/// Histórico de CPU, memória e bateria: minuto a minuto nas últimas 24 horas e de hora em hora nos últimos 30 dias,
+/// e quais apps mais usaram cada um. Tudo fica num arquivo pequeno no Mac (Application Support/Menew).
 @MainActor
 final class SystemHistory: ObservableObject {
     static let shared = SystemHistory()
@@ -28,6 +28,14 @@ final class SystemHistory: ObservableObject {
 
     @Published private(set) var samples: [Sample] = []
     @Published private(set) var energy: [EnergyHour] = []
+    /// Médias por hora de tudo que já saiu da janela de 24 h (até 30 dias)
+    @Published private(set) var hourly: [Sample] = []
+
+    enum Range: Int, CaseIterable {
+        case day, week, month
+        var seconds: TimeInterval { switch self { case .day: 86_400; case .week: 7 * 86_400; case .month: 30 * 86_400 } }
+        var title: String { switch self { case .day: "24h"; case .week: L("7 dias"); case .month: L("30 dias") } }
+    }
 
     private var acc: (cpu: Double, mem: Double, n: Int) = (0, 0, 0)
     private var minute = -1
@@ -42,6 +50,7 @@ final class SystemHistory: ObservableObject {
            let saved = try? JSONDecoder().decode(Saved.self, from: data) {
             samples = saved.samples
             energy = saved.energy
+            hourly = saved.hourly ?? []
             prune()
         }
     }
@@ -49,6 +58,7 @@ final class SystemHistory: ObservableObject {
     private struct Saved: Codable {
         var samples: [Sample]
         var energy: [EnergyHour]
+        var hourly: [Sample]?
     }
 
     /// Chamado a cada leitura do monitor (2 s); guarda a média de cada minuto
@@ -90,7 +100,11 @@ final class SystemHistory: ObservableObject {
             for p in Self.parseTop(byMem, lastSample: false) { mem[Self.appName(pid: p.pid, command: p.command), default: 0] += p.memMB }
             guard !cpu.isEmpty || !mem.isEmpty else { return }
             let hour = Calendar.current.dateInterval(of: .hour, for: Date())?.start ?? Date()
-            if energy.last?.hour != hour { energy.append(EnergyHour(hour: hour, apps: [:])) }
+            if energy.last?.hour != hour {
+                // A hora anterior fechou: guarda só os apps que mais usaram, para o arquivo de 30 dias ficar pequeno
+                if let last = energy.indices.last { energy[last] = Self.trimmed(energy[last]) }
+                energy.append(EnergyHour(hour: hour, apps: [:]))
+            }
             let i = energy.count - 1
             if onBattery { for (a, v) in power { energy[i].apps[a, default: 0] += v } }
             for (a, v) in cpu { energy[i].cpu = energy[i].cpu ?? [:]; energy[i].cpu?[a, default: 0] += v }
@@ -136,10 +150,43 @@ final class SystemHistory: ObservableObject {
         }
     }
 
-    private func prune() {
-        let cutoff = Date().addingTimeInterval(-24 * 3600)
-        samples.removeAll { $0.t < cutoff }
-        energy.removeAll { $0.hour < cutoff.addingTimeInterval(-3600) }
+    static func trimmed(_ h: EnergyHour, keep: Int = 15) -> EnergyHour {
+        func top(_ d: [String: Double]?) -> [String: Double]? {
+            d.map { Dictionary(uniqueKeysWithValues: $0.sorted { $0.value > $1.value }.prefix(keep).map { ($0.key, $0.value) }) }
+        }
+        return EnergyHour(hour: h.hour, apps: top(h.apps) ?? [:], cpu: top(h.cpu), mem: top(h.mem), n: h.n)
+    }
+
+    /// Médias de hora em hora (a última amostra de bateria de cada hora)
+    static func hourlyAverages(_ list: [Sample]) -> [Sample] {
+        let cal = Calendar.current
+        let groups = Dictionary(grouping: list) { cal.dateInterval(of: .hour, for: $0.t)?.start ?? $0.t }
+        return groups.keys.sorted().map { h in
+            let g = groups[h]!.sorted { $0.t < $1.t }
+            return Sample(t: h.addingTimeInterval(1800), cpu: g.map(\.cpu).reduce(0, +) / Double(g.count),
+                          mem: g.map(\.mem).reduce(0, +) / Double(g.count), battery: g.last?.battery, onAC: g.last?.onAC)
+        }
+    }
+
+    func prune(now: Date = Date()) {
+        // Corta em hora cheia, para cada hora virar uma média inteira
+        let cutoff = Calendar.current.dateInterval(of: .hour, for: now.addingTimeInterval(-24 * 3600))?.start ?? now
+        let old = samples.filter { $0.t < cutoff }
+        if !old.isEmpty {
+            let last = hourly.last?.t ?? .distantPast
+            hourly += Self.hourlyAverages(old).filter { $0.t > last }
+            samples.removeAll { $0.t < cutoff }
+        }
+        let month = now.addingTimeInterval(-Range.month.seconds)
+        hourly.removeAll { $0.t < month }
+        energy.removeAll { $0.hour < month.addingTimeInterval(-3600) }
+    }
+
+    /// Pontos do gráfico: minuto a minuto em 24 h; de hora em hora em 7 e 30 dias
+    func series(_ range: Range, now: Date = Date()) -> [Sample] {
+        guard range != .day else { return samples }
+        let from = now.addingTimeInterval(-range.seconds)
+        return (hourly + Self.hourlyAverages(samples)).filter { $0.t >= from }
     }
 
     func save() {
@@ -150,11 +197,12 @@ final class SystemHistory: ObservableObject {
 
     enum Metric: Int { case cpu, memory, energy }
 
-    /// Os 5 apps que mais usaram a métrica nas últimas 24 h: rótulo pronto e fração para a barra
-    func top(_ metric: Metric) -> [(app: String, fraction: Double, label: String)] {
+    /// Os 5 apps que mais usaram a métrica no período: rótulo pronto e fração para a barra
+    func top(_ metric: Metric, range: Range = .day, now: Date = Date()) -> [(app: String, fraction: Double, label: String)] {
         var total: [String: Double] = [:]
         var samples = 0
-        for h in energy {
+        let from = now.addingTimeInterval(-range.seconds - 3600)
+        for h in energy where h.hour >= from {
             let dict = metric == .energy ? h.apps : metric == .cpu ? (h.cpu ?? [:]) : (h.mem ?? [:])
             for (a, v) in dict { total[a, default: 0] += v }
             samples += h.n ?? 0
@@ -183,24 +231,34 @@ final class SystemHistory: ObservableObject {
             return Sample(t: t, cpu: max(0.04, 0.18 + 0.12 * wave + (i % 37 == 0 ? 0.4 : 0)), mem: 0.55 + 0.08 * sin(Double(i) / 40),
                           battery: max(20, 100 - i / 4), onAC: i > 250)
         }
+        hourly = (24..<(30 * 24)).reversed().map { h in
+            let t = now.addingTimeInterval(-Double(h) * 3600)
+            let day = Calendar.current.component(.hour, from: t)
+            let busy = (9...18).contains(day) ? 0.22 : 0.06
+            return Sample(t: t, cpu: busy + 0.05 * sin(Double(h) / 7), mem: 0.5 + 0.1 * sin(Double(h) / 50), battery: 40 + (h * 7) % 60, onAC: nil)
+        }
         energy = [EnergyHour(hour: now, apps: ["Safari": 420, "Microsoft Teams": 310, "Xcode": 180, "Music": 60, "Mail": 25],
                              cpu: ["Xcode": 240, "Safari": 160, "Microsoft Teams": 120, "Figma": 60, "Mail": 10],
                              mem: ["Safari": 18_000, "Xcode": 14_000, "Microsoft Teams": 9_000, "Figma": 7_000, "Music": 2_000], n: 20)]
     }
 }
 
-/// Cartão "Últimas 24 horas" na aba Sistema
+/// Cartão "Histórico" na aba Sistema
 struct SystemHistoryCard: View {
     @ObservedObject var history = SystemHistory.shared
     @State private var metric = 0
+    @AppStorage("historyRange") private var rangeRaw = 0
+    private var range: SystemHistory.Range { SystemHistory.Range(rawValue: rangeRaw) ?? .day }
 
     var body: some View {
         if history.samples.count >= 3 {
             VStack(alignment: .leading, spacing: 10) {
-                CardHeader(title: L("Últimas 24 horas"), icon: "chart.xyaxis.line", color: .indigo) {
+                CardHeader(title: L("Histórico"), icon: "chart.xyaxis.line", color: .indigo) {
                     GlassSegmented(selection: $metric, options: options, expand: false)
                 }
-                Chart(history.samples) { s in
+                GlassSegmented(selection: $rangeRaw, options: SystemHistory.Range.allCases.map { .init(value: $0.rawValue, title: $0.title) })
+                let points = history.series(range)
+                Chart(points) { s in
                     AreaMark(x: .value("t", s.t), y: .value("v", value(s)))
                         .foregroundStyle(LinearGradient(colors: [color.opacity(0.35), color.opacity(0.02)], startPoint: .top, endPoint: .bottom))
                     LineMark(x: .value("t", s.t), y: .value("v", value(s)))
@@ -208,10 +266,16 @@ struct SystemHistoryCard: View {
                 }
                 .chartYScale(domain: 0...100)
                 .chartYAxis { AxisMarks(values: [0, 50, 100]) { v in AxisValueLabel { Text("\(v.as(Int.self) ?? 0)%").font(.system(size: 9)) } } }
-                .chartXAxis { AxisMarks(values: .stride(by: .hour, count: 6)) { _ in AxisValueLabel(format: .dateTime.hour()) } }
+                .chartXAxis {
+                    switch range {
+                    case .day: AxisMarks(values: .stride(by: .hour, count: 6)) { _ in AxisValueLabel(format: .dateTime.hour()) }
+                    case .week: AxisMarks(values: .stride(by: .day)) { _ in AxisValueLabel(format: .dateTime.weekday(.abbreviated)) }
+                    case .month: AxisMarks(values: .stride(by: .day, count: 7)) { _ in AxisValueLabel(format: .dateTime.day().month(.abbreviated)) }
+                    }
+                }
                 .frame(height: 90)
                 let kind: SystemHistory.Metric = metric == 0 ? .cpu : metric == 1 ? .memory : .energy
-                let top = history.top(kind)
+                let top = history.top(kind, range: range)
                 Text(kind == .cpu ? L("Mais usaram CPU") : kind == .memory ? L("Mais usaram memória") : L("Mais gastaram bateria"))
                     .font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.top, 2)
                 if top.isEmpty {
