@@ -134,6 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         HotKeyCenter.shared.onMenu = { [weak self] in self?.togglePopover() }
         HotKeyCenter.shared.onOCR = { if Module.actions.isOn { TextRecognizer.captureScreenText() } }
         HotKeyCenter.shared.onCapture = { if Module.actions.isOn { ScreenCapture.area() } }
+        HotKeyCenter.shared.onRewrite = { Rewriter.shared.start() }
         HotKeyCenter.shared.onPalette = { [weak self] in
             guard let self else { return }
             if popover.isShown { popover.performClose(nil) }

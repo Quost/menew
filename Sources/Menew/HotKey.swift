@@ -48,6 +48,7 @@ struct Shortcut: Codable, Equatable {
     static let micDefault = Shortcut(keyCode: UInt32(kVK_ANSI_M), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "M")
     static let ocrDefault = Shortcut(keyCode: UInt32(kVK_ANSI_T), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "T")
     static let captureDefault = Shortcut(keyCode: UInt32(kVK_ANSI_S), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "S")
+    static let rewriteDefault = Shortcut(keyCode: UInt32(kVK_ANSI_R), modifiers: UInt32(cmdKey | optionKey | controlKey), key: "R")
     static let paletteDefault = Shortcut(keyCode: UInt32(kVK_Space), modifiers: UInt32(optionKey | controlKey), key: "Space")
 
     var display: String {
@@ -112,6 +113,7 @@ final class HotKeyCenter {
     static let micKey = "shortcutMic"
     static let paletteKey = "shortcutPalette"
     static let ocrKey = "shortcutOCR"
+    static let rewriteKey = "shortcutRewrite"
 
     var onClipboard: (() -> Void)?
     var onMenu: (() -> Void)?
@@ -119,6 +121,7 @@ final class HotKeyCenter {
     var onPalette: (() -> Void)?
     var onOCR: (() -> Void)?
     var onCapture: (() -> Void)?
+    var onRewrite: (() -> Void)?
     private var hotKeys: [HotKey] = []
 
     func register() {
@@ -129,6 +132,7 @@ final class HotKeyCenter {
         let palette = Shortcut.load(Self.paletteKey, default: .paletteDefault)
         let ocr = Shortcut.load(Self.ocrKey, default: .ocrDefault)
         let capture = Shortcut.load(ScreenCapture.key, default: .captureDefault)
+        let rewrite = Shortcut.load(Self.rewriteKey, default: .rewriteDefault)
         hotKeys = [
             HotKey(keyCode: clip.keyCode, modifiers: clip.modifiers, id: 1) { [weak self] in
                 MainActor.assumeIsolated { self?.onClipboard?() }
@@ -147,6 +151,9 @@ final class HotKeyCenter {
             },
             HotKey(keyCode: capture.keyCode, modifiers: capture.modifiers, id: 6) { [weak self] in
                 MainActor.assumeIsolated { self?.onCapture?() }
+            },
+            HotKey(keyCode: rewrite.keyCode, modifiers: rewrite.modifiers, id: 7) { [weak self] in
+                MainActor.assumeIsolated { self?.onRewrite?() }
             },
         ]
         WindowManager.shared.registerHotKeys()

@@ -453,6 +453,13 @@ final class PaletteModel: ObservableObject {
             action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
                 ScreenRecorder.shared.start(gif: true)
             }
+            action("rewrite", L("Reescrever texto selecionado"), "pencil.and.outline", .pink,
+                   "reescrever rewrite corrigir fix formal amigável shorter selecionado selected texto text umschreiben reescribir 改写",
+                   subtitle: L("Com a IA do Mac, em qualquer app"),
+                   shortcut: Shortcut.load(HotKeyCenter.rewriteKey, default: .rewriteDefault).display) {
+                // A paleta fecha e o app de antes volta para a frente; aí a seleção dele é copiada
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { Rewriter.shared.start() }
+            }
             action("screenask", L("Pergunte sobre a tela"), "text.viewfinder", .pink,
                    "perguntar tela screen ask explicar explain erro error traduzir translate ia ai bildschirm pantalla 屏幕 询问",
                    subtitle: L("Selecione uma área e pergunte à IA do Mac")) { ScreenAsk.shared.start() }

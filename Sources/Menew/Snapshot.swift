@@ -139,6 +139,12 @@ enum Snapshot {
                 ask.answer = L("O projeto não compilou porque o código usa “userName”, mas nada com esse nome existe ali. Declare a variável ou corrija o nome na linha 42 de ProfileView.swift.")
                 render(ScreenAskView(model: ask), size: NSSize(width: 500, height: 440), dark: dark,
                        to: dir.appendingPathComponent("screen-ask-\(suffix).png"))
+                let rw = Rewriter()
+                rw.original = L("oi pessoal, a reuniao de amanha foi cancelada pq o cliente nao pode, vamo remarcar pra semana q vem")
+                rw.chosen = .formal
+                rw.result = L("Olá a todos, a reunião de amanhã foi cancelada porque o cliente não poderá comparecer. Vamos remarcá-la para a próxima semana.")
+                render(RewriterView(model: rw), size: NSSize(width: 420, height: 330), dark: dark,
+                       to: dir.appendingPathComponent("rewrite-\(suffix).png"))
                 let qr = QRModel()
                 qr.text = "https://menew.web.app"
                 render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,

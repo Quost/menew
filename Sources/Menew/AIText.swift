@@ -140,7 +140,7 @@ enum AIText {
         return Locale(identifier: "en").localizedString(forLanguageCode: code)
     }
 
-    private static func generate(_ action: AIAction, _ text: String) async throws -> String {
+    static func generate(_ action: AIAction, _ text: String) async throws -> String {
         #if canImport(FoundationModels)
         if #available(macOS 26, *) {
             let session = LanguageModelSession(model: .default, instructions: """

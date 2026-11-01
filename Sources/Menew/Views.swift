@@ -847,6 +847,10 @@ struct SettingsView: View {
                             ShortcutRecorder(name: ScreenCapture.key, fallback: .captureDefault)
                         }
                         RowDivider()
+                        SettingRow(title: L("Reescrever texto selecionado"), detail: L("Com a IA do Mac, em qualquer app")) {
+                            ShortcutRecorder(name: HotKeyCenter.rewriteKey, fallback: .rewriteDefault)
+                        }
+                        RowDivider()
                         ToggleRow(title: L("Abrir a estante ao chacoalhar arquivos"),
                                   detail: L("Ao arrastar arquivos, chacoalhe o mouse e a estante aparece para você soltar ali."),
                                   isOn: $shelfShake)
