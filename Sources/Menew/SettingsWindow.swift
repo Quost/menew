@@ -60,7 +60,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
                           L("Ignorar senhas (1Password, Keychain…)"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
                           L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
-                          L("Capturar tela"), L("Abrir a estante ao chacoalhar arquivos"), L("Organizar janelas com ⌃⌥"), L("Brilho de monitores externos")]
+                          L("Capturar tela"), L("Abrir a estante ao chacoalhar arquivos"), L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Brilho de monitores externos")]
         case .calendar: [L("Calendário"), L("Mostrar a próxima reunião"), L("Horário de trabalho"), L("Avisar 1 minuto antes"), L("Relógios"), L("Adicionar cidade…")]
         case .alerts: [L("Alertas"), L("Disco quase cheio"), L("Bateria baixa"), L("Memória no limite"), L("CPU alta por muito tempo"),
                        L("Mac esquentando"), L("Bateria dos acessórios"), L("App descontrolado")]

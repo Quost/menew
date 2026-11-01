@@ -146,6 +146,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
         HotKeyCenter.shared.register()
         RunawayWatch.shared.refresh()
+        DragSnap.shared.refresh()
         // Bateria dos acessórios: lida a cada 10 min para avisar quando estiver acabando
         DispatchQueue.main.asyncAfter(deadline: .now() + 20) { AccessoryMonitor.shared.start() }
         // Perfis aparecem nas frases da Siri ("Ativar Trabalho no Menew")

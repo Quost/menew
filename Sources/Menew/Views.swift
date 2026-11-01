@@ -700,6 +700,7 @@ struct SettingsView: View {
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @AppStorage(Module.actions.key) private var actionsOn = true
     @AppStorage(WindowManager.shortcutsKey) private var windowShortcuts = true
+    @AppStorage(DragSnap.key) private var dragSnap = true
     @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -843,6 +844,11 @@ struct SettingsView: View {
                                   detail: L("⌃⌥ + setas para metades, U I J K para cantos, ↩ para maximizar. Desligue se usa outro app para isso."),
                                   isOn: $windowShortcuts)
                             .onChange(of: windowShortcuts) { _, _ in WindowManager.shared.registerHotKeys() }
+                        RowDivider()
+                        ToggleRow(title: L("Encaixar janelas arrastando"),
+                                  detail: L("Arraste uma janela até a borda (metade), o topo (tela cheia) ou um canto (um quarto). Desliga sozinho se o Rectangle ou o Magnet estiverem abertos."),
+                                  isOn: $dragSnap)
+                            .onChange(of: dragSnap) { _, _ in DragSnap.shared.refresh() }
                         RowDivider()
                         ToggleRow(title: L("Brilho de monitores externos"),
                                   detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se a tela travar ao abrir Ações com um monitor ligado, desligue aqui."),
