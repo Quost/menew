@@ -124,5 +124,18 @@
   "rep5_t": "CleanShot X",
   "rep6_t": "Amphetamine · Caffeine",
   "rep7_t": "CleanMyMac",
-  "rep8_t": "Dropover · Yoink"
+  "rep8_t": "Dropover · Yoink",
+  "pro_eyebrow": "专业工具",
+  "pro_h2": "付费 Mac 工具收费的功能，这里都有",
+  "pro_sub": "原本需要另外购买的监控和维护工具，免费且在你的 Mac 上运行。",
+  "pro1_t": "最长 30 天历史",
+  "pro1_d": "24 小时、7 天或 30 天的 CPU、内存和电量，以及占用最多的应用。",
+  "pro2_t": "传感器与核心",
+  "pro2_d": "芯片、SSD 和电池温度，风扇转速，以及每个性能核与能效核。",
+  "pro3_t": "网络与 Wi-Fi",
+  "pro3_d": "实时网速、占用网络的应用，以及 Wi-Fi 信号、噪声、信道和频段。",
+  "pro4_t": "应用卸载",
+  "pro4_d": "连同偏好设置、缓存和数据一起移除应用，全部移到废纸篓。",
+  "pro5_t": "登录项与后台项目",
+  "pro5_d": "查看应用安装了哪些随 Mac 启动或在后台运行的代理和服务。"
 }

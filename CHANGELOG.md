@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.62.1
+
+### Fixed
+- **Wi-Fi details now show up.** In 1.62 the Wi-Fi row in the Network card never appeared. It now shows in the Network card and in the network icon’s panel.
+- Login and background items: entries that don’t belong to an app show the program they run instead of repeating their name, and apps that aren’t installed get a generic icon.
+
 ## 1.62.0
 
 ### New

@@ -124,5 +124,18 @@
   "rep5_t": "CleanShot X",
   "rep6_t": "Amphetamine · Caffeine",
   "rep7_t": "CleanMyMac",
-  "rep8_t": "Dropover · Yoink"
+  "rep8_t": "Dropover · Yoink",
+  "pro_eyebrow": "Ferramentas pro",
+  "pro_h2": "O que os utilitários pagos cobram, já incluso",
+  "pro_sub": "Monitoramento e manutenção que você compraria à parte, de graça e no seu Mac.",
+  "pro1_t": "Histórico de até 30 dias",
+  "pro1_d": "CPU, memória e bateria em 24 horas, 7 ou 30 dias, e os apps que mais usaram.",
+  "pro2_t": "Sensores e núcleos",
+  "pro2_d": "Temperatura do chip, do SSD e da bateria, rotação da ventoinha e cada núcleo de desempenho e eficiência.",
+  "pro3_t": "Rede e Wi-Fi",
+  "pro3_d": "Velocidade ao vivo, os apps usando a rede e o sinal, ruído, canal e faixa do seu Wi-Fi.",
+  "pro4_t": "Desinstalador de apps",
+  "pro4_d": "Tira um app junto com as preferências, caches e dados que ele deixou. Tudo vai para a Lixeira.",
+  "pro5_t": "Itens de login e em segundo plano",
+  "pro5_d": "Veja quais agentes e serviços os apps instalaram para abrir com o Mac ou rodar escondidos."
 }

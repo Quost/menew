@@ -212,6 +212,11 @@
   .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
 
   .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
+  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; align-items: start; }
+  .gallery figure { margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .gallery img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); }
+  .gallery h3 { font-size: 15px; margin: 12px 0 4px; }
+  .gallery p { font-size: 14px; color: var(--muted); }
   .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
   .replaces div { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
   .replaces h3 { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .02em; margin-bottom: 6px; }
@@ -292,13 +297,13 @@
   @media (max-width: 900px) {
     .stage { grid-template-columns: 1fr; padding: 18px; }
     .stage .popover { justify-self: center; width: min(340px, 100%); }
-    .grid, .privacy, .replaces { grid-template-columns: 1fr 1fr; }
+    .grid, .privacy, .replaces, .gallery { grid-template-columns: 1fr 1fr; }
     .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
     .split.rev .copy { order: 0; }
     .menubar .left span:not(:first-child) { display: none; }
   }
   @media (max-width: 600px) {
-    .grid, .privacy, .replaces { grid-template-columns: 1fr; }
+    .grid, .privacy, .replaces, .gallery { grid-template-columns: 1fr; }
     .nav-links a.text { display: none; }
     .hero { padding-top: 56px; }
     h1 br { display: none; }
@@ -451,6 +456,43 @@
       <img class="shot dark-only" style="width:min(340px,48%)" src="{{shots}}/popover-actions-dark.png" alt="{{alt_actions}}">
       <img class="shot light-only" style="width:min(340px,48%)" src="{{shots}}/popover-notes-light.png" alt="{{alt_notes}}">
       <img class="shot dark-only" style="width:min(340px,48%)" src="{{shots}}/popover-notes-dark.png" alt="{{alt_notes}}">
+    </div>
+  </div>
+</section>
+
+<section id="pro">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{pro_eyebrow}}</div>
+      <h2>{{pro_h2}}</h2>
+      <p class="sub">{{pro_sub}}</p>
+    </div>
+    <div class="gallery">
+      <figure class="reveal">
+        <img class="light-only" loading="lazy" src="{{shots}}/history-light.png" alt="{{pro1_t}}">
+        <img class="dark-only" loading="lazy" src="{{shots}}/history-dark.png" alt="{{pro1_t}}">
+        <h3>{{pro1_t}}</h3><p>{{pro1_d}}</p>
+      </figure>
+      <figure class="reveal">
+        <img class="light-only" loading="lazy" src="{{shots}}/sensors-light.png" alt="{{pro2_t}}">
+        <img class="dark-only" loading="lazy" src="{{shots}}/sensors-dark.png" alt="{{pro2_t}}">
+        <h3>{{pro2_t}}</h3><p>{{pro2_d}}</p>
+      </figure>
+      <figure class="reveal">
+        <img class="light-only" loading="lazy" src="{{shots}}/metric-net-light.png" alt="{{pro3_t}}">
+        <img class="dark-only" loading="lazy" src="{{shots}}/metric-net-dark.png" alt="{{pro3_t}}">
+        <h3>{{pro3_t}}</h3><p>{{pro3_d}}</p>
+      </figure>
+      <figure class="reveal">
+        <img class="light-only" loading="lazy" src="{{shots}}/uninstaller-light.png" alt="{{pro4_t}}">
+        <img class="dark-only" loading="lazy" src="{{shots}}/uninstaller-dark.png" alt="{{pro4_t}}">
+        <h3>{{pro4_t}}</h3><p>{{pro4_d}}</p>
+      </figure>
+      <figure class="reveal">
+        <img class="light-only" loading="lazy" src="{{shots}}/startup-light.png" alt="{{pro5_t}}">
+        <img class="dark-only" loading="lazy" src="{{shots}}/startup-dark.png" alt="{{pro5_t}}">
+        <h3>{{pro5_t}}</h3><p>{{pro5_d}}</p>
+      </figure>
     </div>
   </div>
 </section>
