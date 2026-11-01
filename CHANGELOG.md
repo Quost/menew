@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.46.0
+
+- **Emoji in the command palette**: type “emoji” or “:” followed by a word, like “emoji rocket”, “emoji coração” or “:fire”, and press ↩ to paste it into the app you're using. Common words work in all five languages.
+- **Symbols without a key**: type “arrow right”, “degree”, “euro”, “check”, “approximately” or “command” to get →, °, €, ✓, ≈ or ⌘, plus fractions, math signs, currencies and the Mac keyboard symbols.
+
 ## 1.45.0
 
 - **Quick reminders from the command palette**: type “remind pay the bill tomorrow at 9”, “lembrar ligar pro João sexta 14h” or “erinnern Arzt morgen um 9 Uhr”, press ↩, and it's in the Reminders app with the date and an alert. Without a time it becomes an all-day reminder; without a date, a simple to-do.
