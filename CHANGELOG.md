@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.57.0
+
+### New
+- **Drag to snap.** Drag a window to the left or right edge of the screen for a half, to the top for full screen or into a corner for a quarter. A preview shows where it will land; let go to snap. Turn it off in Settings › Shortcuts and actions. It steps aside automatically when Rectangle, Magnet, BetterSnapTool or Moom is running.
+
 ## 1.56.0
 
 - **Separate menu bar icons**: turn on Settings → Menu bar → Separate icons and each metric you show (CPU, memory, network, disk, battery, temperature) gets its own icon. Click one for a panel with just that metric: CPU with cores and the busiest apps, memory pressure, network with apps using it, disk with SSD health, battery with watts and accessories, or temperatures and fan.
