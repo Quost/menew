@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.59.0
+
+### New
+- **Screen recording.** Record an area or the whole screen (press ↩) as a video, from the command palette, Actions or your favorites. A floating Stop button shows the time and never appears in the recording. The file goes to your Desktop.
+- **GIFs.** Same thing, saved as a looping GIF (up to 30 seconds), ready to drop into an issue or a chat.
+- **Scrolling capture.** Pick the part of a page or list that scrolls and Menew scrolls it for you, joining each piece into one long image that opens in the screenshot editor. Fixed headers and footers appear only once. Press esc to stop early.
+
 ## 1.58.0
 
 ### New
