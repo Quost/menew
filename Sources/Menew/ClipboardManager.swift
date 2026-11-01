@@ -15,6 +15,8 @@ struct ClipItem: Codable, Identifiable, Equatable {
     var pinned = false
     /// Preenchido só para snippets (não vão para o histórico)
     var snippetTitle: String?
+    /// Texto lido da imagem (no Mac, em segundo plano), para achar prints pela busca. "" = já lida, sem texto.
+    var ocrText: String?
 
     var preview: String {
         guard let t = text else { return "" }
@@ -199,6 +201,32 @@ final class ClipboardManager: ObservableObject {
         new.sourceBundle = front?.bundleIdentifier
         insert(new)
         PasteQueue.shared.captured(new)
+        if new.kind == .image { queueOCR() }
+    }
+
+    // MARK: Texto das imagens
+
+    static let ocrKey = "clipboardOCR"
+    private var ocrRunning = false
+
+    /// Lê o texto das imagens que ainda não foram lidas, uma por vez e sem pressa (as mais novas primeiro)
+    func queueOCR() {
+        guard !ocrRunning, !isDemo, defaults.object(forKey: Self.ocrKey) as? Bool ?? true,
+              let item = items.first(where: { $0.kind == .image && $0.ocrText == nil }),
+              let file = item.imageFile else { return }
+        ocrRunning = true
+        let url = imagesDir.appendingPathComponent(file)
+        Task {
+            let text = await Task.detached(priority: .background) { await TextRecognizer.recognize(url: url) }.value
+            if let i = items.firstIndex(where: { $0.id == item.id }) {
+                items[i].ocrText = text.trimmingCharacters(in: .whitespacesAndNewlines)
+                save()
+            }
+            ocrRunning = false
+            // Um respiro entre imagens para não pesar no Mac quando há muitas antigas para ler
+            try? await Task.sleep(for: .seconds(1))
+            queueOCR()
+        }
     }
 
     private func insert(_ new: ClipItem) {
@@ -247,7 +275,7 @@ final class ClipboardManager: ObservableObject {
         let q = query.trimmingCharacters(in: .whitespaces)
         let base = items.filter(filter.matches)
         let matches = q.isEmpty ? base : base.filter { item in
-            [item.text, item.sourceApp].compactMap { $0 }.contains {
+            [item.text, item.sourceApp, item.ocrText].compactMap { $0 }.contains {
                 $0.range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) != nil
             }
         }
@@ -414,6 +442,8 @@ final class ClipboardManager: ObservableObject {
             return FileManager.default.fileExists(atPath: imagesDir.appendingPathComponent(f).path)
         }
         if items.count != decoded.count { save() }
+        // Imagens de antes desta versão também ficam buscáveis
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in self?.queueOCR() }
     }
 
     private func save() {

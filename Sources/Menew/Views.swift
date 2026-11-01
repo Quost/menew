@@ -527,6 +527,7 @@ struct SettingsView: View {
     @AppStorage("maxItems") private var maxItems = 300
     @AppStorage("autoDeleteDays") private var autoDeleteDays = 0
     @AppStorage("ignoreConcealed") private var ignoreConcealed = true
+    @AppStorage(ClipboardManager.ocrKey) private var clipboardOCR = true
     @AppStorage("paused") private var paused = false
     @AppStorage("ignoredApps") private var ignoredApps = ""
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
@@ -601,6 +602,11 @@ struct SettingsView: View {
                     ToggleRow(title: L("Pausar captura"), isOn: $paused)
                     RowDivider()
                     ToggleRow(title: L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
+                    RowDivider()
+                    ToggleRow(title: L("Buscar texto dentro das imagens"),
+                              detail: L("O Menew lê o texto dos prints e imagens copiados, no Mac, para achar pela busca."),
+                              isOn: $clipboardOCR)
+                        .onChange(of: clipboardOCR) { _, on in if on { clipboard.queueOCR() } }
                     RowDivider()
                     SettingRow(title: L("Guardar %d itens", maxItems)) {
                         GlassStepper(value: $maxItems, range: 50...2000, step: 50)

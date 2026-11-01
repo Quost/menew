@@ -279,7 +279,7 @@ struct ClipContextMenu: View {
             }
         }
         if item.kind == .image, let u = manager.imageURL(for: item) {
-            Button(L("Copiar texto da imagem")) { TextRecognizer.copyText(fromImageAt: u) }
+            Button(L("Copiar texto da imagem")) { copyImageText(item, u) }
             Button(L("Abrir imagem")) { NSWorkspace.shared.open(u) }
         }
         if item.snippetTitle == nil {
@@ -331,7 +331,7 @@ struct ClipPreview: View {
                 PillButton(title: L("Colar"), icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
                 PillButton(title: L("Copiar"), icon: "doc.on.doc") { manager.copy(item) }
                 if item.kind == .image, let u = manager.imageURL(for: item) {
-                    PillButton(title: L("Copiar texto"), icon: "text.viewfinder") { TextRecognizer.copyText(fromImageAt: u) }
+                    PillButton(title: L("Copiar texto"), icon: "text.viewfinder") { copyImageText(item, u) }
                         .help(L("Lê o texto da imagem no próprio Mac e copia"))
                 }
                 // imagem já tem o botão de texto: o fixar vira ícone para caber em todos os idiomas
@@ -689,4 +689,16 @@ struct VisualEffect: NSViewRepresentable {
         return v
     }
     func updateNSView(_ v: NSVisualEffectView, context: Context) { v.material = material }
+}
+
+/// Usa o texto já lido em segundo plano; se ainda não foi lido, lê agora
+@MainActor func copyImageText(_ item: ClipItem, _ url: URL) {
+    if let t = item.ocrText, !t.isEmpty {
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(t, forType: .string)
+        let lines = t.split(separator: "\n").count
+        HUD.show(icon: "text.viewfinder", color: .green, text: lines == 1 ? L("Texto copiado") : L("Texto copiado (%d linhas)", lines))
+    } else {
+        TextRecognizer.copyText(fromImageAt: url)
+    }
 }
