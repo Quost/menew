@@ -53,7 +53,7 @@
 | 🧽 **Cleaning mode** | Lock the keyboard for 2 minutes while you wipe it, or black out every screen to spot smudges. |
 | 🌐 **Internet** | Live download/upload, local and public IP, and a real speed test powered by macOS `networkQuality`. **Apps using the network**: download and upload per app, read from macOS `nettop` only while you have the list open. |
 | 🎧 **Devices** | Battery levels for AirPods (left, right, case), Magic Mouse, Keyboard and Trackpad. |
-| 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads, large files (over 250 MB) and duplicate files (identical copies, byte for byte; the oldest is kept as the original). You review everything, and your files go to the Trash. |
+| 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads, large files (over 250 MB) and duplicate files (identical copies, byte for byte; the oldest is kept as the original). You review everything, and your files go to the Trash. **Uninstall apps**: drop an app (or pick one) and Menew finds the preferences, caches, containers, saved state and logs it left in your Library; review the list and everything goes to the Trash. macOS apps are never touched. |
 | ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. Give one an abbreviation like `;sig` and typing it in any app turns it into the text (optional, off by default; never in password fields). Variables: `{date}`, `{time}`, `{weekday}`, `{tomorrow}`, `{clipboard}`, `{cursor}` (where the cursor lands) and `{input:Name}` (asked in a small window before pasting). |
 | 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. With Apple Intelligence, a note's ⋯ menu can **summarize it** or **extract its to-dos** as a checklist, on your Mac. **Password notes** keep name and value rows with hidden values, an eye to reveal and a copy button; copied values are marked confidential (no clipboard history) and cleared after 30 seconds. Switch a note's type at any time. |
 | 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. **Favorites** at the top of Actions (pick and reorder the ones you use), the other sections fold away with a summary, the System tab's cards can be reordered, folded or hidden, and **Settings opens in its own window** with categories and search. Turn off Clipboard, Actions or Notes in Settings → General and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings → Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac. |
@@ -126,7 +126,7 @@ Menew covers the everyday features of these popular Mac utilities in one free, n
 | iStat Menus · Stats | CPU, GPU, memory, disk, network and battery in the menu bar. |
 | CleanShot X | Screenshots with arrows, text, blur and pinning on screen (⌃⌥⌘S). |
 | Amphetamine · Caffeine | Keep the Mac awake for a while, until a time or while an app is open. |
-| CleanMyMac | Disk cleaner for caches, logs, big files and duplicates; files go to the Trash. |
+| CleanMyMac | Disk cleaner for caches, logs, big files and duplicates, plus an app uninstaller with leftovers; files go to the Trash. |
 | Dropover · Yoink | A shelf for dragging files between apps, plus image and PDF tools. |
 
 ## Keyboard shortcuts
@@ -237,6 +237,7 @@ Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and t
 - [x] Drag windows to screen edges and corners to snap them
 - [x] 7- and 30-day history and custom alert rules
 - [x] Screen recording, GIFs and scrolling capture
+- [x] App uninstaller that also removes leftovers
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

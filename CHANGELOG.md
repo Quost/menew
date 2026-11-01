@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.60.0
+
+### New
+- **Uninstall apps, leftovers included.** Open “Uninstall app…” from the command palette, Actions or your favorites, then drop an app or pick one. Menew lists the app plus the preferences, caches, containers, saved state, logs and launch agents it left in your Library, with their sizes. Untick anything you want to keep; the rest goes to the Trash (nothing is deleted outright). If the app is open, Menew quits it first. Apps that come with macOS are never touched.
+
 ## 1.59.0
 
 ### New
