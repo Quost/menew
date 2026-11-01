@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.55.0
+
+- **Temperatures and fans**: a new Temperatures card in the System tab shows the chip (hottest sensor and average), SSD and battery in °C, each with a color from green to red, and the fan speed in rpm. “See all sensors” lists every one your Mac reports.
+- **Clearer cores**: the Processor card now says what each group is and how many cores it has (“Performance · 4 cores · heavy tasks”, “Efficiency · 6 cores · light tasks, save battery”). Hover a bar to see that core's load.
+- Temperatures and fans are read-only and use the same interfaces as other monitors; if a future macOS changes them, Menew just hides that number. Macs without a fan don't show the fan line.
+
 ## 1.54.0
 
 - **Performance and efficiency cores**: the Processor card shows every core of your Apple Silicon Mac, grouped into performance and efficiency, with their average.
