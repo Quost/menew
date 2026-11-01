@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.62.0
+
+### New
+- **Wi-Fi details.** The Network card in System now shows your Wi-Fi signal and noise in dBm, a quality rating based on the signal-to-noise ratio, link speed, channel and width, band (2.4, 5 or 6 GHz) and standard (Wi-Fi 4 to 7). It needs no location permission, so the network name isn’t shown.
+- **Login and background items.** “Login and background items” in the command palette lists the launch agents and services apps installed to start with your Mac or run hidden, with the app that owns each one and whether it starts at login. Show any of them in Finder, or jump to System Settings to turn one off.
+
 ## 1.61.0
 
 ### New
