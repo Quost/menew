@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.63.0
+
+### New
+- **Natural-language commands.** In the command palette, start with “do” (or “faz”, “mach”, “haz”) and say what you want: “do dark mode, keep the Mac awake and open Safari”. Your Mac’s on-device AI picks the matching actions, window layouts and apps, shows you the steps, and runs them only when you press Do it. It never picks actions that delete or quit things, and nothing leaves your Mac. Needs Apple Intelligence; without it, the palette tells you how to turn it on.
+
 ## 1.62.1
 
 ### Fixed
