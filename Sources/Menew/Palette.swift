@@ -212,6 +212,7 @@ final class PaletteModel: ObservableObject {
         if Module.clipboard.isOn, let text = TextTransform.clipboardText() {
             pool += TextTransform.paletteItems(text: text, query: q)
             pool += AIText.paletteItems(text: text, query: q)
+            pool += Translate.paletteItems(text: text, query: q)
             pool += SmartClip.paletteItems(text: text)
         }
         if Module.clipboard.isOn {

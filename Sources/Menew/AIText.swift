@@ -96,7 +96,8 @@ enum AIText {
     static func paletteItems(text: String, query: String) -> [PaletteItem] {
         let q = PaletteSearch.fold(query.trimmingCharacters(in: .whitespaces))
         guard q.count >= 2, !text.isEmpty else { return [] }
-        let matches = AIAction.allCases.filter { PaletteSearch.score(q, title: $0.title, keywords: $0.keywords) != nil }
+        // Traduções ficam com o tradutor da Apple (Translate.swift): mais fiel e funciona sem Apple Intelligence
+        let matches = AIAction.allCases.filter { !$0.isTranslation && PaletteSearch.score(q, title: $0.title, keywords: $0.keywords) != nil }
         guard !matches.isEmpty else { return [] }
         if let reason = unavailableReason {
             // Um aviso só, para quem procurou e não tem a IA
