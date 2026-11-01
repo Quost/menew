@@ -173,6 +173,10 @@ struct ActionsView: View {
                         LazyVGrid(columns: cols, spacing: 8) {
                             ActionTile(icon: "sparkles", color: .blue, title: L("Liberar espaço"), subtitle: L("caches e lixo"),
                                        help: L("Encontra caches, logs e arquivos grandes. Você revisa antes de apagar."), action: openCleaner)
+                            ActionTile(icon: "trash.square", color: .red, title: L("Desinstalar app"), subtitle: L("com as sobras"),
+                                       help: L("Escolha um app: ele e as preferências, caches e dados que deixou vão para a Lixeira.")) {
+                                Uninstaller.show()
+                            }
                             ActionTile(icon: "keyboard", color: .teal, title: L("Limpar teclado"),
                                        subtitle: cleaning.keyboardLocked ? L("travado") : L("trava por 2 min"),
                                        help: L("Bloqueia todas as teclas por 2 minutos para você limpar. Destrava com um clique."),

@@ -450,6 +450,10 @@ final class PaletteModel: ObservableObject {
             action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
                 ScreenRecorder.shared.start(gif: true)
             }
+            action("uninstall", L("Desinstalar app…"), "trash.square", .red,
+                   "desinstalar uninstall remover remove apagar app appcleaner deinstallieren desinstalar 卸载", subtitle: L("Com as preferências, caches e dados")) {
+                Uninstaller.show()
+            }
             action("scrollcapture", L("Captura com rolagem"), "arrow.down.doc", .blue,
                    "captura rolagem scrolling screenshot página inteira full page longa long scroll") { ScrollCapture.start() }
             let meetings = MeetingStore.shared
