@@ -63,7 +63,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
                           L("Capturar tela"), L("Abrir a estante ao chacoalhar arquivos"), L("Organizar janelas com ⌃⌥"), L("Brilho de monitores externos")]
         case .calendar: [L("Calendário"), L("Mostrar a próxima reunião"), L("Horário de trabalho"), L("Avisar 1 minuto antes"), L("Relógios"), L("Adicionar cidade…")]
         case .alerts: [L("Alertas"), L("Disco quase cheio"), L("Bateria baixa"), L("Memória no limite"), L("CPU alta por muito tempo"),
-                       L("Mac esquentando"), L("Bateria dos acessórios")]
+                       L("Mac esquentando"), L("Bateria dos acessórios"), L("App descontrolado")]
         case .links: [L("Links rápidos"), "Google", "GitHub"]
         case .privacy: [L("Permissões"), L("Acessibilidade")]
         case .backup: [L("Backup"), L("Incluir notas"), L("Incluir histórico do clipboard"), L("Exportar…"), L("Restaurar…")]

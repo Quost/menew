@@ -121,8 +121,59 @@ struct BatteryCard: View {
                     BatteryValue(title: L("Temperatura"), value: String(format: "%.0f °C", t), color: .primary)
                 }
             }
+            // Consumo agora e quanto falta (para acabar ou para encher)
+            if health.systemWatts != nil || battery.minutesLeft != nil {
+                HStack(spacing: 0) {
+                    if let w = health.systemWatts {
+                        BatteryValue(title: L("Consumo agora"), value: String(format: "%.1f W", w), color: .primary)
+                    }
+                    if let mins = battery.minutesLeft {
+                        BatteryValue(title: battery.charging ? L("Para encher") : L("Restante"),
+                                     value: mins >= 60 ? "\(mins / 60) h \(mins % 60) min" : "\(mins) min", color: .primary)
+                    }
+                    if battery.onAC, let a = health.adapterWatts, let w = health.systemWatts, a > 0 {
+                        BatteryValue(title: L("Do carregador"), value: "\(Int(min(100, w / Double(a) * 100)))%", color: .primary)
+                    }
+                }
+            }
         }
         .card()
+    }
+}
+
+/// Núcleos de desempenho e de eficiência, cada um com sua barrinha (Apple Silicon)
+struct CoreBars: View {
+    let loads: [Double]
+
+    var body: some View {
+        let e = SystemMonitor.efficiencyCores, p = SystemMonitor.performanceCores
+        VStack(alignment: .leading, spacing: 6) {
+            if e > 0, p > 0, loads.count >= e + p {
+                group(L("Desempenho"), Array(loads[e..<(e + p)]), .pink)
+                group(L("Eficiência"), Array(loads[0..<e]), .teal)
+            } else {
+                group(L("Núcleos"), loads, Theme.cpu)
+            }
+        }
+    }
+
+    private func group(_ title: String, _ values: [Double], _ color: Color) -> some View {
+        HStack(alignment: .center, spacing: 8) {
+            Text(title).font(.system(size: 10.5, weight: .semibold)).foregroundStyle(.secondary).frame(width: 72, alignment: .leading)
+            HStack(alignment: .bottom, spacing: 3) {
+                ForEach(Array(values.enumerated()), id: \.offset) { _, v in
+                    ZStack(alignment: .bottom) {
+                        RoundedRectangle(cornerRadius: 2).fill(Color.primary.opacity(0.08))
+                        RoundedRectangle(cornerRadius: 2).fill(color.gradient).frame(height: max(2, 22 * v))
+                    }
+                    .frame(height: 22)
+                }
+            }
+            Text("\(Int((values.reduce(0, +) / Double(max(values.count, 1))) * 100))%")
+                .font(.system(size: 11, weight: .semibold)).monospacedDigit().frame(width: 34, alignment: .trailing)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(title): \(Int((values.reduce(0, +) / Double(max(values.count, 1))) * 100))%")
     }
 }
 
@@ -238,6 +289,7 @@ struct AlertsSection: View {
     @AppStorage(Alerts.Kind.cpu.rawValue) private var cpu = false
     @AppStorage(Alerts.Kind.thermal.rawValue) private var thermal = false
     @AppStorage(AccessoryMonitor.alertKey) private var accessories = false
+    @AppStorage(RunawayWatch.key) private var runaway = false
     @State private var denied = false
 
     var body: some View {
@@ -252,6 +304,13 @@ struct AlertsSection: View {
             toggle(.memory, $memory, L("Pressão de memória crítica"))
             RowDivider()
             toggle(.cpu, $cpu, L("Acima de 90% por 2 minutos"))
+            RowDivider()
+            ToggleRow(title: L("App descontrolado"), detail: L("Um app usando mais de 90% da CPU por uns 6 minutos"),
+                      icon: "exclamationmark.octagon", isOn: $runaway)
+                .onChange(of: runaway) { _, on in
+                    if on { Alerts.shared.requestPermission { granted in denied = !granted } }
+                    RunawayWatch.shared.refresh()
+                }
             RowDivider()
             toggle(.thermal, $thermal, L("Temperatura alta ou crítica"))
             RowDivider()
@@ -281,7 +340,7 @@ struct AlertsSection: View {
     }
 
     private func refreshDenied() {
-        guard Bundle.main.bundleIdentifier != nil, [disk, battery, memory, cpu, thermal, accessories].contains(true) else { return }
+        guard Bundle.main.bundleIdentifier != nil, [disk, battery, memory, cpu, thermal, accessories, runaway].contains(true) else { return }
         UNUserNotificationCenter.current().getNotificationSettings { s in
             let off = s.authorizationStatus == .denied
             Task { @MainActor in denied = off }

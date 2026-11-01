@@ -16,6 +16,8 @@ struct BatteryHealth {
     var healthPercent: Int?
     var temperature: Double?
     var adapterWatts: Int?
+    /// Quanto o Mac inteiro está gastando agora, em watts (na bateria ou na tomada)
+    var systemWatts: Double?
 }
 
 /// Mesma escala do Monitor de Atividade: é ela que diz se falta memória, não o "usado"
@@ -76,6 +78,44 @@ final class SystemMonitor: ObservableObject {
 
     private var timer: Timer?
     private var prevTicks: (user: UInt64, sys: UInt64, idle: UInt64, nice: UInt64)?
+    /// Uso de cada núcleo (0–1), na ordem do sistema: primeiro os de eficiência, depois os de desempenho
+    @Published var coreLoads: [Double] = []
+    private var prevCoreTicks: [(busy: UInt64, total: UInt64)] = []
+    /// Núcleos de eficiência e de desempenho (Apple Silicon); 0 em Macs Intel
+    static let efficiencyCores: Int = sysctlInt("hw.perflevel1.logicalcpu")
+    static let performanceCores: Int = sysctlInt("hw.perflevel0.logicalcpu")
+
+    private static func sysctlInt(_ name: String) -> Int {
+        var v: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        return sysctlbyname(name, &v, &size, nil, 0) == 0 ? Int(v) : 0
+    }
+
+    /// Carga de cada núcleo desde a última leitura (só com o menu aberto)
+    private func readCores() {
+        var count: natural_t = 0
+        var info: processor_info_array_t?
+        var infoCount: mach_msg_type_number_t = 0
+        guard host_processor_info(mach_host_self(), PROCESSOR_CPU_LOAD_INFO, &count, &info, &infoCount) == KERN_SUCCESS,
+              let info else { return }
+        defer { vm_deallocate(mach_task_self_, vm_address_t(bitPattern: info), vm_size_t(Int(infoCount) * MemoryLayout<integer_t>.stride)) }
+        var now: [(busy: UInt64, total: UInt64)] = []
+        for i in 0..<Int(count) {
+            let base = i * Int(CPU_STATE_MAX)
+            let user = UInt64(UInt32(bitPattern: info[base + Int(CPU_STATE_USER)]))
+            let sys = UInt64(UInt32(bitPattern: info[base + Int(CPU_STATE_SYSTEM)]))
+            let nice = UInt64(UInt32(bitPattern: info[base + Int(CPU_STATE_NICE)]))
+            let idle = UInt64(UInt32(bitPattern: info[base + Int(CPU_STATE_IDLE)]))
+            now.append((user &+ sys &+ nice, user &+ sys &+ nice &+ idle))
+        }
+        if prevCoreTicks.count == now.count {
+            coreLoads = zip(now, prevCoreTicks).map { n, p in
+                let total = Double(n.total &- p.total)
+                return total > 0 ? min(1, Double(n.busy &- p.busy) / total) : 0
+            }
+        }
+        prevCoreTicks = now
+    }
     private var prevNet: (rx: UInt64, tx: UInt64, at: Date)?
     private var prevDisk: (r: UInt64, w: UInt64, at: Date)?
     private var tickCount = 0
@@ -101,6 +141,7 @@ final class SystemMonitor: ObservableObject {
         if isVisible || isDemo {
             readGPU()
             readDiskIO()
+            if !isDemo { readCores() }
         }
         uptime = ProcessInfo.processInfo.systemUptime
         thermal = ProcessInfo.processInfo.thermalState
@@ -297,6 +338,14 @@ final class SystemMonitor: ObservableObject {
         let full = data["NominalChargeCapacity"] as? Int ?? d["NominalChargeCapacity"] as? Int ?? d["AppleRawMaxCapacity"] as? Int
         if let design, let full, design > 0 { h.healthPercent = min(100, Int((Double(full) / Double(design) * 100).rounded())) }
         if let t = d["Temperature"] as? Int, t > 0 { h.temperature = Double(t) / 100 }
+        // Consumo do sistema: a telemetria do Apple Silicon dá direto (mW); senão, corrente × tensão da bateria
+        if let tele = d["PowerTelemetryData"] as? [String: Any], let load = (tele["SystemLoad"] as? NSNumber)?.int64Value, load > 0, load < 500_000 {
+            h.systemWatts = Double(load) / 1000
+        } else if let amps = (d["InstantAmperage"] as? NSNumber)?.int64Value, let volts = (d["Voltage"] as? NSNumber)?.int64Value {
+            // A corrente vem como número sem sinal; negativa = descarregando
+            let ma = Double(Int64(bitPattern: UInt64(bitPattern: amps)))
+            if ma < 0 { h.systemWatts = abs(ma) * Double(volts) / 1_000_000 }
+        }
         return h
     }
 

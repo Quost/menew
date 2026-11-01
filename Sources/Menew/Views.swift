@@ -184,9 +184,13 @@ struct SystemView: View {
                 } else {
                     ForEach(order.filter { !hiddenSet.contains($0) }, id: \.self) { id in card(id) }
                 }
-                Button(organizing ? L("Concluir") : L("Organizar cartões")) { withAnimation(.snappy) { organizing.toggle() } }
-                    .buttonStyle(.plain).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.accentColor)
-                    .padding(.vertical, 4)
+                HStack(spacing: 16) {
+                    Button(organizing ? L("Concluir") : L("Organizar cartões")) { withAnimation(.snappy) { organizing.toggle() } }
+                    Button(L("Copiar relatório")) { SystemReport.copy(m) }
+                        .help(L("Modelo, macOS, memória, disco, bateria e tempo ligado, prontos para mandar ao suporte"))
+                }
+                .buttonStyle(.plain).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.accentColor)
+                .padding(.vertical, 4)
                 HStack(spacing: 10) {
                     MiniStat(icon: "clock.fill", color: .indigo, title: L("Ligado há"), value: Fmt.duration(m.uptime))
                     MiniStat(icon: "thermometer.medium", color: thermalColor, title: L("Temperatura"), value: thermalText)
@@ -318,16 +322,15 @@ struct SystemView: View {
             withAnimation(.snappy) { openRaw = set.sorted().joined(separator: ",") }
         }
         if open {
-            content()
-                .overlay(alignment: .bottomTrailing) {
-                    Button(action: toggle) {
-                        Image(systemName: "chevron.up").font(.system(size: 9, weight: .bold)).foregroundStyle(.secondary)
-                            .frame(width: 22, height: 22).background(Circle().fill(Color.primary.opacity(0.06)))
-                    }
-                    .buttonStyle(.plain).padding(8)
-                    .help(L("Recolher"))
-                    .accessibilityLabel(L("Recolher %@", title))
+            VStack(spacing: 2) {
+                content()
+                Button(action: toggle) {
+                    Label(L("Recolher"), systemImage: "chevron.up").font(.system(size: 10.5, weight: .medium)).foregroundStyle(.secondary)
+                        .padding(.horizontal, 8).padding(.vertical, 3).contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
+                .accessibilityLabel(L("Recolher %@", title))
+            }
         } else {
             Button(action: toggle) {
                 HStack(spacing: 10) {
@@ -394,6 +397,7 @@ struct SystemView: View {
                         .frame(height: 22)
                 }
             }
+            if !m.coreLoads.isEmpty { CoreBars(loads: m.coreLoads) }
         }
         .card()
     }
@@ -407,6 +411,7 @@ struct SystemView: View {
                 NetStat(title: L("Leitura"), icon: "arrow.down.doc", color: Theme.disk, value: m.diskRead, history: m.diskReadHistory)
                 NetStat(title: L("Gravação"), icon: "square.and.arrow.down", color: .orange, value: m.diskWrite, history: m.diskWriteHistory)
             }
+            DiskHealthRow()
         }
         .card()
     }

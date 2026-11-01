@@ -43,7 +43,8 @@ enum Snapshot {
             monitor.isDemo = true
             monitor.localIP = "192.168.0.12"
             monitor.battery = BatteryInfo(percent: 80, charging: false, onAC: true, minutesLeft: nil)
-            monitor.batteryHealth = BatteryHealth(cycles: 112, healthPercent: 96, temperature: nil, adapterWatts: 70)
+            monitor.batteryHealth = BatteryHealth(cycles: 112, healthPercent: 96, temperature: nil, adapterWatts: 70, systemWatts: 8.4)
+            monitor.coreLoads = [0.12, 0.08, 0.15, 0.05, 0.09, 0.11, 0.42, 0.31, 0.18, 0.25]
             monitor.memPressure = .normal
             monitor.memTotal = 16 << 30
             monitor.memBreakdown = MemoryBreakdown(app: 6_400 << 20, wired: 2_100 << 20, compressed: 1_300 << 20)
