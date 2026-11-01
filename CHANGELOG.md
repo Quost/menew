@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.65.0
+
+### New
+- **Smart clipboard search.** Type what you remember instead of the exact words: “the hotel link from yesterday”, “that Xcode error”, “images from today”. Menew understands dates (today, yesterday, this week) and types (link, image, file), matches word roots (“erro” finds “error”, “compilação” finds “Compile”) and close synonyms using macOS’s own language model. These results show up after the exact matches, in the clipboard panel and the command palette. Works on any Mac, no Apple Intelligence needed, nothing leaves your Mac.
+
 ## 1.64.0
 
 ### New
