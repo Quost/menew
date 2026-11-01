@@ -1,3 +1,5 @@
 "NSAppleEventsUsageDescription" = "Menew usa Finder y System Events para acciones rápidas (modo oscuro, vaciar papelera).";
 "NSCalendarsFullAccessUsageDescription" = "Menew muestra tu próxima reunión y un botón para unirte. Tu calendario se lee en tu Mac y nunca sale de él.";
 "NSCalendarsUsageDescription" = "Menew muestra tu próxima reunión y un botón para unirte. Tu calendario se lee en tu Mac y nunca sale de él.";
+"NSRemindersFullAccessUsageDescription" = "Menew crea los recordatorios que escribes en la paleta, como “recordar pagar la factura mañana a las 9”. Nada sale de tu Mac.";
+"NSRemindersUsageDescription" = "Menew crea los recordatorios que escribes en la paleta, como “recordar pagar la factura mañana a las 9”. Nada sale de tu Mac.";

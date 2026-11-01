@@ -22,6 +22,8 @@
     <key>SUScheduledCheckInterval</key><integer>86400</integer>
     <key>NSCalendarsFullAccessUsageDescription</key><string>Menew shows your next meeting and a button to join it. Your calendar is read on your Mac and never leaves it.</string>
     <key>NSCalendarsUsageDescription</key><string>Menew shows your next meeting and a button to join it. Your calendar is read on your Mac and never leaves it.</string>
+    <key>NSRemindersFullAccessUsageDescription</key><string>Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.</string>
+    <key>NSRemindersUsageDescription</key><string>Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.</string>
     <key>NSAppleEventsUsageDescription</key><string>Menew uses Finder and System Events for quick actions (dark mode, empty trash).</string>
 </dict>
 </plist>
