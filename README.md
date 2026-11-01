@@ -56,7 +56,7 @@
 | 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads, large files (over 250 MB) and duplicate files (identical copies, byte for byte; the oldest is kept as the original). You review everything, and your files go to the Trash. |
 | ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. Give one an abbreviation like `;sig` and typing it in any app turns it into the text (optional, off by default; never in password fields). Variables: `{date}`, `{time}`, `{weekday}`, `{tomorrow}`, `{clipboard}`, `{cursor}` (where the cursor lands) and `{input:Name}` (asked in a small window before pasting). |
 | 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. With Apple Intelligence, a note's ⋯ menu can **summarize it** or **extract its to-dos** as a checklist, on your Mac. **Password notes** keep name and value rows with hidden values, an eye to reveal and a copy button; copied values are marked confidential (no clipboard history) and cleared after 30 seconds. Switch a note's type at any time. |
-| 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. Turn off Clipboard, Actions or Notes in Settings → Modules and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings → Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac. |
+| 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. **Favorites** at the top of Actions (pick and reorder the ones you use), the other sections fold away with a summary, the System tab's cards can be reordered, folded or hidden, and **Settings opens in its own window** with categories and search. Turn off Clipboard, Actions or Notes in Settings → General and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings → Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac. |
 | 🪟 **Liquid Glass** | Native macOS 26 design: glass tabs, search, filters and buttons, with a translucent fallback on macOS 14 and 15. |
 | 🌍 **5 languages** | English, Português, Deutsch, Español and 中文. Follows your Mac, or pick one in Settings. |
 
@@ -230,6 +230,7 @@ Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and t
 - [x] Search text inside clipboard images
 - [x] 24-hour system history and battery usage by app
 - [x] Timers and alarms from the command palette
+- [x] New layout: favorites, foldable sections, Settings window with search
 - [ ] Your idea here
 
 Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).

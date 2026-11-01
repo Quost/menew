@@ -2,6 +2,15 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.53.0
+
+- **A tidier Menew**: with so many features, the menu got long, so this version reorganizes it.
+- **Favorites in Actions**: your most used actions sit at the top in one tap. Tap Edit to remove one or add others (Read QR, 10-minute timer, focus, free up space and more). Brightness stays visible, and the other sections fold away with a summary like “9 open” or “3 active”.
+- **Settings in its own window**, like System Settings: categories in a sidebar and a search box that finds any setting (“password”, “shortcut”, “battery”). Opens from the gear, ⌘, or the command palette.
+- **A compact System tab**: the rings and clocks stay on top; CPU, memory, battery, network, disk and processes become one-line rows with their main number. Tap to open a card. **Arrange cards** lets you reorder them, keep each one open or closed, and hide the ones you don't use.
+- **Last 24 hours, fixed**: the app list now follows the chart you pick (CPU, memory or battery) and counts helper processes under their app.
+- **The command palette shows what it can do**: with an empty search, it suggests commands like “timer 10m tea”, “remind … tomorrow 9am” or “ai …”. Click one to try it.
+
 ## 1.52.0
 
 - **Timers and alarms from the command palette**: type “timer 10m tea”, “timer 90s”, “timer 1h30” or “alarm 7:30 meeting” (also “temporizador”, “alarme”, “wecker”, “alarma”) and press ↩. The countdown shows in the menu bar and, on time, Menew plays a sound and sends a notice.
