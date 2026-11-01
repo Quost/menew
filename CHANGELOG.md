@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.48.0
+
+- **Transcribe audio and video**: drop a meeting recording, voice memo or video on the shelf and choose Transcribe (Portuguese, English, Spanish, German, Chinese, French, Italian or Japanese). The text is saved as a note in Menew and copied to the clipboard.
+- It runs on your Mac with no internet. On macOS 26 it uses Apple's new transcriber, great with long recordings, and downloads the language model the first time. Older macOS versions use on-device speech recognition and ask for permission once.
+
 ## 1.47.0
 
 - **Offline translation**: copy some text, open the command palette and type “translate english” (or Portuguese, Spanish, German, French, Italian, Japanese or Chinese). Apple's translator does it on your Mac and the result is copied, shown in a small window.
