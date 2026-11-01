@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.50.0
+
+- **Search inside clipboard images**: Menew now reads the text in the screenshots and images you copy, so searching ⌘⇧V for “order 4821” finds that screenshot with the order number. Images already in your history are read too, slowly in the background.
+- “Copy text” on an image is now instant when it has already been read. Everything happens on your Mac; turn it off in Settings → Clipboard if you prefer.
+
 ## 1.49.0
 
 - **Snippets with fields**: write `{input:Name}` in a snippet and Menew asks for it in a small window before pasting, so one snippet becomes a real template (“Hi {input:Name}, about order {input:Order}…”). The same field can appear several times.
