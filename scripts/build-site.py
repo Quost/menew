@@ -29,9 +29,12 @@ ANALYTICS = (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/c
 # Versão atual (primeira seção do CHANGELOG) e data da última mudança no site, para buscadores e IAs
 VERSION = re.search(r"^## (\d+\.\d+\.\d+)", (ROOT / "CHANGELOG.md").read_text(), re.M).group(1)
 # Só commits que mexem no site ou nas novidades: o bump automático do Homebrew não muda a data (e não quebra a checagem do CI)
-UPDATED = subprocess.run(["git", "log", "-1", "--format=%cs", "--", "site", "CHANGELOG.md"], cwd=ROOT,
-                         capture_output=True, text=True).stdout.strip() \
-    or datetime.date.today().isoformat()
+# Com mudanças ainda não commitadas, a data é hoje (a que o commit vai ter); assim o CI gera a mesma página
+_pending = subprocess.run(["git", "status", "--porcelain", "--", "site", "CHANGELOG.md"], cwd=ROOT,
+                          capture_output=True, text=True).stdout.strip()
+UPDATED = datetime.date.today().isoformat() if _pending else (
+    subprocess.run(["git", "log", "-1", "--format=%cs", "--", "site", "CHANGELOG.md"], cwd=ROOT,
+                   capture_output=True, text=True).stdout.strip() or datetime.date.today().isoformat())
 
 def plain(text):
     """Texto sem HTML, para os dados estruturados"""
