@@ -13,6 +13,7 @@ enum Snapshot {
         MeetingStore.shared.showDemo()
         NetUsage.shared.showDemo()
         AccessoryMonitor.shared.showDemo()
+        SystemHistory.shared.showDemo()
         let toolbox = Toolbox()
         toolbox.keepAwake = true
         toolbox.displays.isDemo = true
@@ -109,6 +110,8 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                render(SystemHistoryCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
+                       size: NSSize(width: 400, height: 330), dark: dark, to: dir.appendingPathComponent("history-\(suffix).png"))
                 let qr = QRModel()
                 qr.text = "https://menew.web.app"
                 render(QRView(model: qr, close: {}), size: NSSize(width: 360, height: 480), dark: dark,

@@ -117,7 +117,7 @@ final class SystemMonitor: ObservableObject {
             }
         }
         if wantsProcesses { refreshProcesses() }
-        if !isDemo { Alerts.shared.check(self) }
+        if !isDemo { Alerts.shared.check(self); SystemHistory.shared.record(self) }
         onTick?()
     }
 

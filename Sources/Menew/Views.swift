@@ -178,6 +178,7 @@ struct SystemView: View {
                 MemoryCard(m: m)
                 if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
                 AccessoriesCard()
+                SystemHistoryCard()
                 networkCard
                 diskCard
                 if !net.devices.isEmpty { devicesCard }
