@@ -14,6 +14,7 @@ enum Snapshot {
         NetUsage.shared.showDemo()
         AccessoryMonitor.shared.showDemo()
         SystemHistory.shared.showDemo()
+        ScreenTime.shared.showDemo()
         Sensors.shared.showDemo()
         let toolbox = Toolbox()
         toolbox.keepAwake = true
@@ -112,6 +113,8 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                render(ScreenTimeCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
+                       size: NSSize(width: 400, height: 470), dark: dark, to: dir.appendingPathComponent("screentime-\(suffix).png"))
                 render(SystemHistoryCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 370), dark: dark, to: dir.appendingPathComponent("history-\(suffix).png"))
                 render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .clipboard),

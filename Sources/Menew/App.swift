@@ -105,6 +105,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         shelf.startShakeDetection()
         AutomationStore.shared.load(dir: clipboard.dir)
         SystemHistory.shared.load(dir: clipboard.dir)
+        ScreenTime.shared.load(dir: clipboard.dir)
         AutomationStore.shared.start(toolbox: toolbox)
         TextExpander.shared.start(clipboard: clipboard)
         MeetingStore.shared.refreshEnabled()

@@ -219,7 +219,7 @@ struct SystemView: View {
 
     private var openSet: Set<String> { Set(openRaw.split(separator: ",").map(String.init)) }
 
-    static let cardIDs = ["cpu", "sensors", "memory", "battery", "history", "network", "disk", "processes"]
+    static let cardIDs = ["cpu", "sensors", "memory", "battery", "history", "screentime", "network", "disk", "processes"]
 
     /// Ordem escolhida (cartões novos de versões futuras entram no fim)
     private var order: [String] {
@@ -235,6 +235,7 @@ struct SystemView: View {
         case "memory": (L("Memória"), "memorychip", Theme.memory)
         case "battery": (L("Bateria e acessórios"), "battery.75percent", Theme.battery)
         case "history": (L("Histórico"), "chart.xyaxis.line", Color.indigo)
+        case "screentime": (L("Tempo de tela"), "hourglass", Color.teal)
         case "network": (L("Rede"), "network", Theme.download)
         case "disk": (L("Disco"), "internaldrive", Theme.disk)
         default: (L("Processos"), "list.bullet.rectangle", Color.gray)
@@ -312,6 +313,9 @@ struct SystemView: View {
                 }
         case "history":
                 fold("history", L("Histórico"), "chart.xyaxis.line", .indigo, "", L("CPU, memória e bateria")) { SystemHistoryCard() }
+        case "screentime":
+                fold("screentime", L("Tempo de tela"), "hourglass", .teal, ScreenTime.shared.isOn ? ScreenTimeCard.format(ScreenTime.shared.byCategory([ScreenTime.dayKey(Date())]).values.reduce(0, +)) : "",
+                     L("Foco e distração por app")) { ScreenTimeCard() }
         case "network":
                 fold("network", L("Rede"), "network", Theme.download, "",
                      "↓ " + Fmt.shortRate(m.netIn) + "  ↑ " + Fmt.shortRate(m.netOut)) { networkCard }
