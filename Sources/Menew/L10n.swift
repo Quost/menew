@@ -88,7 +88,7 @@ func L(_ key: String, _ args: CVarArg...) -> String {
 private let table: [String: [String]] = [
     // Abas e navegação
     "Sistema": ["System", "System", "Sistema", "系统"],
-    "Clipboard": ["Clipboard", "Ablage", "Portapapeles", "剪贴板"],
+    "Clipboard": ["Clipboard", "Zwischenablage", "Portapapeles", "剪贴板"],
     "Ações": ["Actions", "Aktionen", "Acciones", "操作"],
     "Notas": ["Notes", "Notizen", "Notas", "笔记"],
     "Ajustes": ["Settings", "Einstellungen", "Ajustes", "设置"],

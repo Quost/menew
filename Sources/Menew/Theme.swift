@@ -320,9 +320,17 @@ struct GlassSegmented<V: Hashable>: View {
                 Button {
                     withAnimation(.spring(duration: 0.28)) { selection = o.value }
                 } label: {
-                    HStack(spacing: 5) {
-                        if let icon = o.icon { Image(systemName: icon).font(.system(size: 11, weight: .semibold)) }
-                        if let title = o.title { Text(title).font(.system(size: 11.5, weight: on ? .semibold : .medium)).lineLimit(1) }
+                    // Sem espaço (palavras longas, como "Zwischenablage"), o ícone sai e fica só o nome
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 5) {
+                            if let icon = o.icon { Image(systemName: icon).font(.system(size: 11, weight: .semibold)) }
+                            if let title = o.title { Text(title).font(.system(size: 11.5, weight: on ? .semibold : .medium)).lineLimit(1) }
+                        }
+                        if let title = o.title {
+                            Text(title).font(.system(size: 11.5, weight: on ? .semibold : .medium)).lineLimit(1).minimumScaleFactor(0.75)
+                        } else if let icon = o.icon {
+                            Image(systemName: icon).font(.system(size: 11, weight: .semibold))
+                        }
                     }
                     .frame(maxWidth: expand ? .infinity : nil)
                     .padding(.horizontal, expand ? 0 : 10).padding(.vertical, 6)

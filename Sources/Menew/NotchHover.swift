@@ -230,7 +230,7 @@ struct NotchHoverView: View {
         Button(action: action) {
             VStack(spacing: 4) {
                 Image(systemName: icon).font(.system(size: 14, weight: .semibold)).foregroundStyle(color).frame(height: 18)
-                Text(title).font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.8)).lineLimit(1)
+                Text(title).font(.system(size: 10, weight: .medium)).foregroundStyle(.white.opacity(0.8)).lineLimit(1).minimumScaleFactor(0.7)
             }
             .frame(maxWidth: .infinity).padding(.vertical, 7)
             .background(RoundedRectangle(cornerRadius: 10).fill(.white.opacity(0.1)))

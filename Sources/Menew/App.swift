@@ -63,7 +63,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         let me = ProcessInfo.processInfo.processIdentifier
         if !CommandLine.arguments.dropFirst().contains(where: { $0.hasPrefix("--") }),
            let id = Bundle.main.bundleIdentifier,
-           NSRunningApplication.runningApplications(withBundleIdentifier: id).contains(where: { $0.processIdentifier < me && !$0.isTerminated }) {
+           // Só outra cópia do mesmo app (o mesmo .app aberto duas vezes); um Menew em outra pasta não fecha este
+           NSRunningApplication.runningApplications(withBundleIdentifier: id).contains(where: {
+               $0.processIdentifier < me && !$0.isTerminated && $0.bundleURL?.standardizedFileURL == Bundle.main.bundleURL.standardizedFileURL
+           }) {
             NSApp.terminate(nil)
             return
         }
