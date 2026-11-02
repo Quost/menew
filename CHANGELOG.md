@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.73.0
+
+### New
+- **14 new Shortcuts actions that return a result**, so you can chain them in the Shortcuts app: Get System Metric (CPU, memory, free disk, battery, uptime), Get Clipboard History, Find Notes, Add to Note, Rewrite Text with AI (summarize, fix, clearer, formal, friendlier, shorter), Translate Text, Transform Text (case, accents, lines, JSON, Base64, URL), Get Text from Image, Make QR Code, Convert Image (JPEG, PNG or HEIC, resize, remove location), Get Next Meeting, Join Next Meeting, Start Timer and Get Screen Time Today. For example: “if CPU is above 80, start a focus timer”, or “get the last copied text → translate it → add it to a note”. Everything runs on your Mac.
+
 ## 1.72.0
 
 ### New
