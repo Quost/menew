@@ -512,6 +512,13 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("iphone.clip", L("Foto ou scan do iPhone"), "iphone.rear.camera", .green,
+                   "iphone ipad camera câmera camara foto photo scan escanear documento document desenho sketch continuidade continuity kamera dokument 相机 扫描",
+                   subtitle: L("Vai para o clipboard")) { ContinuityCamera.shared.showMenu(.clipboard) }
+            action("iphone.text", L("Escanear texto com o iPhone"), "doc.text.viewfinder", .green,
+                   "iphone ipad scan escanear documento document texto text ocr ler read continuidade dokument texto 扫描 文本") { ContinuityCamera.shared.showMenu(.text) }
+            action("iphone.shelf", L("Do iPhone para a estante"), "tray.and.arrow.down", .green,
+                   "iphone ipad foto photo scan estante shelf arquivo file continuidade ablage estante 文件") { ContinuityCamera.shared.showMenu(.shelf) }
             action("removebg", L("Remover fundo da imagem copiada"), "person.crop.rectangle.badge.plus", .pink,
                    "remover fundo remove background recortar cutout assunto subject transparente png sticker hintergrund entfernen quitar fondo 去除背景 抠图",
                    subtitle: L("Copia só o assunto, com fundo transparente")) { BackgroundRemover.fromClipboard() }

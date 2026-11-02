@@ -213,6 +213,14 @@ struct ActionsView: View {
                                     ScreenAsk.shared.start()
                                 }
                             }
+                            ActionTile(icon: "iphone.rear.camera", color: .green, title: L("Do iPhone"), subtitle: L("foto ou scan"),
+                                       help: L("Tire uma foto, escaneie um documento ou desenhe no iPhone ou iPad: o resultado vai para o clipboard. Clique com o botão direito para mandar à estante ou copiar só o texto.")) {
+                                ContinuityCamera.shared.showMenu(.clipboard)
+                            }
+                            .contextMenu {
+                                Button(L("Do iPhone para a estante")) { ContinuityCamera.shared.showMenu(.shelf) }
+                                Button(L("Do iPhone, só o texto")) { ContinuityCamera.shared.showMenu(.text) }
+                            }
                             ActionTile(icon: "terminal", color: .gray, title: L("Scripts"), subtitle: L("viram comandos"),
                                        help: L("Cada script desta pasta vira um comando da paleta, como no Raycast.")) {
                                 ScriptCommands.openFolder()

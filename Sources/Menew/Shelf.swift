@@ -262,6 +262,7 @@ struct ShelfView: View {
                 if !store.mediaURLs.isEmpty, AIFeature.transcribe.isOn { ShelfMediaMenu(store: store) }
                 if !store.pdfURLs.isEmpty { ShelfPDFMenu(store: store) }
                 if !store.imageURLs.isEmpty { ShelfImageMenu(store: store) }
+                IconButton(icon: "iphone.rear.camera", help: L("Do iPhone para a estante")) { ContinuityCamera.shared.showMenu(.shelf) }
                 if !store.items.isEmpty {
                     IconButton(icon: "trash", help: L("Esvaziar estante")) { store.clear() }
                 }
