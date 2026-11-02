@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.84.0
+
+### New
+- **Ask your memory.** Type a question in Memory and press ↩ (or type “remember …” in the palette): “which was that charts library in Swift?”. The Mac’s AI turns it into search terms, with synonyms and translations, so a question in Portuguese finds something you saved in English. Menew looks through your memory, notes and clipboard and answers in two or three sentences, with numbered sources you can click to open. Nothing leaves your Mac.
+- **Memory in Spotlight.** What you save to memory now shows up in Spotlight (⌘Space) and opens in Menew. Turn it off with the Spotlight switch in Settings › Privacy.
+
 ## 1.83.0
 
 ### New
