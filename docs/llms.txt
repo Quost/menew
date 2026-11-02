@@ -24,6 +24,30 @@ Menew 1.81.1 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or late
 - Internet: Live download and upload, local and public IP, and a real speed test powered by macOS itself. See which apps are using the network right now.
 - Notes, snippets & devices: Notes with #tags and Markdown checklists, protected notes that open with Touch ID, password notes with hidden fields you copy in one click, and reusable snippets in ⌘⇧V. Give a snippet an abbreviation like “;sig” and typing it anywhere turns it into the text. Snippets can fill in the date, ask for a name before pasting and place the cursor where you want.
 
+## More features
+
+- Monitor brightness — a slider for every screen, including third-party monitors over DDC/CI. Monitors behind an adapter that blocks DDC are dimmed by software instead.
+- Mute your mic — from any app with ⌃⌥⌘M, great for meetings. And rewrite any selected text with ⌃⌥⌘R: fix, clearer, more formal, shorter.
+- Window manager — snap windows to halves, corners and thirds with ⌃⌥ shortcuts or a grid, and send them to the other display. Or just drag a window to an edge or corner.
+- Command palette — press ⌃⌥Space to find any app, action, window layout, snippet or note. Type “brightness 60” or “awake 2h”. Do math and conversions too: “20% of 340”, “5 km to mi”. And it transforms the text you copied: UPPERCASE, camelCase, format JSON, Base64, count words. For developers: see which ports are in use and stop the server, generate a UUID, turn a Unix timestamp into a date and decode a JWT. Menew's actions also show up in Siri, the Shortcuts app and Spotlight, ready to use. With Apple Intelligence it also summarizes, rewrites, fixes and translates the text you copied, using only the model on your Mac. Quick links open sites straight from it: “g coffee”, “gh menew”, “maps paulista”, or your own like “jira ABC-123”. Ask it anything starting with “ai” and the answer appears in a small window, written on your Mac. In notes, AI summarizes or pulls out the to-dos as a checklist. Read a QR code from the screen, or show a QR of copied text, a link or your Wi-Fi for your phone. Type “remind pay the bill tomorrow at 9” to create a reminder in the Reminders app. Find emoji (“emoji rocket” or “:fire”) and symbols like →, °, € or ✓ and paste them anywhere. Translate the copied text offline with Apple's translator, even without Apple Intelligence. Set a timer (“timer 10m tea”) or an alarm (“alarm 7:30”) with a countdown in the menu bar. Drop your own scripts (shell, Python, Node, AppleScript) in the scripts folder and each one becomes a command, Raycast-style. Or just say what you want: “do dark mode, keep awake and open Safari” and the Mac’s own AI lines up the steps for you to confirm.
+- Work profiles — save your open apps and window layout, then bring it all back with one click: apps open, windows go back in place, mic and Keep Awake set.
+- Quick shelf — shake files while dragging and a shelf appears. Drop files, links and text there, then drag them all out together. Originals never move. Photos on the shelf can be converted to JPG, PNG or HEIC, shrunk in bulk or stripped of location and metadata, without touching the originals. PDFs too: combine, compress, rotate or turn pages into images. Drop a recording or video and get the transcript as a note, offline.
+- Automations — at 9 AM turn on your work profile, mute the mic when Zoom opens, dim the screen when you unplug, quit everything when a focus session starts, run one of your Shortcuts a minute before a meeting or when the Mac wakes. Simple triggers, no scripts.
+- Copy text from screen — press ⌃⌥⌘T, select any area (a video, a PDF, an error message) and its text goes to the clipboard. Works on copied images too. Runs entirely on your Mac. Or ask about it: “explain this error”, “translate this”, “what should I do?”, answered by your Mac’s own AI.
+- Focus timer — start 25 minutes (or any time: type “focus 50” in the palette) and the countdown shows in the menu bar. It can mute the mic, keep the Mac awake and pause the clipboard, then puts it all back and gives you a 5-minute break.
+- App control — quit all apps, quit everything but the one you're using, hide the rest or force quit a frozen app. A work profile can close everything else and open only what you need, and an automation can quit all apps when the battery hits 5%.
+- Live notch: An upcoming meeting with a Join button, recording, timers and a muted mic show next to the camera. Gone when there is nothing to show. Rest the pointer on it for your next meeting, the timer and shortcuts, or drop files on it to keep them on the shelf.
+- Widgets: System, meetings, timers and screen time on your desktop or in Notification Center. Click to open Menew.
+- Siri, Shortcuts and Spotlight: Ask Siri how your Mac is doing, chain 27 actions in the Shortcuts app and find your notes in Spotlight. And Focus filters: with your Work Focus on, Menew pauses the clipboard or quiets the notch on its own.
+- Live captions: Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.
+- Battery care: Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months.
+- History up to 30 days: CPU, memory and battery over 24 hours, 7 or 30 days, and the apps that used the most.
+- Sensors and cores: Chip, SSD and battery temperatures, fan speed and every performance and efficiency core.
+- Network and Wi-Fi: Live speed, the apps using the network and your Wi-Fi signal, noise, channel and band.
+- App uninstaller: Removes an app with the preferences, caches and data it left behind. Everything goes to the Trash.
+- Login and background items: See which agents and services apps installed to start with your Mac or run hidden.
+- Screen time: Time per app for the day, week or month, split into focus and distraction. Off until you turn it on.
+
 ## FAQ
 
 ### Is Menew really free?

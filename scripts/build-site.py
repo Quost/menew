@@ -40,6 +40,35 @@ def plain(text):
     """Texto sem HTML, para os dados estruturados"""
     return htmllib.unescape(re.sub(r"<[^>]+>", "", text))
 
+def fold(text, more, tag="p"):
+    """Primeira frase à mostra e o resto num <details>: a página fica leve e o texto inteiro continua no HTML
+    (buscadores e IAs leem o conteúdo recolhido)."""
+    # Fim de frase fora de tags: ". " seguido de algo, ou "。"
+    best = None
+    for m in re.finditer(r"([.!?])\s+(?=[^\s<])|。", text):
+        before = text[:m.end()]
+        if before.count("<") != before.count(">"):
+            continue
+        # Chinês diz muito mais com menos caracteres
+        if len(plain(before)) >= (24 if re.search("[\u4e00-\u9fff]", text) else 60):
+            best = m
+            break
+    if not best or len(plain(text[best.end():])) < 40:
+        return f"<{tag}>{text}</{tag}>"
+    lead, rest = text[:best.end()].rstrip(), text[best.end():].lstrip()
+    # O resto em tópicos, uma frase por linha (fica fácil de bater o olho)
+    items, start = [], 0
+    for m in re.finditer(r"(?<=[.!?])\s+(?=[^\s<])|(?<=。)", rest):
+        chunk = rest[start:m.start()].strip()
+        if chunk and chunk.count("<") == chunk.count(">"):
+            items.append(chunk)
+            start = m.end()
+    if rest[start:].strip():
+        items.append(rest[start:].strip())
+    bullets = "".join(f"<li>{i}</li>" for i in items)
+    return f'<{tag}>{lead}</{tag}><details class="more"><summary>{more}</summary><ul>{bullets}</ul></details>'
+
+
 def url(lang):
     return SITE + "/" if lang == "en" else f"{SITE}/{lang}"
 
@@ -86,7 +115,10 @@ def jsonld(lang, texts):
                        ("panel0", "popover-system", "popover-actions", "palette", "capture", "popover-notes")],
         "softwareVersion": VERSION,
         "dateModified": UPDATED,
-        "featureList": [plain(texts[f"rep{i}_d"]) for i in range(1, 9)],
+        "featureList": [plain(texts[f"f{i}_t"]) + ": " + plain(texts[f"f{i}_d"]) for i in range(1, 7)]
+                       + [plain(texts[f"act_l{i}"]) for i in range(1, 11)]
+                       + [plain(texts[f"nat{i}_t"]) + ": " + plain(texts[f"nat{i}_d"]) for i in range(1, 6)]
+                       + [plain(texts[f"rep{i}_d"]) for i in range(1, 9)],
         "license": "https://opensource.org/licenses/MIT",
         "isAccessibleForFree": True,
         "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"},
@@ -141,6 +173,8 @@ for lang in LANGS:
         "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
         "lang_switch": switch(lang),
         "jsonld": jsonld(lang, texts),
+        **{f"f{i}_d_fold": fold(texts[f"f{i}_d"], texts["more"]) for i in range(1, 7)},
+        **{f"act_l{i}_fold": "<div>" + fold(texts[f"act_l{i}"], texts["more"], "span") + "</div>" for i in range(1, 11)},
         "analytics": ANALYTICS,
         "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt")},
                                   "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
@@ -175,6 +209,10 @@ lines = [
     *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, 9)], "",
     "## Features", "",
     *[f"- {plain(e[f'f{i}_t'])}: {plain(e[f'f{i}_d'])}" for i in range(1, 7)], "",
+    "## More features", "",
+    *[f"- {plain(e[f'act_l{i}'])}" for i in range(1, 11)],
+    *[f"- {plain(e[f'nat{i}_t'])}: {plain(e[f'nat{i}_d'])}" for i in range(1, 6)],
+    *[f"- {plain(e[f'pro{i}_t'])}: {plain(e[f'pro{i}_d'])}" for i in range(1, 7)], "",
     "## FAQ", "",
     *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, 13)],
     "## Install", "",

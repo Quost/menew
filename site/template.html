@@ -177,7 +177,7 @@
   .center { text-align: center; }
   .center .sub { margin: 0 auto; }
 
-  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; align-items: start; }
   .feature {
     padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card);
     transition: transform .2s ease, border-color .2s ease;
@@ -203,6 +203,18 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
   }
   .list b { color: var(--text); font-weight: 600; }
+  .more { margin-top: 6px; }
+  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+    color: var(--indigo); font-size: 13.5px; font-weight: 600; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary::after { content: "›"; transition: transform .2s ease; display: inline-block; }
+  .more[open] summary::after { transform: rotate(90deg); }
+  .more[open] summary { margin-bottom: 6px; }
+  .more ul { list-style: none; display: grid; gap: 6px; padding: 0; margin: 0; }
+  .more li { display: block; position: relative; padding-left: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%;
+    background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
+  .list li > div { min-width: 0; }
 
   .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
   kbd {
@@ -378,32 +390,32 @@
       <div class="feature reveal">
         <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff);color:#5c6bff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
         <h3>{{f1_t}}</h3>
-        <p>{{f1_d}}</p>
+        {{f1_d_fold}}
       </div>
       <div class="feature reveal">
         <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff);color:#9e40f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
         <h3>{{f2_t}}</h3>
-        <p>{{f2_d}}</p>
+        {{f2_d_fold}}
       </div>
       <div class="feature reveal">
         <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#f59e0b"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
         <h3>{{f3_t}}</h3>
-        <p>{{f3_d}}</p>
+        {{f3_d_fold}}
       </div>
       <div class="feature reveal">
         <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#14b8a6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
         <h3>{{f4_t}}</h3>
-        <p>{{f4_d}}</p>
+        {{f4_d_fold}}
       </div>
       <div class="feature reveal">
         <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#3b82f6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
         <h3>{{f5_t}}</h3>
-        <p>{{f5_d}}</p>
+        {{f5_d_fold}}
       </div>
       <div class="feature reveal">
         <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6);color:#ec4899"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
         <h3>{{f6_t}}</h3>
-        <p>{{f6_d}}</p>
+        {{f6_d_fold}}
       </div>
     </div>
   </div>
@@ -440,16 +452,16 @@
       <h2>{{act_h2}}</h2>
       <p class="sub">{{act_sub}}</p>
       <ul class="list">
-        <li><span>{{act_l1}}</span></li>
-        <li><span>{{act_l2}}</span></li>
-        <li><span>{{act_l3}}</span></li>
-        <li><span>{{act_l4}}</span></li>
-        <li><span>{{act_l5}}</span></li>
-        <li><span>{{act_l6}}</span></li>
-        <li><span>{{act_l7}}</span></li>
-        <li><span>{{act_l8}}</span></li>
-        <li><span>{{act_l9}}</span></li>
-        <li><span>{{act_l10}}</span></li>
+        <li>{{act_l1_fold}}</li>
+        <li>{{act_l2_fold}}</li>
+        <li>{{act_l3_fold}}</li>
+        <li>{{act_l4_fold}}</li>
+        <li>{{act_l5_fold}}</li>
+        <li>{{act_l6_fold}}</li>
+        <li>{{act_l7_fold}}</li>
+        <li>{{act_l8_fold}}</li>
+        <li>{{act_l9_fold}}</li>
+        <li>{{act_l10_fold}}</li>
       </ul>
     </div>
     <div class="reveal" style="display:flex;gap:18px;justify-content:center">
