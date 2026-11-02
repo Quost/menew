@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.81.2
+
+### Improved
+- The CPU, Memory and Battery panels in the menu bar (separate icons) now show a chart of the last 24 hours and the three apps that used the most, so you can see the trend without opening Menew.
+
 ## 1.81.1
 
 ### Fixed
