@@ -2,6 +2,14 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.85.0
+
+### New
+- **Knowledge graph.** In Memory, switch from Cards to Graph: the topics the AI found in what you saved (tools, people, projects and tags) are linked to the items and to your notes with #tags. Topics that show up in more places are bigger and closer to the middle. Click a topic to filter your memory by it, or a dot to open that item.
+
+### Improved
+- “Why is my Mac slow?” explains technical process names, like swift-frontend (the Swift compiler from Xcode), callservicesd (FaceTime and Continuity calls) or mds_stores (Spotlight indexing).
+
 ## 1.84.0
 
 ### New
