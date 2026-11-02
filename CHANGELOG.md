@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.77.0
+
+### New
+- **Notch panel.** Rest the pointer on the notch for a moment and it opens: your next meeting with a Join button, the focus or timer countdown, and shortcuts to mute the mic, capture the screen, open the clipboard, the shelf or the command palette. Move away and it closes. It doesn’t open when the pointer just passes by on its way to a menu.
+- **Drop files on the notch.** Drag files toward the notch and a drop zone appears; let go and they go to the shelf.
+- Both can be turned off in Settings › Notch.
+
 ## 1.76.0
 
 ### New
