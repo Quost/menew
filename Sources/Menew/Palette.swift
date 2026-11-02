@@ -852,6 +852,12 @@ final class PaletteController: NSObject, NSWindowDelegate {
 
     func toggle() { isVisible ? close() : show() }
 
+    /// Abre já com um texto digitado ("ia ", "faz ")
+    func show(query: String) {
+        show()
+        model.query = query
+    }
+
     func show() {
         let panel = self.panel ?? makePanel()
         self.panel = panel

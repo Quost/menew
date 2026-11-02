@@ -119,7 +119,7 @@ def jsonld(lang, texts):
                        + [plain(texts[f"act_l{i}"]) for i in range(1, 11)]
                        + [plain(texts[f"nat{i}_t"]) + ": " + plain(texts[f"nat{i}_d"]) for i in range(1, 6)]
                        + [plain(texts[f"rep{i}_d"]) for i in range(1, 9)],
-        "license": "https://opensource.org/licenses/MIT",
+        "license": "https://www.gnu.org/licenses/gpl-3.0.html",
         "isAccessibleForFree": True,
         "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"},
         "sameAs": ["https://github.com/Quost/menew"],
@@ -204,7 +204,7 @@ lines = [
     "# Menew", "",
     f"> {plain(e['meta_desc'])}", "",
     f"Menew {VERSION} (updated {UPDATED}). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. "
-    "Free and open source (MIT). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
+    "Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
     "## One app instead of many", "",
     *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, 9)], "",
     "## Features", "",

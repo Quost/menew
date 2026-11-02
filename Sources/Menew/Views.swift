@@ -4,12 +4,13 @@ import ServiceManagement
 import ApplicationServices
 
 enum Tab: String, CaseIterable {
-    case system = "Sistema", clipboard = "Clipboard", actions = "Ações", notes = "Notas", settings = "Ajustes"
+    case now = "Agora", system = "Sistema", clipboard = "Clipboard", actions = "Ações", notes = "Notas", settings = "Ajustes"
     case cleaner = "Liberar espaço"
     /// Abas na barra, sem os módulos desligados
-    static var visible: [Tab] { [.system] + Module.allCases.filter(\.isOn).map(\.tab) }
+    static var visible: [Tab] { [.now] + Module.allCases.filter(\.isOn).map(\.tab) }
     var icon: String {
         switch self {
+        case .now: "clock.fill"
         case .system: "gauge.with.dots.needle.67percent"
         case .clipboard: "doc.on.clipboard"
         case .actions: "bolt.fill"
@@ -22,7 +23,7 @@ enum Tab: String, CaseIterable {
 
 @MainActor
 final class PopoverState: ObservableObject {
-    @Published var tab: Tab = .system
+    @Published var tab: Tab = .now
     /// Nota pedida pela paleta de comandos; a aba Notas abre e limpa
     @Published var noteToOpen: UUID?
     /// O popover está na tela. Fechado, as telas são desmontadas e nada é lido nem redesenhado.
@@ -71,6 +72,7 @@ struct MainView: View {
 
             Group {
                 switch nav.tab {
+                case .now: NowView(nav: nav, m: monitor, tb: toolbox, clipboard: clipboard) { nav.tab = .cleaner }
                 case .system: SystemView(m: monitor, net: internet)
                 case .clipboard: ClipboardTabView(manager: clipboard, state: clipState, onActivate: onPickClip)
                 case .actions: ActionsView(tb: toolbox, clipboard: clipboard) { nav.tab = .cleaner }
@@ -98,7 +100,7 @@ struct MainView: View {
         .animation(.spring(duration: 0.3), value: toolbox.toast)
         .onChange(of: [clipboardOn, actionsOn, notesOn]) { _, _ in
             // Desligou o módulo da aba aberta: volta para o Sistema
-            if let m = Module.allCases.first(where: { $0.tab == nav.tab }), !m.isOn { nav.tab = .system }
+            if let m = Module.allCases.first(where: { $0.tab == nav.tab }), !m.isOn { nav.tab = .now }
             // Os atalhos de janelas fazem parte das Ações
             WindowManager.shared.registerHotKeys()
         }
@@ -118,12 +120,12 @@ struct MainView: View {
     }
 
     /// Telas abertas por botão (com "voltar"), fora da barra de abas
-    private var isSubpage: Bool { nav.tab == .settings || nav.tab == .cleaner }
+    private var isSubpage: Bool { nav.tab == .settings || nav.tab == .cleaner || nav.tab == .system }
 
     private var header: some View {
         HStack(spacing: 10) {
             if isSubpage {
-                IconButton(icon: "chevron.left", help: L("Voltar")) { nav.tab = nav.tab == .cleaner ? .actions : .system }
+                IconButton(icon: "chevron.left", help: L("Voltar")) { nav.tab = nav.tab == .cleaner ? .actions : .now }
                 Text(L(nav.tab.rawValue)).font(.system(size: 15, weight: .semibold))
             } else {
                 ZStack {

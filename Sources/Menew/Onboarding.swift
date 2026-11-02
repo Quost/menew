@@ -291,6 +291,12 @@ struct WelcomeView: View {
             .glass()
             Text(L("Clique com o botão direito no ícone para mais opções."))
                 .font(.system(size: 11)).foregroundStyle(.tertiary)
+            // Tudo vem ligado; quem quer algo mais enxuto desliga o que não usa
+            HStack(spacing: 4) {
+                Text(L("Tudo vem ligado. Quer algo mais enxuto?")).foregroundStyle(.secondary)
+                Button(L("Personalizar")) { SettingsWindow.shared.show(.general) }.buttonStyle(.plain).foregroundStyle(Color.accentColor)
+            }
+            .font(.system(size: 11.5))
         }
     }
 

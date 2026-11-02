@@ -71,6 +71,9 @@ enum Snapshot {
                     render(v, size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("popover-\(tab)-\(suffix).png"))
                 }
+                // Uma página de grupo da aba Ações
+                render(ActionsView(tb: toolbox, clipboard: clipboard, group: .windows) {}.frame(width: 400, height: 600).background(Theme.popoverFill),
+                       size: NSSize(width: 400, height: 600), dark: dark, to: dir.appendingPathComponent("actions-group-\(suffix).png"))
                 if CommandLine.arguments.contains("--full-settings") { // Ajustes inteiros, para revisar o layout
                     render(SettingsView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false)).background(Theme.windowFill),
                            size: NSSize(width: 400, height: 1900), dark: dark, to: dir.appendingPathComponent("settings-full-\(suffix).png"))
