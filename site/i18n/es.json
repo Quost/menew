@@ -155,7 +155,7 @@
   "pro5_t": "Ítems de inicio y en segundo plano",
   "pro5_d": "Mira qué agentes y servicios instalaron las apps para abrirse con el Mac o ejecutarse ocultos.",
   "pro6_t": "Tiempo de pantalla",
-  "pro6_d": "Tiempo por app en el día, la semana o el mes, separado en enfoque y distracción. Empieza desactivado.",
+  "pro6_d": "Tiempo por app en el día, la semana o el mes, separado en enfoque y distracción. Empieza desactivado. Ahora por tipo de app (desarrollo, comunicación, entretenimiento…), y tú decides cuánto cuenta cada uno.",
   "faq7_q": "¿Menew es una alternativa gratis a Raycast, Maccy, Rectangle e iStat Menus?",
   "faq7_a": "Sí. Menew reúne lo esencial de cada uno en una sola app: paleta de comandos e historial del portapapeles como Raycast y Maccy, ventanas ajustadas con los mismos atajos que Rectangle y monitor del sistema con sensores e historial como iStat Menus. Cada uno sigue yendo más a fondo en su nicho, como la tienda de extensiones de Raycast.",
   "faq8_q": "¿La IA necesita internet o una cuenta?",

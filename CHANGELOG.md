@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.86.0
+
+### New
+- **Screen time by kind of app.** Apps are now grouped into 12 kinds (Development, Office, Design, AI, Organizing, Communication, Browsing, Learning and reading, Utilities, Entertainment, Social media and Other), using what each app declares about itself when Menew doesn’t know it. The card shows time per kind, and each app shows its kind.
+- **You decide what counts.** Categories… sets whether each kind counts as focus, neutral or distraction; right-click an app to change its kind or mark that app alone.
+
 ## 1.85.0
 
 ### New
