@@ -95,7 +95,7 @@ def jsonld(lang, texts):
     faq = {
         "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": plain(texts[f"faq{i}_q"]),
-                        "acceptedAnswer": {"@type": "Answer", "text": plain(texts[f"faq{i}_a"])}} for i in range(1, 7)],
+                        "acceptedAnswer": {"@type": "Answer", "text": plain(texts[f"faq{i}_a"])}} for i in range(1, 13)],
     }
     return json.dumps({"@context": "https://schema.org", "@graph": [app, faq]}, ensure_ascii=False).replace("</", "<\\/")
 
@@ -176,7 +176,7 @@ lines = [
     "## Features", "",
     *[f"- {plain(e[f'f{i}_t'])}: {plain(e[f'f{i}_d'])}" for i in range(1, 7)], "",
     "## FAQ", "",
-    *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, 7)],
+    *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, 13)],
     "## Install", "",
     "- Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg",
     "- Homebrew: `brew tap quost/menew https://github.com/Quost/menew && brew install --cask menew`", "",

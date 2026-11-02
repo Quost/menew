@@ -139,5 +139,17 @@
   "pro5_t": "Itens de login e em segundo plano",
   "pro5_d": "Veja quais agentes e serviços os apps instalaram para abrir com o Mac ou rodar escondidos.",
   "pro6_t": "Tempo de tela",
-  "pro6_d": "Tempo por app no dia, na semana ou no mês, separado em foco e distração. Começa desligado."
+  "pro6_d": "Tempo por app no dia, na semana ou no mês, separado em foco e distração. Começa desligado.",
+  "faq7_q": "O Menew é uma alternativa grátis ao Raycast, Maccy, Rectangle e iStat Menus?",
+  "faq7_a": "Sim. O Menew junta o essencial de cada um num app só: paleta de comandos e histórico do clipboard como no Raycast e no Maccy, janelas encaixadas com os mesmos atalhos do Rectangle e monitor do sistema com sensores e histórico como no iStat Menus. Cada um deles ainda vai mais fundo no próprio nicho, como a loja de extensões do Raycast.",
+  "faq8_q": "A IA precisa de internet ou de conta?",
+  "faq8_a": "Não. O Menew usa só o modelo da Apple que roda no próprio Mac (Apple Intelligence): textos, capturas e perguntas nunca saem dele. Não tem chave de API, conta nem custo extra.",
+  "faq9_q": "E se o meu Mac não tiver Apple Intelligence?",
+  "faq9_a": "Todo o resto funciona igual. Os recursos de IA explicam como ligar a Apple Intelligence em vez de falhar, o diagnóstico de Mac lento continua mostrando o que está errado e a busca inteligente do clipboard funciona sem ela.",
+  "faq10_q": "Como desinstalo o Menew?",
+  "faq10_a": "Saia do Menew pelo menu dele e arraste-o de Aplicativos para a Lixeira, ou rode brew uninstall --cask menew. O histórico e as notas ficam em ~/Library/Application Support/Menew, que você também pode apagar.",
+  "faq11_q": "O Menew deixa o Mac lento ou gasta bateria?",
+  "faq11_a": "O Menew é um app nativo em Swift, não uma página web empacotada, e o download tem uns 8 MB. Ele lê o sistema a cada 2 segundos, faz as leituras mais pesadas só enquanto você está olhando e recursos como o tempo de tela começam desligados.",
+  "faq12_q": "Em quais idiomas o Menew funciona?",
+  "faq12_a": "Inglês, português, alemão, espanhol e chinês simplificado. Ele segue o idioma do macOS, e você pode escolher outro nos Ajustes."
 }

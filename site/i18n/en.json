@@ -139,5 +139,17 @@
   "pro5_t": "Login and background items",
   "pro5_d": "See which agents and services apps installed to start with your Mac or run hidden.",
   "pro6_t": "Screen time",
-  "pro6_d": "Time per app for the day, week or month, split into focus and distraction. Off until you turn it on."
+  "pro6_d": "Time per app for the day, week or month, split into focus and distraction. Off until you turn it on.",
+  "faq7_q": "Is Menew a free alternative to Raycast, Maccy, Rectangle and iStat Menus?",
+  "faq7_a": "Yes. Menew covers the essentials of each in one app: a command palette and clipboard history like Raycast and Maccy, window snapping with the same shortcuts as Rectangle, and system monitoring with sensors and history like iStat Menus. Those apps still go deeper in their own niche, for example Raycast's extension store.",
+  "faq8_q": "Does the AI need the internet or an account?",
+  "faq8_a": "No. Menew only uses Apple's on-device model (Apple Intelligence), so text, screenshots and questions never leave your Mac. There is no API key, no account and no extra cost.",
+  "faq9_q": "What if my Mac doesn't have Apple Intelligence?",
+  "faq9_a": "Everything else works the same. The AI features tell you how to turn Apple Intelligence on instead of failing, the slow-Mac diagnosis still lists what is wrong, and the smart clipboard search works without it.",
+  "faq10_q": "How do I uninstall Menew?",
+  "faq10_a": "Quit Menew from its menu and drag it from Applications to the Trash, or run brew uninstall --cask menew. Your history and notes live in ~/Library/Application Support/Menew, which you can delete too.",
+  "faq11_q": "Does Menew slow down my Mac or drain the battery?",
+  "faq11_a": "Menew is a native Swift app, not a web wrapper, and the download is about 8 MB. It reads system stats every 2 seconds, takes heavier readings only while you look at them, and features like screen time stay off until you turn them on.",
+  "faq12_q": "Which languages does Menew speak?",
+  "faq12_a": "English, Portuguese, German, Spanish and Simplified Chinese. It follows your macOS language, and you can pick another one in Settings."
 }

@@ -50,6 +50,30 @@ Menew is signed with an Apple Developer ID and notarized by Apple, and all of it
 
 Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.
 
+### Is Menew a free alternative to Raycast, Maccy, Rectangle and iStat Menus?
+
+Yes. Menew covers the essentials of each in one app: a command palette and clipboard history like Raycast and Maccy, window snapping with the same shortcuts as Rectangle, and system monitoring with sensors and history like iStat Menus. Those apps still go deeper in their own niche, for example Raycast's extension store.
+
+### Does the AI need the internet or an account?
+
+No. Menew only uses Apple's on-device model (Apple Intelligence), so text, screenshots and questions never leave your Mac. There is no API key, no account and no extra cost.
+
+### What if my Mac doesn't have Apple Intelligence?
+
+Everything else works the same. The AI features tell you how to turn Apple Intelligence on instead of failing, the slow-Mac diagnosis still lists what is wrong, and the smart clipboard search works without it.
+
+### How do I uninstall Menew?
+
+Quit Menew from its menu and drag it from Applications to the Trash, or run brew uninstall --cask menew. Your history and notes live in ~/Library/Application Support/Menew, which you can delete too.
+
+### Does Menew slow down my Mac or drain the battery?
+
+Menew is a native Swift app, not a web wrapper, and the download is about 8 MB. It reads system stats every 2 seconds, takes heavier readings only while you look at them, and features like screen time stay off until you turn them on.
+
+### Which languages does Menew speak?
+
+English, Portuguese, German, Spanish and Simplified Chinese. It follows your macOS language, and you can pick another one in Settings.
+
 ## Install
 
 - Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg

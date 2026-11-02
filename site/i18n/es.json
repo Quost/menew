@@ -139,5 +139,17 @@
   "pro5_t": "Ítems de inicio y en segundo plano",
   "pro5_d": "Mira qué agentes y servicios instalaron las apps para abrirse con el Mac o ejecutarse ocultos.",
   "pro6_t": "Tiempo de pantalla",
-  "pro6_d": "Tiempo por app en el día, la semana o el mes, separado en enfoque y distracción. Empieza desactivado."
+  "pro6_d": "Tiempo por app en el día, la semana o el mes, separado en enfoque y distracción. Empieza desactivado.",
+  "faq7_q": "¿Menew es una alternativa gratis a Raycast, Maccy, Rectangle e iStat Menus?",
+  "faq7_a": "Sí. Menew reúne lo esencial de cada uno en una sola app: paleta de comandos e historial del portapapeles como Raycast y Maccy, ventanas ajustadas con los mismos atajos que Rectangle y monitor del sistema con sensores e historial como iStat Menus. Cada uno sigue yendo más a fondo en su nicho, como la tienda de extensiones de Raycast.",
+  "faq8_q": "¿La IA necesita internet o una cuenta?",
+  "faq8_a": "No. Menew solo usa el modelo de Apple que corre en el propio Mac (Apple Intelligence): textos, capturas y preguntas nunca salen de él. Sin clave de API, sin cuenta y sin coste extra.",
+  "faq9_q": "¿Y si mi Mac no tiene Apple Intelligence?",
+  "faq9_a": "Todo lo demás funciona igual. Las funciones de IA explican cómo activar Apple Intelligence en lugar de fallar, el diagnóstico de Mac lento sigue mostrando qué pasa y la búsqueda inteligente del portapapeles funciona sin ella.",
+  "faq10_q": "¿Cómo desinstalo Menew?",
+  "faq10_a": "Sal de Menew desde su menú y arrástralo de Aplicaciones a la Papelera, o ejecuta brew uninstall --cask menew. El historial y las notas están en ~/Library/Application Support/Menew, que también puedes borrar.",
+  "faq11_q": "¿Menew hace lento el Mac o gasta batería?",
+  "faq11_a": "Menew es una app nativa en Swift, no una web empaquetada, y la descarga pesa unos 8 MB. Lee el sistema cada 2 segundos, hace las lecturas más pesadas solo mientras miras y funciones como el tiempo de pantalla empiezan desactivadas.",
+  "faq12_q": "¿En qué idiomas está Menew?",
+  "faq12_a": "Inglés, portugués, alemán, español y chino simplificado. Sigue el idioma de macOS y puedes elegir otro en Ajustes."
 }

@@ -139,5 +139,17 @@
   "pro5_t": "登录项与后台项目",
   "pro5_d": "查看应用安装了哪些随 Mac 启动或在后台运行的代理和服务。",
   "pro6_t": "屏幕使用时间",
-  "pro6_d": "按天、周或月统计每个应用的使用时间，分为专注和分心。默认关闭。"
+  "pro6_d": "按天、周或月统计每个应用的使用时间，分为专注和分心。默认关闭。",
+  "faq7_q": "Menew 是 Raycast、Maccy、Rectangle 和 iStat Menus 的免费替代品吗？",
+  "faq7_a": "是的。Menew 把它们的核心功能集中在一个应用里：像 Raycast 和 Maccy 一样的命令面板和剪贴板历史，与 Rectangle 相同快捷键的窗口贴靠，以及像 iStat Menus 一样带传感器和历史记录的系统监控。这些应用在各自领域仍然更深入，比如 Raycast 的扩展商店。",
+  "faq8_q": "AI 需要联网或账号吗？",
+  "faq8_a": "不需要。Menew 只使用在 Mac 本机运行的 Apple 模型（Apple Intelligence），文字、截图和问题都不会离开你的 Mac。无需 API 密钥、账号或额外费用。",
+  "faq9_q": "如果我的 Mac 没有 Apple Intelligence 怎么办？",
+  "faq9_a": "其他功能完全照常。AI 功能会提示如何开启 Apple Intelligence，而不是直接出错；“Mac 变慢”诊断仍会列出问题；剪贴板智能搜索也无需它即可使用。",
+  "faq10_q": "如何卸载 Menew？",
+  "faq10_a": "从 Menew 菜单退出，然后把它从“应用程序”拖到废纸篓，或运行 brew uninstall --cask menew。历史记录和笔记保存在 ~/Library/Application Support/Menew，也可以一并删除。",
+  "faq11_q": "Menew 会让 Mac 变慢或耗电吗？",
+  "faq11_a": "Menew 是原生 Swift 应用，不是网页套壳，下载约 8 MB。它每 2 秒读取一次系统数据，较重的读取只在你查看时进行，屏幕使用时间等功能默认关闭。",
+  "faq12_q": "Menew 支持哪些语言？",
+  "faq12_a": "英语、葡萄牙语、德语、西班牙语和简体中文。默认跟随 macOS 语言，也可以在设置中更改。"
 }

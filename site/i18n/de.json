@@ -139,5 +139,17 @@
   "pro5_t": "Anmelde- und Hintergrundobjekte",
   "pro5_d": "Sieh, welche Agenten und Dienste Apps installiert haben, um mit dem Mac zu starten oder versteckt zu laufen.",
   "pro6_t": "Bildschirmzeit",
-  "pro6_d": "Zeit pro App für Tag, Woche oder Monat, aufgeteilt in Fokus und Ablenkung. Aus, bis du es einschaltest."
+  "pro6_d": "Zeit pro App für Tag, Woche oder Monat, aufgeteilt in Fokus und Ablenkung. Aus, bis du es einschaltest.",
+  "faq7_q": "Ist Menew eine kostenlose Alternative zu Raycast, Maccy, Rectangle und iStat Menus?",
+  "faq7_a": "Ja. Menew vereint das Wichtigste von allen in einer App: Befehlspalette und Zwischenablage-Verlauf wie Raycast und Maccy, Fenster einrasten mit denselben Kurzbefehlen wie Rectangle und Systemüberwachung mit Sensoren und Verlauf wie iStat Menus. Jede dieser Apps geht in ihrer Nische noch weiter, etwa der Erweiterungs-Store von Raycast.",
+  "faq8_q": "Braucht die KI Internet oder ein Konto?",
+  "faq8_a": "Nein. Menew nutzt nur Apples Modell auf dem Gerät (Apple Intelligence): Texte, Bildschirmfotos und Fragen verlassen deinen Mac nie. Kein API-Schlüssel, kein Konto, keine Zusatzkosten.",
+  "faq9_q": "Und wenn mein Mac kein Apple Intelligence hat?",
+  "faq9_a": "Alles andere funktioniert genauso. Die KI-Funktionen erklären, wie du Apple Intelligence einschaltest, statt zu scheitern, die Diagnose für einen langsamen Mac zeigt weiterhin, was nicht stimmt, und die smarte Suche in der Zwischenablage funktioniert ohne sie.",
+  "faq10_q": "Wie deinstalliere ich Menew?",
+  "faq10_a": "Beende Menew über sein Menü und zieh es aus Programme in den Papierkorb, oder führe brew uninstall --cask menew aus. Verlauf und Notizen liegen in ~/Library/Application Support/Menew, das du ebenfalls löschen kannst.",
+  "faq11_q": "Macht Menew meinen Mac langsam oder leert den Akku?",
+  "faq11_a": "Menew ist eine native Swift-App, keine verpackte Webseite, und der Download ist etwa 8 MB groß. Es liest Systemwerte alle 2 Sekunden, schwerere Messungen nur, während du hinsiehst, und Funktionen wie die Bildschirmzeit sind aus, bis du sie einschaltest.",
+  "faq12_q": "Welche Sprachen spricht Menew?",
+  "faq12_a": "Englisch, Portugiesisch, Deutsch, Spanisch und vereinfachtes Chinesisch. Es folgt der Sprache von macOS, und in den Einstellungen kannst du eine andere wählen."
 }
