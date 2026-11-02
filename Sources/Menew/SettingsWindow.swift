@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Categorias da janela de Ajustes, na ordem da barra lateral
 enum SettingsCategory: String, CaseIterable, Identifiable {
-    case general, menubar, clipboard, shortcuts, ai, calendar, alerts, links, privacy, backup, about
+    case general, menubar, clipboard, shortcuts, windows, notch, ai, calendar, alerts, links, privacy, backup, about
     var id: String { rawValue }
 
     var title: String {
@@ -11,7 +11,9 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .general: L("Geral")
         case .menubar: L("Barra de menus")
         case .clipboard: L("Clipboard")
-        case .shortcuts: L("Atalhos e ações")
+        case .shortcuts: L("Atalhos de teclado")
+        case .windows: L("Janelas e telas")
+        case .notch: (NSScreen.screens.first?.safeAreaInsets.top ?? 0) > 0 ? L("Notch") : L("Avisos no topo")
         case .ai: L("IA")
         case .calendar: L("Calendário e relógios")
         case .alerts: L("Alertas")
@@ -28,6 +30,8 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .menubar: "menubar.rectangle"
         case .clipboard: "doc.on.clipboard.fill"
         case .shortcuts: "command"
+        case .windows: "macwindow.on.rectangle"
+        case .notch: "rectangle.topthird.inset.filled"
         case .ai: "apple.intelligence"
         case .calendar: "calendar"
         case .alerts: "bell.badge.fill"
@@ -44,6 +48,8 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .menubar: .indigo
         case .clipboard: .purple
         case .shortcuts: .blue
+        case .windows: .cyan
+        case .notch: .black
         case .ai: .pink
         case .calendar: .red
         case .alerts: .orange
@@ -63,7 +69,9 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
                           L("Ignorar senhas (1Password, Keychain…)"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
                           L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
-                          L("Capturar tela"), L("Reescrever texto selecionado"), L("Abrir a estante ao chacoalhar arquivos"), L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Brilho de monitores externos")]
+                          L("Capturar tela"), L("Reescrever texto selecionado"), L("Atalhos")]
+        case .windows: [L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Abrir a estante ao chacoalhar arquivos"), L("Brilho de monitores externos"), L("Janelas")]
+        case .notch: ["notch", L("Avisos ao vivo no notch"), L("Avisos ao vivo no topo da tela")] + NotchCenter.Kind.allCases.map(\.title)
         case .ai: [L("Apple Intelligence")] + AIFeature.allCases.map(\.title)
         case .calendar: [L("Calendário"), L("Mostrar a próxima reunião"), L("Horário de trabalho"), L("Avisar 1 minuto antes"), L("Relógios"), L("Adicionar cidade…")]
         case .alerts: [L("Alertas"), L("Disco quase cheio"), L("Bateria baixa"), L("Memória no limite"), L("CPU alta por muito tempo"),

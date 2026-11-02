@@ -9,6 +9,21 @@ final class NotchCenter: ObservableObject {
     static let shared = NotchCenter()
     static let key = "notchOn"
 
+    /// O que pode aparecer; cada um tem seu interruptor em Ajustes → Notch
+    enum Kind: String, CaseIterable, Identifiable {
+        case meeting, recording, flash, focus, timer, mic
+        var id: String { rawValue }
+        var key: String { "notch.\(rawValue)" }
+        @MainActor var isOn: Bool { UserDefaults.standard.object(forKey: key) == nil ? true : UserDefaults.standard.bool(forKey: key) }
+    }
+
+    /// Minutos antes da reunião em que o aviso aparece
+    static let leadKey = "notch.meetingLead"
+    static var meetingLead: TimeInterval {
+        let m = UserDefaults.standard.integer(forKey: leadKey)
+        return TimeInterval([1, 2, 5].contains(m) ? m : 2) * 60
+    }
+
     enum Activity: Equatable {
         case meeting(title: String, start: Date, hasLink: Bool)
         case recording(since: Date)
@@ -20,6 +35,8 @@ final class NotchCenter: ObservableObject {
 
     @Published private(set) var activity: Activity?
     private var flash: (Activity, Date?)?
+    /// Um teste de Ajustes → Notch fica na tela até esta hora, mesmo com o aviso desligado
+    private var testUntil: Date?
     private var panel: NSPanel?
     private var timer: Timer?
     private var muted = false
@@ -45,7 +62,7 @@ final class NotchCenter: ObservableObject {
 
     /// Avisos do Menew ("Copiado", "Pensando…"): no notch, quando ele está ligado
     func show(icon: String, color: Color, text: String, duration: TimeInterval?) -> Bool {
-        guard isOn else { return false }
+        guard isOn, Kind.flash.isOn else { return false }
         flash = (.flash(icon: icon, color: color, text: text), duration.map { Date().addingTimeInterval($0) })
         update()
         return true
@@ -60,6 +77,8 @@ final class NotchCenter: ObservableObject {
     }
 
     func update(now: Date = Date()) {
+        if let testUntil, testUntil > now { place(); return }
+        testUntil = nil
         if let (_, until) = flash, let until, until < now { flash = nil }
         if now.timeIntervalSince(lastMuteCheck) > 2 {
             lastMuteCheck = now
@@ -75,15 +94,15 @@ final class NotchCenter: ObservableObject {
 
     /// A ordem de importância
     static func pick(now: Date, flash: Activity?, muted: Bool) -> Activity? {
-        if let m = MeetingStore.shared.next, m.start > now.addingTimeInterval(-60), m.start.timeIntervalSince(now) <= 120 {
+        if Kind.meeting.isOn, let m = MeetingStore.shared.next, m.start > now.addingTimeInterval(-60), m.start.timeIntervalSince(now) <= meetingLead {
             return .meeting(title: m.title, start: m.start, hasLink: m.link != nil)
         }
-        if ScreenRecorder.shared.isRecording { return .recording(since: ScreenRecorder.shared.started) }
-        if let flash { return flash }
+        if Kind.recording.isOn, ScreenRecorder.shared.isRecording { return .recording(since: ScreenRecorder.shared.started) }
+        if Kind.flash.isOn, let flash { return flash }
         let focus = FocusTimer.shared
-        if focus.isRunning { return .focus(end: focus.endsAt, rest: focus.phase == .rest) }
-        if let t = TimerStore.shared.active.min(by: { $0.end < $1.end }) { return .timer(label: t.label, end: t.end) }
-        if muted { return .micMuted }
+        if Kind.focus.isOn, focus.isRunning { return .focus(end: focus.endsAt, rest: focus.phase == .rest) }
+        if Kind.timer.isOn, let t = TimerStore.shared.active.min(by: { $0.end < $1.end }) { return .timer(label: t.label, end: t.end) }
+        if Kind.mic.isOn, muted { return .micMuted }
         return nil
     }
 
@@ -214,5 +233,132 @@ struct NotchView: View {
     static func clock(_ s: TimeInterval) -> String {
         let t = Int(s.rounded())
         return t >= 3600 ? String(format: "%d:%02d:%02d", t / 3600, t / 60 % 60, t % 60) : String(format: "%d:%02d", t / 60, t % 60)
+    }
+}
+
+extension NotchCenter.Kind {
+    var icon: String {
+        switch self {
+        case .meeting: "video.fill"
+        case .recording: "record.circle"
+        case .flash: "checkmark.circle.fill"
+        case .focus: "scope"
+        case .timer: "hourglass"
+        case .mic: "mic.slash.fill"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .meeting: L("Reunião chegando")
+        case .recording: L("Gravação de tela")
+        case .flash: L("Avisos do Menew")
+        case .focus: L("Foco e pausa")
+        case .timer: L("Timers")
+        case .mic: L("Mic mudo numa chamada")
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .meeting: L("Com o botão Entrar quando a reunião tem link.")
+        case .recording: L("O tempo gravado e o botão Parar.")
+        case .flash: L("“Copiado”, volume, brilho e outros. Desligado, aparecem no meio da tela.")
+        case .focus: L("O tempo que falta da sessão de foco.")
+        case .timer: L("A contagem do timer mais próximo.")
+        case .mic: L("Só aparece quando algum app está usando o microfone.")
+        }
+    }
+
+    /// Exemplo para a prévia e o botão Testar
+    var demo: NotchCenter.Activity {
+        switch self {
+        case .meeting: .meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)
+        case .recording: .recording(since: Date().addingTimeInterval(-42))
+        case .flash: .flash(icon: "doc.on.doc.fill", color: .green, text: L("Copiado"))
+        case .focus: .focus(end: Date().addingTimeInterval(18 * 60), rest: false)
+        case .timer: .timer(label: L("Chá"), end: Date().addingTimeInterval(4 * 60 + 12))
+        case .mic: .micMuted
+        }
+    }
+}
+
+extension NotchCenter {
+    /// Mostra um exemplo no notch de verdade por alguns segundos
+    func test(_ kind: Kind) {
+        testUntil = Date().addingTimeInterval(4)
+        withAnimation(.spring(duration: 0.35)) { activity = kind.demo }
+        place()
+        // Com o notch desligado não há timer: limpa sozinho
+        if !isOn {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 4.1) { [weak self] in
+                guard let self, !self.isOn else { return }
+                self.testUntil = nil; self.activity = nil; self.panel?.orderOut(nil)
+            }
+        }
+    }
+}
+
+/// Ajustes → Notch: o interruptor geral, a prévia e um interruptor por aviso
+struct NotchSettingsSection: View {
+    @State private var on = NotchCenter.shared.isOn
+    @State private var kinds: [NotchCenter.Kind: Bool] = Dictionary(uniqueKeysWithValues: NotchCenter.Kind.allCases.map { ($0, $0.isOn) })
+    @AppStorage(NotchCenter.leadKey) private var lead = 2
+    @StateObject private var preview = NotchCenter()
+    @State private var step = 0
+    private let tick = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            GlassSection(title: L("Prévia"), footer: NotchCenter.hasNotch
+                         ? L("Uma coisa por vez, a mais importante primeiro. Sem nada acontecendo, o notch fica como sempre.")
+                         : L("Este Mac não tem notch: os avisos aparecem como uma pílula no topo da tela.")) {
+                ZStack(alignment: .top) {
+                    LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.55, green: 0.5, blue: 0.68)], startPoint: .leading, endPoint: .trailing)
+                    NotchView(center: preview, notch: CGSize(width: 200, height: 37)).frame(width: 440, height: 75)
+                }
+                .frame(height: 86)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(10)
+            }
+            GlassSection(title: L("Notch")) {
+                ToggleRow(title: NotchCenter.hasNotch ? L("Avisos ao vivo no notch") : L("Avisos ao vivo no topo da tela"),
+                          detail: L("Reunião chegando, gravação, foco, timers, mic mudo e os avisos do Menew aparecem ao lado da câmera."),
+                          isOn: Binding(get: { on }, set: { on = $0; UserDefaults.standard.set($0, forKey: NotchCenter.key); NotchCenter.shared.refresh() }))
+            }
+            GlassSection(title: L("O que aparece"), footer: L("Na ordem de importância: se duas coisas acontecem juntas, aparece a de cima.")) {
+                ForEach(Array(NotchCenter.Kind.allCases.enumerated()), id: \.element) { i, k in
+                    if i > 0 { RowDivider() }
+                    HStack(alignment: .top, spacing: 10) {
+                        Image(systemName: k.icon).font(.system(size: 12, weight: .medium)).foregroundStyle(.orange).frame(width: 18).padding(.top, 2)
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(k.title).font(.system(size: 13))
+                            Text(k.detail).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+                            if k == .meeting {
+                                Picker("", selection: $lead) {
+                                    ForEach([1, 2, 5], id: \.self) { Text(L("%@ min antes", "\($0)")).tag($0) }
+                                }
+                                .labelsHidden().pickerStyle(.menu).fixedSize().padding(.top, 2)
+                            }
+                        }
+                        Spacer(minLength: 8)
+                        Button(L("Testar")) { NotchCenter.shared.test(k) }
+                            .buttonStyle(.borderless).font(.system(size: 11.5))
+                        Toggle("", isOn: Binding(get: { kinds[k] ?? true }, set: { kinds[k] = $0; UserDefaults.standard.set($0, forKey: k.key); NotchCenter.shared.update() }))
+                            .labelsHidden().toggleStyle(.switch).controlSize(.small)
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                }
+            }
+        }
+        .onAppear { show() }
+        .onReceive(tick) { _ in step += 1; show() }
+    }
+
+    /// A prévia passa pelos avisos ligados, um de cada vez
+    private func show() {
+        let list = NotchCenter.Kind.allCases.filter { kinds[$0] ?? true }
+        guard !list.isEmpty else { preview.showDemo(.flash(icon: "moon.zzz.fill", color: .gray, text: L("Nada ligado"))); return }
+        withAnimation(.spring(duration: 0.35)) { preview.showDemo(list[step % list.count].demo) }
     }
 }

@@ -872,31 +872,34 @@ struct SettingsView: View {
                         SettingRow(title: L("Reescrever texto selecionado"), detail: L("Com a IA do Mac, em qualquer app")) {
                             ShortcutRecorder(name: HotKeyCenter.rewriteKey, fallback: .rewriteDefault)
                         }
-                        RowDivider()
-                        ToggleRow(title: L("Abrir a estante ao chacoalhar arquivos"),
-                                  detail: L("Ao arrastar arquivos, chacoalhe o mouse e a estante aparece para você soltar ali."),
-                                  isOn: $shelfShake)
-                        RowDivider()
+                    }
+                }
+                }
+
+                if show(.windows), actionsOn {
+                GlassSection(title: L("Janelas")) {
                         ToggleRow(title: L("Organizar janelas com ⌃⌥"),
                                   detail: L("⌃⌥ + setas para metades, U I J K para cantos, ↩ para maximizar. Desligue se usa outro app para isso."),
                                   isOn: $windowShortcuts)
                             .onChange(of: windowShortcuts) { _, _ in WindowManager.shared.registerHotKeys() }
-                        RowDivider()
-                        ToggleRow(title: NotchCenter.hasNotch ? L("Avisos ao vivo no notch") : L("Avisos ao vivo no topo da tela"),
-                                  detail: L("Reunião chegando, gravação, foco, timers, mic mudo e os avisos do Menew aparecem ao lado da câmera."),
-                                  isOn: Binding(get: { NotchCenter.shared.isOn }, set: { UserDefaults.standard.set($0, forKey: NotchCenter.key); NotchCenter.shared.refresh() }))
                         RowDivider()
                         ToggleRow(title: L("Encaixar janelas arrastando"),
                                   detail: L("Arraste uma janela até a borda (metade), o topo (tela cheia) ou um canto (um quarto). Desliga sozinho se o Rectangle ou o Magnet estiverem abertos."),
                                   isOn: $dragSnap)
                             .onChange(of: dragSnap) { _, _ in DragSnap.shared.refresh() }
                         RowDivider()
+                        ToggleRow(title: L("Abrir a estante ao chacoalhar arquivos"),
+                                  detail: L("Ao arrastar arquivos, chacoalhe o mouse e a estante aparece para você soltar ali."),
+                                  isOn: $shelfShake)
+                }
+                GlassSection(title: L("Telas")) {
                         ToggleRow(title: L("Brilho de monitores externos"),
                                   detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se a tela travar ao abrir Ações com um monitor ligado, desligue aqui."),
                                   isOn: $ddcBrightness)
-                    }
                 }
                 }
+
+                if show(.notch) { NotchSettingsSection() }
 
                 if show(.calendar) { WorldClockSettings() }
 
