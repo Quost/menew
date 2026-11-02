@@ -29,8 +29,27 @@ enum Diagnosis {
             let apps = NSWorkspace.shared.runningApplications.filter { $0.activationPolicy == .regular }.compactMap(\.localizedName)
             name = apps.filter { $0.count >= 3 && command.hasPrefix($0) }.max { $0.count < $1.count } ?? name
         }
-        return name.replacingOccurrences(of: #"\s+Helper.*$"#, with: "", options: .regularExpression)
+        name = name.replacingOccurrences(of: #"\s+Helper.*$"#, with: "", options: .regularExpression)
+        // Processos com nome técnico ganham uma explicação ("swift-frontend" → compilador do Xcode)
+        if let friendly = friendly[name] { return "\(name) (\(friendly()))" }
+        return name
     }
+
+    static let friendly: [String: () -> String] = [
+        "swift-frontend": { L("compilador do Swift, do Xcode") },
+        "clang": { L("compilador, do Xcode") },
+        "callservicesd": { L("chamadas do FaceTime e Continuidade") },
+        "mds_stores": { L("Spotlight indexando arquivos") },
+        "mdworker_shared": { L("Spotlight indexando arquivos") },
+        "photoanalysisd": { L("Fotos analisando a fototeca") },
+        "WindowServer": { L("desenha as janelas na tela") },
+        "kernel_task": { L("o macOS controlando a temperatura") },
+        "backupd": { L("backup do Time Machine") },
+        "bird": { L("sincronização do iCloud Drive") },
+        "softwareupdated": { L("atualização do macOS") },
+        "corespotlightd": { L("Spotlight") },
+        "com.apple.WebKit.WebContent": { L("páginas do Safari") },
+    ]
 
     /// Programas em /System ou /usr são do próprio macOS: a sugestão nunca é encerrá-los
     static func isSystem(pid: Int32) -> Bool {

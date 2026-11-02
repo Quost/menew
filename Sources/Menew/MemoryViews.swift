@@ -17,7 +17,9 @@ enum MemoryWindow {
 
 struct MemoryView: View {
     @ObservedObject var store: MemoryStore
+    var startMode: Int? = nil
     @State private var confirmErase = false
+    @AppStorage("memoryMode") private var mode = 0
 
     private var list: [MemoryItem] { store.filtered }
     private var current: MemoryItem? { store.items.first { $0.id == store.selectedID } ?? list.first }
@@ -29,6 +31,14 @@ struct MemoryView: View {
                 MemoryAnswerView().padding(.horizontal, 16).padding(.top, 6)
                 if store.items.isEmpty {
                     empty
+                } else if mode == 1 {
+                    KnowledgeGraphView(graph: KnowledgeGraph.build(memory: store.items, notes: (NSApp.delegate as? AppDelegate)?.notes.notes ?? []),
+                                       onTopic: { t in store.query = t; mode = 0 },
+                                       onMemory: { id in store.query = ""; store.selectedID = id; mode = 0 },
+                                       onNote: { id in (NSApp.delegate as? AppDelegate)?.openNote(id) })
+                        .padding(12)
+                        .background(RoundedRectangle(cornerRadius: 12).fill(Color.primary.opacity(0.03)))
+                        .padding(16)
                 } else if list.isEmpty {
                     Text(L("Nada encontrado")).font(.system(size: 13)).foregroundStyle(.secondary)
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -47,7 +57,7 @@ struct MemoryView: View {
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            if let current {
+            if let current, mode == 0 {
                 Divider()
                 MemoryDetail(item: current, image: store.image(for: current)) { store.delete(current) }
                     .frame(width: 330)
@@ -77,6 +87,8 @@ struct MemoryView: View {
                 PillButton(title: L("Perguntar"), icon: "sparkles") { MemoryAsk.shared.ask(store.query) }
                     .help(L("A IA procura na memória, nas notas e no clipboard e responde com as fontes (↩)"))
             }
+            GlassSegmented(selection: $mode, options: [.init(value: 0, icon: "square.grid.2x2", help: L("Cartões")),
+                                                       .init(value: 1, icon: "point.3.connected.trianglepath.dotted", help: L("Grafo"))], expand: false)
             Text(L("%d itens", list.count)).font(.system(size: 11.5)).foregroundStyle(.secondary).monospacedDigit()
             PillButton(title: L("Capturar"), icon: "plus.viewfinder", primary: true) { MemoryStore.shared.capture() }
                 .help(Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display)

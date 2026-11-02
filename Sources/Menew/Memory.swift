@@ -239,6 +239,12 @@ final class MemoryStore: ObservableObject {
                  ["ideia", "menew"], "Notas", nil, 75, ["Menew", "Obsidian"]),
             make(.capture, L("Paleta de cores do projeto"), L("Índigo #5C6BFF e violeta #9E40F2 para o site."),
                  ["design", "cores"], "Figma", nil, 120, ["Menew", "Figma"]),
+            make(.link, L("SwiftUI: Layout personalizado"), L("Protocolo Layout para posicionar etiquetas em fluxo."),
+                 ["swiftui", "layout"], "Safari", "https://developer.apple.com/documentation/swiftui/layout", 140, ["SwiftUI", "Apple"]),
+            make(.capture, L("Reunião com a Ana sobre o lançamento"), L("Lançamento na quinta; Ana revisa o site, Bruno os textos."),
+                 ["reunião", "lançamento"], "Zoom", nil, 30, ["Ana", "Bruno", "Menew"]),
+            make(.text, L("Ideia de nome para o plano Pro"), L("Testar com a Ana antes de decidir."),
+                 ["ideia", "produto"], "Notas", nil, 200, ["Ana", "Menew"]),
         ]
     }
 }

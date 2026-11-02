@@ -79,6 +79,12 @@ enum Snapshot {
                     render(HubView(state: hs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox),
                            size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-\(sec.rawValue)-\(suffix).png"))
                 }
+                // Grafo do conhecimento com os dados de exemplo
+                let kg = KnowledgeGraph.build(memory: MemoryStore.shared.items, notes: [])
+                let gsize = CGSize(width: 760, height: 460)
+                render(KnowledgeGraphView(graph: kg, positions: kg.layout(in: gsize), onTopic: { _ in }, onMemory: { _ in }, onNote: { _ in })
+                        .frame(width: gsize.width, height: gsize.height).padding(20).background(Theme.windowFill),
+                       size: NSSize(width: 800, height: 500), dark: dark, to: dir.appendingPathComponent("graph-\(suffix).png"))
                 // Uma página de grupo da aba Ações
                 render(ActionsView(tb: toolbox, clipboard: clipboard, group: .windows) {}.frame(width: 400, height: 600).background(Theme.popoverFill),
                        size: NSSize(width: 400, height: 600), dark: dark, to: dir.appendingPathComponent("actions-group-\(suffix).png"))
