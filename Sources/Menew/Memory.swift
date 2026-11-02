@@ -43,6 +43,9 @@ final class MemoryStore: ObservableObject {
 
     @Published private(set) var items: [MemoryItem] = []
     @Published var query = ""
+    /// O item aberto nos detalhes (também pelo Spotlight e pelas fontes de uma resposta)
+    @Published var selectedID: UUID?
+    private var spotlightWork: DispatchWorkItem?
     private(set) var dir: URL?
     private var demo = false
 
@@ -64,6 +67,11 @@ final class MemoryStore: ObservableObject {
         let enc = JSONEncoder()
         enc.dateEncodingStrategy = .iso8601
         try? enc.encode(items).write(to: dir.appendingPathComponent("memory.json"), options: .atomic)
+        // O Spotlight é atualizado logo depois, uma vez só para várias mudanças seguidas
+        spotlightWork?.cancel()
+        let w = DispatchWorkItem { MainActor.assumeIsolated { SpotlightMemory.index(MemoryStore.shared.items) } }
+        spotlightWork = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2, execute: w)
     }
 
     // MARK: Busca

@@ -354,6 +354,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     /// Resultado do Spotlight: abre a nota escolhida
     func application(_ application: NSApplication, continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([any NSUserActivityRestoring]) -> Void) -> Bool {
+        if let id = SpotlightMemory.memoryID(from: userActivity) {
+            MemoryStore.shared.query = ""
+            MemoryStore.shared.selectedID = id
+            MenewWindow.shared.show(.memory)
+            return true
+        }
         guard let id = SpotlightNotes.noteID(from: userActivity) else { return false }
         openNote(id)
         return true

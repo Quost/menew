@@ -17,16 +17,16 @@ enum MemoryWindow {
 
 struct MemoryView: View {
     @ObservedObject var store: MemoryStore
-    @State private var selected: UUID?
     @State private var confirmErase = false
 
     private var list: [MemoryItem] { store.filtered }
-    private var current: MemoryItem? { list.first { $0.id == selected } ?? list.first }
+    private var current: MemoryItem? { store.items.first { $0.id == store.selectedID } ?? list.first }
 
     var body: some View {
         HStack(spacing: 0) {
             VStack(spacing: 0) {
                 header
+                MemoryAnswerView().padding(.horizontal, 16).padding(.top, 6)
                 if store.items.isEmpty {
                     empty
                 } else if list.isEmpty {
@@ -37,7 +37,7 @@ struct MemoryView: View {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 190, maximum: 260), spacing: 12)], spacing: 12) {
                             ForEach(list) { item in
                                 RecallCard(item: item, image: store.image(for: item), on: item.id == current?.id)
-                                    .onTapGesture { selected = item.id }
+                                    .onTapGesture { store.selectedID = item.id }
                                     .contextMenu { Button(L("Apagar"), role: .destructive) { store.delete(item) } }
                             }
                         }
@@ -64,7 +64,8 @@ struct MemoryView: View {
         HStack(spacing: 10) {
             HStack(spacing: 6) {
                 Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
-                TextField(L("Buscar na memória, ex.: gráfico swift, firebase"), text: $store.query).textFieldStyle(.plain)
+                TextField(L("Buscar ou perguntar, ex.: qual era a biblioteca de gráficos?"), text: $store.query).textFieldStyle(.plain)
+                    .onSubmit { if MemoryAsk.shared.available { MemoryAsk.shared.ask(store.query) } }
                 if !store.query.isEmpty {
                     Button { store.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).foregroundStyle(.tertiary)
                 }
@@ -72,6 +73,10 @@ struct MemoryView: View {
             .font(.system(size: 13))
             .padding(.horizontal, 10).padding(.vertical, 7)
             .background(RoundedRectangle(cornerRadius: 9).fill(Color.primary.opacity(0.06)))
+            if MemoryAsk.shared.available && !store.query.isEmpty {
+                PillButton(title: L("Perguntar"), icon: "sparkles") { MemoryAsk.shared.ask(store.query) }
+                    .help(L("A IA procura na memória, nas notas e no clipboard e responde com as fontes (↩)"))
+            }
             Text(L("%d itens", list.count)).font(.system(size: 11.5)).foregroundStyle(.secondary).monospacedDigit()
             PillButton(title: L("Capturar"), icon: "plus.viewfinder", primary: true) { MemoryStore.shared.capture() }
                 .help(Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display)
