@@ -115,6 +115,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         SystemHistory.shared.load(dir: clipboard.dir)
         BatteryLog.shared.load(dir: clipboard.dir)
         MemoryStore.shared.load(base: clipboard.dir)
+        RecordingStore.shared.load(base: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
         WidgetBridge.shared.start(monitor: monitor)
@@ -150,6 +151,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         HotKeyCenter.shared.onCapture = { if Module.actions.isOn { ScreenCapture.area() } }
         HotKeyCenter.shared.onRewrite = { Rewriter.shared.start() }
         HotKeyCenter.shared.onMemory = { MemoryStore.shared.capture() }
+        HotKeyCenter.shared.onRecording = { RecordingStore.shared.toggle() }
         HotKeyCenter.shared.onPalette = { [weak self] in
             guard let self else { return }
             if popover.isShown { popover.performClose(nil) }

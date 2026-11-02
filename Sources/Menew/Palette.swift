@@ -513,6 +513,12 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("recording.toggle", RecordingStore.shared.isRecording ? L("Parar a gravação") : L("Gravar áudio"), "record.circle", .red,
+                   "gravar gravacao gravação record audio áudio voz voice reunião meeting ata minutes aufnehmen grabar 录音",
+                   subtitle: L("Transcreve e escreve a ata sozinho")) { RecordingStore.shared.toggle() }
+            action("recording.open", L("Gravações"), "waveform", .red,
+                   "gravacoes gravações recordings atas minutes reuniões meetings aufnahmen grabaciones 录音",
+                   subtitle: L("Atas, tarefas e etiquetas")) { MenewWindow.shared.show(.recordings) }
             action("hub.open", L("Janela Menew"), "macwindow", Theme.indigo,
                    "janela menew window visão geral overview painel dashboard histórico history ferramentas tools fenster ventana 窗口",
                    subtitle: L("Visão geral, memória, histórico e ferramentas")) { MenewWindow.shared.show() }

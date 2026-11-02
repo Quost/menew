@@ -89,6 +89,7 @@ struct AISettingsSection: View {
                         .foregroundStyle(.green)
                 }
             }
+            AboutMeSection()
             GlassSection(title: L("Recursos"), footer: L("Desligado, o recurso some da paleta, dos atalhos e dos botões.")) {
                 ForEach(Array(AIFeature.allCases.enumerated()), id: \.element) { i, f in
                     if i > 0 { RowDivider() }

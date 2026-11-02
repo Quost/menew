@@ -4,4 +4,4 @@
 "NSRemindersFullAccessUsageDescription" = "Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.";
 "NSRemindersUsageDescription" = "Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.";
 "NSSpeechRecognitionUsageDescription" = "Menew transcribes the audio and video files you drop on the shelf and shows live captions, on your Mac.";
-"NSMicrophoneUsageDescription" = "Menew turns what you say into live captions, only while captions are on. The audio is never recorded or sent.";
+"NSMicrophoneUsageDescription" = "Menew records your voice only when you start a recording or live captions. Audio stays on your Mac and is never sent.";

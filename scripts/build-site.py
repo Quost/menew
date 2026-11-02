@@ -117,7 +117,7 @@ def jsonld(lang, texts):
         "dateModified": UPDATED,
         "featureList": [plain(texts[f"f{i}_t"]) + ": " + plain(texts[f"f{i}_d"]) for i in range(1, 7)]
                        + [plain(texts[f"act_l{i}"]) for i in range(1, 11)]
-                       + [plain(texts[f"nat{i}_t"]) + ": " + plain(texts[f"nat{i}_d"]) for i in range(1, 7)]
+                       + [plain(texts[f"nat{i}_t"]) + ": " + plain(texts[f"nat{i}_d"]) for i in range(1, 8)]
                        + [plain(texts[f"rep{i}_d"]) for i in range(1, 9)],
         "license": "https://www.gnu.org/licenses/gpl-3.0.html",
         "isAccessibleForFree": True,
@@ -211,7 +211,7 @@ lines = [
     *[f"- {plain(e[f'f{i}_t'])}: {plain(e[f'f{i}_d'])}" for i in range(1, 7)], "",
     "## More features", "",
     *[f"- {plain(e[f'act_l{i}'])}" for i in range(1, 11)],
-    *[f"- {plain(e[f'nat{i}_t'])}: {plain(e[f'nat{i}_d'])}" for i in range(1, 7)],
+    *[f"- {plain(e[f'nat{i}_t'])}: {plain(e[f'nat{i}_d'])}" for i in range(1, 8)],
     *[f"- {plain(e[f'pro{i}_t'])}: {plain(e[f'pro{i}_d'])}" for i in range(1, 7)], "",
     "## FAQ", "",
     *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, 13)],

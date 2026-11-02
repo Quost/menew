@@ -99,6 +99,7 @@ final class NotchCenter: ObservableObject {
             return .meeting(title: m.title, start: m.start, hasLink: m.link != nil)
         }
         if Kind.recording.isOn, ScreenRecorder.shared.isRecording { return .recording(since: ScreenRecorder.shared.started) }
+        if Kind.recording.isOn, RecordingStore.shared.isRecording { return .recording(since: RecordingStore.shared.startedAt) }
         // Filtro de Foco "só reuniões": o resto espera o Foco acabar
         if FocusFilterState.shared.quietNotch { return nil }
         if Kind.flash.isOn, let flash { return flash }
@@ -222,7 +223,7 @@ struct NotchView: View {
             }
             .padding(.horizontal, 14).padding(.bottom, 8)
         case .recording:
-            Button { ScreenRecorder.shared.stop() } label: {
+            Button { if RecordingStore.shared.isRecording { RecordingStore.shared.stop() } else { ScreenRecorder.shared.stop() } } label: {
                 Label(L("Parar"), systemImage: "stop.fill").font(.system(size: 12, weight: .semibold))
                     .padding(.horizontal, 14).padding(.vertical, 5).background(Capsule().fill(Color.white.opacity(0.18)))
             }

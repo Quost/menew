@@ -884,6 +884,10 @@ struct SettingsView: View {
                             ShortcutRecorder(name: ScreenCapture.key, fallback: .captureDefault)
                         }
                         RowDivider()
+                        SettingRow(title: L("Gravar áudio"), detail: L("Começa e para; depois vira ata")) {
+                            ShortcutRecorder(name: RecordingStore.shortcutKey, fallback: .recordingDefault)
+                        }
+                        RowDivider()
                         SettingRow(title: L("Guardar na memória"), detail: L("Captura uma área ou janela com o texto e a origem")) {
                             ShortcutRecorder(name: MemoryStore.shortcutKey, fallback: .memoryDefault)
                         }

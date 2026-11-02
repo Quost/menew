@@ -4,13 +4,14 @@ import SwiftUI
 /// Janela Menew: a profundidade. A barra de menus mostra o "agora"; aqui ficam a memória, o histórico,
 /// o desempenho em detalhe, as ferramentas e o resto, numa barra lateral como a dos Ajustes do Sistema.
 enum HubSection: String, CaseIterable, Identifiable {
-    case overview, memory, clipboard, notes, performance, history, battery, tools, automations
+    case overview, memory, recordings, clipboard, notes, performance, history, battery, tools, automations
     var id: String { rawValue }
 
     var title: String {
         switch self {
         case .overview: L("Visão geral")
         case .memory: L("Memória")
+        case .recordings: L("Gravações")
         case .clipboard: L("Clipboard")
         case .notes: L("Notas")
         case .performance: L("Desempenho")
@@ -25,6 +26,7 @@ enum HubSection: String, CaseIterable, Identifiable {
         switch self {
         case .overview: "square.grid.2x2.fill"
         case .memory: "brain.head.profile"
+        case .recordings: "waveform"
         case .clipboard: "doc.on.clipboard.fill"
         case .notes: "note.text"
         case .performance: "gauge.with.dots.needle.67percent"
@@ -39,6 +41,7 @@ enum HubSection: String, CaseIterable, Identifiable {
         switch self {
         case .overview: Theme.indigo
         case .memory: .pink
+        case .recordings: .red
         case .clipboard: .purple
         case .notes: .yellow
         case .performance: .blue
@@ -175,6 +178,8 @@ struct HubView: View {
             HubOverview(m: monitor, open: { state.section = $0 })
         case .memory:
             MemoryView(store: .shared)
+        case .recordings:
+            RecordingsView()
         case .clipboard:
             ClipboardTabView(manager: clipboard, state: clipState) { item, _ in
                 clipboard.copy(item)

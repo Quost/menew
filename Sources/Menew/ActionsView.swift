@@ -186,7 +186,7 @@ struct ActionsView: View {
             controls { micRow; divider; soundRow }
             section(L("Som"), collapsible: false) { AudioSection() }
             section(L("Foco"), collapsible: false) { FocusCard() }
-            tiles { captionsTile }
+            tiles { recordAudioTile; captionsTile }
         case .files:
             tiles { iphoneTile; shelfTile; plainTile; ejectTile; trashTile }
             controls { hiddenRow }
@@ -397,6 +397,14 @@ struct ActionsView: View {
                    help: L("Veja todos os recursos de IA, como usar cada um e desligue os que não quiser.")) {
             SettingsWindow.shared.show(.ai)
         }
+    }
+    private var recordAudioTile: some View {
+        ActionTile(icon: "waveform", color: .red, title: RecordingStore.shared.isRecording ? L("Parar a gravação") : L("Gravar áudio"),
+                   subtitle: L("vira ata"), help: L("Grava o microfone (e o som do Mac numa chamada). O Mac transcreve e a IA escreve a ata com tarefas."),
+                   on: RecordingStore.shared.isRecording) {
+            RecordingStore.shared.toggle()
+        }
+        .contextMenu { Button(L("Gravações")) { MenewWindow.shared.show(.recordings) } }
     }
     private var captionsTile: some View {
         ActionTile(icon: "captions.bubble.fill", color: .indigo, title: L("Legendas ao vivo"), subtitle: L("e tradução"),
