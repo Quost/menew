@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.82.0
+
+### New
+- **A calmer menu.** Menew now opens on **Now**: a search box for the command palette, CPU, memory, free disk and battery in one row, an “All good” (or what needs attention, with a Why? button), running timers and focus, world clocks and your favorites. Everything else from the old System tab is one click away in **Mac details**.
+- **Actions in six groups.** Favorites stay on top; everything else is grouped into Screen and capture, Windows and displays, Sound and focus, Files and iPhone, AI on your Mac, and System and cleanup, each opening its own page. New buttons for Text from screen, Read QR code, Ask AI, Do it for me and the Shelf.
+- The welcome tour mentions that everything starts on, with a Customize link if you want Menew leaner.
+
 ## 1.81.2
 
 ### Improved

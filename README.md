@@ -14,7 +14,7 @@
   <a href="https://github.com/Quost/menew/releases/latest"><img src="https://img.shields.io/github/v/release/Quost/menew?style=flat-square&color=7c5cff&label=download" alt="Latest release"></a>
   <img src="https://img.shields.io/badge/macOS-14%2B-111?style=flat-square&logo=apple" alt="macOS 14+">
   <img src="https://img.shields.io/badge/Swift-SwiftUI-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift">
-  <a href="LICENSE"><img src="https://img.shields.io/github/license/Quost/menew?style=flat-square&color=2ea44f" alt="MIT License"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/Quost/menew?style=flat-square&color=2ea44f" alt="GPL-3.0 License"></a>
   <a href="https://github.com/Quost/menew/stargazers"><img src="https://img.shields.io/github/stars/Quost/menew?style=flat-square&color=f5c518" alt="Stars"></a>
 </p>
 
@@ -64,14 +64,14 @@
 | 🧹 **Free up space** | Quick scan for caches, logs and developer junk; deep scan for old downloads, large files (over 250 MB) and duplicate files (identical copies, byte for byte; the oldest is kept as the original). You review everything, and your files go to the Trash. **Uninstall apps**: drop an app (or pick one) and Menew finds the preferences, caches, containers, saved state and logs it left in your Library; review the list and everything goes to the Trash. macOS apps are never touched. |
 | ✂️ **Snippets** | Saved texts with `{date}`, `{time}` and `{clipboard}` placeholders, right inside ⌘⇧V. Give one an abbreviation like `;sig` and typing it in any app turns it into the text (optional, off by default; never in password fields). Variables: `{date}`, `{time}`, `{weekday}`, `{tomorrow}`, `{clipboard}`, `{cursor}` (where the cursor lands) and `{input:Name}` (asked in a small window before pasting). |
 | 📝 **Notes** | Many notes with #tags, search and Markdown (checklists included). Protected notes live in the Keychain and open with Touch ID. With Apple Intelligence, a note's ⋯ menu can **summarize it** or **extract its to-dos** as a checklist, on your Mac. **Password notes** keep name and value rows with hidden values, an eye to reveal and a copy button; copied values are marked confidential (no clipboard history) and cleared after 30 seconds. Switch a note's type at any time. |
-| 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. **Favorites** at the top of Actions (pick and reorder the ones you use), the other sections fold away with a summary, the System tab's cards can be reordered, folded or hidden, and **Settings opens in its own window** with categories and search. Turn off Clipboard, Actions or Notes in Settings → General and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings → Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac. |
+| 🧩 **Only what you need** | A short welcome tour on first launch helps you set things up. The menu opens on **Now**: a search box for the command palette, CPU, memory, disk and battery in one row with an “All good” or what needs attention, running timers, world clocks and your favorites; **Mac details** has every system card (reorder, fold or hide them). **Actions** has your **Favorites** on top and everything else in six groups (Screen and capture, Windows and displays, Sound and focus, Files and iPhone, AI on your Mac, System and cleanup), each opening its own page, and **Settings opens in its own window** with categories and search. Turn off Clipboard, Actions or Notes in Settings → General and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings → Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac. |
 | 🪟 **Liquid Glass** | Native macOS 26 design: glass tabs, search, filters and buttons, with a translucent fallback on macOS 14 and 15. |
 | 🌍 **5 languages** | English, Português, Deutsch, Español and 中文. Follows your Mac, or pick one in Settings. |
 
 <p align="center">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/popover-system-dark.png">
-    <img src="docs/assets/popover-system-light.png" width="250" alt="System monitor">
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/popover-now-dark.png">
+    <img src="docs/assets/popover-now-light.png" width="250" alt="Now: what matters at a glance">
   </picture>
   &nbsp;
   <picture>
@@ -173,7 +173,7 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 ## FAQ
 
 **Is Menew really free?**  
-Yes. Menew is free and open source under the MIT license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
+Yes. Menew is free and open source under the GPL-3.0 license: no ads, no subscription, no paid tier. Anyone can read, change and share the code, and any version they distribute must stay open source too. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
 
 **Does Menew collect my data?**  
 No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.
@@ -289,4 +289,6 @@ Menew is free and made in spare time. If it saves you a few minutes a day, a ⭐
 
 ## License
 
-[MIT](LICENSE) © Matheus Quost
+[GPL-3.0](LICENSE) © Matheus Quost. Versions up to 1.81 were released under the MIT license.
+
+The name “Menew”, the icon and the website are not part of the license: a fork needs its own name and icon. See [TRADEMARK.md](TRADEMARK.md).

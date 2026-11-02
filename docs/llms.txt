@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI. No account, no tracking.
 
-Menew 1.81.1 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (MIT). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.82.0 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## One app instead of many
 
@@ -52,7 +52,7 @@ Menew 1.81.1 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or late
 
 ### Is Menew really free?
 
-Yes. Menew is free and open source under the MIT license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
+Yes. Menew is free and open source under the GPL-3.0 license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
 
 ### Does Menew collect my data?
 
