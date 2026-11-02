@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.80.0
+
+### New
+- **Live captions.** Your Mac’s audio (a call, a video) or the microphone becomes captions in a small floating window you can move anywhere. On macOS 26 they are also translated as you go, into Portuguese, English, Spanish, German, Chinese, French, Italian or Japanese. Speech is recognized with Apple’s new on-device transcriber and translated with Apple’s translator: nothing is recorded or sent. Start them from Actions › Live captions or by typing “captions” in the command palette. The first time, macOS may download the language model; capturing the Mac’s audio uses the screen and audio recording permission.
+
 ## 1.79.0
 
 ### New
