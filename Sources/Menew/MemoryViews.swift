@@ -2,31 +2,16 @@ import AppKit
 import SwiftUI
 
 /// Janela da Memória: busca no topo, os cartões no meio e os detalhes do escolhido à direita
+/// A memória mora na janela Menew
 @MainActor
-final class MemoryWindow: NSObject, NSWindowDelegate {
-    static let shared = MemoryWindow()
-    private var window: NSWindow?
-
-    func show(query: String? = nil) {
-        NotificationCenter.default.post(name: .closeMenu, object: nil)
-        if let query { MemoryStore.shared.query = query }
-        let w = window ?? {
-            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 940, height: 620),
-                             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
-            w.title = L("Memória")
-            w.titlebarAppearsTransparent = true
-            w.isReleasedWhenClosed = false
-            w.minSize = NSSize(width: 680, height: 420)
-            w.delegate = self
-            w.contentView = NSHostingView(rootView: MemoryView(store: .shared))
-            if !w.setFrameUsingName("MenewMemory") { w.center() }
-            w.setFrameAutosaveName("MenewMemory")
-            return w
-        }()
-        window = w
-        MemoryStore.shared.enrichPending()
-        NSApp.activate(ignoringOtherApps: true)
-        w.makeKeyAndOrderFront(nil)
+enum MemoryWindow {
+    static let shared = Opener()
+    struct Opener {
+        @MainActor func show(query: String? = nil) {
+            if let query { MemoryStore.shared.query = query }
+            MemoryStore.shared.enrichPending()
+            MenewWindow.shared.show(.memory)
+        }
     }
 }
 
@@ -69,9 +54,7 @@ struct MemoryView: View {
                     .id(current.id)
             }
         }
-        .padding(.top, 28)
         .background(Theme.windowFill)
-        .ignoresSafeArea()
         .confirmationDialog(L("Apagar toda a memória?"), isPresented: $confirmErase) {
             Button(L("Apagar"), role: .destructive) { store.eraseAll() }
         }

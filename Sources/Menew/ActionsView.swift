@@ -18,8 +18,12 @@ struct ActionsView: View {
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
 
-    init(tb: Toolbox, clipboard: ClipboardManager, group: ActionGroup? = nil, openCleaner: @escaping () -> Void) {
+    /// false = página de um grupo só, sem "voltar" (na janela Menew)
+    var showsBack = true
+
+    init(tb: Toolbox, clipboard: ClipboardManager, group: ActionGroup? = nil, showsBack: Bool = true, openCleaner: @escaping () -> Void) {
         _group = State(initialValue: group)
+        self.showsBack = showsBack
         self.tb = tb
         self.cleaning = tb.cleaning
         self.displays = tb.displays
@@ -150,12 +154,14 @@ struct ActionsView: View {
     }
 
     @ViewBuilder private func groupPage(_ g: ActionGroup) -> some View {
+        if showsBack {
         HStack(spacing: 8) {
             IconButton(icon: "chevron.left", help: L("Voltar")) { withAnimation(.snappy) { group = nil } }
             Image(systemName: g.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
                 .frame(width: 26, height: 26).background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(g.color.gradient))
             Text(g.title).font(.system(size: 14, weight: .semibold))
             Spacer()
+        }
         }
         switch g {
         case .capture:

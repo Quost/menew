@@ -71,6 +71,14 @@ enum Snapshot {
                     render(v, size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("popover-\(tab)-\(suffix).png"))
                 }
+                // Janela Menew: algumas seções
+                MemoryStore.shared.showDemo()
+                for sec in [HubSection.overview, .memory, .tools, .performance] {
+                    let hs = HubState()
+                    hs.section = sec
+                    render(HubView(state: hs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox),
+                           size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-\(sec.rawValue)-\(suffix).png"))
+                }
                 // Uma página de grupo da aba Ações
                 render(ActionsView(tb: toolbox, clipboard: clipboard, group: .windows) {}.frame(width: 400, height: 600).background(Theme.popoverFill),
                        size: NSSize(width: 400, height: 600), dark: dark, to: dir.appendingPathComponent("actions-group-\(suffix).png"))

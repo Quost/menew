@@ -338,6 +338,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func openSettings() { SettingsWindow.shared.show() }
     @objc private func quit() { NSApp.terminate(nil) }
 
+    /// "Liberar espaço" pela janela Menew: abre a limpeza no menu
+    func openCleanerFromHub() {
+        nav.tab = .cleaner
+        showPopover()
+    }
+
     /// Abre uma nota na aba Notas (Spotlight, Atalhos)
     func openNote(_ id: UUID) {
         nav.tab = .notes

@@ -512,6 +512,9 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("hub.open", L("Janela Menew"), "macwindow", Theme.indigo,
+                   "janela menew window visão geral overview painel dashboard histórico history ferramentas tools fenster ventana 窗口",
+                   subtitle: L("Visão geral, memória, histórico e ferramentas")) { MenewWindow.shared.show() }
             action("memory.open", L("Memória"), "brain.head.profile", .pink,
                    "memoria memória memory lembrar recall guardado saved capturas captures conhecimento knowledge gedächtnis memoria 记忆",
                    subtitle: L("O que você guardou da tela, com busca")) { MemoryWindow.shared.show() }

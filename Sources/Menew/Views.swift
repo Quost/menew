@@ -144,6 +144,7 @@ struct MainView: View {
             }
             Spacer()
             if !isSubpage {
+                IconButton(icon: "macwindow", help: L("Abrir a janela Menew")) { MenewWindow.shared.show() }
                 IconButton(icon: "gearshape", help: L("Ajustes")) { SettingsWindow.shared.show() }
             }
         }
