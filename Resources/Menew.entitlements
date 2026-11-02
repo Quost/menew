@@ -8,5 +8,10 @@
     <!-- Próxima reunião (opcional, só quando ligada em Ajustes) -->
     <key>com.apple.security.personal-information.calendars</key>
     <true/>
+    <!-- Contêiner compartilhado com os widgets (só o arquivo do que eles mostram) -->
+    <key>com.apple.security.application-groups</key>
+    <array>
+        <string>9527N6XKKW.com.matheusquost.menew</string>
+    </array>
 </dict>
 </plist>

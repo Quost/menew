@@ -12,6 +12,7 @@ final class TimerStore: ObservableObject {
         let end: Date
         let isAlarm: Bool
         let timer: Timer
+        var started = Date()
     }
 
     @Published private(set) var active: [Countdown] = []

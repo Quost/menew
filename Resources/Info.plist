@@ -12,6 +12,14 @@
     <key>CFBundleIconFile</key><string>AppIcon</string>
     <key>LSMinimumSystemVersion</key><string>14.0</string>
     <key>LSUIElement</key><true/>
+    <!-- menew:// abre o Menew (toque num widget) -->
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key><string>com.matheusquost.menew</string>
+            <key>CFBundleURLSchemes</key><array><string>menew</string></array>
+        </dict>
+    </array>
     <key>NSHighResolutionCapable</key><true/>
     <key>CFBundleDevelopmentRegion</key><string>en</string>
     <key>CFBundleLocalizations</key>

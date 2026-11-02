@@ -1,3 +1,4 @@
+import MenewShared
 import AppKit
 import SwiftUI
 
@@ -134,6 +135,20 @@ enum Snapshot {
                        to: dir.appendingPathComponent("uninstaller-\(suffix).png"))
                 render(StartupItemsView(demo: StartupItems.demo), size: NSSize(width: 520, height: 460), dark: dark,
                        to: dir.appendingPathComponent("startup-\(suffix).png"))
+                // Widgets: os quatro, pequeno e médio, como aparecem na mesa
+                let ws = WidgetSnapshot.demo(lang: L10n.current.rawValue)
+                func card(_ v: some View, _ w: CGFloat) -> some View {
+                    v.padding(16).frame(width: w, height: 170)
+                        .background(RoundedRectangle(cornerRadius: 22, style: .continuous).fill(Color(nsColor: .controlBackgroundColor)))
+                        .shadow(color: .black.opacity(0.15), radius: 8, y: 3)
+                }
+                render(VStack(spacing: 16) {
+                    HStack(spacing: 16) { card(SystemWidgetView(ws, size: .small), 170); card(MeetingsWidgetView(ws, size: .medium), 356) }
+                    HStack(spacing: 16) { card(TimersWidgetView(ws, size: .medium), 356); card(ScreenTimeWidgetView(ws, size: .small), 170) }
+                    HStack(spacing: 16) { card(SystemWidgetView(ws, size: .medium), 356); card(MeetingsWidgetView(ws, size: .small), 170) }
+                }
+                .padding(24).background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                       size: NSSize(width: 590, height: 606), dark: dark, to: dir.appendingPathComponent("widgets-\(suffix).png"))
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),

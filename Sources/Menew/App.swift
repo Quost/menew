@@ -117,6 +117,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         SystemHistory.shared.load(dir: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
+        WidgetBridge.shared.start(monitor: monitor)
         AutomationStore.shared.start(toolbox: toolbox)
         TextExpander.shared.start(clipboard: clipboard)
         MeetingStore.shared.refreshEnabled()
@@ -334,6 +335,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func buyCoffee() { popover.performClose(nil); Feedback.buyCoffee() }
     @objc private func openSettings() { SettingsWindow.shared.show() }
     @objc private func quit() { NSApp.terminate(nil) }
+
+    /// Toque num widget (menew://system, menew://meetings…): abre o Menew na aba Sistema
+    func application(_ application: NSApplication, open urls: [URL]) {
+        guard urls.contains(where: { $0.scheme == "menew" }) else { return }
+        nav.tab = .system
+        showPopover()
+    }
 
     private func togglePopover() {
         if popover.isShown { popover.performClose(nil); return }

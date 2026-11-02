@@ -51,7 +51,10 @@ cp Resources/AppIcon.icns "$APP/Contents/Resources/"
 cp -R Resources/*.lproj "$APP/Contents/Resources/"
 
 INTENTS_TMP=$(mktemp -d)
-find "$PWD/.build" -path "*Release*" -path "*Menew*" -path "*arm64*" -name "*.swiftconstvalues" -newer Package.swift > "$INTENTS_TMP/constvalues.txt"
+# Os do módulo do app, da pasta do build mais recente (o SwiftPM e o XCBuild usam pastas diferentes)
+CONST_DIR=$(dirname "$(find "$PWD/.build" -path "*Release*" -path "*Menew*" -path "*arm64*" ! -path "*MenewWidgets*" ! -path "*MenewShared*" \
+  -name "*.swiftconstvalues" -exec ls -t {} + | head -1)")
+find "$CONST_DIR" -name "*.swiftconstvalues" > "$INTENTS_TMP/constvalues.txt"
 ls "$PWD"/Sources/Menew/*.swift > "$INTENTS_TMP/sources.txt"
 xcrun appintentsmetadataprocessor --output "$APP/Contents/Resources" \
   --toolchain-dir "$(dirname "$(dirname "$(dirname "$(xcrun --find swift)")")")" --module-name Menew \
@@ -60,6 +63,13 @@ xcrun appintentsmetadataprocessor --output "$APP/Contents/Resources" \
   --source-file-list "$INTENTS_TMP/sources.txt" --swift-const-vals-list "$INTENTS_TMP/constvalues.txt" --quiet-warnings > /dev/null
 rm -rf "$INTENTS_TMP"
 [ -d "$APP/Contents/Resources/Metadata.appintents" ] || { echo "App Intents: Metadata.appintents não foi gerado" >&2; exit 1; }
+
+# Widgets: a extensão vai em PlugIns, com a mesma versão do app
+APPEX="$APP/Contents/PlugIns/MenewWidgets.appex"
+mkdir -p "$APPEX/Contents/MacOS"
+cp "$BIN_DIR/MenewWidgets" "$APPEX/Contents/MacOS/MenewWidgets"
+strip -Sx "$APPEX/Contents/MacOS/MenewWidgets"
+cp Resources/Widgets-Info.plist "$APPEX/Contents/Info.plist"
 
 # Sparkle (atualização automática). App sem sandbox: os serviços XPC não são necessários.
 mkdir -p "$APP/Contents/Frameworks"
@@ -81,6 +91,8 @@ find "$FWB/Resources" -maxdepth 1 -name '*.lproj' \
 if [ -n "${VERSION:-}" ]; then
   plutil -replace CFBundleShortVersionString -string "$VERSION" "$APP/Contents/Info.plist"
   plutil -replace CFBundleVersion -string "${BUILD:-$(git rev-list --count HEAD 2>/dev/null || echo 1)}" "$APP/Contents/Info.plist"
+  plutil -replace CFBundleShortVersionString -string "$VERSION" "$APPEX/Contents/Info.plist"
+  plutil -replace CFBundleVersion -string "$(plutil -extract CFBundleVersion raw "$APP/Contents/Info.plist")" "$APPEX/Contents/Info.plist"
 fi
 
 # Assina de dentro para fora: partes do Sparkle, o framework e por fim o app
@@ -93,6 +105,7 @@ FW="$APP/Contents/Frameworks/Sparkle.framework"
 "${SIGN[@]}" "$FW/Versions/B/Autoupdate"
 "${SIGN[@]}" "$FW/Versions/B/Updater.app"
 "${SIGN[@]}" "$FW"
+"${SIGN[@]}" --entitlements Resources/Widgets.entitlements "$APPEX"
 "${SIGN[@]}" --entitlements Resources/Menew.entitlements "$APP"
 codesign --verify --strict "$APP"
 echo "Pronto: $APP"
