@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI. No account, no tracking.
 
-Menew 1.86.0 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.87.0 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## One app instead of many
 
@@ -42,6 +42,7 @@ Menew 1.86.0 (updated 2026-11-02). Native Swift/SwiftUI app for macOS 14 or late
 - Live captions: Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.
 - Battery care: Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months.
 - Menew window and Memory: Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags. Then just ask: “which was that charts library?”, and AI answers with the sources. And in the graph, see how the topics connect.
+- Recordings with minutes: Press ⌃⌥⌘G and talk or take your call: your Mac transcribes it, tells you apart from others, and AI writes the minutes with tasks and tags.
 - History up to 30 days: CPU, memory and battery over 24 hours, 7 or 30 days, and the apps that used the most.
 - Sensors and cores: Chip, SSD and battery temperatures, fan speed and every performance and efficiency core.
 - Network and Wi-Fi: Live speed, the apps using the network and your Wi-Fi signal, noise, channel and band.

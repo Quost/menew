@@ -141,6 +141,8 @@
   "more": "See everything",
   "nat6_t": "Menew window and Memory",
   "nat6_d": "Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags. Then just ask: “which was that charts library?”, and AI answers with the sources. And in the graph, see how the topics connect.",
+  "nat7_t": "Recordings with minutes",
+  "nat7_d": "Press ⌃⌥⌘G and talk or take your call: your Mac transcribes it, tells you apart from others, and AI writes the minutes with tasks and tags.",
   "pro_eyebrow": "Pro tools",
   "pro_h2": "What paid Mac utilities charge for, built in",
   "pro_sub": "Monitoring and maintenance you would normally buy separately, free and on your Mac.",

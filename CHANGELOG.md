@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.87.0
+
+### New
+- **Recordings.** Press ⌃⌥⌘G (or Record in the new Recordings section of the Menew window) to start and stop. The microphone and the Mac’s audio are saved separately, so in a call the transcript shows what was **Me** and what was **Others**. Your Mac transcribes it offline, and with Apple Intelligence it writes the minutes: title, summary, decisions, tasks with owner and due date, people and tags. Recordings are listed by date, with search and tag filters. Send your tasks to Reminders with one click (or turn on automatic reminders), save the minutes as a note, copy them, or play the audio back. While recording, the notch shows the time and a Stop button.
+- **About you.** In Settings › AI, tell the AI your name, what people call you, who you work with and a glossary of your work’s names and acronyms. The minutes use it to know which tasks are yours.
+
 ## 1.86.0
 
 ### New
