@@ -2,6 +2,14 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.71.0
+
+### New
+- **Settings › Notch.** A live preview that cycles through the alerts, the main switch, and one switch per alert (upcoming meeting, screen recording, Menew confirmations, focus, timers, muted mic), each with a Test button that shows it on your notch for a few seconds. Choose whether meetings appear 1, 2 or 5 minutes before they start. Turn off Menew confirmations here and they go back to the middle of the screen.
+
+### Changed
+- **Settings are easier to find.** “Shortcuts and actions” is now two pages: **Keyboard shortcuts** (only the key combinations) and **Windows and displays** (window snapping with ⌃⌥ or by dragging, shaking files to open the shelf, external display brightness).
+
 ## 1.70.0
 
 ### New
