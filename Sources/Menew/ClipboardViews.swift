@@ -369,6 +369,14 @@ struct ClipPreview: View {
                 }
                 .buttonStyle(.plain).foregroundStyle(.secondary).help(L("Compartilhar…")).accessibilityLabel(L("Compartilhar…"))
                 if item.snippetTitle == nil {
+                    // Guardar de propósito: na memória ele ganha título, etiquetas e não sai com a limpeza do histórico
+                    IconButton(icon: "brain.head.profile", help: L("Guardar na memória")) {
+                        if item.kind == .image, let url = manager.imageURL(for: item), let data = try? Data(contentsOf: url) {
+                            MemoryStore.shared.add(imageData: data, origin: MemoryOrigin(app: item.sourceApp, bundle: item.sourceBundle))
+                        } else if let t = item.text {
+                            MemoryStore.shared.add(text: t, origin: MemoryOrigin(app: item.sourceApp, bundle: item.sourceBundle))
+                        }
+                    }
                     IconButton(icon: "trash", help: L("Apagar")) { manager.delete(item) }
                 }
             }

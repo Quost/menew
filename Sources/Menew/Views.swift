@@ -881,6 +881,10 @@ struct SettingsView: View {
                             ShortcutRecorder(name: ScreenCapture.key, fallback: .captureDefault)
                         }
                         RowDivider()
+                        SettingRow(title: L("Guardar na memória"), detail: L("Captura uma área ou janela com o texto e a origem")) {
+                            ShortcutRecorder(name: MemoryStore.shortcutKey, fallback: .memoryDefault)
+                        }
+                        RowDivider()
                         SettingRow(title: L("Reescrever texto selecionado"), detail: L("Com a IA do Mac, em qualquer app")) {
                             ShortcutRecorder(name: HotKeyCenter.rewriteKey, fallback: .rewriteDefault)
                         }

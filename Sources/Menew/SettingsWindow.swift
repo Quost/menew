@@ -69,7 +69,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
                           L("Ignorar senhas (1Password, Keychain…)"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
                           L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
-                          L("Capturar tela"), L("Reescrever texto selecionado"), L("Atalhos")]
+                          L("Capturar tela"), L("Guardar na memória"), L("Reescrever texto selecionado"), L("Atalhos")]
         case .windows: [L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Abrir a estante ao chacoalhar arquivos"), L("Brilho de monitores externos"), L("Janelas")]
         case .notch: ["notch", L("Avisos ao vivo no notch"), L("Avisos ao vivo no topo da tela")] + NotchCenter.Kind.allCases.map(\.title)
         case .ai: [L("Apple Intelligence")] + AIFeature.allCases.map(\.title)

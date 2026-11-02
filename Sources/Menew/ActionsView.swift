@@ -213,6 +213,12 @@ struct ActionsView: View {
                                     ScreenAsk.shared.start()
                                 }
                             }
+                            ActionTile(icon: "brain.head.profile", color: .pink, title: L("Memória"), subtitle: L("guarde e ache"),
+                                       help: L("Guarde o que está na tela com %@ e ache depois pela busca. Clique para abrir a memória.",
+                                               Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display)) {
+                                MemoryWindow.shared.show()
+                            }
+                            .contextMenu { Button(L("Guardar na memória")) { MemoryStore.shared.capture() } }
                             ActionTile(icon: "captions.bubble.fill", color: .indigo, title: L("Legendas ao vivo"), subtitle: L("e tradução"),
                                        help: L("Legendas do som do Mac (chamadas, vídeos) ou do microfone, traduzidas na hora. Tudo no Mac."),
                                        on: LiveCaptions.shared.running) {

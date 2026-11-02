@@ -5,7 +5,7 @@ import SwiftUI
 /// Desligado, ele some da paleta, dos atalhos e dos botões. Tudo roda no Mac.
 @MainActor
 enum AIFeature: String, CaseIterable, Identifiable {
-    case agent, ask, textActions, screenAsk, rewrite, diagnosis, notes, smartSearch, translate, transcribe
+    case agent, ask, textActions, screenAsk, rewrite, diagnosis, notes, memory, smartSearch, translate, transcribe
     var id: String { rawValue }
 
     var key: String { "ai.\(rawValue)" }
@@ -23,6 +23,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .rewrite: "pencil.and.outline"
         case .diagnosis: "stethoscope"
         case .notes: "note.text"
+        case .memory: "brain.head.profile"
         case .smartSearch: "magnifyingglass"
         case .translate: "globe"
         case .transcribe: "waveform"
@@ -38,6 +39,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .rewrite: L("Reescrever texto selecionado")
         case .diagnosis: L("Explicar por que o Mac está lento")
         case .notes: L("Resumo e tarefas nas notas")
+        case .memory: L("Título e etiquetas na memória")
         case .smartSearch: L("Busca inteligente no clipboard")
         case .translate: L("Traduzir o texto copiado")
         case .transcribe: L("Transcrever áudio e vídeo")
@@ -54,6 +56,7 @@ enum AIFeature: String, CaseIterable, Identifiable {
         case .rewrite: L("Selecione um texto em qualquer app e aperte %@.", Shortcut.load(HotKeyCenter.rewriteKey, default: .rewriteDefault).display)
         case .diagnosis: L("Aba Sistema → Por que meu Mac está lento?")
         case .notes: L("Numa nota, menu ⋯ → Resumir ou Extrair tarefas.")
+        case .memory: L("Capture com %@: a IA dá título, resumo e etiquetas para achar depois.", Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display)
         case .smartSearch: L("No clipboard, busque “link do hotel de ontem”.")
         case .translate: L("Copie um texto e digite “traduzir” na paleta.")
         case .transcribe: L("Solte um áudio ou vídeo na estante e escolha Transcrever.")
