@@ -221,10 +221,17 @@ struct SystemView: View {
 
     static let cardIDs = ["cpu", "sensors", "memory", "battery", "history", "screentime", "network", "disk", "processes"]
 
-    /// Ordem escolhida (cartões novos de versões futuras entram no fim)
-    private var order: [String] {
-        let saved = orderRaw.split(separator: ",").map(String.init).filter { Self.cardIDs.contains($0) }
-        return saved + Self.cardIDs.filter { !saved.contains($0) }
+    /// Ordem escolhida; um cartão novo entra logo depois do vizinho de sempre (o Tempo de tela, depois do Histórico),
+    /// e não no fim, onde ninguém o acharia
+    private var order: [String] { Self.order(saved: orderRaw) }
+
+    static func order(saved raw: String) -> [String] {
+        var list = raw.split(separator: ",").map(String.init).filter { cardIDs.contains($0) }
+        for (i, id) in cardIDs.enumerated() where !list.contains(id) {
+            let before = cardIDs[..<i].last { list.contains($0) }
+            list.insert(id, at: before.flatMap { list.firstIndex(of: $0) }.map { $0 + 1 } ?? 0)
+        }
+        return list
     }
     private var hiddenSet: Set<String> { Set(hiddenRaw.split(separator: ",").map(String.init)) }
 
@@ -716,6 +723,7 @@ struct SettingsView: View {
     @AppStorage(Module.actions.key) private var actionsOn = true
     @AppStorage(WindowManager.shortcutsKey) private var windowShortcuts = true
     @AppStorage(DragSnap.key) private var dragSnap = true
+    @AppStorage(ScreenTime.key) private var screenTimeOn = false
     @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -763,11 +771,21 @@ struct SettingsView: View {
                 }
                 }
 
+                if show(.ai) { AISettingsSection() }
                 if show(.alerts) { AlertsSection(); AlertRulesSection() }
 
                 if show(.calendar) { MeetingsSection() }
 
                 if show(.privacy) {
+                GlassSection(title: L("Tempo de tela"), footer: L("Conta só o app da frente enquanto você usa o Mac. Fica num arquivo no seu Mac; o cartão aparece na aba Sistema.")) {
+                    ToggleRow(title: L("Registrar tempo de tela"), detail: L("Foco e distração por app, por dia, semana e mês"), icon: "hourglass",
+                              isOn: $screenTimeOn)
+                        .onChange(of: screenTimeOn) { _, on in ScreenTime.shared.setOn(on) }
+                    RowDivider()
+                    SettingRow(title: L("Apagar histórico do tempo de tela"), icon: "trash") {
+                        PillButton(title: L("Apagar")) { ScreenTime.shared.erase() }
+                    }
+                }
                 GlassSection(title: L("Permissões"), footer: L("Usada para colar automaticamente e para travar o teclado na limpeza.")) {
                     SettingRow(title: L("Acessibilidade"), icon: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill") {
                         if axTrusted {

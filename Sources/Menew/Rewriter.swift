@@ -19,6 +19,7 @@ final class Rewriter: ObservableObject {
 
     /// Copia a seleção do app da frente (⌘C) e abre as opções perto do mouse
     func start() {
+        guard AIFeature.rewrite.isOn else { return }
         if let reason = AIText.unavailableReason {
             HUD.show(icon: "apple.intelligence", color: .orange, text: reason, duration: 2.5)
             return

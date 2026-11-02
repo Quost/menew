@@ -3,7 +3,7 @@ import SwiftUI
 
 /// Categorias da janela de Ajustes, na ordem da barra lateral
 enum SettingsCategory: String, CaseIterable, Identifiable {
-    case general, menubar, clipboard, shortcuts, calendar, alerts, links, privacy, backup, about
+    case general, menubar, clipboard, shortcuts, ai, calendar, alerts, links, privacy, backup, about
     var id: String { rawValue }
 
     var title: String {
@@ -12,6 +12,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .menubar: L("Barra de menus")
         case .clipboard: L("Clipboard")
         case .shortcuts: L("Atalhos e ações")
+        case .ai: L("IA")
         case .calendar: L("Calendário e relógios")
         case .alerts: L("Alertas")
         case .links: L("Links rápidos")
@@ -27,6 +28,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .menubar: "menubar.rectangle"
         case .clipboard: "doc.on.clipboard.fill"
         case .shortcuts: "command"
+        case .ai: "apple.intelligence"
         case .calendar: "calendar"
         case .alerts: "bell.badge.fill"
         case .links: "link"
@@ -42,6 +44,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .menubar: .indigo
         case .clipboard: .purple
         case .shortcuts: .blue
+        case .ai: .pink
         case .calendar: .red
         case .alerts: .orange
         case .links: .teal
@@ -61,11 +64,12 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
                           L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
                           L("Capturar tela"), L("Reescrever texto selecionado"), L("Abrir a estante ao chacoalhar arquivos"), L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Brilho de monitores externos")]
+        case .ai: [L("Apple Intelligence")] + AIFeature.allCases.map(\.title)
         case .calendar: [L("Calendário"), L("Mostrar a próxima reunião"), L("Horário de trabalho"), L("Avisar 1 minuto antes"), L("Relógios"), L("Adicionar cidade…")]
         case .alerts: [L("Alertas"), L("Disco quase cheio"), L("Bateria baixa"), L("Memória no limite"), L("CPU alta por muito tempo"),
                        L("Mac esquentando"), L("Bateria dos acessórios"), L("App descontrolado"), L("Regras personalizadas")]
         case .links: [L("Links rápidos"), "Google", "GitHub"]
-        case .privacy: [L("Permissões"), L("Acessibilidade")]
+        case .privacy: [L("Permissões"), L("Acessibilidade"), L("Tempo de tela"), L("Registrar tempo de tela")]
         case .backup: [L("Backup"), L("Incluir notas"), L("Incluir histórico do clipboard"), L("Exportar…"), L("Restaurar…")]
         case .about: [L("Atualizações"), L("Procurar atualizações automaticamente"), L("Reportar um problema…"), L("Sugerir uma ideia…"),
                       L("Pagar um café ao autor ☕"), L("Ver a apresentação de novo"), L("Sair do Menew")]

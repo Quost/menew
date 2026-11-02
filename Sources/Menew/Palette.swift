@@ -453,6 +453,7 @@ final class PaletteModel: ObservableObject {
             action("recordgif", L("Gravar GIF"), "photo.stack", .orange, "gif animado animated gravar record recording kap") {
                 ScreenRecorder.shared.start(gif: true)
             }
+            if AIFeature.rewrite.isOn {
             action("rewrite", L("Reescrever texto selecionado"), "pencil.and.outline", .pink,
                    "reescrever rewrite corrigir fix formal amigável shorter selecionado selected texto text umschreiben reescribir 改写",
                    subtitle: L("Com a IA do Mac, em qualquer app"),
@@ -460,9 +461,21 @@ final class PaletteModel: ObservableObject {
                 // A paleta fecha e o app de antes volta para a frente; aí a seleção dele é copiada
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) { Rewriter.shared.start() }
             }
+            }
+            if AIFeature.screenAsk.isOn {
             action("screenask", L("Pergunte sobre a tela"), "text.viewfinder", .pink,
                    "perguntar tela screen ask explicar explain erro error traduzir translate ia ai bildschirm pantalla 屏幕 询问",
                    subtitle: L("Selecione uma área e pergunte à IA do Mac")) { ScreenAsk.shared.start() }
+            }
+            action("screentime", L("Tempo de tela"), "hourglass", .teal,
+                   "tempo de tela screen time uso usage foco focus distração distraction produtividade bildschirmzeit tiempo pantalla 屏幕使用时间",
+                   subtitle: ScreenTime.shared.isOn ? L("Foco e distração por app") : L("Liga e mostra o cartão na aba Sistema")) { [weak self] in
+                ScreenTime.shared.setOn(true)
+                // Abre o cartão já expandido
+                let open = Set((UserDefaults.standard.string(forKey: "systemOpen") ?? "cpu").split(separator: ",").map(String.init)).union(["screentime"])
+                UserDefaults.standard.set(open.sorted().joined(separator: ","), forKey: "systemOpen")
+                self?.openTab(.system)
+            }
             action("diagnosis", L("Por que meu Mac está lento?"), "stethoscope", .teal,
                    "lento slow lentidão diagnóstico diagnosis travando lag desempenho performance langsam lento 慢") {
                 if let m = (NSApp.delegate as? AppDelegate)?.monitor { DiagnosisWindow.shared.show(m) }

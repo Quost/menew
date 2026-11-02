@@ -152,10 +152,12 @@ final class HotKeyCenter {
             HotKey(keyCode: capture.keyCode, modifiers: capture.modifiers, id: 6) { [weak self] in
                 MainActor.assumeIsolated { self?.onCapture?() }
             },
-            HotKey(keyCode: rewrite.keyCode, modifiers: rewrite.modifiers, id: 7) { [weak self] in
-                MainActor.assumeIsolated { self?.onRewrite?() }
-            },
         ]
+        if AIFeature.rewrite.isOn {
+            hotKeys.append(HotKey(keyCode: rewrite.keyCode, modifiers: rewrite.modifiers, id: 7) { [weak self] in
+                MainActor.assumeIsolated { self?.onRewrite?() }
+            })
+        }
         WindowManager.shared.registerHotKeys()
     }
 

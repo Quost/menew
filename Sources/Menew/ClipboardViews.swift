@@ -21,7 +21,7 @@ struct SearchField: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: large ? 17 : 13, weight: .medium))
                 .foregroundStyle(.secondary)
-            TextField(L("Buscar no histórico"), text: $state.query)
+            TextField(L("Buscar no histórico, ex.: link do hotel de ontem"), text: $state.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: large ? 19 : 13))
                 .frame(height: large ? 30 : 18)

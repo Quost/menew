@@ -22,6 +22,7 @@ enum AIAgent {
     }
 
     static func item(raw: String, catalog: [PaletteItem]) -> PaletteItem? {
+        guard AIFeature.agent.isOn else { return nil }
         let text = raw.trimmingCharacters(in: .whitespaces)
         guard let prefix = prefixes.first(where: { text.lowercased().hasPrefix($0) }) else { return nil }
         let request = text.dropFirst(prefix.count).trimmingCharacters(in: .whitespaces)

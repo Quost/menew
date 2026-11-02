@@ -205,7 +205,7 @@ private struct NoteEditor: View {
                         Button(note?.secure == true ? L("Remover proteção") : L("Proteger com Touch ID")) {
                             store.setSecure(!(note?.secure ?? false), for: id)
                         }
-                        if AIText.unavailableReason == nil {
+                        if AIText.unavailableReason == nil, AIFeature.notes.isOn {
                             Divider()
                             Button(L("Resumir com IA")) { aiAppend(.summary) }
                             Button(L("Extrair tarefas com IA")) { aiAppend(.tasks) }

@@ -27,7 +27,7 @@ enum Translate {
 
     static func paletteItems(text: String, query: String) -> [PaletteItem] {
         let q = PaletteSearch.fold(query.trimmingCharacters(in: .whitespaces))
-        guard isAvailable, q.count >= 3, !text.isEmpty else { return [] }
+        guard isAvailable, AIFeature.translate.isOn, q.count >= 3, !text.isEmpty else { return [] }
         let base = "traduzir traducao tradução translate translation übersetzen traducir 翻译 "
         let preview = String(text.prefix(50)).split(whereSeparator: \.isNewline).joined(separator: " ")
         return targets.compactMap { t in

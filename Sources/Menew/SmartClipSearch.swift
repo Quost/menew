@@ -55,7 +55,7 @@ enum SmartClipSearch {
 
     /// Itens a mais, além dos que já batem pelo texto, do mais parecido ao menos
     static func extra(_ query: String, in base: [ClipItem], excluding exact: Set<UUID>) -> [ClipItem] {
-        guard applies(query) else { return [] }
+        guard AIFeature.smartSearch.isOn, applies(query) else { return [] }
         if let c = cache, c.query == query, c.count == base.count {
             let byID = Dictionary(base.map { ($0.id, $0) }, uniquingKeysWith: { a, _ in a })
             return c.ids.compactMap { byID[$0] }

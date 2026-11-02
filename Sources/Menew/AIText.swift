@@ -97,7 +97,7 @@ enum AIText {
 
     static func paletteItems(text: String, query: String) -> [PaletteItem] {
         let q = PaletteSearch.fold(query.trimmingCharacters(in: .whitespaces))
-        guard q.count >= 2, !text.isEmpty else { return [] }
+        guard AIFeature.textActions.isOn, q.count >= 2, !text.isEmpty else { return [] }
         // Traduções ficam com o tradutor da Apple (Translate.swift): mais fiel e funciona sem Apple Intelligence
         let matches = AIAction.allCases.filter { !$0.isTranslation && PaletteSearch.score(q, title: $0.title, keywords: $0.keywords) != nil }
         guard !matches.isEmpty else { return [] }
@@ -189,6 +189,7 @@ extension AIText {
     static let askPrefixes = ["ia ", "ai ", "ki ", "? ", "perguntar ", "ask ", "fragen ", "preguntar ", "问 "]
 
     static func askItem(raw: String) -> PaletteItem? {
+        guard AIFeature.ask.isOn else { return nil }
         let text = raw.trimmingCharacters(in: .whitespaces)
         guard let prefix = askPrefixes.first(where: { text.lowercased().hasPrefix($0) }) else { return nil }
         let question = text.dropFirst(prefix.count).trimmingCharacters(in: .whitespaces)

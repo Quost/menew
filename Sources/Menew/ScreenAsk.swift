@@ -34,7 +34,7 @@ final class ScreenAsk: ObservableObject {
     }
 
     func start() {
-        guard ScreenCapture.hasAccess() else { return }
+        guard AIFeature.screenAsk.isOn, ScreenCapture.hasAccess() else { return }
         NotificationCenter.default.post(name: .closeMenu, object: nil)
         let file = FileManager.default.temporaryDirectory.appendingPathComponent("menew-ask-\(UUID().uuidString).png")
         Task {

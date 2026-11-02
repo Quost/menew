@@ -173,6 +173,10 @@ struct ActionsView: View {
                         LazyVGrid(columns: cols, spacing: 8) {
                             ActionTile(icon: "sparkles", color: .blue, title: L("Liberar espaço"), subtitle: L("caches e lixo"),
                                        help: L("Encontra caches, logs e arquivos grandes. Você revisa antes de apagar."), action: openCleaner)
+                            ActionTile(icon: "power.circle", color: .orange, title: L("Itens de login"), subtitle: L("o que abre com o Mac"),
+                                       help: L("Veja os agentes e serviços que os apps instalaram para abrir com o Mac ou rodar escondidos.")) {
+                                StartupItems.show()
+                            }
                             ActionTile(icon: "trash.square", color: .red, title: L("Desinstalar app"), subtitle: L("com as sobras"),
                                        help: L("Escolha um app: ele e as preferências, caches e dados que deixou vão para a Lixeira.")) {
                                 Uninstaller.show()
@@ -203,6 +207,16 @@ struct ActionsView: View {
                                 ScreenRecorder.shared.start(gif: false)
                             }
                             .contextMenu { Button(L("Gravar GIF")) { ScreenRecorder.shared.start(gif: true) } }
+                            if AIFeature.screenAsk.isOn {
+                                ActionTile(icon: "text.bubble", color: .pink, title: L("Perguntar à tela"), subtitle: L("explica, traduz"),
+                                           help: L("Selecione uma área da tela e pergunte à IA do Mac: explicar, resumir, traduzir.")) {
+                                    ScreenAsk.shared.start()
+                                }
+                            }
+                            ActionTile(icon: "terminal", color: .gray, title: L("Scripts"), subtitle: L("viram comandos"),
+                                       help: L("Cada script desta pasta vira um comando da paleta, como no Raycast.")) {
+                                ScriptCommands.openFolder()
+                            }
                             ActionTile(icon: "arrow.down.doc", color: .blue, title: L("Captura com rolagem"), subtitle: L("página inteira"),
                                        help: L("Escolha a área que rola: o Menew rola sozinho e junta tudo numa imagem comprida.")) {
                                 ScrollCapture.start()
@@ -314,8 +328,8 @@ struct ActionsView: View {
         case L("Apps"): L("%d abertos", AppControl.running.count)
         case L("Perfis"): profiles.profiles.isEmpty ? L("Nenhum ainda") : profiles.profiles.map(\.name).joined(separator: ", ")
         case L("Automações"): automations.rules.isEmpty ? L("Nenhuma ainda") : L("%d ativas", automations.rules.filter(\.enabled).count)
-        case L("Limpeza"): L("Espaço, teclado e tela")
-        case L("Atalhos"): L("Captura, conta-gotas e mais")
+        case L("Limpeza"): L("Espaço, desinstalar apps, itens de login")
+        case L("Atalhos"): L("Captura, gravação, perguntar à tela, scripts")
         default: nil
         }
     }

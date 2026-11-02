@@ -156,6 +156,7 @@ final class DiagnosisModel: ObservableObject {
             let snap = Diagnosis.make(m, cpuTop: cpu, memTop: mem)
             findings = snap.findings
             loading = false
+            guard AIFeature.diagnosis.isOn else { return }
             if let reason = AIText.unavailableReason {
                 aiNote = L("Com a Apple Intelligence, o Menew também explica em palavras simples. (%@)", reason)
                 return
