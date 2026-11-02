@@ -151,5 +151,6 @@
   "faq11_q": "¿Menew hace lento el Mac o gasta batería?",
   "faq11_a": "Menew es una app nativa en Swift, no una web empaquetada, y la descarga pesa unos 8 MB. Lee el sistema cada 2 segundos, hace las lecturas más pesadas solo mientras miras y funciones como el tiempo de pantalla empiezan desactivadas.",
   "faq12_q": "¿En qué idiomas está Menew?",
-  "faq12_a": "Inglés, portugués, alemán, español y chino simplificado. Sigue el idioma de macOS y puedes elegir otro en Ajustes."
+  "faq12_a": "Inglés, portugués, alemán, español y chino simplificado. Sigue el idioma de macOS y puedes elegir otro en Ajustes.",
+  "rep_note": "Los nombres son marcas de sus dueños y aparecen solo para comparar. Menew no está afiliado a ninguno ni cuenta con su respaldo."
 }

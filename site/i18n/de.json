@@ -151,5 +151,6 @@
   "faq11_q": "Macht Menew meinen Mac langsam oder leert den Akku?",
   "faq11_a": "Menew ist eine native Swift-App, keine verpackte Webseite, und der Download ist etwa 8 MB groß. Es liest Systemwerte alle 2 Sekunden, schwerere Messungen nur, während du hinsiehst, und Funktionen wie die Bildschirmzeit sind aus, bis du sie einschaltest.",
   "faq12_q": "Welche Sprachen spricht Menew?",
-  "faq12_a": "Englisch, Portugiesisch, Deutsch, Spanisch und vereinfachtes Chinesisch. Es folgt der Sprache von macOS, und in den Einstellungen kannst du eine andere wählen."
+  "faq12_a": "Englisch, Portugiesisch, Deutsch, Spanisch und vereinfachtes Chinesisch. Es folgt der Sprache von macOS, und in den Einstellungen kannst du eine andere wählen.",
+  "rep_note": "Die Namen sind Marken ihrer Inhaber und dienen nur dem Vergleich. Menew ist mit keinem davon verbunden oder von ihnen empfohlen."
 }

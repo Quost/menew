@@ -2,6 +2,15 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.69.0
+
+### New
+- **Settings › AI.** Every AI feature in one list, with how to use it and a switch to turn it off; turned off, it disappears from the palette, shortcuts and buttons. The top shows whether Apple Intelligence is on for this Mac, with a shortcut to turn it on.
+- **Easier to find.** Screen time can now be turned on in Settings › Privacy and from the command palette (“Screen time” opens its card), and its card sits right after History instead of at the bottom. Actions gained buttons for Ask about the screen, Scripts and Login items, and the clipboard search box shows an example of smart search.
+
+### Changed
+- New cards in the System tab now appear next to where they belong, even if you reordered your cards.
+
 ## 1.68.0
 
 ### New

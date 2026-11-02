@@ -151,5 +151,6 @@
   "faq11_q": "Does Menew slow down my Mac or drain the battery?",
   "faq11_a": "Menew is a native Swift app, not a web wrapper, and the download is about 8 MB. It reads system stats every 2 seconds, takes heavier readings only while you look at them, and features like screen time stay off until you turn them on.",
   "faq12_q": "Which languages does Menew speak?",
-  "faq12_a": "English, Portuguese, German, Spanish and Simplified Chinese. It follows your macOS language, and you can pick another one in Settings."
+  "faq12_a": "English, Portuguese, German, Spanish and Simplified Chinese. It follows your macOS language, and you can pick another one in Settings.",
+  "rep_note": "Names are trademarks of their owners and appear only for comparison. Menew isn't affiliated with or endorsed by any of them."
 }
