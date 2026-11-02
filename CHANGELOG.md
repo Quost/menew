@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.81.1
+
+### Fixed
+- Menew could quit right after opening when another copy of it was running from a different folder (an old download, for example). Now only a second copy of the same app closes itself.
+- German: the clipboard is now called “Zwischenablage” everywhere, so it no longer shares a name with the shelf (“Ablage”). Tabs that don’t fit drop their icon instead of cutting the word.
+
 ## 1.81.0
 
 ### New
