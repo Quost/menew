@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.69.1
+
+### Fixed
+- Menew could end up running twice (for example when an update relaunched it while it was opening at login), which showed every menu bar icon twice. A second copy now quits right away.
+
 ## 1.69.0
 
 ### New
