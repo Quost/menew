@@ -512,6 +512,9 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("removebg", L("Remover fundo da imagem copiada"), "person.crop.rectangle.badge.plus", .pink,
+                   "remover fundo remove background recortar cutout assunto subject transparente png sticker hintergrund entfernen quitar fondo 去除背景 抠图",
+                   subtitle: L("Copia só o assunto, com fundo transparente")) { BackgroundRemover.fromClipboard() }
             action("uuid", L("Gerar UUID"), "number.square.fill", .gray, "uuid guid id gerar generate novo new erzeugen generar 生成") {
                 let id = UUID().uuidString.lowercased()
                 NSPasteboard.general.clearContents()

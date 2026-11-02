@@ -126,3 +126,7 @@
 "Note" = "笔记";
 "Open Note" = "打开笔记";
 "Opens one of your Menew notes." = "打开一条 Menew 笔记。";
+
+/* Imagens (Sources/Menew/ShortcutActions.swift) */
+"Remove Background" = "去除背景";
+"Keeps only the subject of a photo (a person, pet or object) with a transparent background, as a PNG. Runs on your Mac." = "只保留照片中的主体（人物、宠物或物体），背景透明，输出 PNG。在你的 Mac 上运行。";

@@ -461,7 +461,7 @@ private struct PinnedView: View {
     @State private var hover = false
 
     var body: some View {
-        Image(nsImage: image).resizable().interpolation(.high)
+        LiveTextImage(image: image)
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             .overlay(RoundedRectangle(cornerRadius: 8, style: .continuous).strokeBorder(Color.primary.opacity(0.2), lineWidth: 0.5))
             .overlay(alignment: .topLeading) {

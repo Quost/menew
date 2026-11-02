@@ -380,7 +380,8 @@ struct ClipPreview: View {
         switch item.kind {
         case .image:
             if let img = manager.thumbnail(for: item) {
-                Image(nsImage: img).resizable().aspectRatio(contentMode: .fit)
+                // Live Text: selecione o texto ou clique num link direto na imagem
+                LiveTextImage(image: img).aspectRatio(img.size, contentMode: .fit)
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .frame(maxHeight: 260)
                     .frame(maxWidth: .infinity)

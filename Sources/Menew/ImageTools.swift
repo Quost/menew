@@ -9,12 +9,15 @@ enum ImageTool: Hashable {
     case convert(UTType)
     case resize(Int)
     case stripMetadata
+    /// Só o assunto, com fundo transparente (PNG)
+    case removeBackground
 
     @MainActor var suffix: String {
         switch self {
         case .convert: ""
         case .resize(let px): " (\(px) px)"
         case .stripMetadata: L(" (sem metadados)")
+        case .removeBackground: L(" (sem fundo)")
         }
     }
 
@@ -39,16 +42,21 @@ enum ImageTool: Hashable {
             kCGImageSourceCreateThumbnailWithTransform: true,
             kCGImageSourceThumbnailMaxPixelSize: max(1, maxPixels),
         ]
-        guard let image = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else { return nil }
+        guard var image = CGImageSourceCreateThumbnailAtIndex(src, 0, opts as CFDictionary) else { return nil }
 
         var type = sourceType
+        if tool == .removeBackground {
+            guard let cut = BackgroundRemover.cutout(image) else { return nil }
+            image = cut
+            type = .png
+        }
         if case .convert(let t) = tool { type = t }
         let writable = (CGImageDestinationCopyTypeIdentifiers() as? [String] ?? []).contains(type.identifier)
         if !writable { type = .jpeg }
 
         // Metadados: mantidos ao converter e reduzir (sem a rotação, já aplicada); nenhum ao limpar
         var meta: [CFString: Any] = [:]
-        if tool != .stripMetadata {
+        if tool != .stripMetadata && tool != .removeBackground {
             for key in [kCGImagePropertyExifDictionary, kCGImagePropertyIPTCDictionary, kCGImagePropertyGPSDictionary,
                         kCGImagePropertyTIFFDictionary] {
                 if var d = props[key] as? [CFString: Any] {
@@ -133,6 +141,7 @@ struct ShelfImageMenu: View {
             }
             Divider()
             Button(L("Remover localização e metadados")) { store.process(.stripMetadata) }
+            Button(L("Remover fundo")) { store.process(.removeBackground) }
             Button(L("Juntar em um PDF")) { store.process(PDFTool.fromImages) }
         } label: {
             Image(systemName: "photo.badge.arrow.down")

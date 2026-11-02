@@ -363,3 +363,25 @@ struct GetScreenTimeIntent: AppIntent {
         return .result(value: (seconds / 60).rounded())
     }
 }
+
+struct RemoveBackgroundIntent: AppIntent {
+    static let title: LocalizedStringResource = "Remove Background"
+    static let description = IntentDescription("Keeps only the subject of a photo (a person, pet or object) with a transparent background, as a PNG. Runs on your Mac.")
+
+    @Parameter(title: "Image") var file: IntentFile
+
+    @MainActor func perform() async throws -> some IntentResult & ReturnsValue<IntentFile> {
+        let data = file.data
+        let out = await Task.detached { () -> Data? in
+            guard let src = CGImageSourceCreateWithData(data as CFData, nil),
+                  // A miniatura no tamanho cheio já vem na rotação certa
+                  let img = CGImageSourceCreateThumbnailAtIndex(src, 0, [kCGImageSourceCreateThumbnailFromImageAlways: true,
+                                                                         kCGImageSourceCreateThumbnailWithTransform: true,
+                                                                         kCGImageSourceThumbnailMaxPixelSize: 8192] as CFDictionary) else { return nil }
+            return BackgroundRemover.cutout(img).flatMap(BackgroundRemover.png)
+        }.value
+        guard let out else { throw MenewIntentError.unreadable }
+        let base = (file.filename as NSString).deletingPathExtension
+        return .result(value: IntentFile(data: out, filename: "\(base.isEmpty ? "Image" : base).png", type: .png))
+    }
+}

@@ -126,3 +126,7 @@
 "Note" = "Nota";
 "Open Note" = "Abrir nota";
 "Opens one of your Menew notes." = "Abre uma das suas notas do Menew.";
+
+/* Imagens (Sources/Menew/ShortcutActions.swift) */
+"Remove Background" = "Remover fundo";
+"Keeps only the subject of a photo (a person, pet or object) with a transparent background, as a PNG. Runs on your Mac." = "Deixa só o assunto da foto (pessoa, bicho ou objeto) com fundo transparente, em PNG. Roda no seu Mac.";
