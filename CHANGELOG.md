@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.72.0
+
+### New
+- **Widgets.** Four widgets for your desktop and Notification Center, in small and medium sizes: **System** (CPU, memory, disk and battery, plus a CPU chart of the last minute), **Meetings** (the next one with a live countdown, then the rest of the day), **Timers** (focus and timers counting down live) and **Screen time** (today, split into focus, neutral and distraction, with your top apps). Right-click the desktop › Edit Widgets and look for Menew. Click a widget to open Menew. Widgets read a small file Menew updates every minute on your Mac; they have no network access.
+
 ## 1.71.0
 
 ### New
