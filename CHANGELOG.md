@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.70.0
+
+### New
+- **Live notch.** On Macs with a notch, what matters right now appears on both sides of the camera, one thing at a time and in order of importance: a meeting starting within 2 minutes (with a Join button), screen recording (time and Stop), Menew’s confirmations such as “Copied”, a focus or timer countdown, and a muted mic while an app is using it. When there is nothing to show, it disappears and the menu bar is untouched. On Macs without a notch you can turn it on as a pill at the top of the screen. Settings › Shortcuts and actions.
+
 ## 1.69.1
 
 ### Fixed
