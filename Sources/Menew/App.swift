@@ -110,6 +110,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         shelf.startShakeDetection()
         AutomationStore.shared.load(dir: clipboard.dir)
         SystemHistory.shared.load(dir: clipboard.dir)
+        BatteryLog.shared.load(dir: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
         WidgetBridge.shared.start(monitor: monitor)

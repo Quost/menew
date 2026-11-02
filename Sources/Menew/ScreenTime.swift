@@ -111,6 +111,13 @@ final class ScreenTime: ObservableObject {
         return String(format: "%04d-%02d-%02d", c.year ?? 0, c.month ?? 0, c.day ?? 0)
     }
 
+    /// "2026-11-02" → a data (meia-noite)
+    static func date(fromKey key: String) -> Date? {
+        let p = key.split(separator: "-").compactMap { Int($0) }
+        guard p.count == 3 else { return nil }
+        return Calendar.current.date(from: DateComponents(year: p[0], month: p[1], day: p[2]))
+    }
+
     // MARK: Categorias
 
     private static let focusApps = ["com.apple.dt.Xcode", "com.microsoft.VSCode", "com.todesktop.230313mzl4w4u92", "com.jetbrains", "com.figma.Desktop",

@@ -47,6 +47,7 @@ enum Snapshot {
             monitor.localIP = "192.168.0.12"
             monitor.battery = BatteryInfo(percent: 80, charging: false, onAC: true, minutesLeft: nil)
             monitor.batteryHealth = BatteryHealth(cycles: 112, healthPercent: 96, temperature: nil, adapterWatts: 70, systemWatts: 8.4)
+            BatteryLog.shared.set(BatteryLog.demo)
             monitor.coreLoads = [0.12, 0.08, 0.15, 0.05, 0.09, 0.11, 0.42, 0.31, 0.18, 0.25]
             monitor.memPressure = .normal
             monitor.memTotal = 16 << 30
@@ -151,6 +152,10 @@ enum Snapshot {
                        size: NSSize(width: 590, height: 606), dark: dark, to: dir.appendingPathComponent("widgets-\(suffix).png"))
                 render(IntentsShowcase().frame(width: 520), size: NSSize(width: 520, height: 470), dark: dark,
                        to: dir.appendingPathComponent("intents-\(suffix).png"))
+                render(BatteryCard(battery: BatteryInfo(percent: 82, charging: false, onAC: false, minutesLeft: 312),
+                                   health: BatteryHealth(cycles: 112, healthPercent: 96, temperature: 31, adapterWatts: nil, systemWatts: 8.4))
+                        .padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
+                       size: NSSize(width: 400, height: 250), dark: dark, to: dir.appendingPathComponent("battery-\(suffix).png"))
                 // Legendas ao vivo sobre um "vídeo" escuro
                 let lc = LiveCaptions()
                 lc.from = "en-US"

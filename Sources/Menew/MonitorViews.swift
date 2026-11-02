@@ -121,6 +121,10 @@ struct BatteryCard: View {
                     BatteryValue(title: L("Temperatura"), value: String(format: "%.0f °C", t), color: .primary)
                 }
             }
+            if let trend = BatteryLog.shared.trend {
+                Divider()
+                BatteryTrendRow(entries: BatteryLog.shared.entries, trend: trend)
+            }
             // Consumo agora e quanto falta (para acabar ou para encher)
             if health.systemWatts != nil || battery.minutesLeft != nil {
                 HStack(spacing: 0) {
@@ -293,6 +297,9 @@ struct AlertsSection: View {
     @AppStorage(Alerts.Kind.memory.rawValue) private var memory = false
     @AppStorage(Alerts.Kind.cpu.rawValue) private var cpu = false
     @AppStorage(Alerts.Kind.thermal.rawValue) private var thermal = false
+    @AppStorage(Alerts.Kind.charged.rawValue) private var charged = false
+    @AppStorage(Alerts.Kind.batteryHot.rawValue) private var batteryHot = false
+    @AppStorage(Alerts.chargedLevelKey) private var chargedLevel = 80
     @AppStorage(AccessoryMonitor.alertKey) private var accessories = false
     @AppStorage(RunawayWatch.key) private var runaway = false
     @State private var denied = false
@@ -304,6 +311,16 @@ struct AlertsSection: View {
             if SystemMonitorInfo.hasBattery {
                 RowDivider()
                 toggle(.battery, $battery, L("20% ou menos, fora da tomada"))
+                RowDivider()
+                toggle(.charged, $charged, L("Na tomada, ao chegar no nível escolhido: tirar da tomada ajuda a bateria a durar mais"))
+                if charged {
+                    Picker(L("Avisar em"), selection: $chargedLevel) {
+                        ForEach([80, 85, 90, 95], id: \.self) { Text("\($0)%").tag($0) }
+                    }
+                    .pickerStyle(.segmented).padding(.horizontal, 12).padding(.bottom, 8).padding(.leading, 30)
+                }
+                RowDivider()
+                toggle(.batteryHot, $batteryHot, L("40 °C ou mais: calor desgasta a bateria"))
             }
             RowDivider()
             toggle(.memory, $memory, L("Pressão de memória crítica"))

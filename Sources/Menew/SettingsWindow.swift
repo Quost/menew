@@ -75,7 +75,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .ai: [L("Apple Intelligence")] + AIFeature.allCases.map(\.title)
         case .calendar: [L("Calendário"), L("Mostrar a próxima reunião"), L("Horário de trabalho"), L("Avisar 1 minuto antes"), L("Relógios"), L("Adicionar cidade…")]
         case .alerts: [L("Alertas"), L("Disco quase cheio"), L("Bateria baixa"), L("Memória no limite"), L("CPU alta por muito tempo"),
-                       L("Mac esquentando"), L("Bateria dos acessórios"), L("App descontrolado"), L("Regras personalizadas")]
+                       L("Mac esquentando"), L("Bateria carregada"), L("Bateria quente"), L("Bateria dos acessórios"), L("App descontrolado"), L("Regras personalizadas")]
         case .links: [L("Links rápidos"), "Google", "GitHub"]
         case .privacy: [L("Permissões"), L("Acessibilidade"), L("Tempo de tela"), L("Registrar tempo de tela"), "Spotlight", L("Mostrar notas no Spotlight")]
         case .backup: [L("Backup"), L("Incluir notas"), L("Incluir histórico do clipboard"), L("Exportar…"), L("Restaurar…")]

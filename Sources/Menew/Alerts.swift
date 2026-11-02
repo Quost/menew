@@ -9,6 +9,7 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
 
     enum Kind: String, CaseIterable {
         case disk = "alertDisk", battery = "alertBattery", memory = "alertMemory", cpu = "alertCPU", thermal = "alertThermal"
+        case charged = "alertCharged", batteryHot = "alertBatteryHot"
 
         var title: String {
             switch self {
@@ -17,6 +18,8 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
             case .memory: L("Memória no limite")
             case .cpu: L("CPU alta por muito tempo")
             case .thermal: L("Mac esquentando")
+            case .charged: L("Bateria carregada")
+            case .batteryHot: L("Bateria quente")
             }
         }
         var icon: String {
@@ -26,12 +29,21 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
             case .memory: "memorychip"
             case .cpu: "flame"
             case .thermal: "thermometer.high"
+            case .charged: "battery.100percent.bolt"
+            case .batteryHot: "thermometer.sun"
             }
         }
         var enabled: Bool { UserDefaults.standard.bool(forKey: rawValue) }
     }
 
     private var fired: Set<Kind> = []
+
+    /// Nível do aviso "Bateria carregada" (80, 85, 90 ou 95%)
+    static let chargedLevelKey = "alertChargedLevel"
+    static var chargedLevel: Int {
+        let v = UserDefaults.standard.integer(forKey: chargedLevelKey)
+        return [80, 85, 90, 95].contains(v) ? v : 80
+    }
     private var memoryStreak = 0
     private var cpuStreak = 0
     private var center: UNUserNotificationCenter? {
@@ -58,6 +70,19 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
         if let b = m.battery {
             evaluate(.battery, on: !b.onAC && b.percent <= 20, off: b.onAC) {
                 L("Restam %d%%. Conecte o carregador.", b.percent)
+            }
+        }
+        // Cuidados com a bateria: avisa ao chegar no nível escolhido na tomada e quando ela esquenta
+        BatteryLog.shared.update(m.batteryHealth)
+        if let b = m.battery {
+            let level = Self.chargedLevel
+            evaluate(.charged, on: b.onAC && b.percent >= level && level < 100, off: !b.onAC || b.percent < level - 5) {
+                L("Chegou a %d%%. Para a bateria durar mais, tire da tomada quando puder.", b.percent)
+            }
+        }
+        if let t = m.batteryHealth?.temperature {
+            evaluate(.batteryHot, on: t >= 40, off: t < 36) {
+                L("A bateria está a %d °C. Calor é o que mais desgasta: deixe as saídas de ar livres e evite carregar no sol.", Int(t))
             }
         }
         // Memória: pressão crítica por ~10 s seguidos
