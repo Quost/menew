@@ -77,7 +77,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .alerts: [L("Alertas"), L("Disco quase cheio"), L("Bateria baixa"), L("Memória no limite"), L("CPU alta por muito tempo"),
                        L("Mac esquentando"), L("Bateria dos acessórios"), L("App descontrolado"), L("Regras personalizadas")]
         case .links: [L("Links rápidos"), "Google", "GitHub"]
-        case .privacy: [L("Permissões"), L("Acessibilidade"), L("Tempo de tela"), L("Registrar tempo de tela")]
+        case .privacy: [L("Permissões"), L("Acessibilidade"), L("Tempo de tela"), L("Registrar tempo de tela"), "Spotlight", L("Mostrar notas no Spotlight")]
         case .backup: [L("Backup"), L("Incluir notas"), L("Incluir histórico do clipboard"), L("Exportar…"), L("Restaurar…")]
         case .about: [L("Atualizações"), L("Procurar atualizações automaticamente"), L("Reportar um problema…"), L("Sugerir uma ideia…"),
                       L("Pagar um café ao autor ☕"), L("Ver a apresentação de novo"), L("Sair do Menew")]

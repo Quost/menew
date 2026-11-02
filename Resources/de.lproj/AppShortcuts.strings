@@ -9,3 +9,5 @@
 "Activate a work profile in ${applicationName}" = "Ein Arbeitsprofil in ${applicationName} aktivieren";
 "Open clipboard history in ${applicationName}" = "Zwischenablage-Verlauf in ${applicationName} öffnen";
 "Create a note in ${applicationName}" = "Eine Notiz in ${applicationName} erstellen";
+"How is my Mac in ${applicationName}" = "Wie geht es meinem Mac in ${applicationName}";
+"Check my Mac with ${applicationName}" = "Meinen Mac mit ${applicationName} prüfen";

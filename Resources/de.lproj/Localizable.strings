@@ -119,3 +119,10 @@
 "Get Screen Time Today" = "Bildschirmzeit heute abrufen";
 "Returns how many minutes you used your Mac today, in total or only in apps marked as distraction. Turn on screen time in Menew first." = "Gibt zurück, wie viele Minuten du den Mac heute genutzt hast, insgesamt oder nur in Ablenkungs-Apps. Schalte zuerst die Bildschirmzeit in Menew ein.";
 "Only Distractions" = "Nur Ablenkungen";
+
+/* Siri e Spotlight (Sources/Menew/Spotlight.swift) */
+"Mac Status" = "Mac-Status";
+"Tells you CPU, memory, free disk space and battery in one sentence." = "Nennt CPU, Speicher, freien Speicherplatz und Batterie in einem Satz.";
+"Note" = "Notiz";
+"Open Note" = "Notiz öffnen";
+"Opens one of your Menew notes." = "Öffnet eine deiner Menew-Notizen.";

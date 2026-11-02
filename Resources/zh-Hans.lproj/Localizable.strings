@@ -119,3 +119,10 @@
 "Get Screen Time Today" = "获取今天的屏幕使用时间";
 "Returns how many minutes you used your Mac today, in total or only in apps marked as distraction. Turn on screen time in Menew first." = "返回今天使用 Mac 的分钟数（总计或仅分心类 App）。请先在 Menew 中打开屏幕使用时间。";
 "Only Distractions" = "仅分心";
+
+/* Siri e Spotlight (Sources/Menew/Spotlight.swift) */
+"Mac Status" = "Mac 状态";
+"Tells you CPU, memory, free disk space and battery in one sentence." = "用一句话告诉你 CPU、内存、可用磁盘空间和电池。";
+"Note" = "笔记";
+"Open Note" = "打开笔记";
+"Opens one of your Menew notes." = "打开一条 Menew 笔记。";

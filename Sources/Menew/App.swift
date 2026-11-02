@@ -44,12 +44,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             nav.tab = tab
             showPopover()
         }
-        model.openNote = { [weak self] id in
-            guard let self else { return }
-            nav.tab = .notes
-            nav.noteToOpen = id
-            showPopover()
-        }
+        model.openNote = { [weak self] id in self?.openNote(id) }
         model.openClipboard = { [weak self] in self?.clipPanel.show() }
         model.checkForUpdates = { [weak self] in self?.updater.checkForUpdates() }
         model.openShelf = { [weak self] in self?.shelf.show(nearMouse: false) }
@@ -118,6 +113,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
         WidgetBridge.shared.start(monitor: monitor)
+        SpotlightNotes.shared.start(notes)
         AutomationStore.shared.start(toolbox: toolbox)
         TextExpander.shared.start(clipboard: clipboard)
         MeetingStore.shared.refreshEnabled()
@@ -335,6 +331,21 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     @objc private func buyCoffee() { popover.performClose(nil); Feedback.buyCoffee() }
     @objc private func openSettings() { SettingsWindow.shared.show() }
     @objc private func quit() { NSApp.terminate(nil) }
+
+    /// Abre uma nota na aba Notas (Spotlight, Atalhos)
+    func openNote(_ id: UUID) {
+        nav.tab = .notes
+        nav.noteToOpen = id
+        showPopover()
+    }
+
+    /// Resultado do Spotlight: abre a nota escolhida
+    func application(_ application: NSApplication, continue userActivity: NSUserActivity,
+                     restorationHandler: @escaping ([any NSUserActivityRestoring]) -> Void) -> Bool {
+        guard let id = SpotlightNotes.noteID(from: userActivity) else { return false }
+        openNote(id)
+        return true
+    }
 
     /// Toque num widget (menew://system, menew://meetings…): abre o Menew na aba Sistema
     func application(_ application: NSApplication, open urls: [URL]) {

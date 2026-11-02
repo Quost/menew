@@ -724,6 +724,7 @@ struct SettingsView: View {
     @AppStorage(WindowManager.shortcutsKey) private var windowShortcuts = true
     @AppStorage(DragSnap.key) private var dragSnap = true
     @AppStorage(ScreenTime.key) private var screenTimeOn = false
+    @AppStorage(SpotlightNotes.key) private var spotlightNotes = true
     @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
@@ -785,6 +786,10 @@ struct SettingsView: View {
                     SettingRow(title: L("Apagar histórico do tempo de tela"), icon: "trash") {
                         PillButton(title: L("Apagar")) { ScreenTime.shared.erase() }
                     }
+                }
+                GlassSection(title: L("Spotlight"), footer: L("O índice fica no seu Mac. Notas protegidas e de senhas nunca entram; o histórico do clipboard também não.")) {
+                    ToggleRow(title: L("Mostrar notas no Spotlight"), detail: L("Busque uma nota pelo Spotlight (⌘Espaço) e ela abre no Menew."), icon: "magnifyingglass",
+                              isOn: Binding(get: { spotlightNotes }, set: { spotlightNotes = $0; if let n = (NSApp.delegate as? AppDelegate)?.notes { SpotlightNotes.shared.setOn($0, store: n) } }))
                 }
                 GlassSection(title: L("Permissões"), footer: L("Usada para colar automaticamente e para travar o teclado na limpeza.")) {
                     SettingRow(title: L("Acessibilidade"), icon: axTrusted ? "checkmark.seal.fill" : "exclamationmark.triangle.fill") {

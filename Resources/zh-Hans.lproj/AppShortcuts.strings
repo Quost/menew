@@ -9,3 +9,5 @@
 "Activate a work profile in ${applicationName}" = "在${applicationName}中启用工作配置";
 "Open clipboard history in ${applicationName}" = "在${applicationName}中打开剪贴板历史";
 "Create a note in ${applicationName}" = "在${applicationName}中新建笔记";
+"How is my Mac in ${applicationName}" = "用 ${applicationName} 看看我的 Mac 怎么样";
+"Check my Mac with ${applicationName}" = "用 ${applicationName} 检查我的 Mac";

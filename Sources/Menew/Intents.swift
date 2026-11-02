@@ -178,5 +178,8 @@ struct MenewShortcuts: AppShortcutsProvider {
                     shortTitle: "Clipboard History", systemImageName: "doc.on.clipboard")
         AppShortcut(intent: NewNoteIntent(), phrases: ["Create a note in \(.applicationName)"],
                     shortTitle: "New Note", systemImageName: "note.text")
+        AppShortcut(intent: SystemStatusIntent(), phrases: ["How is my Mac in \(.applicationName)",
+                                                            "Check my Mac with \(.applicationName)"],
+                    shortTitle: "Mac Status", systemImageName: "gauge.with.dots.needle.67percent")
     }
 }

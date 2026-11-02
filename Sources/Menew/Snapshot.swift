@@ -149,6 +149,8 @@ enum Snapshot {
                 }
                 .padding(24).background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
                        size: NSSize(width: 590, height: 606), dark: dark, to: dir.appendingPathComponent("widgets-\(suffix).png"))
+                render(IntentsShowcase().frame(width: 520), size: NSSize(width: 520, height: 470), dark: dark,
+                       to: dir.appendingPathComponent("intents-\(suffix).png"))
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),
@@ -282,5 +284,81 @@ enum Snapshot {
         rep.size = size
         container.cacheDisplay(in: container.bounds, to: rep)
         try? rep.representation(using: .png, properties: [:])?.write(to: url)
+    }
+}
+
+/// Para o site: a Siri respondendo, as ações no app Atalhos e uma nota achada no Spotlight (dados de exemplo)
+private struct IntentsShowcase: View {
+    private let actions: [(String, String, Color)] = [
+        ("gauge.with.dots.needle.67percent", L("Obter medida do sistema"), .blue),
+        ("doc.on.clipboard", L("Obter histórico do clipboard"), .purple),
+        ("apple.intelligence", L("Reescrever texto com IA"), .pink),
+        ("translate", L("Traduzir texto"), .teal),
+        ("text.viewfinder", L("Obter texto da imagem"), .orange),
+        ("photo", L("Converter imagem"), .green),
+        ("calendar", L("Obter próxima reunião"), .red),
+        ("timer", L("Iniciar timer"), .indigo),
+    ]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .trailing, spacing: 8) {
+                Text(L("Como está meu Mac no Menew?"))
+                    .font(.system(size: 13, weight: .medium)).foregroundStyle(.white)
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.accentColor))
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "waveform.circle.fill").font(.system(size: 22)).foregroundStyle(.linearGradient(colors: [.pink, .purple, .blue], startPoint: .topLeading, endPoint: .bottomTrailing))
+                    Text(L("CPU em %@, memória em %@, %@ livres no disco", "18%", "64%", "182 GB") + L(" e bateria em %@", "82%") + ".")
+                        .font(.system(size: 13)).fixedSize(horizontal: false, vertical: true)
+                        .padding(.horizontal, 12).padding(.vertical, 8)
+                        .background(RoundedRectangle(cornerRadius: 16, style: .continuous).fill(Color.primary.opacity(0.07)))
+                    Spacer(minLength: 0)
+                }
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+
+            VStack(alignment: .leading, spacing: 8) {
+                Label(L("No app Atalhos"), systemImage: "square.2.layers.3d.fill").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+                LazyVGrid(columns: [GridItem(.flexible(), spacing: 8), GridItem(.flexible(), spacing: 8)], spacing: 8) {
+                    ForEach(actions, id: \.1) { icon, title, color in
+                        HStack(spacing: 8) {
+                            Image(systemName: icon).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
+                                .frame(width: 24, height: 24).background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(color.gradient))
+                            Text(title).font(.system(size: 12, weight: .medium)).lineLimit(1).minimumScaleFactor(0.85)
+                            Spacer(minLength: 0)
+                        }
+                        .padding(7).background(RoundedRectangle(cornerRadius: 9).fill(Color.primary.opacity(0.05)))
+                    }
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 8) {
+                Label("Spotlight", systemImage: "magnifyingglass").font(.system(size: 11, weight: .bold)).foregroundStyle(.secondary)
+                VStack(spacing: 0) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                        Text(L("ata da reunião")).font(.system(size: 15))
+                        Spacer()
+                    }
+                    .padding(10)
+                    Divider()
+                    HStack(spacing: 10) {
+                        Image(systemName: "note.text").font(.system(size: 14)).foregroundStyle(.white)
+                            .frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(Color.yellow.gradient))
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text(L("Ata da reunião de produto")).font(.system(size: 13, weight: .medium))
+                            Text(L("Nota do Menew")).font(.system(size: 11)).foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    }
+                    .padding(10).background(Color.accentColor.opacity(0.15))
+                }
+                .background(RoundedRectangle(cornerRadius: 10).fill(Color.primary.opacity(0.04)))
+                .clipShape(RoundedRectangle(cornerRadius: 10))
+            }
+        }
+        .padding(20)
+        .background(Theme.windowFill)
     }
 }
