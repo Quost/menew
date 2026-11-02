@@ -99,6 +99,8 @@ final class NotchCenter: ObservableObject {
             return .meeting(title: m.title, start: m.start, hasLink: m.link != nil)
         }
         if Kind.recording.isOn, ScreenRecorder.shared.isRecording { return .recording(since: ScreenRecorder.shared.started) }
+        // Filtro de Foco "só reuniões": o resto espera o Foco acabar
+        if FocusFilterState.shared.quietNotch { return nil }
         if Kind.flash.isOn, let flash { return flash }
         let focus = FocusTimer.shared
         if Kind.focus.isOn, focus.isRunning { return .focus(end: focus.endsAt, rest: focus.phase == .rest) }

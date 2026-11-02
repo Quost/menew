@@ -130,3 +130,9 @@
 /* Imagens (Sources/Menew/ShortcutActions.swift) */
 "Remove Background" = "Quitar fondo";
 "Keeps only the subject of a photo (a person, pet or object) with a transparent background, as a PNG. Runs on your Mac." = "Deja solo el sujeto de la foto (persona, mascota u objeto) con fondo transparente, en PNG. Se ejecuta en tu Mac.";
+
+/* Filtro de Foco (Sources/Menew/FocusFilter.swift) */
+"Menew Focus Filter" = "Filtro de concentración de Menew";
+"Choose what Menew does while this Focus is on." = "Elige qué hace Menew mientras esta concentración esté activa.";
+"Pause Clipboard History" = "Pausar el historial del portapapeles";
+"Only Meetings in the Notch" = "Solo reuniones en el notch";

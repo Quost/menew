@@ -754,6 +754,13 @@ struct SettingsView: View {
                         ModuleToggle(m)
                     }
                 }
+                GlassSection(title: L("Foco"), footer: L("Em Ajustes do Sistema › Foco, escolha um Foco › Filtros de Foco › Menew.")) {
+                    SettingRow(title: L("Filtros de Foco"), detail: L("Com um Foco ligado, o Menew pode pausar o clipboard, mostrar só reuniões no notch, mutar o microfone, ligar o modo apresentação ou ativar um perfil."), icon: "moon.fill") {
+                        PillButton(title: L("Abrir Ajustes")) {
+                            NSWorkspace.shared.open(URL(string: "x-apple.systempreferences:com.apple.Focus-Settings.extension")!)
+                        }
+                    }
+                }
                 }
 
                 if show(.menubar) {

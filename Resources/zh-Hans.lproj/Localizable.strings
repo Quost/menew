@@ -130,3 +130,9 @@
 /* Imagens (Sources/Menew/ShortcutActions.swift) */
 "Remove Background" = "去除背景";
 "Keeps only the subject of a photo (a person, pet or object) with a transparent background, as a PNG. Runs on your Mac." = "只保留照片中的主体（人物、宠物或物体），背景透明，输出 PNG。在你的 Mac 上运行。";
+
+/* Filtro de Foco (Sources/Menew/FocusFilter.swift) */
+"Menew Focus Filter" = "Menew 专注模式过滤条件";
+"Choose what Menew does while this Focus is on." = "选择此专注模式开启时 Menew 的行为。";
+"Pause Clipboard History" = "暂停剪贴板历史";
+"Only Meetings in the Notch" = "刘海中仅显示会议";

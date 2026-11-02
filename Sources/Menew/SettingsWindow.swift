@@ -63,7 +63,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
     /// O que a busca encontra em cada categoria: os nomes dos ajustes dela (no idioma do app)
     var keywords: String {
         let words: [String] = switch self {
-        case .general: [L("Aparência"), L("Tema"), L("Idioma"), L("Módulos"), L("Clipboard"), L("Ações"), L("Notas")]
+        case .general: [L("Aparência"), L("Tema"), L("Idioma"), L("Módulos"), L("Clipboard"), L("Ações"), L("Notas"), L("Foco"), L("Filtros de Foco")]
         case .menubar: [L("Barra de menus"), L("Abrir ao iniciar o Mac"), "CPU", "RAM"]
         case .clipboard: [L("Colar automaticamente ao escolher"), L("Expandir abreviações dos snippets ao digitar"), L("Pausar captura"),
                           L("Ignorar senhas (1Password, Keychain…)"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
