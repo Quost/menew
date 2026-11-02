@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.74.0
+
+### New
+- **Notes in Spotlight.** Search for a note with ⌘Space and it opens in Menew. The index stays on your Mac; protected notes, password notes and the clipboard history are never indexed. Turn it off in Settings › Privacy and the index is erased.
+- **Ask Siri how your Mac is doing.** “How is my Mac in Menew” answers with CPU, memory, free disk space and battery. Also available as the Mac Status action in Shortcuts.
+- **Open Note action** in Shortcuts, to open a specific note from a shortcut, a widget stack or the Dock.
+
 ## 1.73.0
 
 ### New
