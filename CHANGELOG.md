@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.79.0
+
+### New
+- **More PDF tools on the shelf:** split a PDF into one file per page, extract the text to a .txt next to it (scanned pages without text are read on your Mac), and save a password-protected copy (you type the password twice; the original stays as it is).
+- **More image tools on the shelf:** rotate 90° and copy the text in all the images to the clipboard.
+- **Two new Shortcuts actions:** Get Text from PDF and Protect PDF with Password.
+
 ## 1.78.0
 
 ### New
