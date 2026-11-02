@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.76.0
+
+### New
+- **Continuity Camera.** Take a photo, scan a document or draw a sketch on your iPhone or iPad and it lands in Menew. Actions › From iPhone puts it on the clipboard; right-click it to send it to the shelf (saved in Downloads) or to copy only the text (every scanned page is read on your Mac). Also in the command palette (“iphone”, “scan text”) and as a button on the shelf. It uses macOS’s own Import from iPhone: your iPhone needs the same Apple Account, with Wi-Fi and Bluetooth on.
+
 ## 1.75.0
 
 ### New
