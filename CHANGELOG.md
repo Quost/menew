@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.75.0
+
+### New
+- **Live Text in images.** In clipboard image previews and pinned screenshots, select the text or click links, phone numbers and addresses right on the image, like in Photos. Recognized on your Mac.
+- **Remove background.** Keep only the subject of a photo (a person, pet or object) with a transparent background: from the shelf’s Images menu for all photos on it, from the command palette for the copied image (“remove background” copies the cutout), or with the new Remove Background action in Shortcuts. The result is a PNG; originals are never changed.
+
 ## 1.74.0
 
 ### New
