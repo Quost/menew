@@ -62,6 +62,16 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     private var previousApp: NSRunningApplication?
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // Uma cópia só: se o Menew já está aberto (por exemplo, a atualização reabriu junto com o login), esta sai.
+        // Se duas abrirem no mesmo instante, fica a de número de processo menor, para nunca saírem as duas.
+        // Execuções com opções de linha de comando (capturas de tela, testes) não contam.
+        let me = ProcessInfo.processInfo.processIdentifier
+        if !CommandLine.arguments.dropFirst().contains(where: { $0.hasPrefix("--") }),
+           let id = Bundle.main.bundleIdentifier,
+           NSRunningApplication.runningApplications(withBundleIdentifier: id).contains(where: { $0.processIdentifier < me && !$0.isTerminated }) {
+            NSApp.terminate(nil)
+            return
+        }
         UserDefaults.standard.register(defaults: [
             MenuBarItem.key: MenuBarItem.migratedDefault,
             "autoPaste": true,
