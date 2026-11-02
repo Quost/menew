@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.78.0
+
+### New
+- **Focus filters.** Menew now appears in System Settings › Focus › (a Focus) › Focus Filters. Choose what changes while that Focus is on: pause the clipboard history, show only meetings in the notch, mute the microphone, turn on presentation mode or activate a work profile. When the Focus ends, Menew undoes only what it changed (if you had paused the clipboard yourself, it stays paused). Settings › General › Focus has a shortcut to the right place.
+
 ## 1.77.0
 
 ### New
