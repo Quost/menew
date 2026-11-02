@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.81.0
+
+### New
+- **Battery care.** Two new alerts in Settings › Alerts: **Battery charged** tells you when it reaches the level you choose on the charger (80, 85, 90 or 95%), so you can unplug and help it last longer; **Battery hot** tells you when it gets to 40 °C or more, the thing that wears batteries out the most. No admin password, no helper.
+- **Battery health history.** The Battery card now shows how much health your battery lost over time and how many cycles you use a month, with a small chart. Menew keeps one reading a day in a small file on your Mac; the history appears after a week.
+
 ## 1.80.0
 
 ### New

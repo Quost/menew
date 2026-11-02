@@ -136,6 +136,8 @@
   "nat3_d": "Ask Siri how your Mac is doing, chain 27 actions in the Shortcuts app and find your notes in Spotlight. And Focus filters: with your Work Focus on, Menew pauses the clipboard or quiets the notch on its own.",
   "nat4_t": "Live captions",
   "nat4_d": "Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.",
+  "nat5_t": "Battery care",
+  "nat5_d": "Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months.",
   "pro_eyebrow": "Pro tools",
   "pro_h2": "What paid Mac utilities charge for, built in",
   "pro_sub": "Monitoring and maintenance you would normally buy separately, free and on your Mac.",
