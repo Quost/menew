@@ -213,6 +213,11 @@ struct ActionsView: View {
                                     ScreenAsk.shared.start()
                                 }
                             }
+                            ActionTile(icon: "captions.bubble.fill", color: .indigo, title: L("Legendas ao vivo"), subtitle: L("e tradução"),
+                                       help: L("Legendas do som do Mac (chamadas, vídeos) ou do microfone, traduzidas na hora. Tudo no Mac."),
+                                       on: LiveCaptions.shared.running) {
+                                LiveCaptions.shared.toggle()
+                            }
                             ActionTile(icon: "iphone.rear.camera", color: .green, title: L("Do iPhone"), subtitle: L("foto ou scan"),
                                        help: L("Tire uma foto, escaneie um documento ou desenhe no iPhone ou iPad: o resultado vai para o clipboard. Clique com o botão direito para mandar à estante ou copiar só o texto.")) {
                                 ContinuityCamera.shared.showMenu(.clipboard)

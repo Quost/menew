@@ -8,6 +8,9 @@
     <!-- Próxima reunião (opcional, só quando ligada em Ajustes) -->
     <key>com.apple.security.personal-information.calendars</key>
     <true/>
+    <!-- Legendas ao vivo com o microfone (só enquanto estão ligadas) -->
+    <key>com.apple.security.device.audio-input</key>
+    <true/>
     <!-- Contêiner compartilhado com os widgets (só o arquivo do que eles mostram) -->
     <key>com.apple.security.application-groups</key>
     <array>

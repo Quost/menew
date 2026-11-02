@@ -151,6 +151,19 @@ enum Snapshot {
                        size: NSSize(width: 590, height: 606), dark: dark, to: dir.appendingPathComponent("widgets-\(suffix).png"))
                 render(IntentsShowcase().frame(width: 520), size: NSSize(width: 520, height: 470), dark: dark,
                        to: dir.appendingPathComponent("intents-\(suffix).png"))
+                // Legendas ao vivo sobre um "vídeo" escuro
+                let lc = LiveCaptions()
+                lc.from = "en-US"
+                lc.to = L10n.current == .en ? "pt" : LiveCaptions.defaultTarget
+                lc.showDemo(original: "…so the release moves to Thursday, and we’ll review the numbers together next week.",
+                            translated: L("…então o lançamento passa para quinta, e revisamos os números juntos na semana que vem."))
+                render(ZStack(alignment: .bottom) {
+                    LinearGradient(colors: [Color(red: 0.16, green: 0.2, blue: 0.3), Color(red: 0.32, green: 0.24, blue: 0.36)], startPoint: .top, endPoint: .bottom)
+                    Image(systemName: "person.2.fill").font(.system(size: 90)).foregroundStyle(.white.opacity(0.18)).frame(maxHeight: .infinity)
+                    CaptionsView(model: lc).frame(width: 640, height: 132).padding(.bottom, 20)
+                }
+                .frame(width: 700, height: 360), size: NSSize(width: 700, height: 360), dark: dark,
+                       to: dir.appendingPathComponent("captions-\(suffix).png"))
                 // Notch, fase 2: o painel ao passar o mouse e a área de soltar arquivos
                 let hm = NotchHoverModel()
                 hm.shown = true

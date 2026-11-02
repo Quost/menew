@@ -512,6 +512,9 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("captions", L("Legendas ao vivo"), "captions.bubble.fill", .indigo,
+                   "legenda legendas captions subtitles live ao vivo traduzir translate tradução chamada call video vídeo untertitel subtítulos 字幕 翻译",
+                   subtitle: L("Do som do Mac ou do microfone, com tradução")) { LiveCaptions.shared.toggle() }
             action("iphone.clip", L("Foto ou scan do iPhone"), "iphone.rear.camera", .green,
                    "iphone ipad camera câmera camara foto photo scan escanear documento document desenho sketch continuidade continuity kamera dokument 相机 扫描",
                    subtitle: L("Vai para o clipboard")) { ContinuityCamera.shared.showMenu(.clipboard) }
