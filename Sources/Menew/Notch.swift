@@ -53,6 +53,7 @@ final class NotchCenter: ObservableObject {
     func refresh() {
         timer?.invalidate()
         timer = nil
+        NotchHover.shared.refresh()
         guard isOn else { activity = nil; panel?.orderOut(nil); return }
         timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
             MainActor.assumeIsolated { NotchCenter.shared.update() }
@@ -302,6 +303,8 @@ extension NotchCenter {
 /// Ajustes → Notch: o interruptor geral, a prévia e um interruptor por aviso
 struct NotchSettingsSection: View {
     @State private var on = NotchCenter.shared.isOn
+    @State private var hover = NotchHover.hoverOn
+    @State private var drop = NotchHover.dropOn
     @State private var kinds: [NotchCenter.Kind: Bool] = Dictionary(uniqueKeysWithValues: NotchCenter.Kind.allCases.map { ($0, $0.isOn) })
     @AppStorage(NotchCenter.leadKey) private var lead = 2
     @StateObject private var preview = NotchCenter()
@@ -325,6 +328,18 @@ struct NotchSettingsSection: View {
                 ToggleRow(title: NotchCenter.hasNotch ? L("Avisos ao vivo no notch") : L("Avisos ao vivo no topo da tela"),
                           detail: L("Reunião chegando, gravação, foco, timers, mic mudo e os avisos do Menew aparecem ao lado da câmera."),
                           isOn: Binding(get: { on }, set: { on = $0; UserDefaults.standard.set($0, forKey: NotchCenter.key); NotchCenter.shared.refresh() }))
+            }
+            if NotchCenter.hasNotch {
+                GlassSection(title: L("Painel do notch")) {
+                    ToggleRow(title: L("Abrir ao passar o mouse"),
+                              detail: L("Pare o mouse no notch: aparecem a próxima reunião, o timer e atalhos (microfone, captura, clipboard, estante, paleta)."),
+                              isOn: Binding(get: { hover }, set: { hover = $0; UserDefaults.standard.set($0, forKey: NotchHover.hoverKey); NotchHover.shared.refresh() }))
+                    RowDivider()
+                    ToggleRow(title: L("Soltar arquivos no notch"),
+                              detail: L("Arraste arquivos até o notch e solte: eles vão para a estante."),
+                              isOn: Binding(get: { drop }, set: { drop = $0; UserDefaults.standard.set($0, forKey: NotchHover.dropKey); NotchHover.shared.refresh() }))
+                }
+                .disabled(!on).opacity(on ? 1 : 0.5)
             }
             GlassSection(title: L("O que aparece"), footer: L("Na ordem de importância: se duas coisas acontecem juntas, aparece a de cima.")) {
                 ForEach(Array(NotchCenter.Kind.allCases.enumerated()), id: \.element) { i, k in

@@ -151,6 +151,22 @@ enum Snapshot {
                        size: NSSize(width: 590, height: 606), dark: dark, to: dir.appendingPathComponent("widgets-\(suffix).png"))
                 render(IntentsShowcase().frame(width: 520), size: NSSize(width: 520, height: 470), dark: dark,
                        to: dir.appendingPathComponent("intents-\(suffix).png"))
+                // Notch, fase 2: o painel ao passar o mouse e a área de soltar arquivos
+                let hm = NotchHoverModel()
+                hm.shown = true
+                hm.meeting = Meeting(id: "demo", title: L("Alinhamento semanal"), start: Date().addingTimeInterval(14 * 60), end: Date().addingTimeInterval(44 * 60),
+                                     link: URL(string: "https://meet.example.com/abc"), color: .orange)
+                hm.focusEnd = Date().addingTimeInterval(18 * 60)
+                let dm = NotchHoverModel()
+                dm.shown = true
+                dm.mode = .drop
+                render(VStack(spacing: 18) {
+                    NotchHoverView(model: hm, notch: CGSize(width: 200, height: 37)).frame(width: 460, height: 150)
+                    NotchHoverView(model: dm, notch: CGSize(width: 200, height: 37)).frame(width: 360, height: 110)
+                }
+                .padding(.bottom, 18).frame(width: 560)
+                .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                       size: NSSize(width: 560, height: 296), dark: dark, to: dir.appendingPathComponent("notch-hover-\(suffix).png"))
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),
