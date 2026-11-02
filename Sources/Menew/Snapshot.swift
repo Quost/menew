@@ -128,8 +128,12 @@ enum Snapshot {
                 render(VStack(spacing: 10) { SensorsCard(); CoreBars(loads: [0.12, 0.08, 0.15, 0.05, 0.09, 0.11, 0.42, 0.31, 0.18, 0.25]).card() }
                         .padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 380), dark: dark, to: dir.appendingPathComponent("sensors-\(suffix).png"))
-                render(MetricPanel(item: .cpu, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 330), dark: dark,
+                render(MetricPanel(item: .cpu, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 520), dark: dark,
                        to: dir.appendingPathComponent("metric-cpu-\(suffix).png"))
+                render(MetricPanel(item: .ram, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 420), dark: dark,
+                       to: dir.appendingPathComponent("metric-ram-\(suffix).png"))
+                render(MetricPanel(item: .battery, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 560), dark: dark,
+                       to: dir.appendingPathComponent("metric-battery-\(suffix).png"))
                 render(MetricPanel(item: .net, m: monitor, openMenew: {}), size: NSSize(width: 340, height: 400), dark: dark,
                        to: dir.appendingPathComponent("metric-net-\(suffix).png"))
                 render(UninstallerView(model: Uninstaller.demo()), size: NSSize(width: 520, height: 440), dark: dark,

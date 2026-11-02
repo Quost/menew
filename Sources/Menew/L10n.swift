@@ -1456,6 +1456,7 @@ private let table: [String: [String]] = [
     "Na tomada, ao chegar no nível escolhido: tirar da tomada ajuda a bateria a durar mais": ["Plugged in, when it reaches the level you choose: unplugging helps the battery last longer", "Am Netzteil, sobald der gewählte Stand erreicht ist: Abziehen lässt die Batterie länger halten", "Enchufado, al llegar al nivel elegido: desenchufar ayuda a que la batería dure más", "接通电源时达到所选电量即提醒：拔掉电源有助于延长电池寿命"],
     "Avisar em": ["Notify at", "Hinweis bei", "Avisar al", "提醒电量"],
     "40 °C ou mais: calor desgasta a bateria": ["40 °C or more: heat wears out the battery", "40 °C oder mehr: Hitze schadet der Batterie", "40 °C o más: el calor desgasta la batería", "40 °C 或更高：高温会损耗电池"],
+    "média %@": ["average %@", "Durchschnitt %@", "media %@", "平均 %@"],
     "Ver novidades": ["See what's new", "Neuigkeiten", "Ver novedades", "查看新功能"],
     "Menew %@ está pronto para instalar": ["Menew %@ is ready to install", "Menew %@ ist bereit zur Installation", "Menew %@ está listo para instalar", "Menew %@ 已可安装"],
     "Instalar e reabrir": ["Install and Relaunch", "Installieren und neu starten", "Instalar y reabrir", "安装并重新打开"],

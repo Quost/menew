@@ -315,3 +315,58 @@ struct SystemHistoryCard: View {
         }
     }
 }
+
+/// Últimas 24 horas de uma métrica, com os apps que mais pesaram: o "gráfico" de cada painel da barra de menus
+struct HistoryMini: View {
+    @ObservedObject var history = SystemHistory.shared
+    let metric: SystemHistory.Metric
+
+    private var color: Color { metric == .cpu ? Theme.cpu : metric == .memory ? Theme.memory : Theme.battery }
+
+    private func value(_ s: SystemHistory.Sample) -> Double? {
+        switch metric {
+        case .cpu: s.cpu * 100
+        case .memory: s.mem * 100
+        case .energy: s.battery.map(Double.init)
+        }
+    }
+
+    var body: some View {
+        let points = history.samples.compactMap { s in value(s).map { (s.t, $0) } }
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(L("Últimas 24 horas")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                Spacer()
+                if let avg = points.isEmpty ? nil : points.map(\.1).reduce(0, +) / Double(points.count), metric != .energy {
+                    Text(L("média %@", "\(Int(avg.rounded()))%")).font(.system(size: 10.5)).foregroundStyle(.tertiary)
+                }
+            }
+            if points.count < 3 {
+                Text(L("Aparece depois de alguns minutos de uso.")).font(.system(size: 11)).foregroundStyle(.tertiary)
+            } else {
+                Chart(points, id: \.0) { p in
+                    AreaMark(x: .value("t", p.0), y: .value("v", p.1))
+                        .foregroundStyle(LinearGradient(colors: [color.opacity(0.35), color.opacity(0.02)], startPoint: .top, endPoint: .bottom))
+                    LineMark(x: .value("t", p.0), y: .value("v", p.1)).foregroundStyle(color).lineStyle(StrokeStyle(lineWidth: 1.5))
+                }
+                .chartYScale(domain: 0...100)
+                .chartYAxis { AxisMarks(values: [0, 50, 100]) { v in AxisValueLabel { Text("\(v.as(Int.self) ?? 0)%").font(.system(size: 9)) } } }
+                .chartXAxis { AxisMarks(values: .stride(by: .hour, count: 6)) { _ in AxisValueLabel(format: .dateTime.hour()) } }
+                .frame(height: 70)
+            }
+            let top = history.top(metric).prefix(3)
+            if !top.isEmpty {
+                Text(metric == .cpu ? L("Mais usaram CPU") : metric == .memory ? L("Mais usaram memória") : L("Mais gastaram bateria"))
+                    .font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.top, 2)
+                ForEach(Array(top), id: \.app) { e in
+                    HStack(spacing: 8) {
+                        Text(e.app).font(.system(size: 12)).lineLimit(1)
+                        Spacer(minLength: 4)
+                        Text(e.label).font(.system(size: 11, weight: .medium)).monospacedDigit().foregroundStyle(.secondary)
+                    }
+                }
+            }
+        }
+        .card(padding: 14)
+    }
+}

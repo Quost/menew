@@ -121,8 +121,12 @@ struct MetricPanel: View {
                 }
             }
             .card()
+            HistoryMini(metric: .cpu)
         case .ram:
-            MemoryCard(m: m)
+            VStack(spacing: 10) {
+                MemoryCard(m: m)
+                HistoryMini(metric: .memory)
+            }
         case .net:
             VStack(alignment: .leading, spacing: 12) {
                 CardHeader(title: L("Rede"), icon: "network", color: Theme.download)
@@ -149,6 +153,7 @@ struct MetricPanel: View {
         case .battery:
             VStack(spacing: 10) {
                 if let b = m.battery, let h = m.batteryHealth { BatteryCard(battery: b, health: h) }
+                HistoryMini(metric: .energy)
                 AccessoriesCard()
             }
         case .temp:
