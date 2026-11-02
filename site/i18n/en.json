@@ -139,6 +139,8 @@
   "nat5_t": "Battery care",
   "nat5_d": "Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months.",
   "more": "See everything",
+  "nat6_t": "Menew window and Memory",
+  "nat6_d": "Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags.",
   "pro_eyebrow": "Pro tools",
   "pro_h2": "What paid Mac utilities charge for, built in",
   "pro_sub": "Monitoring and maintenance you would normally buy separately, free and on your Mac.",

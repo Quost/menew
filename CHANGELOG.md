@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.83.0
+
+### New
+- **Menew window.** The menu bar keeps what matters now; the new window has the depth, with a sidebar like System Settings: Overview (today’s agenda, Mac health, screen time and what you saved), Memory, Clipboard, Notes, Performance, History and screen time, Battery, Tools, and Apps, profiles and automations. Open it from the new window button at the top of the menu or with “Menew window” in the palette.
+- **Memory.** Press ⌃⌥⌘K and pick an area or window: Menew keeps the image, reads its text and notes where it came from (app, window and the link of the browser tab). With Apple Intelligence it adds a title, a summary, tags and the named things in it. Search everything in Memory or the palette, and save any clipboard item to memory with the new brain button. It only saves when you ask, and everything stays on your Mac.
+
 ## 1.82.0
 
 ### New

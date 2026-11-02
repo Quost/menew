@@ -139,6 +139,8 @@
   "nat5_t": "Cuidados com a bateria",
   "nat5_d": "Avisa ao chegar em 80% na tomada e quando a bateria esquenta, e mostra quanto de saúde ela perdeu ao longo dos meses.",
   "more": "Ver tudo",
+  "nat6_t": "Janela Menew e Memória",
+  "nat6_d": "Aperte ⌃⌥⌘K para guardar o que está na tela: o Menew lê o texto, anota o app e o link e a IA dá título e etiquetas.",
   "pro_eyebrow": "Ferramentas pro",
   "pro_h2": "O que os utilitários pagos cobram, já incluso",
   "pro_sub": "Monitoramento e manutenção que você compraria à parte, de graça e no seu Mac.",
