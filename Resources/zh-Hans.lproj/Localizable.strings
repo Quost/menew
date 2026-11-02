@@ -136,3 +136,12 @@
 "Choose what Menew does while this Focus is on." = "选择此专注模式开启时 Menew 的行为。";
 "Pause Clipboard History" = "暂停剪贴板历史";
 "Only Meetings in the Notch" = "刘海中仅显示会议";
+
+/* PDF (Sources/Menew/ShortcutActions.swift) */
+"Get Text from PDF" = "从 PDF 获取文本";
+"Returns all the text in a PDF. Scanned pages without text are read on your Mac (Vision)." = "返回 PDF 中的全部文本。没有文本的扫描页面会在你的 Mac 上识别（Vision）。";
+"PDF" = "PDF";
+"Protect PDF with Password" = "用密码保护 PDF";
+"Returns a copy of the PDF that asks for a password to open." = "返回一个需要密码才能打开的 PDF 副本。";
+"Password" = "密码";
+"Protect ${file} with ${password}" = "用 ${password} 保护 ${file}";

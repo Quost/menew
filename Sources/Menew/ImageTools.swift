@@ -11,6 +11,8 @@ enum ImageTool: Hashable {
     case stripMetadata
     /// Só o assunto, com fundo transparente (PNG)
     case removeBackground
+    /// 90° no sentido horário
+    case rotate
 
     @MainActor var suffix: String {
         switch self {
@@ -18,6 +20,7 @@ enum ImageTool: Hashable {
         case .resize(let px): " (\(px) px)"
         case .stripMetadata: L(" (sem metadados)")
         case .removeBackground: L(" (sem fundo)")
+        case .rotate: L(" (girada)")
         }
     }
 
@@ -50,6 +53,7 @@ enum ImageTool: Hashable {
             image = cut
             type = .png
         }
+        if tool == .rotate, let turned = Self.rotated(image) { image = turned }
         if case .convert(let t) = tool { type = t }
         let writable = (CGImageDestinationCopyTypeIdentifiers() as? [String] ?? []).contains(type.identifier)
         if !writable { type = .jpeg }
@@ -78,6 +82,18 @@ enum ImageTool: Hashable {
         guard let dest = CGImageDestinationCreateWithURL(out as CFURL, type.identifier as CFString, 1, nil) else { return nil }
         CGImageDestinationAddImage(dest, image, meta as CFDictionary)
         return CGImageDestinationFinalize(dest) ? out : nil
+    }
+
+    /// A imagem girada 90° no sentido horário
+    static func rotated(_ image: CGImage) -> CGImage? {
+        let w = image.width, h = image.height
+        guard let ctx = CGContext(data: nil, width: h, height: w, bitsPerComponent: 8, bytesPerRow: 0,
+                                  space: image.colorSpace ?? CGColorSpaceCreateDeviceRGB(),
+                                  bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue) else { return nil }
+        ctx.translateBy(x: 0, y: CGFloat(w))
+        ctx.rotate(by: -.pi / 2)
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: w, height: h))
+        return ctx.makeImage()
     }
 
     /// "foto.jpg" já existe → "foto 2.jpg"
@@ -123,6 +139,27 @@ extension ShelfStore {
     }
 }
 
+extension ShelfStore {
+    /// O texto de todas as imagens da estante, lido no Mac, vai para o clipboard
+    func copyImageText() {
+        let urls = imageURLs
+        guard !urls.isEmpty else { return }
+        HUD.show(icon: "text.viewfinder", color: .secondary, text: L("Lendo o texto…"), duration: nil)
+        Task {
+            var parts: [String] = []
+            for u in urls { parts.append(await TextRecognizer.recognize(url: u)) }
+            let text = parts.filter { !$0.isEmpty }.joined(separator: "\n\n")
+            guard !text.isEmpty else {
+                HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("Nenhum texto encontrado"), duration: 2.5)
+                return
+            }
+            NSPasteboard.general.clearContents()
+            NSPasteboard.general.setString(text, forType: .string)
+            HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Texto copiado"))
+        }
+    }
+}
+
 /// Menu "Imagens" no topo da estante quando há fotos nela
 struct ShelfImageMenu: View {
     @ObservedObject var store: ShelfStore
@@ -142,6 +179,9 @@ struct ShelfImageMenu: View {
             Divider()
             Button(L("Remover localização e metadados")) { store.process(.stripMetadata) }
             Button(L("Remover fundo")) { store.process(.removeBackground) }
+            Button(L("Girar 90°")) { store.process(ImageTool.rotate) }
+            Divider()
+            Button(L("Copiar o texto das imagens")) { store.copyImageText() }
             Button(L("Juntar em um PDF")) { store.process(PDFTool.fromImages) }
         } label: {
             Image(systemName: "photo.badge.arrow.down")

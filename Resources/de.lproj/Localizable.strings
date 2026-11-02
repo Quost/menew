@@ -136,3 +136,12 @@
 "Choose what Menew does while this Focus is on." = "Lege fest, was Menew tut, während dieser Fokus aktiv ist.";
 "Pause Clipboard History" = "Zwischenablage-Verlauf pausieren";
 "Only Meetings in the Notch" = "Nur Meetings in der Notch";
+
+/* PDF (Sources/Menew/ShortcutActions.swift) */
+"Get Text from PDF" = "Text aus PDF abrufen";
+"Returns all the text in a PDF. Scanned pages without text are read on your Mac (Vision)." = "Gibt den gesamten Text eines PDFs zurück. Gescannte Seiten ohne Text werden auf deinem Mac gelesen (Vision).";
+"PDF" = "PDF";
+"Protect PDF with Password" = "PDF mit Passwort schützen";
+"Returns a copy of the PDF that asks for a password to open." = "Gibt eine Kopie des PDFs zurück, die zum Öffnen ein Passwort verlangt.";
+"Password" = "Passwort";
+"Protect ${file} with ${password}" = "${file} mit ${password} schützen";

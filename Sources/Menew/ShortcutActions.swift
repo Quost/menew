@@ -2,6 +2,7 @@ import AppIntents
 import AppKit
 import ImageIO
 import NaturalLanguage
+import PDFKit
 import UniformTypeIdentifiers
 #if canImport(Translation)
 import Translation
@@ -383,5 +384,38 @@ struct RemoveBackgroundIntent: AppIntent {
         guard let out else { throw MenewIntentError.unreadable }
         let base = (file.filename as NSString).deletingPathExtension
         return .result(value: IntentFile(data: out, filename: "\(base.isEmpty ? "Image" : base).png", type: .png))
+    }
+}
+
+// MARK: PDF
+
+struct ExtractPDFTextIntent: AppIntent {
+    static let title: LocalizedStringResource = "Get Text from PDF"
+    static let description = IntentDescription("Returns all the text in a PDF. Scanned pages without text are read on your Mac (Vision).")
+
+    @Parameter(title: "PDF") var file: IntentFile
+
+    @MainActor func perform() async throws -> some IntentResult & ReturnsValue<String> {
+        let data = file.data
+        let text = await Task.detached { PDFDocument(data: data).map(PDFTool.text(of:)) }.value
+        guard let text else { throw MenewIntentError.unreadable }
+        return .result(value: text)
+    }
+}
+
+struct ProtectPDFIntent: AppIntent {
+    static let title: LocalizedStringResource = "Protect PDF with Password"
+    static let description = IntentDescription("Returns a copy of the PDF that asks for a password to open.")
+
+    @Parameter(title: "PDF") var file: IntentFile
+    @Parameter(title: "Password") var password: String
+
+    static var parameterSummary: some ParameterSummary { Summary("Protect \(\.$file) with \(\.$password)") }
+
+    @MainActor func perform() async throws -> some IntentResult & ReturnsValue<IntentFile> {
+        guard !password.isEmpty, let doc = PDFDocument(data: file.data),
+              let out = doc.dataRepresentation(options: [PDFDocumentWriteOption.userPasswordOption: password, PDFDocumentWriteOption.ownerPasswordOption: password])
+        else { throw MenewIntentError.unreadable }
+        return .result(value: IntentFile(data: out, filename: file.filename.isEmpty ? "Protected.pdf" : file.filename, type: .pdf))
     }
 }

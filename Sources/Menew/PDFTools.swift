@@ -3,11 +3,18 @@ import PDFKit
 import Quartz
 import SwiftUI
 import UniformTypeIdentifiers
+import Vision
 
 /// Juntar, comprimir, girar e converter PDFs da estante, no próprio Mac (PDFKit). Como nas imagens, os originais
 /// nunca são alterados: o resultado é um arquivo novo ao lado do primeiro (ou em Downloads) e entra no lugar deles na estante.
-enum PDFTool {
+enum PDFTool: Equatable {
     case merge, compress, rotate, toImages, fromImages
+    /// Um PDF por página, numa pasta
+    case split
+    /// O texto num .txt ao lado (lido com o Vision quando a página é só imagem, como num scan)
+    case extractText
+    /// Cópia que pede senha para abrir
+    case protect(String)
 
     static func isPDF(_ url: URL) -> Bool {
         UTType(filenameExtension: url.pathExtension)?.conforms(to: .pdf) == true
@@ -74,7 +81,60 @@ enum PDFTool {
             }
             let url = unique(dir.appendingPathComponent(name).appendingPathExtension("pdf"))
             return out.pageCount > 0 && out.write(to: url) ? [url] : []
+
+        case .split:
+            var out: [URL] = []
+            for u in urls {
+                guard let doc = PDFDocument(url: u), doc.pageCount > 1 else { continue }
+                let base = u.deletingPathExtension().lastPathComponent
+                let folder = unique(outputDir(for: u).appendingPathComponent(base + name))
+                try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+                for i in 0..<doc.pageCount {
+                    guard let page = doc.page(at: i)?.copy() as? PDFPage else { continue }
+                    let one = PDFDocument()
+                    one.insert(page, at: 0)
+                    let file = folder.appendingPathComponent(String(format: "%@ %03d.pdf", base, i + 1))
+                    if one.write(to: file) { out.append(file) }
+                }
+            }
+            return out
+
+        case .extractText:
+            return urls.compactMap { u in
+                guard let doc = PDFDocument(url: u) else { return nil }
+                let text = Self.text(of: doc)
+                guard !text.isEmpty else { return nil }
+                let url = unique(outputDir(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent).appendingPathExtension("txt"))
+                return (try? text.write(to: url, atomically: true, encoding: .utf8)) != nil ? url : nil
+            }
+
+        case .protect(let password):
+            return urls.compactMap { u in
+                guard let doc = PDFDocument(url: u) else { return nil }
+                let url = unique(outputDir(for: u).appendingPathComponent(u.deletingPathExtension().lastPathComponent + name)
+                    .appendingPathExtension("pdf"))
+                return doc.write(to: url, withOptions: [.userPasswordOption: password, .ownerPasswordOption: password]) ? url : nil
+            }
         }
+    }
+
+    /// O texto do PDF; página sem texto (escaneada) é lida com o Vision
+    static func text(of doc: PDFDocument) -> String {
+        var pages: [String] = []
+        for i in 0..<doc.pageCount {
+            guard let page = doc.page(at: i) else { continue }
+            var t = (page.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines)
+            if t.count < 20, let png = render(page), let img = NSImage(data: png)?.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+                let request = VNRecognizeTextRequest()
+                request.recognitionLevel = .accurate
+                request.automaticallyDetectsLanguage = true
+                try? VNImageRequestHandler(cgImage: img).perform([request])
+                let ocr = (request.results ?? []).compactMap { $0.topCandidates(1).first?.string }.joined(separator: "\n")
+                if ocr.count > t.count { t = ocr }
+            }
+            if !t.isEmpty { pages.append(t) }
+        }
+        return pages.joined(separator: "\n\n")
     }
 
     private static func size(_ url: URL) -> Int {
@@ -82,7 +142,7 @@ enum PDFTool {
     }
 
     /// Página em PNG a 2× (boa para ler e mandar em chat)
-    private static func render(_ page: PDFPage) -> Data? {
+    static func render(_ page: PDFPage) -> Data? {
         let box = page.bounds(for: .mediaBox)
         let rotated = page.rotation % 180 != 0
         let size = NSSize(width: (rotated ? box.height : box.width) * 2, height: (rotated ? box.width : box.height) * 2)
@@ -127,6 +187,9 @@ extension ShelfStore {
         case .rotate: L(" (girado)")
         case .toImages: L(" (páginas)")
         case .fromImages: L("Imagens")
+        case .split: L(" (páginas separadas)")
+        case .extractText: ""
+        case .protect: L(" (protegido)")
         }
         let before = urls.reduce(Int64(0)) { $0 + Self.size($1) }
         HUD.show(icon: "doc.richtext", color: .secondary, text: L("Processando PDFs…"), duration: nil)
@@ -136,7 +199,8 @@ extension ShelfStore {
                 HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("Não deu para processar os PDFs"), duration: 2.5)
                 return
             }
-            replace(urls, with: results)
+            // O texto entra ao lado do PDF; os outros trocam o original pelo resultado
+            if tool == .extractText { add(results.map { ShelfItem(kind: .file($0)) }) } else { replace(urls, with: results) }
             switch tool {
             case .compress:
                 let after = results.reduce(Int64(0)) { $0 + Self.size($1) }
@@ -144,6 +208,12 @@ extension ShelfStore {
                          text: after < before ? L("%@ → %@", Fmt.bytes(before), Fmt.bytes(after)) : L("Já estava compacto"), duration: 2.5)
             case .toImages:
                 HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("%d páginas em imagem", results.count))
+            case .split:
+                HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("%d páginas separadas", results.count))
+            case .extractText:
+                HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Texto extraído"))
+            case .protect:
+                HUD.show(icon: "lock.fill", color: .green, text: L("PDF protegido com senha"))
             default:
                 HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("PDF pronto"))
             }
@@ -164,8 +234,12 @@ struct ShelfPDFMenu: View {
         Menu {
             if count > 1 { Button(L("Juntar os %d PDFs", count)) { store.process(.merge) } }
             Button(L("Comprimir")) { store.process(.compress) }
-            Button(L("Girar 90°")) { store.process(.rotate) }
+            Button(L("Girar 90°")) { store.process(PDFTool.rotate) }
             Button(L("Páginas em imagens")) { store.process(.toImages) }
+            Button(L("Separar as páginas")) { store.process(.split) }
+            Divider()
+            Button(L("Extrair o texto")) { store.process(.extractText) }
+            Button(L("Proteger com senha…")) { if let pw = PDFTool.askPassword() { store.process(.protect(pw)) } }
         } label: {
             Image(systemName: "doc.richtext")
                 .font(.system(size: 12, weight: .semibold))
@@ -175,5 +249,32 @@ struct ShelfPDFMenu: View {
         }
         .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
         .help(L("Juntar, comprimir, girar ou converter os PDFs da estante. Os originais ficam intactos."))
+    }
+}
+
+extension PDFTool {
+    /// Pede a senha duas vezes; nil se cancelou ou não bateu
+    @MainActor static func askPassword() -> String? {
+        let alert = NSAlert()
+        alert.messageText = L("Senha para abrir o PDF")
+        alert.informativeText = L("O original fica como está. Guarde a senha: sem ela, a cópia não abre.")
+        let pw = NSSecureTextField(frame: NSRect(x: 0, y: 30, width: 240, height: 24))
+        pw.placeholderString = L("Senha")
+        let again = NSSecureTextField(frame: NSRect(x: 0, y: 0, width: 240, height: 24))
+        again.placeholderString = L("Repita a senha")
+        let box = NSView(frame: NSRect(x: 0, y: 0, width: 240, height: 54))
+        box.addSubview(pw)
+        box.addSubview(again)
+        alert.accessoryView = box
+        alert.addButton(withTitle: L("Proteger"))
+        alert.addButton(withTitle: L("Cancelar"))
+        alert.window.initialFirstResponder = pw
+        NSApp.activate(ignoringOtherApps: true)
+        guard alert.runModal() == .alertFirstButtonReturn else { return nil }
+        guard !pw.stringValue.isEmpty, pw.stringValue == again.stringValue else {
+            HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("As senhas não batem"), duration: 2)
+            return nil
+        }
+        return pw.stringValue
     }
 }
