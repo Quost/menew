@@ -28,6 +28,53 @@ final class ScreenTime: ObservableObject {
         }
     }
 
+    /// O tipo de cada app (Desenvolvimento, Comunicação…). Cada tipo conta como foco, neutro ou distração;
+    /// tanto o tipo do app quanto quanto ele conta dá para mudar.
+    enum Kind: String, CaseIterable, Codable, Identifiable {
+        case development, office, design, ai, productivity, communication, browsing, learning, utilities, entertainment, social, other
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .development: L("Desenvolvimento")
+            case .office: L("Escritório")
+            case .design: L("Design")
+            case .ai: L("IA")
+            case .productivity: L("Organização")
+            case .communication: L("Comunicação")
+            case .browsing: L("Navegação")
+            case .learning: L("Estudo e leitura")
+            case .utilities: L("Utilitários")
+            case .entertainment: L("Entretenimento")
+            case .social: L("Redes sociais")
+            case .other: L("Outros")
+            }
+        }
+        var icon: String {
+            switch self {
+            case .development: "chevron.left.forwardslash.chevron.right"
+            case .office: "doc.text"
+            case .design: "paintbrush"
+            case .ai: "sparkles"
+            case .productivity: "checklist"
+            case .communication: "bubble.left.and.bubble.right"
+            case .browsing: "globe"
+            case .learning: "book"
+            case .utilities: "wrench.and.screwdriver"
+            case .entertainment: "play.tv"
+            case .social: "person.2"
+            case .other: "square.grid.2x2"
+            }
+        }
+        /// Quanto conta, se você não mudar
+        var defaultLevel: Category {
+            switch self {
+            case .development, .office, .design, .ai, .productivity, .learning: .focus
+            case .communication, .browsing, .utilities, .other: .neutral
+            case .entertainment, .social: .distraction
+            }
+        }
+    }
+
     /// Segundos por app em cada hora do dia ("2026-11-01" → hora → bundle → segundos)
     struct Day: Codable {
         var hours: [Int: [String: Double]] = [:]
@@ -120,19 +167,90 @@ final class ScreenTime: ObservableObject {
 
     // MARK: Categorias
 
-    private static let focusApps = ["com.apple.dt.Xcode", "com.microsoft.VSCode", "com.todesktop.230313mzl4w4u92", "com.jetbrains", "com.figma.Desktop",
-        "com.apple.iWork", "com.microsoft.Word", "com.microsoft.Excel", "com.microsoft.Powerpoint", "com.apple.Terminal", "com.googlecode.iterm2",
-        "com.apple.Notes", "md.obsidian", "notion.id", "com.linear", "com.apple.mail", "com.microsoft.Outlook", "com.anthropic.claudefordesktop",
-        "dev.warp", "com.sublimetext", "com.apple.Keynote", "com.apple.Pages", "com.apple.Numbers", "com.microsoft.teams", "us.zoom.xos"]
-    private static let distractionApps = ["com.spotify.client", "com.apple.TV", "com.apple.Music", "com.netflix", "tv.twitch", "com.valvesoftware.steam",
-        "com.hnc.Discord", "net.whatsapp.WhatsApp", "ru.keepcoder.Telegram", "com.facebook", "com.apple.MobileSMS", "com.tinyspeck.slackmacgap.games",
-        "com.apple.news", "com.apple.Arcade"]
+    static let kindsKey = "screenTimeKinds"
+    static let levelsKey = "screenTimeKindLevels"
 
+    /// Apps conhecidos; o resto vem da categoria que o próprio app declara (LSApplicationCategoryType)
+    private static let known: [(Kind, [String])] = [
+        (.development, ["com.apple.dt.Xcode", "com.microsoft.VSCode", "com.todesktop.230313mzl4w4u92", "com.jetbrains", "com.apple.Terminal",
+                        "com.googlecode.iterm2", "dev.warp", "com.sublimetext", "com.github.GitHubClient", "com.docker", "com.postmanlabs", "dev.zed"]),
+        (.office, ["com.apple.iWork", "com.microsoft.Word", "com.microsoft.Excel", "com.microsoft.Powerpoint", "com.apple.Keynote",
+                   "com.apple.Pages", "com.apple.Numbers", "com.apple.Preview", "com.adobe.Reader", "com.adobe.Acrobat"]),
+        (.design, ["com.figma.Desktop", "com.bohemiancoding.sketch3", "com.adobe.Photoshop", "com.adobe.illustrator", "com.pixelmatorteam",
+                   "com.seriflabs", "com.canva"]),
+        (.ai, ["com.anthropic.claudefordesktop", "com.openai.chat", "com.google.GeminiMacOS", "ai.perplexity"]),
+        (.productivity, ["com.apple.Notes", "md.obsidian", "notion.id", "com.linear", "com.apple.reminders", "com.apple.iCal", "com.culturedcode.ThingsMac",
+                         "com.todoist", "com.flexibits", "com.apple.freeform"]),
+        (.communication, ["com.apple.mail", "com.microsoft.Outlook", "com.microsoft.teams", "us.zoom.xos", "com.tinyspeck.slackmacgap", "com.apple.FaceTime",
+                          "net.whatsapp.WhatsApp", "ru.keepcoder.Telegram", "com.apple.MobileSMS", "com.hnc.Discord", "com.readdle.smartemail"]),
+        (.browsing, ["com.apple.Safari", "com.google.Chrome", "com.microsoft.edgemac", "org.mozilla.firefox", "company.thebrowser.Browser", "com.brave.Browser",
+                     "com.operasoftware.Opera", "com.vivaldi.Vivaldi"]),
+        (.learning, ["com.apple.iBooksX", "com.apple.news", "com.reederapp", "com.amazon.Kindle"]),
+        (.entertainment, ["com.spotify.client", "com.apple.TV", "com.apple.Music", "com.netflix", "tv.twitch", "com.valvesoftware.steam", "com.apple.Arcade",
+                          "com.apple.podcasts", "com.colliderli.iina", "org.videolan.vlc"]),
+        (.social, ["com.facebook", "com.twitter", "com.instagram", "com.reddit", "com.linkedin", "maccatalyst.com.atebits.Tweetie2"]),
+        (.utilities, ["com.apple.finder", "com.apple.systempreferences", "com.apple.ActivityMonitor", "com.matheusquost.menew", "com.apple.Passwords",
+                      "com.1password", "com.raycast.macos", "com.apple.calculator"]),
+    ]
+
+    private var declared: [String: Kind] = [:]
+
+    /// O tipo do app: o que você escolheu, senão o conhecido, senão o que o app declara
+    func kind(_ id: String) -> Kind {
+        if let raw = (UserDefaults.standard.dictionary(forKey: Self.kindsKey) as? [String: String])?[id], let k = Kind(rawValue: raw) { return k }
+        if let k = Self.known.first(where: { $0.1.contains { id.hasPrefix($0) } })?.0 { return k }
+        if let k = declared[id] { return k }
+        let k = Self.kindFromApp(id)
+        declared[id] = k
+        return k
+    }
+
+    private static func kindFromApp(_ id: String) -> Kind {
+        guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id),
+              let type = Bundle(url: url)?.infoDictionary?["LSApplicationCategoryType"] as? String else { return .other }
+        let t = type.replacingOccurrences(of: "public.app-category.", with: "")
+        switch t {
+        case "developer-tools": return .development
+        case "productivity", "business", "finance": return .productivity
+        case "graphics-design", "photography", "video": return .design
+        case "social-networking": return .social
+        case "entertainment", "games", "music", "sports", "action-games", "adventure-games", "arcade-games", "board-games", "card-games",
+             "casino-games", "dice-games", "educational-games", "family-games", "kids-games", "music-games", "puzzle-games", "racing-games",
+             "role-playing-games", "simulation-games", "sports-games", "strategy-games", "trivia-games", "word-games": return .entertainment
+        case "education", "reference", "books", "news", "magazines-and-newspapers": return .learning
+        case "utilities": return .utilities
+        default: return .other
+        }
+    }
+
+    func setKind(_ k: Kind, for id: String) {
+        var map = UserDefaults.standard.dictionary(forKey: Self.kindsKey) as? [String: String] ?? [:]
+        map[id] = k.rawValue
+        // Mudou o tipo: passa a contar como o tipo conta
+        var levels = UserDefaults.standard.dictionary(forKey: Self.categoriesKey) as? [String: String] ?? [:]
+        levels[id] = nil
+        UserDefaults.standard.set(levels, forKey: Self.categoriesKey)
+        UserDefaults.standard.set(map, forKey: Self.kindsKey)
+        objectWillChange.send()
+    }
+
+    /// Quanto um tipo conta (foco, neutro, distração)
+    func level(_ k: Kind) -> Category {
+        if let raw = (UserDefaults.standard.dictionary(forKey: Self.levelsKey) as? [String: String])?[k.rawValue], let c = Category(rawValue: raw) { return c }
+        return k.defaultLevel
+    }
+
+    func setLevel(_ c: Category, for k: Kind) {
+        var map = UserDefaults.standard.dictionary(forKey: Self.levelsKey) as? [String: String] ?? [:]
+        map[k.rawValue] = c.rawValue
+        UserDefaults.standard.set(map, forKey: Self.levelsKey)
+        objectWillChange.send()
+    }
+
+    /// Foco, neutro ou distração: escolhido para o app, senão o do tipo dele
     func category(_ id: String) -> Category {
         if let raw = (UserDefaults.standard.dictionary(forKey: Self.categoriesKey) as? [String: String])?[id], let c = Category(rawValue: raw) { return c }
-        if Self.focusApps.contains(where: { id.hasPrefix($0) }) { return .focus }
-        if Self.distractionApps.contains(where: { id.hasPrefix($0) }) { return .distraction }
-        return .neutral
+        return level(kind(id))
     }
 
     func setCategory(_ c: Category, for id: String) {
@@ -140,6 +258,13 @@ final class ScreenTime: ObservableObject {
         map[id] = c.rawValue
         UserDefaults.standard.set(map, forKey: Self.categoriesKey)
         objectWillChange.send()
+    }
+
+    /// Tempo por tipo de app no período, do maior para o menor
+    func byKind(_ keys: [String]) -> [(kind: Kind, seconds: Double)] {
+        var out: [Kind: Double] = [:]
+        for t in totals(keys) { out[kind(t.id), default: 0] += t.seconds }
+        return out.map { ($0.key, $0.value) }.sorted { $0.seconds > $1.seconds }
     }
 
     // MARK: Leitura
@@ -200,6 +325,7 @@ final class ScreenTime: ObservableObject {
 /// Cartão "Tempo de tela" na aba Sistema
 struct ScreenTimeCard: View {
     @ObservedObject var st = ScreenTime.shared
+    @State private var showKinds = false
     @AppStorage("screenTimeRange") private var rangeRaw = 0
     private var range: ScreenTime.Range { ScreenTime.Range(rawValue: rangeRaw) ?? .day }
 
@@ -243,22 +369,56 @@ struct ScreenTimeCard: View {
                         }
                     }
                     if range == .day { dayTimeline(keys.last ?? "") } else { daysChart(keys) }
+                    // Por tipo de app
+                    let days = range == .day ? 1 : Double(max(1, keys.filter { st.days[$0] != nil }.count))
+                    let kinds = st.byKind(keys)
+                    if !kinds.isEmpty {
+                        HStack {
+                            Text(L("Por tipo de app")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                            Spacer()
+                            Button(L("Categorias…")) { showKinds.toggle() }.buttonStyle(.plain).font(.system(size: 11, weight: .semibold))
+                                .foregroundStyle(Color.accentColor)
+                                .popover(isPresented: $showKinds, arrowEdge: .bottom) { KindLevelsEditor() }
+                        }
+                        ForEach(kinds.prefix(5), id: \.kind) { k in
+                            HStack(spacing: 8) {
+                                Image(systemName: k.kind.icon).font(.system(size: 11)).foregroundStyle(st.level(k.kind).color).frame(width: 18)
+                                Text(k.kind.title).font(.system(size: 12)).lineLimit(1)
+                                Spacer(minLength: 4)
+                                GeometryReader { g in
+                                    Capsule().fill(st.level(k.kind).color.opacity(0.75)).frame(width: max(3, g.size.width * k.seconds / max(1, kinds[0].seconds)))
+                                }
+                                .frame(width: 70, height: 5)
+                                Text(Self.format(k.seconds / days)).font(.system(size: 11.5, weight: .medium)).monospacedDigit().foregroundStyle(.secondary)
+                                    .frame(width: 52, alignment: .trailing)
+                            }
+                        }
+                        Text(L("Apps")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.top, 2)
+                    }
                     ForEach(totals.prefix(5), id: \.id) { t in
                         HStack(spacing: 8) {
                             Image(nsImage: Self.icon(t.id)).resizable().frame(width: 18, height: 18)
                             Text(t.name).font(.system(size: 12)).lineLimit(1)
+                            Text(st.kind(t.id).title).font(.system(size: 10)).foregroundStyle(.tertiary).lineLimit(1)
                             Circle().fill(st.category(t.id).color).frame(width: 6, height: 6)
                             Spacer()
                             Text(Self.format(t.seconds / (range == .day ? 1 : Double(max(1, keys.filter { st.days[$0] != nil }.count)))))
                                 .font(.system(size: 11.5, weight: .medium)).monospacedDigit().foregroundStyle(.secondary)
                         }
                         .contextMenu {
+                            Menu(L("Tipo de app")) {
+                                ForEach(ScreenTime.Kind.allCases) { k in
+                                    Button { st.setKind(k, for: t.id) } label: {
+                                        if st.kind(t.id) == k { Label(k.title, systemImage: "checkmark") } else { Text(k.title) }
+                                    }
+                                }
+                            }
                             ForEach(ScreenTime.Category.allCases, id: \.self) { c in
                                 Button(L("Marcar como %@", c.title)) { st.setCategory(c, for: t.id) }
                             }
                         }
                     }
-                    Text(L("Clique com o botão direito num app para mudar a categoria.")).font(.system(size: 10)).foregroundStyle(.tertiary)
+                    Text(L("Clique com o botão direito num app para mudar o tipo ou quanto ele conta.")).font(.system(size: 10)).foregroundStyle(.tertiary)
                 } else {
                     Text(L("Os números aparecem conforme você usa o Mac.")).font(.system(size: 11.5)).foregroundStyle(.secondary)
                 }
@@ -339,5 +499,28 @@ struct ScreenTimeCard: View {
     static func icon(_ id: String) -> NSImage {
         if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) { return NSWorkspace.shared.icon(forFile: url.path) }
         return NSWorkspace.shared.icon(for: .applicationBundle)
+    }
+}
+
+/// Quanto cada tipo de app conta: foco, neutro ou distração
+struct KindLevelsEditor: View {
+    @ObservedObject var st = ScreenTime.shared
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(L("Quanto cada tipo conta")).font(.system(size: 13, weight: .semibold))
+            ForEach(ScreenTime.Kind.allCases) { k in
+                HStack(spacing: 8) {
+                    Image(systemName: k.icon).font(.system(size: 11)).frame(width: 18).foregroundStyle(st.level(k).color)
+                    Text(k.title).font(.system(size: 12)).frame(width: 130, alignment: .leading)
+                    Picker("", selection: Binding(get: { st.level(k) }, set: { st.setLevel($0, for: k) })) {
+                        ForEach(ScreenTime.Category.allCases, id: \.self) { Text($0.title).tag($0) }
+                    }
+                    .labelsHidden().pickerStyle(.segmented).frame(width: 230)
+                }
+            }
+            Text(L("Para um app só, clique com o botão direito nele.")).font(.system(size: 10.5)).foregroundStyle(.secondary)
+        }
+        .padding(14)
     }
 }

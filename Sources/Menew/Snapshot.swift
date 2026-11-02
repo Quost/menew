@@ -133,7 +133,7 @@ enum Snapshot {
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
                 render(ScreenTimeCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
-                       size: NSSize(width: 400, height: 470), dark: dark, to: dir.appendingPathComponent("screentime-\(suffix).png"))
+                       size: NSSize(width: 400, height: 640), dark: dark, to: dir.appendingPathComponent("screentime-\(suffix).png"))
                 render(SystemHistoryCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 370), dark: dark, to: dir.appendingPathComponent("history-\(suffix).png"))
                 render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .clipboard),
