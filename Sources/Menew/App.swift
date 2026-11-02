@@ -116,6 +116,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         AutomationStore.shared.load(dir: clipboard.dir)
         SystemHistory.shared.load(dir: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)
+        NotchCenter.shared.refresh()
         AutomationStore.shared.start(toolbox: toolbox)
         TextExpander.shared.start(clipboard: clipboard)
         MeetingStore.shared.refreshEnabled()

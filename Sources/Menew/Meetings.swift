@@ -225,9 +225,9 @@ final class MeetingStore: ObservableObject {
     }
 
     /// Reunião de mentira para as capturas de tela
-    func showDemo() {
+    func showDemo(startsIn: TimeInterval = 12 * 60 + 30) {
         demo = true
-        next = Meeting(id: "demo", title: L("Alinhamento semanal"), start: Date().addingTimeInterval(12 * 60 + 30),
+        next = Meeting(id: "demo", title: L("Alinhamento semanal"), start: Date().addingTimeInterval(startsIn),
                        end: Date().addingTimeInterval(42 * 60), link: URL(string: "https://zoom.us/j/1"), color: .orange)
         today = [
             Meeting(id: "d1", title: L("Daily"), start: Date().addingTimeInterval(-3 * 3600), end: Date().addingTimeInterval(-2.75 * 3600),

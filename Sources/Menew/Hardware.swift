@@ -51,6 +51,16 @@ enum AudioControl {
         return (getVolume(dev, input: input) ?? 1) == 0
     }
 
+    /// Algum app está usando o microfone agora (uma chamada, um gravador)
+    static func micInUse() -> Bool {
+        guard let dev = device(input: true) else { return false }
+        var running = UInt32(0)
+        var size = UInt32(MemoryLayout<UInt32>.size)
+        var addr = AudioObjectPropertyAddress(mSelector: kAudioDevicePropertyDeviceIsRunningSomewhere,
+                                              mScope: kAudioObjectPropertyScopeGlobal, mElement: kAudioObjectPropertyElementMain)
+        return AudioObjectGetPropertyData(dev, &addr, 0, nil, &size, &running) == noErr && running != 0
+    }
+
     @discardableResult
     static func setMuted(_ on: Bool, input: Bool) -> Bool {
         guard let dev = device(input: input) else { return false }
@@ -153,10 +163,13 @@ enum HUD {
     static func hide() {
         hideWork?.cancel()
         panel?.orderOut(nil)
+        NotchCenter.shared.hideFlash()
     }
 
     /// duration nil: fica na tela até o próximo show (para trabalho em andamento)
     static func show(icon: String, color: Color, text: String, duration: TimeInterval? = 1.2) {
+        // Com o notch ligado, o aviso aparece nele
+        if NotchCenter.shared.show(icon: icon, color: color, text: text, duration: duration) { return }
         let view = HStack(spacing: 10) {
             Image(systemName: icon)
                 .font(.system(size: 22, weight: .semibold))

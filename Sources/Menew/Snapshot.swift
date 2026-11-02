@@ -132,6 +132,17 @@ enum Snapshot {
                        to: dir.appendingPathComponent("uninstaller-\(suffix).png"))
                 render(StartupItemsView(demo: StartupItems.demo), size: NSSize(width: 520, height: 460), dark: dark,
                        to: dir.appendingPathComponent("startup-\(suffix).png"))
+                // Notch: três momentos, sobre um fundo de barra de menus
+                for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
+                                    ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),
+                                    ("copied", .flash(icon: "doc.on.doc.fill", color: .green, text: L("Copiado")))] {
+                    let c = NotchCenter()
+                    c.showDemo(act)
+                    render(NotchView(center: c, notch: CGSize(width: 200, height: 37)).frame(width: 440, height: 75),
+                           size: NSSize(width: 440, height: 75), dark: dark,
+                           background: NSColor(calibratedRed: 0.42, green: 0.45, blue: 0.62, alpha: 1),
+                           to: dir.appendingPathComponent("notch-\(name)-\(suffix).png"))
+                }
                 let ask = ScreenAsk()
                 ask.image = NSImage(size: NSSize(width: 320, height: 60), flipped: false) { r in
                     NSColor.white.setFill(); r.fill()

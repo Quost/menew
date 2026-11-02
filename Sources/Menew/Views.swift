@@ -882,6 +882,10 @@ struct SettingsView: View {
                                   isOn: $windowShortcuts)
                             .onChange(of: windowShortcuts) { _, _ in WindowManager.shared.registerHotKeys() }
                         RowDivider()
+                        ToggleRow(title: NotchCenter.hasNotch ? L("Avisos ao vivo no notch") : L("Avisos ao vivo no topo da tela"),
+                                  detail: L("Reunião chegando, gravação, foco, timers, mic mudo e os avisos do Menew aparecem ao lado da câmera."),
+                                  isOn: Binding(get: { NotchCenter.shared.isOn }, set: { UserDefaults.standard.set($0, forKey: NotchCenter.key); NotchCenter.shared.refresh() }))
+                        RowDivider()
                         ToggleRow(title: L("Encaixar janelas arrastando"),
                                   detail: L("Arraste uma janela até a borda (metade), o topo (tela cheia) ou um canto (um quarto). Desliga sozinho se o Rectangle ou o Magnet estiverem abertos."),
                                   isOn: $dragSnap)
