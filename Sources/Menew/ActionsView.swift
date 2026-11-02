@@ -159,7 +159,7 @@ struct ActionsView: View {
         }
         switch g {
         case .capture:
-            tiles { captureTile; recordTile; scrollTile; ocrTile; qrTile; colorTile }
+            tiles { captureTile; memoryCaptureTile; recordTile; scrollTile; ocrTile; qrTile; colorTile }
         case .windows:
             if !displays.screens.isEmpty {
                     section(L("Brilho"), collapsible: false) {
@@ -186,6 +186,7 @@ struct ActionsView: View {
             controls { hiddenRow }
         case .ai:
             tiles {
+                memoryTile
                 if AIFeature.screenAsk.isOn { screenAskTile }
                 if AIFeature.ask.isOn { askTile }
                 if AIFeature.agent.isOn { agentTile }
@@ -320,6 +321,20 @@ struct ActionsView: View {
         ActionTile(icon: "camera.viewfinder", color: .pink, title: L("Capturar tela"), subtitle: L("anotar e fixar"),
                    help: L("Selecione uma área (espaço captura uma janela). Depois anote com setas, texto e borrão, copie, salve ou fixe na tela.")) {
             ScreenCapture.area()
+        }
+    }
+    private var memoryTile: some View {
+        ActionTile(icon: "brain.head.profile", color: .pink, title: L("Memória"), subtitle: L("guarde e ache"),
+                   help: L("Guarde o que está na tela com %@ e ache depois pela busca. Clique para abrir a memória.",
+                           Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display)) {
+            MemoryWindow.shared.show()
+        }
+    }
+    private var memoryCaptureTile: some View {
+        ActionTile(icon: "plus.viewfinder", color: .pink, title: L("Guardar na memória"),
+                   subtitle: Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display,
+                   help: L("Captura uma área ou janela com o texto e a origem")) {
+            MemoryStore.shared.capture()
         }
     }
     private var recordTile: some View {

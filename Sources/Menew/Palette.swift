@@ -512,6 +512,12 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("memory.open", L("Memória"), "brain.head.profile", .pink,
+                   "memoria memória memory lembrar recall guardado saved capturas captures conhecimento knowledge gedächtnis memoria 记忆",
+                   subtitle: L("O que você guardou da tela, com busca")) { MemoryWindow.shared.show() }
+            action("memory.capture", L("Guardar na memória"), "plus.viewfinder", .pink,
+                   "guardar memoria memória capturar save memory capture lembrar keep merken guardar 保存 记忆",
+                   subtitle: Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display) { MemoryStore.shared.capture() }
             action("captions", L("Legendas ao vivo"), "captions.bubble.fill", .indigo,
                    "legenda legendas captions subtitles live ao vivo traduzir translate tradução chamada call video vídeo untertitel subtítulos 字幕 翻译",
                    subtitle: L("Do som do Mac ou do microfone, com tradução")) { LiveCaptions.shared.toggle() }
