@@ -134,12 +134,14 @@ final class NotchHoverModel: ObservableObject {
     @Published var timers: [TimerStore.Countdown] = []
     @Published var focusEnd: Date?
     @Published var micMuted = false
+    @Published var recordingSince: Date?
 
     func refresh() {
         meeting = MeetingStore.shared.next
         timers = Array(TimerStore.shared.active.prefix(2))
         focusEnd = FocusTimer.shared.isRunning ? FocusTimer.shared.endsAt : nil
         micMuted = AudioControl.isMuted(input: true)
+        recordingSince = RecordingStore.shared.isRecording ? RecordingStore.shared.startedAt : nil
     }
 }
 
@@ -205,7 +207,20 @@ struct NotchHoverView: View {
                     Label(L("Sem reuniões chegando"), systemImage: "calendar").font(.system(size: 12)).foregroundStyle(.white.opacity(0.65))
                 }
                 Spacer(minLength: 4)
-                if let end = model.focusEnd {
+                if let since = model.recordingSince {
+                    Button { NotchHover.run { RecordingStore.shared.stop() } } label: {
+                        HStack(spacing: 5) {
+                            Circle().fill(.red).frame(width: 7, height: 7)
+                            Text(since, style: .timer).monospacedDigit()
+                            Image(systemName: "stop.fill").font(.system(size: 9))
+                        }
+                        .font(.system(size: 12, weight: .semibold))
+                        .padding(.horizontal, 9).padding(.vertical, 4)
+                        .background(Capsule().fill(.white.opacity(0.12)))
+                    }
+                    .buttonStyle(.plain)
+                    .help(L("Parar a gravação"))
+                } else if let end = model.focusEnd {
                     Label { Text(end, style: .timer).monospacedDigit() } icon: { Image(systemName: "scope").foregroundStyle(.orange) }
                         .font(.system(size: 12, weight: .semibold))
                 } else if let t = model.timers.first {

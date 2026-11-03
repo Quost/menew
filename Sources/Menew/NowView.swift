@@ -8,6 +8,8 @@ struct NowView: View {
     @ObservedObject var tb: Toolbox
     @ObservedObject var timers = TimerStore.shared
     @ObservedObject var focus = FocusTimer.shared
+    @ObservedObject var recordings = RecordingStore.shared
+    @AppStorage(RecordingStore.sourceKey) private var recSource = RecordingStore.Source.both.rawValue
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
@@ -23,6 +25,7 @@ struct NowView: View {
                 metrics
                 status
                 if focus.isRunning || !timers.active.isEmpty { countdowns }
+                record
                 WorldClockCard()
                 if actionsOn { FavoritesSection(tb: tb, clipboard: clipboard, openCleaner: openCleaner) }
                 if !clipboardOn || !actionsOn || !notesOn {
@@ -129,6 +132,43 @@ struct NowView: View {
         }
         .font(.system(size: 12, weight: .semibold))
         .padding(.horizontal, 4)
+    }
+
+    /// Gravar rápido: escolha o que ouvir e aperte; depois vira transcrição e ata em Gravações
+    private var record: some View {
+        HStack(spacing: 8) {
+            Button { recordings.toggle() } label: {
+                HStack(spacing: 6) {
+                    Image(systemName: recordings.isRecording ? "stop.fill" : "record.circle")
+                    if recordings.isRecording {
+                        TimelineView(.periodic(from: .now, by: 1)) { ctx in
+                            Text(RecordingStore.clock(ctx.date.timeIntervalSince(recordings.startedAt))).monospacedDigit()
+                        }
+                    } else {
+                        Text(L("Gravar"))
+                    }
+                }
+                .font(.system(size: 12, weight: .semibold)).foregroundStyle(.white).lineLimit(1).fixedSize()
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(Capsule().fill(Color.red.gradient))
+            }
+            .buttonStyle(.plain)
+            .help(Shortcut.load(RecordingStore.shortcutKey, default: .recordingDefault).display)
+            if recordings.isRecording {
+                Text(RecordingStore.Source(rawValue: recSource)?.short ?? "").font(.system(size: 11.5)).foregroundStyle(.secondary)
+                Capsule().fill(Color.red.opacity(0.3)).frame(width: 50 * CGFloat(min(1, recordings.level * 3)) + 4, height: 5)
+                    .animation(.linear(duration: 0.1), value: recordings.level)
+            } else {
+                GlassSegmented(selection: $recSource, options: RecordingStore.Source.allCases.map {
+                    .init(value: $0.rawValue, icon: $0.icon, help: $0.title)
+                }, expand: false)
+            }
+            Spacer(minLength: 0)
+            Button(L("Gravações")) { MenewWindow.shared.show(.recordings) }
+                .buttonStyle(.plain).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Color.accentColor)
+        }
+        .padding(.horizontal, 10).padding(.vertical, 8)
+        .card(padding: 0)
     }
 
     private var countdowns: some View {

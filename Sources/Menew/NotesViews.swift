@@ -6,6 +6,8 @@ struct NotesView: View {
     @ObservedObject var store: NotesStore
     var nav: PopoverState?
     @State private var openID: UUID?
+    @State private var showingRecordings = false
+    @ObservedObject private var recordings = RecordingStore.shared
     @State private var query = ""
     @State private var tag: String?
 
@@ -20,6 +22,8 @@ struct NotesView: View {
             // Uma nota protegida que foi trancada (menu fechado, Mac travado) volta para a lista
             if let id = openID, store.note(id) != nil, !store.isLocked(id) {
                 NoteEditor(store: store, id: id, onTag: { t in tag = t; openID = nil }) { store.lock(id); openID = nil }
+            } else if showingRecordings {
+                RecordingsInNotes { showingRecordings = false }
             } else {
                 list
             }
@@ -79,7 +83,7 @@ struct NotesView: View {
                 .scrollIndicators(.never)
             }
 
-            if notes.isEmpty {
+            if notes.isEmpty && (recordings.items.isEmpty || !query.isEmpty || tag != nil) {
                 VStack(spacing: 10) {
                     Image(systemName: "note.text").font(.system(size: 30, weight: .light)).foregroundStyle(.tertiary)
                     Text(store.notes.isEmpty ? L("Nenhuma nota ainda") : L("Nada encontrado"))
@@ -93,6 +97,8 @@ struct NotesView: View {
             } else {
                 ScrollView {
                     VStack(spacing: 6) {
+                        // As gravações ficam como uma pasta, sem encher a lista de notas
+                        if !recordings.items.isEmpty && query.isEmpty && tag == nil { recordingsFolder }
                         ForEach(notes) { n in row(n) }
                     }
                 }
@@ -100,6 +106,26 @@ struct NotesView: View {
                 .scrollIndicators(.never)
             }
         }
+    }
+
+    private var recordingsFolder: some View {
+        Button { showingRecordings = true } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "waveform").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                    .frame(width: 30, height: 30).background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.red.gradient))
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(L("Gravações")).font(.system(size: 12.5, weight: .semibold))
+                    Text(recordings.items.count == 1 ? L("1 gravação, com ata") : L("%d gravações, com ata", recordings.items.count))
+                        .font(.system(size: 11.5)).foregroundStyle(.secondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right").font(.system(size: 10, weight: .bold)).foregroundStyle(.tertiary)
+            }
+            .padding(10)
+            .card(padding: 0)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     private func row(_ n: Note) -> some View {

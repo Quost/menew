@@ -6,6 +6,7 @@ struct RecordingsView: View {
     @ObservedObject var store = RecordingStore.shared
     @AppStorage(RecordingStore.sourceKey) private var sourceRaw = RecordingStore.Source.both.rawValue
     @AppStorage(RecordingStore.autoRemindersKey) private var autoReminders = false
+    @AppStorage(RecordingStore.notesKey) private var toNotes = false
 
     private var current: Recording? { store.items.first { $0.id == store.selectedID } ?? store.filtered.first }
 
@@ -79,13 +80,13 @@ struct RecordingsView: View {
                     .animation(.linear(duration: 0.1), value: store.level)
             } else {
                 Picker("", selection: $sourceRaw) {
-                    Text(L("Microfone")).tag(RecordingStore.Source.mic.rawValue)
-                    Text(L("Microfone e som do Mac")).tag(RecordingStore.Source.both.rawValue)
+                    ForEach(RecordingStore.Source.allCases) { Label($0.title, systemImage: $0.icon).tag($0.rawValue) }
                 }
                 .labelsHidden().fixedSize().controlSize(.small)
             }
             Spacer(minLength: 0)
             Menu {
+                Toggle(L("Também salvar cada ata como nota"), isOn: $toNotes)
                 Toggle(L("Criar lembretes das minhas tarefas sozinho"), isOn: $autoReminders)
                 Button(L("Sobre você (para a IA)…")) { SettingsWindow.shared.show(.ai) }
                 Button(L("Mostrar a pasta no Finder")) { if let d = store.dir { NSWorkspace.shared.open(d) } }
@@ -241,13 +242,16 @@ struct RecordingDetail: View {
                     }
                 }
                 HStack(spacing: 8) {
-                    PillButton(title: L("Salvar como nota"), icon: "note.text") { store.saveAsNote(rec.id) }
+                    PillButton(title: rec.noteID == nil ? L("Salvar como nota") : L("Abrir a nota"), icon: "note.text") { store.saveAsNote(rec.id) }
                     PillButton(title: L("Copiar a ata"), icon: "doc.on.doc") {
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(rec.markdown, forType: .string)
                         HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Copiado"))
                     }
                     Spacer()
+                    if rec.status == .ready {
+                        IconButton(icon: "arrow.clockwise", help: L("Refazer a ata")) { Task { await store.process(rec.id) } }
+                    }
                     IconButton(icon: "trash", help: L("Apagar")) { player.stop(); store.delete(rec.id) }
                 }
             }
@@ -319,5 +323,99 @@ struct AboutMeSection: View {
             TextField(hint, text: value).textFieldStyle(.roundedBorder).font(.system(size: 12.5))
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
+    }
+}
+
+/// Notas › Gravações: a lista como uma pasta, com busca, etiquetas e ordem por data; tocar abre a ata ali mesmo
+struct RecordingsInNotes: View {
+    @ObservedObject var store = RecordingStore.shared
+    var onBack: () -> Void
+    @State private var open: UUID?
+    @State private var oldestFirst = false
+    @State private var query = ""
+    @State private var tag: String?
+
+    private var list: [Recording] {
+        let words = PaletteSearch.fold(query).split(separator: " ").map(String.init)
+        let l = store.items.filter { r in (tag == nil || r.tags.contains(tag!)) && (words.isEmpty || words.allSatisfy { r.haystack.contains($0) }) }
+        return l.sorted { oldestFirst ? $0.date < $1.date : $0.date > $1.date }
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                IconButton(icon: "chevron.left", help: L("Voltar")) { if open != nil { open = nil } else { onBack() } }
+                Image(systemName: "waveform").foregroundStyle(.red)
+                Text(open.flatMap { id in store.items.first { $0.id == id }?.title } ?? L("Gravações"))
+                    .font(.system(size: 14, weight: .semibold)).lineLimit(1)
+                Spacer()
+                if open == nil {
+                    IconButton(icon: "macwindow", help: L("Abrir na janela Menew")) { MenewWindow.shared.show(.recordings) }
+                }
+            }
+            if let id = open, let r = store.items.first(where: { $0.id == id }) {
+                RecordingDetail(rec: r).id(r.id)
+            } else {
+                HStack(spacing: 6) {
+                    Image(systemName: "magnifyingglass").foregroundStyle(.secondary)
+                    TextField(L("Buscar nas gravações"), text: $query).textFieldStyle(.plain)
+                    Button { oldestFirst.toggle() } label: {
+                        Label(oldestFirst ? L("Mais antigas") : L("Mais novas"), systemImage: "arrow.up.arrow.down").font(.system(size: 11))
+                    }
+                    .buttonStyle(.plain).foregroundStyle(.secondary)
+                }
+                .font(.system(size: 12.5))
+                .padding(.horizontal, 9).padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+                if !store.allTags.isEmpty {
+                    ScrollView(.horizontal) {
+                        HStack(spacing: 5) {
+                            chip(nil, L("Todas"))
+                            ForEach(store.allTags.prefix(14), id: \.self) { chip($0, $0) }
+                        }
+                    }
+                    .scrollIndicators(.never)
+                }
+                ScrollView {
+                    VStack(spacing: 6) {
+                        ForEach(list) { r in
+                            Button { open = r.id } label: {
+                                HStack(alignment: .top, spacing: 10) {
+                                    Image(systemName: "waveform").font(.system(size: 13, weight: .semibold)).foregroundStyle(.white)
+                                        .frame(width: 30, height: 30).background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.red.gradient))
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(r.title).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
+                                        Text(r.summary.isEmpty ? (r.status == .ready ? L("Sem ata") : L("transcrevendo…")) : r.summary)
+                                            .font(.system(size: 11.5)).foregroundStyle(.secondary).lineLimit(2)
+                                        HStack(spacing: 6) {
+                                            Text(r.date.formatted(date: .abbreviated, time: .shortened))
+                                            if r.duration > 0 { Text(RecordingStore.clock(r.duration)) }
+                                            ForEach(r.tags.prefix(2), id: \.self) { Text("#" + $0) }
+                                        }
+                                        .font(.system(size: 10.5)).foregroundStyle(.tertiary).lineLimit(1)
+                                    }
+                                    Spacer(minLength: 0)
+                                }
+                                .padding(10)
+                                .card(padding: 0)
+                                .contentShape(Rectangle())
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        if list.isEmpty { Text(L("Nada encontrado")).font(.system(size: 12)).foregroundStyle(.secondary).padding(.top, 8) }
+                    }
+                }
+                .scrollIndicators(.never)
+            }
+        }
+    }
+
+    private func chip(_ value: String?, _ title: String) -> some View {
+        Button { tag = value } label: {
+            Text(title).font(.system(size: 11, weight: .medium))
+                .padding(.horizontal, 8).padding(.vertical, 3)
+                .background(Capsule().fill(tag == value ? Color.accentColor.opacity(0.2) : Color.primary.opacity(0.06)))
+        }
+        .buttonStyle(.plain)
     }
 }

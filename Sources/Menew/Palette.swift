@@ -513,9 +513,20 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
-            action("recording.toggle", RecordingStore.shared.isRecording ? L("Parar a gravação") : L("Gravar áudio"), "record.circle", .red,
-                   "gravar gravacao gravação record audio áudio voz voice reunião meeting ata minutes aufnehmen grabar 录音",
-                   subtitle: L("Transcreve e escreve a ata sozinho")) { RecordingStore.shared.toggle() }
+            if RecordingStore.shared.isRecording {
+                action("recording.stop", L("Parar a gravação"), "stop.circle", .red,
+                       "parar gravacao gravação stop recording audio áudio aufnahme stoppen detener 停止 录音") { RecordingStore.shared.stop() }
+            } else {
+                action("recording.both", L("Gravar som do Mac e microfone"), "person.2.wave.2", .red,
+                       "gravar gravacao gravação record audio áudio chamada call reunião meeting ata minutes som mic aufnehmen grabar 录音 通话",
+                       subtitle: L("Para chamadas: separa você dos outros")) { RecordingStore.shared.start(source: .both) }
+                action("recording.system", L("Gravar só o som do Mac"), "speaker.wave.2", .red,
+                       "gravar gravacao gravação som do mac record system audio sound video vídeo aula webinar aufnehmen grabar sonido 录音 系统声音",
+                       subtitle: L("Um vídeo, uma aula, uma chamada em que você só ouve")) { RecordingStore.shared.start(source: .system) }
+                action("recording.mic", L("Gravar só o microfone"), "mic", .red,
+                       "gravar gravacao gravação microfone voz voice nota de voz memo record mic aufnehmen grabar micrófono 录音 麦克风",
+                       subtitle: L("Ideias e anotações em voz")) { RecordingStore.shared.start(source: .mic) }
+            }
             action("recording.open", L("Gravações"), "waveform", .red,
                    "gravacoes gravações recordings atas minutes reuniões meetings aufnahmen grabaciones 录音",
                    subtitle: L("Atas, tarefas e etiquetas")) { MenewWindow.shared.show(.recordings) }

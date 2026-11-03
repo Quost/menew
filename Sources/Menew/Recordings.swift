@@ -36,6 +36,8 @@ struct Recording: Codable, Identifiable, Equatable {
     var tasks: [Task] = []
     var tags: [String] = []
     var people: [String] = []
+    /// A nota com a ata (Notas › #gravação); opcional para gravações antigas
+    var noteID: UUID?
 
     var haystack: String {
         PaletteSearch.fold([title, summary, decisions.joined(separator: " "), tasks.map(\.text).joined(separator: " "),
@@ -46,7 +48,9 @@ struct Recording: Codable, Identifiable, Equatable {
     var markdown: String {
         var out = "# \(title)\n\n\(date.formatted(date: .abbreviated, time: .shortened))"
         if duration > 0 { out += " · \(RecordingStore.clock(duration))" }
-        if !tags.isEmpty { out += "  " + tags.map { "#" + $0.replacingOccurrences(of: " ", with: "-") }.joined(separator: " ") }
+        // #gravação junta todas as atas nas Notas
+        out += "  #" + L("gravação").replacingOccurrences(of: " ", with: "-")
+        if !tags.isEmpty { out += " " + tags.map { "#" + $0.replacingOccurrences(of: " ", with: "-") }.joined(separator: " ") }
         if !summary.isEmpty { out += "\n\n## \(L("Resumo"))\n\n\(summary)" }
         if !decisions.isEmpty { out += "\n\n## \(L("Decisões"))\n\n" + decisions.map { "- \($0)" }.joined(separator: "\n") }
         if !tasks.isEmpty {
@@ -60,13 +64,41 @@ struct Recording: Codable, Identifiable, Equatable {
 }
 
 @MainActor
-final class RecordingStore: ObservableObject {
+final class RecordingStore: NSObject, ObservableObject {
     static let shared = RecordingStore()
     static let shortcutKey = "shortcutRecording"
     static let autoRemindersKey = "recordingsAutoReminders"
     static let sourceKey = "recordingsSource"
+    static let notesKey = "recordingsToNotes"
+    /// Também salvar cada ata como nota (desligado: as gravações já aparecem como uma pasta nas Notas)
+    static var toNotes: Bool { UserDefaults.standard.bool(forKey: notesKey) }
 
-    enum Source: String, CaseIterable { case mic, both }
+    /// O que gravar: o som do Mac e o microfone (uma chamada), só o som do Mac (você só ouve) ou só o microfone
+    enum Source: String, CaseIterable, Identifiable {
+        case both, system, mic
+        var id: String { rawValue }
+        var title: String {
+            switch self {
+            case .both: L("Som do Mac e microfone")
+            case .system: L("Só o som do Mac")
+            case .mic: L("Só o microfone")
+            }
+        }
+        var short: String {
+            switch self {
+            case .both: L("Som + mic")
+            case .system: L("Som do Mac")
+            case .mic: L("Microfone")
+            }
+        }
+        var icon: String {
+            switch self {
+            case .both: "person.2.wave.2"
+            case .system: "speaker.wave.2"
+            case .mic: "mic"
+            }
+        }
+    }
 
     @Published private(set) var items: [Recording] = []
     @Published var selectedID: UUID?
@@ -74,7 +106,7 @@ final class RecordingStore: ObservableObject {
     @Published var tag: String?
     @Published private(set) var recordingID: UUID?
     @Published private(set) var startedAt = Date()
-    @Published private(set) var level: Float = 0
+    @Published var level: Float = 0
     private(set) var dir: URL?
     private var demo = false
 
@@ -83,6 +115,8 @@ final class RecordingStore: ObservableObject {
     private var systemWriter: AudioFileWriter?
     private var stream: SCStream?
     private let systemOutput = RecordingSystemOutput()
+    /// Só um símbolo de parar na barra de menus enquanto grava (nada no meio da tela, bom para compartilhar a tela)
+    private var stopItem: NSStatusItem?
 
     var isRecording: Bool { recordingID != nil }
     var source: Source { Source(rawValue: UserDefaults.standard.string(forKey: Self.sourceKey) ?? "") ?? .both }
@@ -133,58 +167,68 @@ final class RecordingStore: ObservableObject {
     func start(source: Source? = nil) {
         guard !isRecording, let dir else { return }
         let src = source ?? self.source
+        // A escolha vira o padrão do atalho
+        UserDefaults.standard.set(src.rawValue, forKey: Self.sourceKey)
         var rec = Recording(title: L("Gravação de %@", Date().formatted(date: .abbreviated, time: .shortened)),
                             locale: Transcriber.preferred.first?.code ?? "pt-BR")
         let micURL = dir.appendingPathComponent("\(rec.id.uuidString)-mic.m4a")
         let sysURL = dir.appendingPathComponent("\(rec.id.uuidString)-system.m4a")
-        do {
-            let e = AVAudioEngine()
-            let input = e.inputNode
-            let writer = try AudioFileWriter(url: micURL)
-            input.installTap(onBus: 0, bufferSize: 4096, format: input.outputFormat(forBus: 0)) { [weak writer] buffer, _ in
-                writer?.write(buffer)
-                let peak = Self.peak(buffer)
-                DispatchQueue.main.async { MainActor.assumeIsolated { RecordingStore.shared.level = peak } }
+        if src != .system {
+            do {
+                let e = AVAudioEngine()
+                let input = e.inputNode
+                let writer = try AudioFileWriter(url: micURL)
+                input.installTap(onBus: 0, bufferSize: 4096, format: input.outputFormat(forBus: 0)) { [weak writer] buffer, _ in
+                    writer?.write(buffer)
+                    let peak = Self.peak(buffer)
+                    DispatchQueue.main.async { MainActor.assumeIsolated { RecordingStore.shared.level = peak } }
+                }
+                try e.start()
+                engine = e
+                micWriter = writer
+                rec.micFile = micURL.lastPathComponent
+            } catch {
+                HUD.show(icon: "mic.slash.fill", color: .orange, text: L("Permita o microfone para o Menew em Ajustes do Sistema › Privacidade"), duration: 3)
+                return
             }
-            try e.start()
-            engine = e
-            micWriter = writer
-            rec.micFile = micURL.lastPathComponent
-        } catch {
-            HUD.show(icon: "mic.slash.fill", color: .orange, text: L("Permita o microfone para o Menew em Ajustes do Sistema › Privacidade"), duration: 3)
-            return
         }
+        if src != .mic { rec.systemFile = sysURL.lastPathComponent }
         recordingID = rec.id
         startedAt = Date()
+        showStopItem()
         items.insert(rec, at: 0)
         save()
         NotchCenter.shared.update()
-        HUD.show(icon: "record.circle", color: .red, text: L("Gravando"))
-        // O som do Mac (a outra ponta de uma chamada) num arquivo à parte
-        if src == .both, let writer = try? AudioFileWriter(url: sysURL) {
-            systemWriter = writer
-            systemOutput.writer = writer
-            Task {
-                do {
-                    let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
-                    guard let display = content.displays.first else { return }
-                    let config = SCStreamConfiguration()
-                    config.capturesAudio = true
-                    config.excludesCurrentProcessAudio = true
-                    config.sampleRate = 48_000
-                    config.channelCount = 1
-                    config.width = 2
-                    config.height = 2
-                    config.minimumFrameInterval = CMTime(value: 1, timescale: 1)
-                    let s = SCStream(filter: SCContentFilter(display: display, excludingApplications: [], exceptingWindows: []), configuration: config, delegate: nil)
-                    try s.addStreamOutput(systemOutput, type: .audio, sampleHandlerQueue: systemOutput.queue)
-                    try await s.startCapture()
-                    stream = s
-                    update(rec.id) { $0.systemFile = sysURL.lastPathComponent }
-                } catch {
-                    systemWriter = nil
-                    systemOutput.writer = nil
-                }
+        HUD.show(icon: "record.circle", color: .red, text: L("Gravando: %@", src.short))
+        // O som do Mac (a outra ponta de uma chamada, um vídeo) num arquivo à parte
+        guard src != .mic, let writer = try? AudioFileWriter(url: sysURL) else { return }
+        systemWriter = writer
+        systemOutput.writer = writer
+        systemOutput.meter = src == .system
+        Task {
+            do {
+                let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
+                guard let display = content.displays.first else { throw CocoaError(.featureUnsupported) }
+                let config = SCStreamConfiguration()
+                config.capturesAudio = true
+                config.excludesCurrentProcessAudio = true
+                config.sampleRate = 48_000
+                config.channelCount = 1
+                config.width = 2
+                config.height = 2
+                config.minimumFrameInterval = CMTime(value: 1, timescale: 1)
+                let s = SCStream(filter: SCContentFilter(display: display, excludingApplications: [], exceptingWindows: []), configuration: config, delegate: nil)
+                try s.addStreamOutput(systemOutput, type: .audio, sampleHandlerQueue: systemOutput.queue)
+                try await s.startCapture()
+                stream = s
+            } catch {
+                systemWriter = nil
+                systemOutput.writer = nil
+                update(rec.id) { $0.systemFile = nil }
+                HUD.show(icon: "speaker.slash.fill", color: .orange,
+                         text: L("Permita a gravação de tela e áudio do sistema para o Menew em Ajustes do Sistema › Privacidade."), duration: 3)
+                // Só o som do Mac e não deu: não há o que gravar
+                if src == .system { recordingID = nil; hideStopItem(); delete(rec.id); NotchCenter.shared.update() }
             }
         }
     }
@@ -203,12 +247,33 @@ final class RecordingStore: ObservableObject {
         stream = nil
         let duration = Date().timeIntervalSince(startedAt)
         recordingID = nil
+        hideStopItem()
         level = 0
         NotchCenter.shared.update()
         update(id) { $0.duration = duration; $0.status = .transcribing }
         HUD.show(icon: "waveform", color: .secondary, text: L("Transcrevendo a gravação…"))
         Task { await process(id) }
     }
+
+    private func showStopItem() {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        if let b = item.button {
+            let img = NSImage(systemSymbolName: "stop.circle", accessibilityDescription: L("Parar a gravação"))
+            img?.isTemplate = true
+            b.image = img
+            b.toolTip = L("Gravando · clique para parar")
+            b.target = self
+            b.action = #selector(stopFromMenuBar)
+        }
+        stopItem = item
+    }
+
+    private func hideStopItem() {
+        if let stopItem { NSStatusBar.system.removeStatusItem(stopItem) }
+        stopItem = nil
+    }
+
+    @objc private func stopFromMenuBar() { stop() }
 
     nonisolated static func peak(_ b: AVAudioPCMBuffer) -> Float {
         guard let ch = b.floatChannelData?[0] else { return 0 }
@@ -242,6 +307,7 @@ final class RecordingStore: ObservableObject {
         }
         guard AIText.unavailableReason == nil else {
             update(id) { $0.status = .ready }
+            if Self.toNotes { syncNote(id) }
             HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Transcrição pronta"))
             return
         }
@@ -257,6 +323,7 @@ final class RecordingStore: ObservableObject {
             }
         }
         update(id) { $0.status = .ready }
+        if Self.toNotes { syncNote(id) }
         HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Ata pronta"))
         if UserDefaults.standard.bool(forKey: Self.autoRemindersKey) { await remindMine(id) }
     }
@@ -296,6 +363,15 @@ final class RecordingStore: ObservableObject {
 
     /// A ata. Gravações longas são resumidas em partes e depois juntadas, porque o modelo do Mac lê pouco texto de cada vez.
     static func minutes(_ transcript: String) async -> Minutes? {
+        // Fala curta (um teste, um lembrete de 5 segundos): só um título com o que foi dito, sem ata inventada
+        let spoken = transcript.split(whereSeparator: \.isNewline).map { line -> String in
+            let t = String(line)
+            if let r = t.range(of: ": "), t.distance(from: t.startIndex, to: r.lowerBound) < 12 { return String(t[r.upperBound...]) }
+            return t
+        }.joined(separator: " ")
+        if spoken.split(separator: " ").count < 30 {
+            return Minutes(title: String(spoken.trimmingCharacters(in: .whitespacesAndNewlines.union(.punctuationCharacters)).prefix(70)))
+        }
         #if canImport(FoundationModels)
         if #available(macOS 26, *) {
             let me = AboutMe.context()
@@ -313,7 +389,9 @@ final class RecordingStore: ObservableObject {
             }
             let session = LanguageModelSession(instructions: """
                 You write meeting minutes from a transcript. "Eu" or "Me" is the user; "Outros" or "Others" are the other people. \
-                Be factual and concise, in the same language as the transcript. Tasks must be concrete actions; set the owner only if it is clear. \
+                Be factual and concise, in the same language as the transcript. Only list a task when someone was asked to do something \
+                or said they will do it; only list a decision when something was actually decided. If there are none, return empty lists. \
+                Never turn the whole transcript into a task, and never invent anything that was not said. Set the owner only if it is clear. \
                 \(me)
                 """)
             do {
@@ -322,8 +400,28 @@ final class RecordingStore: ObservableObject {
                 // "não especificado", "Outros" e o próprio usuário não são informação
                 func real(_ s: String) -> String? { meaningful(s) }
                 let me = [L("Eu"), L("Outros"), "eu", "outros", "me", "others", AboutMe.name] + AboutMe.aliases
+                // Tarefa que só repete o que foi dito não é tarefa
+                let said = PaletteSearch.fold(spoken)
+                let tasks = c.tasks.filter { t in
+                    let f = PaletteSearch.fold(t.text)
+                    return f.count >= 6 && !(said.count < 200 && (said.contains(f) || f.contains(said)))
+                }
+                // Sem nenhuma palavra de pedido ou compromisso, não há tarefa (uma reflexão em voz alta, por exemplo)
+                let cues = ["vou ", "vamos ", "vai ", "fica responsavel", "fico responsavel", "precisa", "preciso", "temos que", "tem que", "pode ",
+                            "consegue", "por favor", "ate ", "combinado", "reviso", "mando", "envio", "faco", "fecha ", "lembrar",
+                            "i'll", "we'll", "will ", "need", "can you", "please", "should", "must", "by friday", "let's", "going to",
+                            "ich werde", "wir werden", "bitte", "muss", "bis ", "voy a", "vamos a", "necesito", "puedes", "hay que",
+                            "我会", "我们会", "需要", "请", "要"]
+                let hasCue = cues.contains { said.contains($0) }
+                // Segunda opinião, uma tarefa por vez: alguém pediu ou prometeu isso mesmo?
+                var checked: [MinuteTask] = []
+                for t in tasks where hasCue {
+                    let judge = LanguageModelSession(instructions: "You check meeting minutes against a transcript. A task is real if someone asked for it, agreed to do it, or said that they or another person will do it. Reflections, feelings and descriptions are not tasks.")
+                    let q = "Transcript:\n\(String(material.prefix(6000)))\n\nIs this a real task from the transcript: \"\(t.text)\"?"
+                    if let v = try? await judge.respond(to: q, generating: TaskCheck.self).content, v.askedOrPromised { checked.append(t) }
+                }
                 return Minutes(title: String(c.title.prefix(90)), summary: c.summary, decisions: c.decisions,
-                               tasks: c.tasks.map { Recording.Task(text: $0.text, owner: real($0.owner), due: real($0.due)) },
+                               tasks: checked.map { Recording.Task(text: $0.text, owner: real($0.owner), due: real($0.due)) },
                                tags: Array(c.tags.prefix(5)).map { $0.lowercased() },
                                people: c.people.filter { p in !me.contains { PaletteSearch.fold($0) == PaletteSearch.fold(p) } })
             } catch { return nil }
@@ -348,9 +446,19 @@ final class RecordingStore: ObservableObject {
     }
 
     func saveAsNote(_ id: UUID) {
-        guard let r = items.first(where: { $0.id == id }), let app = NSApp.delegate as? AppDelegate else { return }
-        let note = app.notes.create(text: r.markdown)
-        app.openNote(note)
+        syncNote(id)
+        if let note = items.first(where: { $0.id == id })?.noteID { (NSApp.delegate as? AppDelegate)?.openNote(note) }
+    }
+
+    /// Cria a nota da ata, ou atualiza a que já existe (sem duplicar)
+    func syncNote(_ id: UUID) {
+        guard !demo, let r = items.first(where: { $0.id == id }), let notes = (NSApp.delegate as? AppDelegate)?.notes else { return }
+        if let nid = r.noteID, notes.note(nid) != nil {
+            notes.setText(r.markdown, of: nid)
+        } else {
+            let nid = notes.create(text: r.markdown)
+            update(id) { $0.noteID = nid }
+        }
     }
 
     func delete(_ id: UUID) {
@@ -420,6 +528,13 @@ struct MeetingMinutes {
 
 @available(macOS 26, *)
 @Generable
+struct TaskCheck {
+    @Guide(description: "true if someone asked for it, agreed to it, or said someone will do it")
+    var askedOrPromised: Bool
+}
+
+@available(macOS 26, *)
+@Generable
 struct MinuteTask {
     @Guide(description: "The action, starting with a verb")
     var text: String
@@ -470,10 +585,16 @@ final class AudioFileWriter: @unchecked Sendable {
 final class RecordingSystemOutput: NSObject, SCStreamOutput, @unchecked Sendable {
     let queue = DispatchQueue(label: "menew.recording.system")
     var writer: AudioFileWriter?
+    /// Sem microfone, o medidor de nível mostra o som do Mac
+    var meter = false
 
     func stream(_ stream: SCStream, didOutputSampleBuffer sampleBuffer: CMSampleBuffer, of type: SCStreamOutputType) {
         guard type == .audio, sampleBuffer.isValid, let w = writer, let pcm = CaptionAudioOutput.pcm(sampleBuffer) else { return }
         w.write(pcm)
+        if meter {
+            let peak = RecordingStore.peak(pcm)
+            DispatchQueue.main.async { MainActor.assumeIsolated { RecordingStore.shared.level = peak } }
+        }
     }
 }
 

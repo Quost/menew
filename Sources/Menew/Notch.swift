@@ -14,7 +14,8 @@ final class NotchCenter: ObservableObject {
         case meeting, recording, flash, focus, timer, mic
         var id: String { rawValue }
         var key: String { "notch.\(rawValue)" }
-        @MainActor var isOn: Bool { UserDefaults.standard.object(forKey: key) == nil ? true : UserDefaults.standard.bool(forKey: key) }
+        /// A gravação vem desligada: discreta, para quem compartilha a tela (aparece no painel ao passar o mouse)
+        @MainActor var isOn: Bool { UserDefaults.standard.object(forKey: key) == nil ? self != .recording : UserDefaults.standard.bool(forKey: key) }
     }
 
     /// Minutos antes da reunião em que o aviso aparece
@@ -266,7 +267,7 @@ extension NotchCenter.Kind {
     var detail: String {
         switch self {
         case .meeting: L("Com o botão Entrar quando a reunião tem link.")
-        case .recording: L("O tempo gravado e o botão Parar.")
+        case .recording: L("O tempo gravado e o botão Parar. Desligado, só um símbolo de parar na barra de menus; ao passar o mouse no notch, o tempo aparece.")
         case .flash: L("“Copiado”, volume, brilho e outros. Desligado, aparecem no meio da tela.")
         case .focus: L("O tempo que falta da sessão de foco.")
         case .timer: L("A contagem do timer mais próximo.")
