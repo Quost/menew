@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.90.0
+
+### New
+- **Messages and email.** Select a message in Mail, Outlook, Slack, WhatsApp or anywhere and press ⌃⌥⌘R: **Requests and deadlines** lists what you’re being asked to do, who asked and by when, with a button to turn them all into reminders (with dates when the message gives one); **Draft a reply** writes an answer in the message’s language and tone, keeping the dates it mentions, ready to copy. Menew never reads your mailbox: only the text you select.
+
 ## 1.89.0
 
 ### New
