@@ -29,7 +29,12 @@ final class MeetingStore: ObservableObject {
 
     private let store = EKEventStore()
     private var timer: Timer?
+    /// Dispara no segundo em que uma reunião começa ou termina, para a troca não esperar a leitura do minuto
+    private var edgeTimer: Timer?
     private var observer: Any?
+    private var wakeObservers: [Any] = []
+    /// Reunião em que você clicou Entrar: o aviso do notch some
+    private(set) var joinedID: String?
     private var demo = false
 
     var isOn: Bool { UserDefaults.standard.bool(forKey: Self.key) }
@@ -60,17 +65,30 @@ final class MeetingStore: ObservableObject {
         observer = NotificationCenter.default.addObserver(forName: .EKEventStoreChanged, object: store, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated { self?.reload() }
         }
-        // Uma leitura por minuto basta: a contagem regressiva é desenhada pela própria tela
+        // Uma leitura por minuto, mais uma no segundo exato de cada início e fim (edgeTimer)
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.reload() }
         }
+        // Ao acordar o Mac ou mudar o relógio, relê na hora
+        let ws = NSWorkspace.shared.notificationCenter
+        wakeObservers = [
+            ws.addObserver(forName: NSWorkspace.didWakeNotification, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.reload() }
+            },
+            NotificationCenter.default.addObserver(forName: .NSSystemClockDidChange, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.reload() }
+            },
+        ]
         reload()
     }
 
     private func stop() {
         timer?.invalidate(); timer = nil
+        edgeTimer?.invalidate(); edgeTimer = nil
         if let observer { NotificationCenter.default.removeObserver(observer) }
         observer = nil
+        for o in wakeObservers { NSWorkspace.shared.notificationCenter.removeObserver(o); NotificationCenter.default.removeObserver(o) }
+        wakeObservers = []
         next = nil
         UNUserNotificationCenter.currentIfBundled?.removePendingNotificationRequests(withIdentifiers: ["meeting"])
     }
@@ -79,14 +97,11 @@ final class MeetingStore: ObservableObject {
         let now = Date()
         let predicate = store.predicateForEvents(withStart: now.addingTimeInterval(-3 * 3600),
                                                  end: now.addingTimeInterval(12 * 3600), calendars: nil)
-        let event = store.events(matching: predicate)
+        let upcoming = store.events(matching: predicate)
             .filter { !$0.isAllDay && $0.status != .canceled && $0.endDate > now && !Self.declined($0) }
             .sorted { $0.startDate < $1.startDate }
-            .first
-        let meeting = event.map {
-            Meeting(id: $0.eventIdentifier ?? UUID().uuidString, title: $0.title ?? "", start: $0.startDate, end: $0.endDate,
-                    link: Self.link(in: $0), color: $0.calendar.map { Color(cgColor: $0.cgColor) } ?? Theme.indigo)
-        }
+            .map(Self.meeting)
+        let meeting = Self.current(upcoming, now: now)
         if meeting != next { next = meeting }
         let day = Calendar.current.startOfDay(for: now)
         let list = store.events(matching: store.predicateForEvents(withStart: day, end: day.addingTimeInterval(86400), calendars: nil))
@@ -94,11 +109,43 @@ final class MeetingStore: ObservableObject {
             .sorted { $0.startDate < $1.startDate }
             .map(Self.meeting)
         if list != today { today = list }
+        scheduleEdge(upcoming, now: now)
         scheduleReminder()
     }
 
+    /// A reunião da faixa: a que está acontecendo, mas, nos 2 últimos minutos dela, a seguinte se já vem logo
+    /// depois (reuniões coladas: às 08:59 já mostra a das 09:00)
+    static func current(_ upcoming: [Meeting], now: Date) -> Meeting? {
+        guard let first = upcoming.first else { return nil }
+        if first.start <= now, first.end.timeIntervalSince(now) <= 120,
+           let following = upcoming.dropFirst().first(where: { $0.start >= first.end.addingTimeInterval(-60) }),
+           following.start.timeIntervalSince(first.end) <= 120 {
+            return following
+        }
+        return first
+    }
+
+    /// Agenda uma releitura para o próximo início, fim ou troca de reunião
+    private func scheduleEdge(_ upcoming: [Meeting], now: Date) {
+        edgeTimer?.invalidate()
+        let edges = upcoming.flatMap { [$0.start, $0.end, $0.end.addingTimeInterval(-120)] }.filter { $0 > now }
+        guard let edge = edges.min(), edge.timeIntervalSince(now) < 3600 else { edgeTimer = nil; return }
+        let t = Timer(fire: edge.addingTimeInterval(0.2), interval: 0, repeats: false) { [weak self] _ in
+            MainActor.assumeIsolated {
+                self?.reload()
+                NotchCenter.shared.update()
+            }
+        }
+        t.tolerance = 0.1
+        RunLoop.main.add(t, forMode: .common)
+        edgeTimer = t
+    }
+
     func join() {
-        if let url = next?.link { NSWorkspace.shared.open(url) }
+        guard let m = next else { return }
+        joinedID = m.id
+        if let url = m.link { NSWorkspace.shared.open(url) }
+        NotchCenter.shared.update()
     }
 
     private static func meeting(_ e: EKEvent) -> Meeting {
@@ -108,6 +155,7 @@ final class MeetingStore: ObservableObject {
 
     /// Abre a chamada, se tiver link, ou o evento no Calendário
     func open(_ m: Meeting) {
+        if m.id == next?.id { joinedID = m.id; NotchCenter.shared.update() }
         if let url = m.link { NSWorkspace.shared.open(url); return }
         let t = Int(m.start.timeIntervalSinceReferenceDate)
         if let url = URL(string: "ical://ekevent/\(m.id)?method=show&options=more") ?? URL(string: "calshow:\(t)") {

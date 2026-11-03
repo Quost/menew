@@ -41,6 +41,8 @@ final class NotchCenter: ObservableObject {
     private var panel: NSPanel?
     private var timer: Timer?
     private var muted = false
+    /// Algum app usando o microfone (numa chamada): o aviso de reunião some depois do início
+    private var micBusy = false
     private var lastMuteCheck = Date.distantPast
 
     /// Ligado por padrão só em Macs com notch
@@ -85,9 +87,10 @@ final class NotchCenter: ObservableObject {
         if now.timeIntervalSince(lastMuteCheck) > 2 {
             lastMuteCheck = now
             // Só importa numa chamada: mic mudo com algum app usando o microfone
-            muted = AudioControl.isMuted(input: true) && AudioControl.micInUse()
+            micBusy = AudioControl.micInUse()
+            muted = AudioControl.isMuted(input: true) && micBusy
         }
-        let next = Self.pick(now: now, flash: flash?.0, muted: muted)
+        let next = Self.pick(now: now, flash: flash?.0, muted: muted, inCall: micBusy)
         if next != activity {
             withAnimation(.spring(duration: 0.35)) { activity = next }
         }
@@ -95,8 +98,9 @@ final class NotchCenter: ObservableObject {
     }
 
     /// A ordem de importância
-    static func pick(now: Date, flash: Activity?, muted: Bool) -> Activity? {
-        if Kind.meeting.isOn, let m = MeetingStore.shared.next, m.start > now.addingTimeInterval(-60), m.start.timeIntervalSince(now) <= meetingLead {
+    static func pick(now: Date, flash: Activity?, muted: Bool, inCall: Bool = false) -> Activity? {
+        if Kind.meeting.isOn, let m = MeetingStore.shared.next, showsMeeting(m, now: now, inCall: inCall,
+                                                                             joined: MeetingStore.shared.joinedID == m.id) {
             return .meeting(title: m.title, start: m.start, hasLink: m.link != nil)
         }
         if Kind.recording.isOn, ScreenRecorder.shared.isRecording { return .recording(since: ScreenRecorder.shared.started) }
@@ -109,6 +113,14 @@ final class NotchCenter: ObservableObject {
         if Kind.timer.isOn, let t = TimerStore.shared.active.min(by: { $0.end < $1.end }) { return .timer(label: t.label, end: t.end) }
         if Kind.mic.isOn, muted { return .micMuted }
         return nil
+    }
+
+    /// O aviso aparece até `meetingLead` antes. Some quando você entra (botão Entrar ou microfone em uso depois
+    /// do início) e, de qualquer jeito, 1 minuto depois de começar
+    static func showsMeeting(_ m: Meeting, now: Date, inCall: Bool, joined: Bool) -> Bool {
+        guard m.start.timeIntervalSince(now) <= meetingLead, !joined else { return false }
+        if m.start <= now { return !inCall && now.timeIntervalSince(m.start) < 60 }
+        return true
     }
 
     // MARK: Janela
