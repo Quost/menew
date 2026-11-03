@@ -141,7 +141,7 @@ def webp_for(png):
         subprocess.run([CWEBP, "-quiet", "-q", "88", str(png), "-o", str(webp)], check=True)
     return webp
 
-HERO = ("panel0", "popover-system")  # na primeira tela: carregam já; o resto só quando chega perto
+HERO = ("popover-now-dark",)  # na primeira tela: carregam já; o resto só quando chega perto
 
 def optimize_images(page):
     def fix(m):
@@ -176,7 +176,7 @@ for lang in LANGS:
         **{f"f{i}_d_fold": fold(texts[f"f{i}_d"], texts["more"]) for i in range(1, 7)},
         **{f"act_l{i}_fold": "<div>" + fold(texts[f"act_l{i}"], texts["more"], "span") + "</div>" for i in range(1, 11)},
         "analytics": ANALYTICS,
-        "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt")},
+        "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt", "notch_meeting", "notch_join", "notch_focus")},
                                   "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
     })
     page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], template)

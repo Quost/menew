@@ -30,66 +30,83 @@
 <link rel="icon" type="image/png" href="/assets/icon.png">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="apple-touch-icon" href="/assets/icon.png">
-<meta name="theme-color" content="#7c5cff">
+<meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
 <style>
   :root {
-    --bg: #f7f7fa;
+    --bg: #f6f6f9;
     --bg-elev: #ffffff;
-    --text: #15151c;
-    --muted: #5d5d6e;
+    --text: #121218;
+    --muted: #5a5a6b;
     --faint: #8b8b9c;
     --line: rgba(20, 20, 40, .09);
-    --card: rgba(255, 255, 255, .75);
+    --card: rgba(255, 255, 255, .8);
     --indigo: #5c6bff;
     --violet: #9e40f2;
-    --brand: linear-gradient(135deg, var(--indigo), var(--violet));
+    --pink: #ff5ca8;
+    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
     --glow: rgba(124, 92, 255, .22);
     --shadow: 0 30px 80px -20px rgba(40, 30, 90, .28), 0 10px 30px -10px rgba(40, 30, 90, .18);
-    --radius: 18px;
+    --radius: 20px;
+    --d-base: #f4f1ff; --d-text: #121218; --d-muted: rgba(18,18,24,.7); --d-faint: rgba(18,18,24,.5);
+    --d-line: rgba(18,18,24,.12); --d-fill: rgba(255,255,255,.6); --d-bar: rgba(255,255,255,.5);
+    --d-cta-bg: #121218; --d-cta-fg: #fff; --d-shadow: 0 40px 120px -50px rgba(90, 60, 200, .45);
+    --d-h1: linear-gradient(100deg, #4f5bff, #a24bff 50%, #ff3d96);
+    --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(140, 120, 255, .45), transparent 60%),
+      radial-gradient(700px 520px at 95% 15%, rgba(90, 170, 255, .4), transparent 62%),
+      radial-gradient(800px 500px at 60% 120%, rgba(255, 120, 190, .35), transparent 60%),
+      radial-gradient(500px 400px at 30% 90%, rgba(255, 190, 120, .3), transparent 60%);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0d0d12;
-      --bg-elev: #16161d;
-      --text: #f2f2f7;
-      --muted: #a4a4b5;
-      --faint: #74748a;
-      --line: rgba(255, 255, 255, .09);
-      --card: rgba(255, 255, 255, .04);
-      --glow: rgba(124, 92, 255, .32);
+      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
       --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0d0d12; --bg-elev: #16161d; --text: #f2f2f7; --muted: #a4a4b5; --faint: #74748a;
-    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .04); --glow: rgba(124, 92, 255, .32);
+    --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
     --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
   img { max-width: 100%; display: block; }
-  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+  .wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
+  .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
   /* Nav */
   nav {
-    position: sticky; top: 0; z-index: 10;
-    backdrop-filter: saturate(180%) blur(18px);
-    -webkit-backdrop-filter: saturate(180%) blur(18px);
-    background: color-mix(in srgb, var(--bg) 72%, transparent);
-    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: saturate(180%) blur(18px); -webkit-backdrop-filter: saturate(180%) blur(18px);
+    background: color-mix(in srgb, var(--bg) 72%, transparent); border-bottom: 1px solid var(--line);
   }
-  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
   .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
-  .logo img { width: 30px; height: 30px; }
+  .logo img { width: 28px; height: 28px; }
   .nav-links { display: flex; gap: 6px; align-items: center; }
   .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
   .nav-links a.text:hover { color: var(--text); background: var(--card); }
@@ -102,102 +119,134 @@
 
   /* Botões */
   .btn {
-    display: inline-flex; align-items: center; gap: 9px;
-    font-weight: 600; font-size: 15px; letter-spacing: -.01em;
-    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line);
-    background: var(--bg-elev); color: var(--text);
-    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
-    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; letter-spacing: -.01em;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease; cursor: pointer;
   }
   .btn:hover { transform: translateY(-1px); }
   .btn svg { width: 18px; height: 18px; flex: none; }
-  .btn.primary {
-    background: var(--brand); color: #fff; border: 0;
-    box-shadow: 0 10px 30px -8px rgba(124, 80, 255, .6);
-  }
-  .btn.primary:hover { box-shadow: 0 14px 36px -8px rgba(124, 80, 255, .75); }
+  .btn.primary { background: var(--d-cta-bg); color: var(--d-cta-fg); border: 0; box-shadow: 0 10px 40px -8px rgba(160, 120, 255, .7); }
+  .btn.primary.brand { background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--d-fill); color: var(--d-text); border-color: var(--d-line); }
   .btn.small { padding: 7px 12px; font-size: 13.5px; border-radius: 9px; }
-  .btn .count {
-    font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted);
-    border-left: 1px solid var(--line); padding-left: 9px; margin-left: 1px;
-  }
+  .btn .count { font-variant-numeric: tabular-nums; font-weight: 600; opacity: .7; border-left: 1px solid currentColor; padding-left: 9px; margin-left: 1px; }
 
-  /* Hero */
-  .hero { position: relative; padding: 84px 0 40px; text-align: center; }
-  .hero::before {
-    content: ""; position: absolute; inset: -200px 0 auto; height: 760px; z-index: -1;
-    background:
-      radial-gradient(600px 340px at 30% 30%, var(--glow), transparent 70%),
-      radial-gradient(600px 340px at 72% 22%, rgba(92, 107, 255, .18), transparent 70%);
+  /* Hero: uma mesa de Mac de verdade (clara ou escura, como o sistema), com barra de menus e notch vivos */
+  .desk {
+    position: relative; margin: 14px auto 0; width: min(1240px, 100% - 24px); border-radius: 30px; overflow: hidden;
+    color: var(--d-text); background: var(--d-base); isolation: isolate; box-shadow: var(--d-shadow);
   }
+  .desk::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall), var(--d-base);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: scale(1.12) translate(-2%, 2%); } }
+  .bar {
+    position: relative; height: 32px; display: flex; align-items: center; gap: 18px; padding: 0 16px;
+    font-size: 13px; background: var(--d-bar); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .bar .left { display: flex; gap: 18px; font-weight: 500; color: var(--d-text); opacity: .88; max-width: calc(50% - 210px); overflow: hidden; white-space: nowrap; }
+  .bar .left b { font-weight: 700; }
+  .bar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--d-text); }
+  .bar .status { height: 22px; padding: 0 6px; border-radius: 6px; background: var(--d-fill); display: flex; align-items: center; }
+  .bar .status img { height: 20px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bar .status img { filter: invert(1); } }
+  :root[data-theme="dark"] .bar .status img { filter: invert(1); }
+
+  .notch {
+    color: #fff;
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%); height: 32px; width: 190px;
+    background: #000; border-radius: 0 0 14px 14px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12.5px; font-weight: 600;
+    transition: width .5s cubic-bezier(.3, 1.4, .5, 1), height .5s cubic-bezier(.3, 1.4, .5, 1), border-radius .4s ease;
+  }
+  .notch.on { width: 380px; height: 40px; border-radius: 0 0 20px 20px; }
+  .notch > * { opacity: 0; transition: opacity .25s ease .15s; display: flex; align-items: center; gap: 8px; }
+  .notch.on > * { opacity: 1; }
+  .notch .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 10px #ff3b30; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .notch .pill { background: #30d158; color: #000; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; }
+  .notch .ico { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; }
+  .notch .t { color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+
+  .desk-body { display: grid; grid-template-columns: 1fr 360px; gap: 40px; padding: 70px 56px 0; align-items: start; }
   .badge {
-    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;
-    padding: 5px 12px 5px 6px; border-radius: 999px; border: 1px solid var(--line);
-    background: var(--card); color: var(--muted); margin-bottom: 26px;
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; padding: 5px 12px 5px 6px;
+    border-radius: 999px; border: 1px solid var(--d-line); background: var(--d-fill); color: var(--d-muted); margin-bottom: 24px;
   }
-  .badge b { background: var(--brand); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
-  h1 {
-    font-size: clamp(40px, 7vw, 76px); line-height: 1.02; letter-spacing: -.045em; font-weight: 800;
-    max-width: 880px; margin: 0 auto;
-  }
-  h1 .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 640px; margin: 22px auto 34px; }
-  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .meta { margin-top: 16px; font-size: 13px; color: var(--faint); }
-
-  /* Barra de menus fake */
-  .menubar {
-    margin: 64px auto 0; width: min(980px, 100%);
-    height: 34px; border-radius: 12px 12px 0 0;
-    display: flex; align-items: center; justify-content: flex-end; gap: 16px; padding: 0 16px;
-    background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
-    border: 1px solid var(--line); border-bottom: 0;
-    font-size: 13px; color: var(--muted);
-  }
-  .menubar .status { height: 24px; border-radius: 6px; padding: 0 6px; background: rgba(124, 92, 255, .14); display: flex; align-items: center; }
-  .menubar .status img { height: 22px; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .menubar .status img { filter: invert(1); } }
-  :root[data-theme="dark"] .menubar .status img { filter: invert(1); }
-  .menubar .left { margin-right: auto; display: flex; gap: 18px; font-weight: 500; }
-  .menubar .left b { color: var(--text); }
-
-  .stage {
-    position: relative; width: min(980px, 100%); margin: 0 auto;
-    border: 1px solid var(--line); border-radius: 0 0 22px 22px;
-    background:
-      radial-gradient(800px 400px at 80% 0%, rgba(158, 64, 242, .16), transparent 60%),
-      radial-gradient(700px 400px at 0% 100%, rgba(92, 107, 255, .16), transparent 60%),
-      var(--bg-elev);
-    padding: 30px 30px 40px; overflow: hidden;
-    display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start;
-  }
-  .stage .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
-  .stage .popover { justify-self: end; border-radius: 16px; }
+  .badge b { background: var(--d-cta-bg); color: var(--d-cta-fg); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  h1 { font-size: clamp(44px, 6.6vw, 84px); line-height: .98; letter-spacing: -.05em; font-weight: 800; }
+  h1 .grad { background: var(--d-h1); -webkit-background-clip: text; background-clip: text; }
+  .lead { font-size: clamp(17px, 2vw, 19.5px); color: var(--d-muted); max-width: 560px; margin: 24px 0 32px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta { margin-top: 16px; font-size: 13px; color: var(--d-faint); }
+  .pop { position: relative; margin-top: -40px; animation: drop .9s cubic-bezier(.2, 1.2, .4, 1) .2s both; }
+  .pop img { border-radius: 18px; box-shadow: 0 40px 80px -20px rgba(40,20,90,.45), 0 0 0 1px var(--d-line); }
+  @keyframes drop { from { opacity: 0; transform: translateY(-24px) scale(.97); } }
+  .desk-foot { height: 60px; }
 
   /* Seções */
-  section { padding: 96px 0 0; }
-  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  h2 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; letter-spacing: -.035em; font-weight: 750; margin: 10px 0 14px; }
-  .sub { color: var(--muted); font-size: 18px; max-width: 620px; }
+  section { padding: 110px 0 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .eyebrow { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; }
+  h2 { font-size: clamp(32px, 4.8vw, 54px); line-height: 1.04; letter-spacing: -.04em; font-weight: 800; margin: 10px 0 14px; }
+  .sub { color: var(--muted); font-size: 18px; max-width: 640px; }
   .center { text-align: center; }
   .center .sub { margin: 0 auto; }
 
+  /* Destaques: grade em blocos */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
+  .tile {
+    position: relative; overflow: hidden; border-radius: 26px; border: 1px solid var(--line); background: var(--card);
+    padding: 30px 30px 0; display: flex; flex-direction: column; min-height: 420px;
+  }
+  .tile.w4 { grid-column: span 4; } .tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; }
+  .tile::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .9; }
+  .tile.mem::before { background: radial-gradient(500px 300px at 100% 0%, rgba(255, 92, 168, .18), transparent 70%); }
+  .tile.rec::before { background: radial-gradient(500px 300px at 0% 0%, rgba(255, 69, 58, .14), transparent 70%); }
+  .tile.pal::before { background: radial-gradient(500px 300px at 100% 0%, rgba(92, 107, 255, .2), transparent 70%); }
+  .tile.aitile::before { background: radial-gradient(400px 300px at 50% 100%, rgba(158, 64, 242, .25), transparent 70%); }
+  .tile { isolation: isolate; }
+  .tile .k { display: inline-flex; gap: 4px; margin-bottom: 14px; }
+  .tile h3 { font-size: 26px; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 8px; }
+  .tile p { color: var(--muted); font-size: 15.5px; max-width: 460px; }
+  .tile .shot { margin-top: auto; padding-top: 26px; }
+  .tile .shot img { border-radius: 14px 14px 0 0; border: 1px solid var(--line); border-bottom: 0; box-shadow: var(--shadow); width: 100%; }
+  .tile.mem .shot img { max-height: 330px; object-fit: cover; object-position: top left; }
+  .tile.rec .shot img, .tile.pal .shot img { max-height: 300px; object-fit: cover; object-position: top left; }
+  kbd {
+    font: 600 12.5px/1 -apple-system, system-ui, sans-serif; padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
+  }
+  .ask {
+    display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 11px 14px; border-radius: 14px;
+    background: var(--bg-elev); border: 1px solid var(--line); font-size: 14.5px; max-width: 460px; box-shadow: 0 10px 30px -18px rgba(0,0,0,.4);
+  }
+  .ask svg { width: 16px; height: 16px; flex: none; color: var(--violet); }
+  .flow { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; font-size: 13.5px; }
+  .flow span { padding: 7px 12px; border-radius: 12px; background: var(--bg-elev); border: 1px solid var(--line); }
+  .flow .arrow { border: 0; background: none; padding: 0; color: var(--faint); }
+  .flow .task { border-color: rgba(48, 209, 88, .45); background: rgba(48, 209, 88, .1); }
+  .prompts { margin-top: auto; padding: 26px 0 30px; display: grid; gap: 10px; }
+  .prompt {
+    padding: 11px 14px; border-radius: 14px; background: var(--bg-elev); border: 1px solid var(--line);
+    font: 500 14px ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: .45; transition: opacity .4s ease, transform .4s ease, border-color .4s ease;
+  }
+  .prompt.on { opacity: 1; transform: translateX(4px); border-color: rgba(158, 64, 242, .55); }
+
+  /* Recursos (textos completos, recolhidos) */
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; align-items: start; }
-  .feature {
-    padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card);
-    transition: transform .2s ease, border-color .2s ease;
-  }
-  .feature:hover { transform: translateY(-3px); border-color: rgba(124, 92, 255, .35); }
-  .icon {
-    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
-    color: #fff; margin-bottom: 16px; box-shadow: 0 8px 20px -8px currentColor;
-  }
-  .icon svg { width: 21px; height: 21px; color: #fff; }
+  .feature { padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); transition: border-color .2s ease; }
+  .feature:hover { border-color: rgba(124, 92, 255, .35); }
+  .icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; margin-bottom: 14px; }
+  .icon svg { width: 20px; height: 20px; color: #fff; }
   .feature h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 6px; }
   .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
 
-  .split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 10px; }
-  .split.rev { grid-template-columns: 1.25fr 1fr; }
+  .split { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; }
+  .split.rev { grid-template-columns: 1.2fr 1fr; }
   .split.rev .copy { order: 2; }
   .split .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
   .list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
@@ -208,93 +257,100 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
   }
   .list b { color: var(--text); font-weight: 600; }
+  .list li > div { min-width: 0; }
   .more { margin-top: 6px; }
-  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
-    color: var(--indigo); font-size: 13.5px; font-weight: 600; }
+  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: var(--indigo); font-size: 13.5px; font-weight: 600; }
   .more summary::-webkit-details-marker { display: none; }
   .more summary::after { content: "›"; transition: transform .2s ease; display: inline-block; }
   .more[open] summary::after { transform: rotate(90deg); }
   .more[open] summary { margin-bottom: 6px; }
   .more ul { list-style: none; display: grid; gap: 6px; padding: 0; margin: 0; }
   .more li { display: block; position: relative; padding-left: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
-  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%;
-    background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
-  .list li > div { min-width: 0; }
-
+  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
   .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-  kbd {
-    font: 600 13px/1 -apple-system, system-ui, sans-serif; padding: 7px 10px; border-radius: 8px;
-    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
-  }
-  .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
+  .keys span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; margin-right: 10px; }
 
-  .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
-  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; align-items: start; }
-  .gallery figure { margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
-  .gallery img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); }
-  .gallery h3 { font-size: 15px; margin: 12px 0 4px; }
-  .gallery p { font-size: 14px; color: var(--muted); }
-  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
-  .replaces div { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
-  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .02em; margin-bottom: 6px; }
+  /* Galeria em carrossel */
+  .rail-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+  .rail-nav { display: flex; gap: 8px; flex: none; }
+  .rail-nav button {
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font-size: 18px; cursor: pointer; transition: background .15s ease;
+  }
+  .rail-nav button:hover { background: var(--bg-elev); }
+  .rail {
+    display: grid; grid-auto-flow: column; grid-auto-columns: min(360px, 82%); gap: 16px; margin-top: 36px;
+    overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(16px, calc((100vw - 1160px) / 2)) 16px;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail figure { scroll-snap-align: center; margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .rail img { width: 100%; height: 230px; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); }
+  .rail h3 { font-size: 16px; margin: 14px 4px 4px; letter-spacing: -.01em; }
+  .rail p { font-size: 14px; color: var(--muted); margin: 0 4px 4px; }
+
+  /* Substitui */
+  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; }
+  .replaces div { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--faint); margin-bottom: 6px; text-decoration: line-through; text-decoration-color: rgba(255, 92, 168, .6); text-decoration-thickness: 2px; }
   .replaces p { font-size: 14.5px; }
   .rep-note { margin-top: 18px; text-align: center; font-size: 12.5px; color: var(--muted); }
+
+  /* Privacidade */
+  .priv { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 44px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { padding: 26px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .stat b { display: block; font-size: 52px; line-height: 1; letter-spacing: -.05em; font-weight: 800; }
+  .stat span { color: var(--muted); font-size: 14px; }
+  .priv-cards { display: grid; gap: 12px; margin-top: 12px; }
+  .priv-cards div { padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .priv-cards h3 { font-size: 15.5px; margin-bottom: 2px; }
+  .priv-cards p { color: var(--muted); font-size: 14.5px; }
+  .conn { padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .conn h3 { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+  .conn li { list-style: none; display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
+  .conn li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 10px rgba(48,209,88,.7); flex: none; }
+
   .faq { max-width: 760px; margin: 40px auto 0; display: grid; gap: 10px; }
   .faq details { padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
   .faq summary { font-weight: 600; font-size: 16px; cursor: pointer; }
   .faq details p { color: var(--muted); font-size: 15px; margin-top: 8px; }
-  .privacy div { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
-  .privacy h3 { font-size: 16px; margin-bottom: 4px; }
-  .privacy p { color: var(--muted); font-size: 14.5px; }
 
+  /* Final */
   .final {
-    margin: 110px auto 0; padding: 64px 28px; border-radius: 28px; text-align: center; position: relative; overflow: hidden;
-    background: radial-gradient(500px 260px at 50% 0%, var(--glow), transparent 70%), var(--card);
-    border: 1px solid var(--line);
+    margin: 120px auto 0; padding: 70px 28px; border-radius: 30px; text-align: center; position: relative; overflow: hidden; color: var(--d-text); background: var(--d-base); isolation: isolate;
   }
-  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .45)); }
+  .final::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall);
+  }
+  .final .sub { color: var(--d-muted); }
+  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .55)); }
   .install { margin: 34px auto 0; max-width: 600px; text-align: left; }
-  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(127,127,127,.12); }
-  .tabs button {
-    flex: 1; border: 0; background: transparent; color: var(--muted); cursor: pointer;
-    font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px;
-    transition: background .15s ease, color .15s ease;
-  }
-  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--d-fill); border: 1px solid var(--d-line); }
+  .tabs button { flex: 1; border: 0; background: transparent; color: var(--d-muted); cursor: pointer; font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px; }
+  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--d-text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
   .panel { display: none; margin-top: 14px; }
   .panel.on { display: block; }
   .steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
-  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--muted); font-size: 15px; counter-increment: s; }
-  .steps li::before {
-    content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
-    font: 700 12px/1 -apple-system, system-ui, sans-serif; color: #fff; background: var(--brand); transform: translateY(-1px);
-  }
-  .steps b { color: var(--text); }
-  .cmd {
-    display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--bg-elev);
-  }
-  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); scrollbar-width: none; }
-  .cmd code::before { content: "$ "; color: var(--faint); }
-  .copy-btn {
-    flex: none; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
-    font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease;
-  }
-  .copy-btn:hover { color: var(--text); background: rgba(127,127,127,.12); }
-  .copy-btn.done { color: #22c55e; border-color: rgba(34,197,94,.5); }
-  .hint { margin-top: 10px; font-size: 13px; color: var(--faint); }
-  .ai {
-    margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px;
-    border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07);
-  }
-  .ai p { flex: 1; font-size: 14px; color: var(--muted); }
-  .ai b { color: var(--text); }
-  @media (max-width: 600px) { .ai { flex-direction: column; align-items: stretch; text-align: left; } }
+  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--d-muted); font-size: 15px; counter-increment: s; }
+  .steps li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 -apple-system, system-ui, sans-serif; color: var(--d-cta-fg); background: var(--d-cta-bg); transform: translateY(-1px); }
+  .steps b { color: var(--d-text); }
+  .cmd { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px; border: 1px solid var(--d-line); background: var(--d-fill); }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--d-text); scrollbar-width: none; }
+  .cmd code::before { content: "$ "; color: var(--d-faint); }
+  .copy-btn { flex: none; border: 1px solid var(--d-line); background: transparent; color: var(--d-muted); cursor: pointer; font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease; }
+  .copy-btn:hover { color: var(--d-text); background: var(--d-fill); }
+  .copy-btn.done { color: #30d158; border-color: rgba(48,209,88,.5); }
+  .hint { margin-top: 10px; font-size: 13px; color: var(--d-faint); }
+  .ai { margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07); }
+  .ai p { flex: 1; font-size: 14px; color: var(--d-muted); }
+  .ai b { color: var(--d-text); }
   .coffee { margin-top: 30px; display: none; }
   .coffee.on { display: block; }
   .btn.bmc { background: #ffdd00; color: #111; border: 0; }
 
-  footer { margin-top: 90px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer { margin-top: 80px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
   footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   footer a:hover { color: var(--text); }
   footer .stats-note { flex-basis: 100%; font-size: 12px; }
@@ -310,22 +366,32 @@
 
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.in { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
-
-  @media (max-width: 900px) {
-    .stage { grid-template-columns: 1fr; padding: 18px; }
-    .stage .popover { justify-self: center; width: min(340px, 100%); }
-    .grid, .privacy, .replaces, .gallery { grid-template-columns: 1fr 1fr; }
-    .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
-    .split.rev .copy { order: 0; }
-    .menubar .left span:not(:first-child) { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .desk::before, .pop, .notch .dot { animation: none; }
   }
-  @media (max-width: 600px) {
-    .grid, .privacy, .replaces, .gallery { grid-template-columns: 1fr; }
+
+  @media (max-width: 960px) {
+    .desk-body { grid-template-columns: 1fr; padding: 56px 28px 0; }
+    .pop { margin: 0 auto; width: min(360px, 100%); }
+    .bar .left span:not(:first-child) { display: none; }
+    .tile.w4, .tile.w3, .tile.w2 { grid-column: span 6; }
+    .tile { min-height: 0; }
+    .grid, .replaces { grid-template-columns: 1fr 1fr; }
+    .split, .split.rev, .priv { grid-template-columns: 1fr; gap: 32px; }
+    .split.rev .copy { order: 0; }
+  }
+  @media (max-width: 640px) {
+    .desk { width: 100%; border-radius: 0; margin-top: 0; }
+    .desk-body { padding: 44px 16px 0; }
+    .bar .left, .bar .status { display: none; }
+    .notch { width: 120px; }
+    .notch.on { width: min(330px, 92vw); }
+    .grid, .replaces, .stats { grid-template-columns: 1fr; }
+    .tile { padding: 24px 20px 0; }
     .nav-links a.text { display: none; }
-    .hero { padding-top: 56px; }
     h1 br { display: none; }
-    .menubar .left { display: none; }
+    .rail-nav { display: none; }
   }
 </style>
 </head>
@@ -335,8 +401,8 @@
   <div class="wrap">
     <a class="logo" href="#"><img src="/assets/icon.webp" alt="">Menew</a>
     <div class="nav-links">
+      <a class="text" href="#highlights">Destacados</a>
       <a class="text" href="#features">Funciones</a>
-      <a class="text" href="#clipboard">Portapapeles</a>
       <a class="text" href="#privacy">Privacidad</a>
       <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}var u={en:'/',pt:'/pt',de:'/de',es:'/es',zh:'/zh'}[this.value];if(u)location.href=u"><option value="en">English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es" selected>Español</option><option value="zh">中文</option></select>
       <a class="btn small star-btn" data-goatcounter-click="github-nav" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
@@ -347,80 +413,88 @@
   </div>
 </nav>
 
-<header class="hero">
-  <div class="wrap">
-    <a class="badge" data-goatcounter-click="release-badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
-      <b data-version>Nuevo</b> Gratis y de código abierto · macOS 14+
-    </a>
-    <h1>La barra de menús de tu Mac, <br><span class="grad">potenciada.</span></h1>
-    <p class="lead">Paleta de comandos, historial del portapapeles, ventanas en su sitio, capturas con anotaciones, monitor del sistema e IA en el propio Mac — en una app nativa y ligera. Sin suscripción. Sin cuenta. Sin telemetría.</p>
-    <div class="cta">
-      <a class="btn primary" data-download data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
-        Descargar para Mac
-      </a>
-      <a class="btn" data-goatcounter-click="github-hero" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Star en GitHub<span class="count" data-stars hidden></span>
-      </a>
-    </div>
-    <p class="meta"><span data-meta>Universal · Apple Silicon e Intel</span> · English, Português, Deutsch, Español, 中文</p>
-
-    <div class="menubar reveal" aria-hidden="true">
-      <div class="left"><span>&#63743;</span><b>Finder</b><span>Archivo</span><span>Edición</span><span>Visualización</span><span>Ir</span><span>Ventana</span></div>
-      <div class="status"><img src="/assets/statusbar-all.webp" alt="Menew: CPU, RAM, network"></div>
+<header class="desk">
+  <div class="bar" aria-hidden="true">
+    <div class="left"><span>&#63743;</span><b>Finder</b><span>Archivo</span><span>Edición</span><span>Visualización</span><span>Ir</span><span>Ventana</span></div>
+    <div class="notch" data-notch><span data-n1></span><span data-n2></span></div>
+    <div class="right">
+      <div class="status"><img src="/assets/statusbar-all.webp" alt=""></div>
       <span>lun 17:42</span>
     </div>
-    <div class="stage reveal">
-      <div>
-        <img class="shot light-only" src="/assets/es/panel0-light.webp" alt="Panel del historial del portapapeles con búsqueda, filtros y vista previa">
-        <img class="shot dark-only" src="/assets/es/panel0-dark.webp" alt="Panel del historial del portapapeles con búsqueda, filtros y vista previa">
+  </div>
+  <div class="desk-body">
+    <div>
+      <a class="badge" data-goatcounter-click="release-badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
+        <b data-version>Nuevo</b> Gratis y de código abierto · macOS 14+
+      </a>
+      <h1>La barra de menús de tu Mac, <br><span class="grad">potenciada.</span></h1>
+      <p class="lead">Memoria, grabaciones con acta, paleta de comandos, portapapeles, ventanas, capturas y monitor del sistema, en una app nativa con la IA funcionando en tu propio Mac. Gratis, sin cuenta y sin telemetría.</p>
+      <div class="cta">
+        <a class="btn primary" data-download data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
+          Descargar para Mac
+        </a>
+        <a class="btn ghost" data-goatcounter-click="github-hero" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          Star en GitHub<span class="count" data-stars hidden></span>
+        </a>
       </div>
-      <div class="popover">
-        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/es/popover-now-light.webp" alt="Monitor del sistema con anillos de CPU, memoria, disco y batería">
-        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/es/popover-now-dark.webp" alt="Monitor del sistema con anillos de CPU, memoria, disco y batería">
-      </div>
+      <p class="meta"><span data-meta>Universal · Apple Silicon e Intel</span> · English, Português, Deutsch, Español, 中文</p>
+    </div>
+    <div class="pop">
+      <img class="light-only" src="/assets/es/popover-now-light.webp" alt="Monitor del sistema con anillos de CPU, memoria, disco y batería">
+      <img class="dark-only" src="/assets/es/popover-now-dark.webp" alt="Monitor del sistema con anillos de CPU, memoria, disco y batería">
     </div>
   </div>
+  <div class="desk-foot"></div>
 </header>
 
-<section id="features">
+<section id="highlights">
   <div class="wrap">
     <div class="center reveal">
-      <div class="eyebrow">Todo en un solo lugar</div>
-      <h2>Las pequeñas cosas de tu día,<br>a un clic.</h2>
-      <p class="sub">Menew reemplaza varias utilidades de pago de la barra de menús con una sola app nativa y rápida, hecha en Swift. Con el estilo Liquid Glass de macOS 26. Usa solo lo que necesitas: desactiva módulos en Ajustes. Fija tus acciones favoritas, recoge el resto y encuentra cualquier ajuste en su propia ventana.</p>
+      <div class="eyebrow">Destacados</div>
+      <h2>Lo que vas a usar todos los días.</h2>
+      <p class="sub">Las funciones que más tiempo ahorran, todas en tu Mac.</p>
     </div>
-    <div class="grid">
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff);color:#5c6bff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
-        <h3>Monitor del sistema</h3>
-        <p>CPU y GPU con gráfico en vivo, presión de memoria y swap, espacio y velocidad de lectura/escritura del disco, salud y ciclos de la batería y los procesos que más consumen, que cierras con un clic.</p><details class="more"><summary>Ver todo</summary><ul><li>Alertas opcionales, y tú eliges qué aparece en la barra de menús.</li><li>Activa tu próxima reunión arriba del menú, con un botón Unirse para Zoom, Meet o Teams.</li><li>Los relojes muestran la hora de otras ciudades, y la paleta convierte horas como “15h en Lisboa”.</li><li>Abre la agenda de hoy desde la tarjeta de la reunión y copia tus horas libres de los próximos días laborables, listas para enviar.</li><li>Mira la batería de tu Magic Mouse, teclado, trackpad y AirPods, con aviso opcional de batería baja.</li><li>Un gráfico de 24 horas de CPU, memoria y batería muestra qué pasó y qué apps gastaron más batería.</li><li>Ve núcleos de rendimiento y eficiencia, consumo en vatios, salud del SSD, alerta de apps descontroladas y un informe del sistema con un clic.</li><li>Temperaturas en °C del chip, el SSD y la batería, y la velocidad del ventilador.</li><li>Activa los iconos separados y cada métrica tendrá su propio icono en la barra, con su propio panel.</li><li>El historial llega a 7 y 30 días, y puedes crear tus propias alertas, como “CPU por encima del 80% durante 10 min”.</li><li>Mira la señal del Wi-Fi, el ruido, la velocidad del enlace, el canal y la banda, y todos los ítems de inicio y en segundo plano que instalaron las apps.</li><li>Pulsa “¿Por qué mi Mac va lento?” para un diagnóstico en palabras sencillas.</li><li>Activa Tiempo de pantalla para ver cuánto pasas en cada app, separado en enfoque, neutro y distracción, hoy, en la semana o el mes.</li></ul></details>
+    <div class="bento">
+      <div class="tile w4 mem reveal">
+        <div class="k"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>K</kbd></div>
+        <h3>Memoria</h3>
+        <p>Pulsa ⌃⌥⌘K y lo que hay en pantalla queda guardado, con texto, app y enlace. Después, solo pregunta.</p>
+        <div class="ask"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9z"/></svg>¿cuál era esa biblioteca de gráficos en Swift?</div>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="/assets/es/hub-memory-light.webp" alt="Ventana de Menew y Memoria">
+          <img class="dark-only" loading="lazy" src="/assets/es/hub-memory-dark.webp" alt="Ventana de Menew y Memoria">
+        </div>
       </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff);color:#9e40f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
-        <h3>Historial del portapapeles</h3>
-        <p>Textos, enlaces, imágenes y archivos. Búsqueda instantánea, filtros, fijados y vista previa.</p><details class="more"><summary>Ver todo</summary><ul><li>Se abre con ⌘⇧V.</li><li>Páusalo 15 minutos o 1 hora cuando copies algo privado.</li><li>Activa la cola de pegado para copiar varias cosas y pegarlas una a una con ⌘V, en orden.</li><li>Copia un teléfono, dirección, correo, código de rastreo, color o enlace de reunión y Menew ofrece la acción adecuada: llamar, abrir en Mapas, rastrear, convertir o unirte.</li><li>La búsqueda también encuentra texto dentro de capturas e imágenes copiadas, leído en tu Mac.</li><li>Comparte cualquier elemento con el menú Compartir de macOS (AirDrop, Mensajes, Mail).</li><li>Busca también por significado: “el enlace del hotel de ayer”, “ese error de Xcode”, “imágenes de hoy”.</li></ul></details>
+      <div class="tile w2 aitile reveal">
+        <h3>IA en tu Mac</h3>
+        <p>Resume, reescribe, traduce y explica con el modelo de Apple, que funciona en tu propio Mac. Sin clave, sin cuenta, sin nube.</p>
+        <div class="prompts" data-prompts>
+          <div class="prompt">ia resume el texto copiado</div>
+          <div class="prompt">recordar pagar la factura mañana 9h</div>
+          <div class="prompt">activa el modo oscuro y abre Safari</div>
+          <div class="prompt">explica este error</div>
+        </div>
       </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#f59e0b"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
-        <h3>Acciones rápidas</h3>
-        <p>Brillo de cada pantalla, monitores externos incluidos. Silencia el micrófono o el sonido, oculta el Dock, modo oscuro, mantener despierto con temporizador, archivos ocultos e iconos del escritorio.</p><details class="more"><summary>Ver todo</summary><ul><li>Además cuentagotas, capturas de pantalla con flechas, texto, difuminado y fijar en pantalla (⌃⌥⌘S), expulsar discos y más.</li><li>Mantener despierto también funciona hasta una hora o mientras una app esté abierta.</li><li>Cambia la salida de sonido y el micrófono (AirPods, auriculares, altavoces) con un clic y activa el modo presentación antes de compartir pantalla.</li><li>Graba la pantalla en vídeo o GIF, o haz una captura con desplazamiento de una página entera.</li><li>El notch también cobra vida: una reunión a punto de empezar con botón Entrar, tiempo de grabación, temporizadores y micro silenciado aparecen junto a la cámara.</li><li>En las imágenes del portapapeles y las capturas fijadas, selecciona texto o haz clic en enlaces y teléfonos (Texto en vivo).</li><li>Y quita el fondo de una foto con un clic.</li><li>Toma una foto o escanea un documento con el iPhone y llega directo al portapapeles, a la estantería o como texto.</li></ul></details>
+      <div class="tile w3 rec reveal">
+        <div class="k"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd></div>
+        <h3>Grabaciones con acta</h3>
+        <p>Pulsa ⌃⌥⌘G en la reunión. Tu Mac transcribe, distingue quién habló y escribe el acta con las tareas.</p>
+        <div class="flow"><span>«Envío el informe antes del viernes.»</span><span class="arrow">→</span><span class="task">✓ Enviar el informe · viernes</span></div>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="/assets/es/hub-recordings-light.webp" alt="Grabaciones con acta">
+          <img class="dark-only" loading="lazy" src="/assets/es/hub-recordings-dark.webp" alt="Grabaciones con acta">
+        </div>
       </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#14b8a6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
-        <h3>Liberar espacio</h3>
-        <p>Borra cachés, registros y archivos de desarrollo en segundos.</p><details class="more"><summary>Ver todo</summary><ul><li>El análisis profundo encuentra descargas antiguas, archivos grandes y archivos duplicados para que los revises.</li><li>Lo eliminado va a la Papelera.</li></ul></details>
-      </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#3b82f6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
-        <h3>Internet</h3>
-        <p>Descarga y subida en vivo, IP local y pública, y una prueba de velocidad real hecha por el propio macOS.</p><details class="more"><summary>Ver todo</summary><ul><li>Mira qué apps están usando la red ahora.</li></ul></details>
-      </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6);color:#ec4899"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
-        <h3>Notas, fragmentos y dispositivos</h3>
-        <p>Notas con #etiquetas y listas de tareas en Markdown, notas protegidas que se abren con Touch ID, notas de contraseñas con campos ocultos que copias con un clic y fragmentos reutilizables en ⌘⇧V.</p><details class="more"><summary>Ver todo</summary><ul><li>Dale a un fragmento una abreviatura como “;firma” y al escribirla en cualquier app se convierte en el texto.</li><li>Los fragmentos pueden rellenar la fecha, preguntar un nombre antes de pegar y dejar el cursor donde quieras.</li></ul></details>
+      <div class="tile w3 pal reveal">
+        <div class="k"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>Space</kbd></div>
+        <h3>Paleta de comandos</h3>
+        <p>⌃⌥Espacio abre apps, acciones, cálculos, conversiones, temporizadores, recordatorios y tus propios scripts. Escribe lo que quieras.</p>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="/assets/es/palette-light.webp" alt="Paleta de comandos">
+          <img class="dark-only" loading="lazy" src="/assets/es/palette-dark.webp" alt="Paleta de comandos">
+        </div>
       </div>
     </div>
   </div>
@@ -444,8 +518,50 @@
       </div>
     </div>
     <div class="reveal">
-      <img loading="lazy" decoding="async" class="shot light-only" src="/assets/es/panel2-light.webp" alt="Vista previa de un color en el portapapeles">
-      <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/es/panel2-dark.webp" alt="Vista previa de un color en el portapapeles">
+      <img loading="lazy" decoding="async" class="shot light-only" src="/assets/es/panel0-light.webp" alt="Panel del historial del portapapeles con búsqueda, filtros y vista previa">
+      <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/es/panel0-dark.webp" alt="Panel del historial del portapapeles con búsqueda, filtros y vista previa">
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Todo en un solo lugar</div>
+      <h2>Las pequeñas cosas de tu día,<br>a un clic.</h2>
+      <p class="sub">Menew reemplaza varias utilidades de pago de la barra de menús con una sola app nativa y rápida, hecha en Swift. Con el estilo Liquid Glass de macOS 26. Usa solo lo que necesitas: desactiva módulos en Ajustes. Fija tus acciones favoritas, recoge el resto y encuentra cualquier ajuste en su propia ventana.</p>
+    </div>
+    <div class="grid">
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h3>Monitor del sistema</h3>
+        <p>CPU y GPU con gráfico en vivo, presión de memoria y swap, espacio y velocidad de lectura/escritura del disco, salud y ciclos de la batería y los procesos que más consumen, que cierras con un clic.</p><details class="more"><summary>Ver todo</summary><ul><li>Alertas opcionales, y tú eliges qué aparece en la barra de menús.</li><li>Activa tu próxima reunión arriba del menú, con un botón Unirse para Zoom, Meet o Teams.</li><li>Los relojes muestran la hora de otras ciudades, y la paleta convierte horas como “15h en Lisboa”.</li><li>Abre la agenda de hoy desde la tarjeta de la reunión y copia tus horas libres de los próximos días laborables, listas para enviar.</li><li>Mira la batería de tu Magic Mouse, teclado, trackpad y AirPods, con aviso opcional de batería baja.</li><li>Un gráfico de 24 horas de CPU, memoria y batería muestra qué pasó y qué apps gastaron más batería.</li><li>Ve núcleos de rendimiento y eficiencia, consumo en vatios, salud del SSD, alerta de apps descontroladas y un informe del sistema con un clic.</li><li>Temperaturas en °C del chip, el SSD y la batería, y la velocidad del ventilador.</li><li>Activa los iconos separados y cada métrica tendrá su propio icono en la barra, con su propio panel.</li><li>El historial llega a 7 y 30 días, y puedes crear tus propias alertas, como “CPU por encima del 80% durante 10 min”.</li><li>Mira la señal del Wi-Fi, el ruido, la velocidad del enlace, el canal y la banda, y todos los ítems de inicio y en segundo plano que instalaron las apps.</li><li>Pulsa “¿Por qué mi Mac va lento?” para un diagnóstico en palabras sencillas.</li><li>Activa Tiempo de pantalla para ver cuánto pasas en cada app, separado en enfoque, neutro y distracción, hoy, en la semana o el mes.</li></ul></details>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
+        <h3>Historial del portapapeles</h3>
+        <p>Textos, enlaces, imágenes y archivos. Búsqueda instantánea, filtros, fijados y vista previa.</p><details class="more"><summary>Ver todo</summary><ul><li>Se abre con ⌘⇧V.</li><li>Páusalo 15 minutos o 1 hora cuando copies algo privado.</li><li>Activa la cola de pegado para copiar varias cosas y pegarlas una a una con ⌘V, en orden.</li><li>Copia un teléfono, dirección, correo, código de rastreo, color o enlace de reunión y Menew ofrece la acción adecuada: llamar, abrir en Mapas, rastrear, convertir o unirte.</li><li>La búsqueda también encuentra texto dentro de capturas e imágenes copiadas, leído en tu Mac.</li><li>Comparte cualquier elemento con el menú Compartir de macOS (AirDrop, Mensajes, Mail).</li><li>Busca también por significado: “el enlace del hotel de ayer”, “ese error de Xcode”, “imágenes de hoy”.</li></ul></details>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
+        <h3>Acciones rápidas</h3>
+        <p>Brillo de cada pantalla, monitores externos incluidos. Silencia el micrófono o el sonido, oculta el Dock, modo oscuro, mantener despierto con temporizador, archivos ocultos e iconos del escritorio.</p><details class="more"><summary>Ver todo</summary><ul><li>Además cuentagotas, capturas de pantalla con flechas, texto, difuminado y fijar en pantalla (⌃⌥⌘S), expulsar discos y más.</li><li>Mantener despierto también funciona hasta una hora o mientras una app esté abierta.</li><li>Cambia la salida de sonido y el micrófono (AirPods, auriculares, altavoces) con un clic y activa el modo presentación antes de compartir pantalla.</li><li>Graba la pantalla en vídeo o GIF, o haz una captura con desplazamiento de una página entera.</li><li>El notch también cobra vida: una reunión a punto de empezar con botón Entrar, tiempo de grabación, temporizadores y micro silenciado aparecen junto a la cámara.</li><li>En las imágenes del portapapeles y las capturas fijadas, selecciona texto o haz clic en enlaces y teléfonos (Texto en vivo).</li><li>Y quita el fondo de una foto con un clic.</li><li>Toma una foto o escanea un documento con el iPhone y llega directo al portapapeles, a la estantería o como texto.</li></ul></details>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
+        <h3>Liberar espacio</h3>
+        <p>Borra cachés, registros y archivos de desarrollo en segundos.</p><details class="more"><summary>Ver todo</summary><ul><li>El análisis profundo encuentra descargas antiguas, archivos grandes y archivos duplicados para que los revises.</li><li>Lo eliminado va a la Papelera.</li></ul></details>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
+        <h3>Internet</h3>
+        <p>Descarga y subida en vivo, IP local y pública, y una prueba de velocidad real hecha por el propio macOS.</p><details class="more"><summary>Ver todo</summary><ul><li>Mira qué apps están usando la red ahora.</li></ul></details>
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
+        <h3>Notas, fragmentos y dispositivos</h3>
+        <p>Notas con #etiquetas y listas de tareas en Markdown, notas protegidas que se abren con Touch ID, notas de contraseñas con campos ocultos que copias con un clic y fragmentos reutilizables en ⌘⇧V.</p><details class="more"><summary>Ver todo</summary><ul><li>Dale a un fragmento una abreviatura como “;firma” y al escribirla en cualquier app se convierte en el texto.</li><li>Los fragmentos pueden rellenar la fecha, preguntar un nombre antes de pegar y dejar el cursor donde quieras.</li></ul></details>
+      </div>
     </div>
   </div>
 </section>
@@ -478,92 +594,27 @@
   </div>
 </section>
 
-<section id="pro">
-  <div class="wrap">
-    <div class="center reveal">
-      <div class="eyebrow">Herramientas pro</div>
-      <h2>Lo que cobran las utilidades de pago para Mac, ya incluido</h2>
-      <p class="sub">Monitorización y mantenimiento que comprarías aparte, gratis y en tu Mac.</p>
+<section id="more">
+  <div class="wrap rail-head reveal">
+    <div>
+      <div class="eyebrow">Y mucho más</div>
+      <h2>Cada rincón de macOS, mejorado.</h2>
+      <p class="sub">El notch, los widgets, Siri y las herramientas que las utilidades de pago cobran aparte.</p>
     </div>
-    <div class="gallery">
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/history-light.webp" alt="Historial de hasta 30 días">
-        <img class="dark-only" loading="lazy" src="/assets/es/history-dark.webp" alt="Historial de hasta 30 días">
-        <h3>Historial de hasta 30 días</h3><p>CPU, memoria y batería en 24 horas, 7 o 30 días, y las apps que más consumieron.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/sensors-light.webp" alt="Sensores y núcleos">
-        <img class="dark-only" loading="lazy" src="/assets/es/sensors-dark.webp" alt="Sensores y núcleos">
-        <h3>Sensores y núcleos</h3><p>Temperaturas del chip, el SSD y la batería, velocidad del ventilador y cada núcleo de rendimiento y eficiencia.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/metric-net-light.webp" alt="Red y Wi-Fi">
-        <img class="dark-only" loading="lazy" src="/assets/es/metric-net-dark.webp" alt="Red y Wi-Fi">
-        <h3>Red y Wi-Fi</h3><p>Velocidad en vivo, las apps que usan la red y la señal, ruido, canal y banda de tu Wi-Fi.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/uninstaller-light.webp" alt="Desinstalador de apps">
-        <img class="dark-only" loading="lazy" src="/assets/es/uninstaller-dark.webp" alt="Desinstalador de apps">
-        <h3>Desinstalador de apps</h3><p>Quita una app con las preferencias, cachés y datos que dejó. Todo va a la Papelera.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/startup-light.webp" alt="Ítems de inicio y en segundo plano">
-        <img class="dark-only" loading="lazy" src="/assets/es/startup-dark.webp" alt="Ítems de inicio y en segundo plano">
-        <h3>Ítems de inicio y en segundo plano</h3><p>Mira qué agentes y servicios instalaron las apps para abrirse con el Mac o ejecutarse ocultos.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/screentime-light.webp" alt="Tiempo de pantalla">
-        <img class="dark-only" loading="lazy" src="/assets/es/screentime-dark.webp" alt="Tiempo de pantalla">
-        <h3>Tiempo de pantalla</h3><p>Tiempo por app en el día, la semana o el mes, separado en enfoque y distracción. Empieza desactivado. Ahora por tipo de app (desarrollo, comunicación, entretenimiento…), y tú decides cuánto cuenta cada uno.</p>
-      </figure>
-    </div>
+    <div class="rail-nav"><button data-rail="-1" aria-label="‹">‹</button><button data-rail="1" aria-label="›">›</button></div>
   </div>
-</section>
-
-<section id="native">
-  <div class="wrap">
-    <div class="center reveal">
-      <div class="eyebrow">Hecho para Mac</div>
-      <h2>Usa lo mejor de macOS</h2>
-      <p class="sub">El notch, los widgets y las funciones del sistema que ya tienes, sin cuenta y sin internet.</p>
-    </div>
-    <div class="gallery">
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/notch-hover-light.webp" alt="Notch en vivo">
-        <img class="dark-only" loading="lazy" src="/assets/es/notch-hover-dark.webp" alt="Notch en vivo">
-        <h3>Notch en vivo</h3><p>Una reunión a punto de empezar con botón Unirse, grabación, temporizadores y micro silenciado aparecen junto a la cámara. Desaparece cuando no hay nada. Deja el puntero encima para ver la próxima reunión, el temporizador y atajos, o suelta archivos para guardarlos en la estantería.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/widgets-light.webp" alt="Widgets">
-        <img class="dark-only" loading="lazy" src="/assets/es/widgets-dark.webp" alt="Widgets">
-        <h3>Widgets</h3><p>Sistema, reuniones, temporizadores y tiempo de pantalla en el escritorio o en el Centro de notificaciones. Haz clic para abrir Menew.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/intents-light.webp" alt="Siri, Atajos y Spotlight">
-        <img class="dark-only" loading="lazy" src="/assets/es/intents-dark.webp" alt="Siri, Atajos y Spotlight">
-        <h3>Siri, Atajos y Spotlight</h3><p>Pregúntale a Siri cómo está tu Mac, encadena 27 acciones en la app Atajos y encuentra tus notas con Spotlight. Y filtros de concentración: con la concentración Trabajo activa, Menew pausa el portapapeles o silencia el notch solo.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/captions-light.webp" alt="Subtítulos en vivo">
-        <img class="dark-only" loading="lazy" src="/assets/es/captions-dark.webp" alt="Subtítulos en vivo">
-        <h3>Subtítulos en vivo</h3><p>El sonido del Mac o el micrófono se convierte en subtítulos en una ventanita, traducidos al momento. Ideal para llamadas y vídeos en otro idioma.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/battery-light.webp" alt="Cuidado de la batería">
-        <img class="dark-only" loading="lazy" src="/assets/es/battery-dark.webp" alt="Cuidado de la batería">
-        <h3>Cuidado de la batería</h3><p>Avisa al llegar al 80% enchufado y cuando la batería se calienta, y muestra cuánta salud perdió con los meses.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/hub-memory-light.webp" alt="Ventana de Menew y Memoria">
-        <img class="dark-only" loading="lazy" src="/assets/es/hub-memory-dark.webp" alt="Ventana de Menew y Memoria">
-        <h3>Ventana de Menew y Memoria</h3><p>Pulsa ⌃⌥⌘K para guardar lo que hay en pantalla: Menew lee el texto, anota la app y el enlace, y la IA añade título y etiquetas. Luego solo pregunta: “¿cuál era esa biblioteca de gráficos?”, y la IA responde con las fuentes. Y en el grafo, mira cómo se conectan los temas.</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="/assets/es/hub-recordings-light.webp" alt="Grabaciones con acta">
-        <img class="dark-only" loading="lazy" src="/assets/es/hub-recordings-dark.webp" alt="Grabaciones con acta">
-        <h3>Grabaciones con acta</h3><p>Pulsa ⌃⌥⌘G y habla o haz tu llamada: el Mac transcribe, te separa de los demás y la IA escribe el acta con tareas y etiquetas.</p>
-      </figure>
-    </div>
+  <div class="rail" data-rail-track>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/notch-hover-light.webp" alt="Notch en vivo"><img class="dark-only" loading="lazy" src="/assets/es/notch-hover-dark.webp" alt="Notch en vivo"><h3>Notch en vivo</h3><p>Una reunión a punto de empezar con botón Unirse, grabación, temporizadores y micro silenciado aparecen junto a la cámara. Desaparece cuando no hay nada. Deja el puntero encima para ver la próxima reunión, el temporizador y atajos, o suelta archivos para guardarlos en la estantería.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/widgets-light.webp" alt="Widgets"><img class="dark-only" loading="lazy" src="/assets/es/widgets-dark.webp" alt="Widgets"><h3>Widgets</h3><p>Sistema, reuniones, temporizadores y tiempo de pantalla en el escritorio o en el Centro de notificaciones. Haz clic para abrir Menew.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/intents-light.webp" alt="Siri, Atajos y Spotlight"><img class="dark-only" loading="lazy" src="/assets/es/intents-dark.webp" alt="Siri, Atajos y Spotlight"><h3>Siri, Atajos y Spotlight</h3><p>Pregúntale a Siri cómo está tu Mac, encadena 27 acciones en la app Atajos y encuentra tus notas con Spotlight. Y filtros de concentración: con la concentración Trabajo activa, Menew pausa el portapapeles o silencia el notch solo.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/captions-light.webp" alt="Subtítulos en vivo"><img class="dark-only" loading="lazy" src="/assets/es/captions-dark.webp" alt="Subtítulos en vivo"><h3>Subtítulos en vivo</h3><p>El sonido del Mac o el micrófono se convierte en subtítulos en una ventanita, traducidos al momento. Ideal para llamadas y vídeos en otro idioma.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/screentime-light.webp" alt="Tiempo de pantalla"><img class="dark-only" loading="lazy" src="/assets/es/screentime-dark.webp" alt="Tiempo de pantalla"><h3>Tiempo de pantalla</h3><p>Tiempo por app en el día, la semana o el mes, separado en enfoque y distracción. Empieza desactivado. Ahora por tipo de app (desarrollo, comunicación, entretenimiento…), y tú decides cuánto cuenta cada uno.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/history-light.webp" alt="Historial de hasta 30 días"><img class="dark-only" loading="lazy" src="/assets/es/history-dark.webp" alt="Historial de hasta 30 días"><h3>Historial de hasta 30 días</h3><p>CPU, memoria y batería en 24 horas, 7 o 30 días, y las apps que más consumieron.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/sensors-light.webp" alt="Sensores y núcleos"><img class="dark-only" loading="lazy" src="/assets/es/sensors-dark.webp" alt="Sensores y núcleos"><h3>Sensores y núcleos</h3><p>Temperaturas del chip, el SSD y la batería, velocidad del ventilador y cada núcleo de rendimiento y eficiencia.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/metric-net-light.webp" alt="Red y Wi-Fi"><img class="dark-only" loading="lazy" src="/assets/es/metric-net-dark.webp" alt="Red y Wi-Fi"><h3>Red y Wi-Fi</h3><p>Velocidad en vivo, las apps que usan la red y la señal, ruido, canal y banda de tu Wi-Fi.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/battery-light.webp" alt="Cuidado de la batería"><img class="dark-only" loading="lazy" src="/assets/es/battery-dark.webp" alt="Cuidado de la batería"><h3>Cuidado de la batería</h3><p>Avisa al llegar al 80% enchufado y cuando la batería se calienta, y muestra cuánta salud perdió con los meses.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/uninstaller-light.webp" alt="Desinstalador de apps"><img class="dark-only" loading="lazy" src="/assets/es/uninstaller-dark.webp" alt="Desinstalador de apps"><h3>Desinstalador de apps</h3><p>Quita una app con las preferencias, cachés y datos que dejó. Todo va a la Papelera.</p></figure>
+    <figure><img class="light-only" loading="lazy" src="/assets/es/startup-light.webp" alt="Ítems de inicio y en segundo plano"><img class="dark-only" loading="lazy" src="/assets/es/startup-dark.webp" alt="Ítems de inicio y en segundo plano"><h3>Ítems de inicio y en segundo plano</h3><p>Mira qué agentes y servicios instalaron las apps para abrirse con el Mac o ejecutarse ocultos.</p></figure>
   </div>
 </section>
 
@@ -595,10 +646,28 @@
       <h2>Tus datos nunca salen de tu Mac.</h2>
       <p class="sub">Menew es de código abierto, así que no tienes que creernos a ciegas.</p>
     </div>
-    <div class="privacy">
-      <div class="reveal"><h3>Sin telemetría</h3><p>La app no envía nada sobre ti: sin analíticas, sin rastreo, sin cuenta. Nunca.</p></div>
-      <div class="reveal"><h3>Todo local</h3><p>El historial y las notas se guardan en ~/Library/Application Support/Menew. Haz una copia de tus ajustes, fragmentos, perfiles y automatizaciones en un archivo .menew en Ajustes → Copia de seguridad.</p></div>
-      <div class="reveal"><h3>Código abierto (GPLv3)</h3><p>Léelo, haz un fork, mejóralo. Quien distribuya una versión modificada debe mantener el código abierto.</p></div>
+    <div class="priv">
+      <div class="reveal">
+        <div class="stats">
+          <div class="stat"><b>0</b><span>telemetría</span></div>
+          <div class="stat"><b>0</b><span>cuentas</span></div>
+          <div class="stat"><b class="grad">100%</b><span>en tu Mac</span></div>
+        </div>
+        <div class="priv-cards">
+          <div><h3>Sin telemetría</h3><p>La app no envía nada sobre ti: sin analíticas, sin rastreo, sin cuenta. Nunca.</p></div>
+          <div><h3>Todo local</h3><p>El historial y las notas se guardan en ~/Library/Application Support/Menew. Haz una copia de tus ajustes, fragmentos, perfiles y automatizaciones en un archivo .menew en Ajustes → Copia de seguridad.</p></div>
+          <div><h3>Código abierto (GPLv3)</h3><p>Léelo, haz un fork, mejóralo. Quien distribuya una versión modificada debe mantener el código abierto.</p></div>
+        </div>
+      </div>
+      <div class="conn reveal">
+        <h3>Las únicas conexiones que hace la app</h3>
+        <ul>
+          <li>Buscar actualizaciones</li>
+          <li>Tu IP pública, en el panel de red</li>
+          <li>La prueba de velocidad que tú inicias</li>
+          <li>El tipo de cambio que pides</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -631,9 +700,9 @@
     <img class="appicon" src="/assets/icon.webp" alt="">
     <h2>Haz que tu barra de menús trabaje para ti.</h2>
     <p class="sub" style="margin:0 auto">Gratis para siempre. Se instala en diez segundos.</p>
-    <div class="cta" style="margin-top:28px">
+    <div class="cta" style="margin-top:28px;justify-content:center">
       <a class="btn primary" data-download data-goatcounter-click="download-install" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">Descargar Menew<span data-size></span></a>
-      <a class="btn" data-goatcounter-click="github-install" href="https://github.com/Quost/menew" target="_blank" rel="noopener">Ver el código</a>
+      <a class="btn ghost" data-goatcounter-click="github-install" href="https://github.com/Quost/menew" target="_blank" rel="noopener">Ver el código</a>
     </div>
     <div class="install" id="install">
       <div class="tabs" role="tablist">
@@ -679,14 +748,14 @@
 
 <footer>
   <div class="wrap">
-    <span>Menew · MIT License · Hecho por <a href="https://github.com/Quost">Quost</a></span>
+    <span>Menew · <a href="https://github.com/Quost/menew/blob/main/LICENSE">Licencia GPLv3</a> · Hecho por <a href="https://github.com/Quost">Quost</a></span>
     <span><a href="https://github.com/Quost/menew/releases" data-goatcounter-click="releases">Versiones</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml" data-goatcounter-click="report-bug">Informar de un problema</a> · <a href="https://github.com/Quost/menew/issues/new?template=feature_request.yml" data-goatcounter-click="suggest-idea">Sugerir una idea</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md" data-goatcounter-click="contribute">Contribuir</a></span>
     <span class="stats-note">Este sitio cuenta las visitas de forma anónima con GoatCounter, sin cookies.</span>
   </div>
 </footer>
 
 <script>
-  const T = {"copied": "Copiado ✓", "version": "Versión", "ai_prompt": "Instala Menew en mi Mac. Es una app gratuita y de código abierto para la barra de menús (https://github.com/Quost/menew), firmada y notarizada por Apple, y necesita macOS 14 o posterior.\n\n1. Si Homebrew está instalado, ejecuta:\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. Si no, descarga el Menew.dmg más reciente de https://github.com/Quost/menew/releases/latest, ábrelo y copia Menew.app a /Applications.\n3. Abre Menew. Aparece en la barra de menús; ⌘⇧V abre el historial del portapapeles.\n\nExplica cada comando antes de ejecutarlo.", "platforms": "Universal · Apple Silicon e Intel"};
+  const T = {"copied": "Copiado ✓", "version": "Versión", "ai_prompt": "Instala Menew en mi Mac. Es una app gratuita y de código abierto para la barra de menús (https://github.com/Quost/menew), firmada y notarizada por Apple, y necesita macOS 14 o posterior.\n\n1. Si Homebrew está instalado, ejecuta:\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. Si no, descarga el Menew.dmg más reciente de https://github.com/Quost/menew/releases/latest, ábrelo y copia Menew.app a /Applications.\n3. Abre Menew. Aparece en la barra de menús; ⌘⇧V abre el historial del portapapeles.\n\nExplica cada comando antes de ejecutarlo.", "notch_meeting": "Reunión en 2 min", "notch_join": "Unirse", "notch_focus": "Enfoque", "platforms": "Universal · Apple Silicon e Intel"};
   // Preencha com seu usuário do Buy Me a Coffee para mostrar o botão
   const BUY_ME_A_COFFEE = "quost";
   const REPO = "Quost/menew";
@@ -714,6 +783,39 @@
     const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
     document.querySelector("[data-meta]").textContent = `${T.version} ${v}${size} · ${T.platforms}`;
   }).catch(() => {});
+
+  // Notch vivo: reunião chegando, gravação e foco, como no app
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const notch = document.querySelector("[data-notch]");
+  const n1 = notch.querySelector("[data-n1]"), n2 = notch.querySelector("[data-n2]");
+  const states = [
+    [`<span class="ico" style="background:#ff9f0a">▶</span>${T.notch_meeting}`, `<span class="pill">${T.notch_join}</span>`],
+    [`<span class="dot"></span>REC`, `<span class="t">00:12</span>`],
+    [`<span class="ico" style="background:#5e5ce6">◐</span>${T.notch_focus}`, `<span class="t">24:13</span>`],
+  ];
+  let si = 0;
+  function cycle() {
+    const [a, b] = states[si % states.length];
+    n1.innerHTML = a; n2.innerHTML = b;
+    notch.classList.add("on");
+    if (still) return;
+    setTimeout(() => notch.classList.remove("on"), 3400);
+    si++;
+    setTimeout(cycle, 4600);
+  }
+  setTimeout(cycle, 900);
+
+  // Exemplos da IA, um de cada vez
+  const prompts = [...document.querySelectorAll("[data-prompts] .prompt")];
+  let pi = 0;
+  const lightPrompt = () => { prompts.forEach((p, i) => p.classList.toggle("on", i === pi % prompts.length)); pi++; };
+  lightPrompt();
+  if (!still) setInterval(lightPrompt, 2200);
+
+  // Carrossel
+  const rail = document.querySelector("[data-rail-track]");
+  document.querySelectorAll("[data-rail]").forEach(b => b.addEventListener("click", () =>
+    rail.scrollBy({ left: Number(b.dataset.rail) * Math.min(760, rail.clientWidth * .8), behavior: "smooth" })));
 
   // Instalação: abas
   document.querySelectorAll("[data-tab]").forEach(tab => tab.addEventListener("click", () => {

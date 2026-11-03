@@ -25,66 +25,83 @@
 <link rel="icon" type="image/png" href="/assets/icon.png">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
 <link rel="apple-touch-icon" href="/assets/icon.png">
-<meta name="theme-color" content="#7c5cff">
+<meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
 <style>
   :root {
-    --bg: #f7f7fa;
+    --bg: #f6f6f9;
     --bg-elev: #ffffff;
-    --text: #15151c;
-    --muted: #5d5d6e;
+    --text: #121218;
+    --muted: #5a5a6b;
     --faint: #8b8b9c;
     --line: rgba(20, 20, 40, .09);
-    --card: rgba(255, 255, 255, .75);
+    --card: rgba(255, 255, 255, .8);
     --indigo: #5c6bff;
     --violet: #9e40f2;
-    --brand: linear-gradient(135deg, var(--indigo), var(--violet));
+    --pink: #ff5ca8;
+    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
     --glow: rgba(124, 92, 255, .22);
     --shadow: 0 30px 80px -20px rgba(40, 30, 90, .28), 0 10px 30px -10px rgba(40, 30, 90, .18);
-    --radius: 18px;
+    --radius: 20px;
+    --d-base: #f4f1ff; --d-text: #121218; --d-muted: rgba(18,18,24,.7); --d-faint: rgba(18,18,24,.5);
+    --d-line: rgba(18,18,24,.12); --d-fill: rgba(255,255,255,.6); --d-bar: rgba(255,255,255,.5);
+    --d-cta-bg: #121218; --d-cta-fg: #fff; --d-shadow: 0 40px 120px -50px rgba(90, 60, 200, .45);
+    --d-h1: linear-gradient(100deg, #4f5bff, #a24bff 50%, #ff3d96);
+    --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(140, 120, 255, .45), transparent 60%),
+      radial-gradient(700px 520px at 95% 15%, rgba(90, 170, 255, .4), transparent 62%),
+      radial-gradient(800px 500px at 60% 120%, rgba(255, 120, 190, .35), transparent 60%),
+      radial-gradient(500px 400px at 30% 90%, rgba(255, 190, 120, .3), transparent 60%);
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #0d0d12;
-      --bg-elev: #16161d;
-      --text: #f2f2f7;
-      --muted: #a4a4b5;
-      --faint: #74748a;
-      --line: rgba(255, 255, 255, .09);
-      --card: rgba(255, 255, 255, .04);
-      --glow: rgba(124, 92, 255, .32);
+      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
       --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
     }
   }
   :root[data-theme="dark"] {
-    --bg: #0d0d12; --bg-elev: #16161d; --text: #f2f2f7; --muted: #a4a4b5; --faint: #74748a;
-    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .04); --glow: rgba(124, 92, 255, .32);
+    --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
     --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { scroll-behavior: smooth; }
   body {
-    background: var(--bg);
-    color: var(--text);
+    background: var(--bg); color: var(--text);
     font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
   }
   a { color: inherit; text-decoration: none; }
   img { max-width: 100%; display: block; }
-  .wrap { width: min(1120px, 100% - 32px); margin: 0 auto; }
+  .wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
+  .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
 
   /* Nav */
   nav {
-    position: sticky; top: 0; z-index: 10;
-    backdrop-filter: saturate(180%) blur(18px);
-    -webkit-backdrop-filter: saturate(180%) blur(18px);
-    background: color-mix(in srgb, var(--bg) 72%, transparent);
-    border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: saturate(180%) blur(18px); -webkit-backdrop-filter: saturate(180%) blur(18px);
+    background: color-mix(in srgb, var(--bg) 72%, transparent); border-bottom: 1px solid var(--line);
   }
-  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 60px; }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
   .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
-  .logo img { width: 30px; height: 30px; }
+  .logo img { width: 28px; height: 28px; }
   .nav-links { display: flex; gap: 6px; align-items: center; }
   .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
   .nav-links a.text:hover { color: var(--text); background: var(--card); }
@@ -97,102 +114,134 @@
 
   /* Botões */
   .btn {
-    display: inline-flex; align-items: center; gap: 9px;
-    font-weight: 600; font-size: 15px; letter-spacing: -.01em;
-    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line);
-    background: var(--bg-elev); color: var(--text);
-    transition: transform .15s ease, box-shadow .2s ease, background .2s ease;
-    cursor: pointer;
+    display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; letter-spacing: -.01em;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease; cursor: pointer;
   }
   .btn:hover { transform: translateY(-1px); }
   .btn svg { width: 18px; height: 18px; flex: none; }
-  .btn.primary {
-    background: var(--brand); color: #fff; border: 0;
-    box-shadow: 0 10px 30px -8px rgba(124, 80, 255, .6);
-  }
-  .btn.primary:hover { box-shadow: 0 14px 36px -8px rgba(124, 80, 255, .75); }
+  .btn.primary { background: var(--d-cta-bg); color: var(--d-cta-fg); border: 0; box-shadow: 0 10px 40px -8px rgba(160, 120, 255, .7); }
+  .btn.primary.brand { background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--d-fill); color: var(--d-text); border-color: var(--d-line); }
   .btn.small { padding: 7px 12px; font-size: 13.5px; border-radius: 9px; }
-  .btn .count {
-    font-variant-numeric: tabular-nums; font-weight: 600; color: var(--muted);
-    border-left: 1px solid var(--line); padding-left: 9px; margin-left: 1px;
-  }
+  .btn .count { font-variant-numeric: tabular-nums; font-weight: 600; opacity: .7; border-left: 1px solid currentColor; padding-left: 9px; margin-left: 1px; }
 
-  /* Hero */
-  .hero { position: relative; padding: 84px 0 40px; text-align: center; }
-  .hero::before {
-    content: ""; position: absolute; inset: -200px 0 auto; height: 760px; z-index: -1;
-    background:
-      radial-gradient(600px 340px at 30% 30%, var(--glow), transparent 70%),
-      radial-gradient(600px 340px at 72% 22%, rgba(92, 107, 255, .18), transparent 70%);
+  /* Hero: uma mesa de Mac de verdade (clara ou escura, como o sistema), com barra de menus e notch vivos */
+  .desk {
+    position: relative; margin: 14px auto 0; width: min(1240px, 100% - 24px); border-radius: 30px; overflow: hidden;
+    color: var(--d-text); background: var(--d-base); isolation: isolate; box-shadow: var(--d-shadow);
   }
+  .desk::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall), var(--d-base);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: scale(1.12) translate(-2%, 2%); } }
+  .bar {
+    position: relative; height: 32px; display: flex; align-items: center; gap: 18px; padding: 0 16px;
+    font-size: 13px; background: var(--d-bar); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .bar .left { display: flex; gap: 18px; font-weight: 500; color: var(--d-text); opacity: .88; max-width: calc(50% - 210px); overflow: hidden; white-space: nowrap; }
+  .bar .left b { font-weight: 700; }
+  .bar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--d-text); }
+  .bar .status { height: 22px; padding: 0 6px; border-radius: 6px; background: var(--d-fill); display: flex; align-items: center; }
+  .bar .status img { height: 20px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bar .status img { filter: invert(1); } }
+  :root[data-theme="dark"] .bar .status img { filter: invert(1); }
+
+  .notch {
+    color: #fff;
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%); height: 32px; width: 190px;
+    background: #000; border-radius: 0 0 14px 14px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12.5px; font-weight: 600;
+    transition: width .5s cubic-bezier(.3, 1.4, .5, 1), height .5s cubic-bezier(.3, 1.4, .5, 1), border-radius .4s ease;
+  }
+  .notch.on { width: 380px; height: 40px; border-radius: 0 0 20px 20px; }
+  .notch > * { opacity: 0; transition: opacity .25s ease .15s; display: flex; align-items: center; gap: 8px; }
+  .notch.on > * { opacity: 1; }
+  .notch .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 10px #ff3b30; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .notch .pill { background: #30d158; color: #000; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; }
+  .notch .ico { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; }
+  .notch .t { color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+
+  .desk-body { display: grid; grid-template-columns: 1fr 360px; gap: 40px; padding: 70px 56px 0; align-items: start; }
   .badge {
-    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500;
-    padding: 5px 12px 5px 6px; border-radius: 999px; border: 1px solid var(--line);
-    background: var(--card); color: var(--muted); margin-bottom: 26px;
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; padding: 5px 12px 5px 6px;
+    border-radius: 999px; border: 1px solid var(--d-line); background: var(--d-fill); color: var(--d-muted); margin-bottom: 24px;
   }
-  .badge b { background: var(--brand); color: #fff; padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 600; }
-  h1 {
-    font-size: clamp(40px, 7vw, 76px); line-height: 1.02; letter-spacing: -.045em; font-weight: 800;
-    max-width: 880px; margin: 0 auto;
-  }
-  h1 .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 640px; margin: 22px auto 34px; }
-  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .meta { margin-top: 16px; font-size: 13px; color: var(--faint); }
-
-  /* Barra de menus fake */
-  .menubar {
-    margin: 64px auto 0; width: min(980px, 100%);
-    height: 34px; border-radius: 12px 12px 0 0;
-    display: flex; align-items: center; justify-content: flex-end; gap: 16px; padding: 0 16px;
-    background: color-mix(in srgb, var(--bg-elev) 80%, transparent);
-    border: 1px solid var(--line); border-bottom: 0;
-    font-size: 13px; color: var(--muted);
-  }
-  .menubar .status { height: 24px; border-radius: 6px; padding: 0 6px; background: rgba(124, 92, 255, .14); display: flex; align-items: center; }
-  .menubar .status img { height: 22px; }
-  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .menubar .status img { filter: invert(1); } }
-  :root[data-theme="dark"] .menubar .status img { filter: invert(1); }
-  .menubar .left { margin-right: auto; display: flex; gap: 18px; font-weight: 500; }
-  .menubar .left b { color: var(--text); }
-
-  .stage {
-    position: relative; width: min(980px, 100%); margin: 0 auto;
-    border: 1px solid var(--line); border-radius: 0 0 22px 22px;
-    background:
-      radial-gradient(800px 400px at 80% 0%, rgba(158, 64, 242, .16), transparent 60%),
-      radial-gradient(700px 400px at 0% 100%, rgba(92, 107, 255, .16), transparent 60%),
-      var(--bg-elev);
-    padding: 30px 30px 40px; overflow: hidden;
-    display: grid; grid-template-columns: 1fr 340px; gap: 28px; align-items: start;
-  }
-  .stage .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
-  .stage .popover { justify-self: end; border-radius: 16px; }
+  .badge b { background: var(--d-cta-bg); color: var(--d-cta-fg); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  h1 { font-size: clamp(44px, 6.6vw, 84px); line-height: .98; letter-spacing: -.05em; font-weight: 800; }
+  h1 .grad { background: var(--d-h1); -webkit-background-clip: text; background-clip: text; }
+  .lead { font-size: clamp(17px, 2vw, 19.5px); color: var(--d-muted); max-width: 560px; margin: 24px 0 32px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta { margin-top: 16px; font-size: 13px; color: var(--d-faint); }
+  .pop { position: relative; margin-top: -40px; animation: drop .9s cubic-bezier(.2, 1.2, .4, 1) .2s both; }
+  .pop img { border-radius: 18px; box-shadow: 0 40px 80px -20px rgba(40,20,90,.45), 0 0 0 1px var(--d-line); }
+  @keyframes drop { from { opacity: 0; transform: translateY(-24px) scale(.97); } }
+  .desk-foot { height: 60px; }
 
   /* Seções */
-  section { padding: 96px 0 0; }
-  .eyebrow { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  h2 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.08; letter-spacing: -.035em; font-weight: 750; margin: 10px 0 14px; }
-  .sub { color: var(--muted); font-size: 18px; max-width: 620px; }
+  section { padding: 110px 0 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .eyebrow { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; }
+  h2 { font-size: clamp(32px, 4.8vw, 54px); line-height: 1.04; letter-spacing: -.04em; font-weight: 800; margin: 10px 0 14px; }
+  .sub { color: var(--muted); font-size: 18px; max-width: 640px; }
   .center { text-align: center; }
   .center .sub { margin: 0 auto; }
 
+  /* Destaques: grade em blocos */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
+  .tile {
+    position: relative; overflow: hidden; border-radius: 26px; border: 1px solid var(--line); background: var(--card);
+    padding: 30px 30px 0; display: flex; flex-direction: column; min-height: 420px;
+  }
+  .tile.w4 { grid-column: span 4; } .tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; }
+  .tile::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .9; }
+  .tile.mem::before { background: radial-gradient(500px 300px at 100% 0%, rgba(255, 92, 168, .18), transparent 70%); }
+  .tile.rec::before { background: radial-gradient(500px 300px at 0% 0%, rgba(255, 69, 58, .14), transparent 70%); }
+  .tile.pal::before { background: radial-gradient(500px 300px at 100% 0%, rgba(92, 107, 255, .2), transparent 70%); }
+  .tile.aitile::before { background: radial-gradient(400px 300px at 50% 100%, rgba(158, 64, 242, .25), transparent 70%); }
+  .tile { isolation: isolate; }
+  .tile .k { display: inline-flex; gap: 4px; margin-bottom: 14px; }
+  .tile h3 { font-size: 26px; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 8px; }
+  .tile p { color: var(--muted); font-size: 15.5px; max-width: 460px; }
+  .tile .shot { margin-top: auto; padding-top: 26px; }
+  .tile .shot img { border-radius: 14px 14px 0 0; border: 1px solid var(--line); border-bottom: 0; box-shadow: var(--shadow); width: 100%; }
+  .tile.mem .shot img { max-height: 330px; object-fit: cover; object-position: top left; }
+  .tile.rec .shot img, .tile.pal .shot img { max-height: 300px; object-fit: cover; object-position: top left; }
+  kbd {
+    font: 600 12.5px/1 -apple-system, system-ui, sans-serif; padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
+  }
+  .ask {
+    display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 11px 14px; border-radius: 14px;
+    background: var(--bg-elev); border: 1px solid var(--line); font-size: 14.5px; max-width: 460px; box-shadow: 0 10px 30px -18px rgba(0,0,0,.4);
+  }
+  .ask svg { width: 16px; height: 16px; flex: none; color: var(--violet); }
+  .flow { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; font-size: 13.5px; }
+  .flow span { padding: 7px 12px; border-radius: 12px; background: var(--bg-elev); border: 1px solid var(--line); }
+  .flow .arrow { border: 0; background: none; padding: 0; color: var(--faint); }
+  .flow .task { border-color: rgba(48, 209, 88, .45); background: rgba(48, 209, 88, .1); }
+  .prompts { margin-top: auto; padding: 26px 0 30px; display: grid; gap: 10px; }
+  .prompt {
+    padding: 11px 14px; border-radius: 14px; background: var(--bg-elev); border: 1px solid var(--line);
+    font: 500 14px ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: .45; transition: opacity .4s ease, transform .4s ease, border-color .4s ease;
+  }
+  .prompt.on { opacity: 1; transform: translateX(4px); border-color: rgba(158, 64, 242, .55); }
+
+  /* Recursos (textos completos, recolhidos) */
   .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; align-items: start; }
-  .feature {
-    padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card);
-    transition: transform .2s ease, border-color .2s ease;
-  }
-  .feature:hover { transform: translateY(-3px); border-color: rgba(124, 92, 255, .35); }
-  .icon {
-    width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center;
-    color: #fff; margin-bottom: 16px; box-shadow: 0 8px 20px -8px currentColor;
-  }
-  .icon svg { width: 21px; height: 21px; color: #fff; }
+  .feature { padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); transition: border-color .2s ease; }
+  .feature:hover { border-color: rgba(124, 92, 255, .35); }
+  .icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; margin-bottom: 14px; }
+  .icon svg { width: 20px; height: 20px; color: #fff; }
   .feature h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 6px; }
   .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
 
-  .split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; margin-top: 10px; }
-  .split.rev { grid-template-columns: 1.25fr 1fr; }
+  .split { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; }
+  .split.rev { grid-template-columns: 1.2fr 1fr; }
   .split.rev .copy { order: 2; }
   .split .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
   .list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
@@ -203,93 +252,100 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
   }
   .list b { color: var(--text); font-weight: 600; }
+  .list li > div { min-width: 0; }
   .more { margin-top: 6px; }
-  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
-    color: var(--indigo); font-size: 13.5px; font-weight: 600; }
+  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: var(--indigo); font-size: 13.5px; font-weight: 600; }
   .more summary::-webkit-details-marker { display: none; }
   .more summary::after { content: "›"; transition: transform .2s ease; display: inline-block; }
   .more[open] summary::after { transform: rotate(90deg); }
   .more[open] summary { margin-bottom: 6px; }
   .more ul { list-style: none; display: grid; gap: 6px; padding: 0; margin: 0; }
   .more li { display: block; position: relative; padding-left: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
-  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%;
-    background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
-  .list li > div { min-width: 0; }
-
+  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
   .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
-  kbd {
-    font: 600 13px/1 -apple-system, system-ui, sans-serif; padding: 7px 10px; border-radius: 8px;
-    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
-  }
-  .keys span { display: inline-flex; align-items: center; gap: 8px; color: var(--muted); font-size: 14px; margin-right: 10px; }
+  .keys span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; margin-right: 10px; }
 
-  .privacy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 40px; }
-  .gallery { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 40px; align-items: start; }
-  .gallery figure { margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
-  .gallery img { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--line); }
-  .gallery h3 { font-size: 15px; margin: 12px 0 4px; }
-  .gallery p { font-size: 14px; color: var(--muted); }
-  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 40px; }
-  .replaces div { padding: 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
-  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--muted); letter-spacing: .02em; margin-bottom: 6px; }
+  /* Galeria em carrossel */
+  .rail-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+  .rail-nav { display: flex; gap: 8px; flex: none; }
+  .rail-nav button {
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font-size: 18px; cursor: pointer; transition: background .15s ease;
+  }
+  .rail-nav button:hover { background: var(--bg-elev); }
+  .rail {
+    display: grid; grid-auto-flow: column; grid-auto-columns: min(360px, 82%); gap: 16px; margin-top: 36px;
+    overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(16px, calc((100vw - 1160px) / 2)) 16px;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail figure { scroll-snap-align: center; margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .rail img { width: 100%; height: 230px; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); }
+  .rail h3 { font-size: 16px; margin: 14px 4px 4px; letter-spacing: -.01em; }
+  .rail p { font-size: 14px; color: var(--muted); margin: 0 4px 4px; }
+
+  /* Substitui */
+  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; }
+  .replaces div { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--faint); margin-bottom: 6px; text-decoration: line-through; text-decoration-color: rgba(255, 92, 168, .6); text-decoration-thickness: 2px; }
   .replaces p { font-size: 14.5px; }
   .rep-note { margin-top: 18px; text-align: center; font-size: 12.5px; color: var(--muted); }
+
+  /* Privacidade */
+  .priv { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 44px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { padding: 26px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .stat b { display: block; font-size: 52px; line-height: 1; letter-spacing: -.05em; font-weight: 800; }
+  .stat span { color: var(--muted); font-size: 14px; }
+  .priv-cards { display: grid; gap: 12px; margin-top: 12px; }
+  .priv-cards div { padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .priv-cards h3 { font-size: 15.5px; margin-bottom: 2px; }
+  .priv-cards p { color: var(--muted); font-size: 14.5px; }
+  .conn { padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .conn h3 { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+  .conn li { list-style: none; display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
+  .conn li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 10px rgba(48,209,88,.7); flex: none; }
+
   .faq { max-width: 760px; margin: 40px auto 0; display: grid; gap: 10px; }
   .faq details { padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
   .faq summary { font-weight: 600; font-size: 16px; cursor: pointer; }
   .faq details p { color: var(--muted); font-size: 15px; margin-top: 8px; }
-  .privacy div { padding: 22px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
-  .privacy h3 { font-size: 16px; margin-bottom: 4px; }
-  .privacy p { color: var(--muted); font-size: 14.5px; }
 
+  /* Final */
   .final {
-    margin: 110px auto 0; padding: 64px 28px; border-radius: 28px; text-align: center; position: relative; overflow: hidden;
-    background: radial-gradient(500px 260px at 50% 0%, var(--glow), transparent 70%), var(--card);
-    border: 1px solid var(--line);
+    margin: 120px auto 0; padding: 70px 28px; border-radius: 30px; text-align: center; position: relative; overflow: hidden; color: var(--d-text); background: var(--d-base); isolation: isolate;
   }
-  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .45)); }
+  .final::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall);
+  }
+  .final .sub { color: var(--d-muted); }
+  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .55)); }
   .install { margin: 34px auto 0; max-width: 600px; text-align: left; }
-  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: rgba(127,127,127,.12); }
-  .tabs button {
-    flex: 1; border: 0; background: transparent; color: var(--muted); cursor: pointer;
-    font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px;
-    transition: background .15s ease, color .15s ease;
-  }
-  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--d-fill); border: 1px solid var(--d-line); }
+  .tabs button { flex: 1; border: 0; background: transparent; color: var(--d-muted); cursor: pointer; font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px; }
+  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--d-text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
   .panel { display: none; margin-top: 14px; }
   .panel.on { display: block; }
   .steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
-  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--muted); font-size: 15px; counter-increment: s; }
-  .steps li::before {
-    content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
-    font: 700 12px/1 -apple-system, system-ui, sans-serif; color: #fff; background: var(--brand); transform: translateY(-1px);
-  }
-  .steps b { color: var(--text); }
-  .cmd {
-    display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px;
-    border: 1px solid var(--line); background: var(--bg-elev);
-  }
-  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); scrollbar-width: none; }
-  .cmd code::before { content: "$ "; color: var(--faint); }
-  .copy-btn {
-    flex: none; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer;
-    font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease;
-  }
-  .copy-btn:hover { color: var(--text); background: rgba(127,127,127,.12); }
-  .copy-btn.done { color: #22c55e; border-color: rgba(34,197,94,.5); }
-  .hint { margin-top: 10px; font-size: 13px; color: var(--faint); }
-  .ai {
-    margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px;
-    border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07);
-  }
-  .ai p { flex: 1; font-size: 14px; color: var(--muted); }
-  .ai b { color: var(--text); }
-  @media (max-width: 600px) { .ai { flex-direction: column; align-items: stretch; text-align: left; } }
+  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--d-muted); font-size: 15px; counter-increment: s; }
+  .steps li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 -apple-system, system-ui, sans-serif; color: var(--d-cta-fg); background: var(--d-cta-bg); transform: translateY(-1px); }
+  .steps b { color: var(--d-text); }
+  .cmd { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px; border: 1px solid var(--d-line); background: var(--d-fill); }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--d-text); scrollbar-width: none; }
+  .cmd code::before { content: "$ "; color: var(--d-faint); }
+  .copy-btn { flex: none; border: 1px solid var(--d-line); background: transparent; color: var(--d-muted); cursor: pointer; font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease; }
+  .copy-btn:hover { color: var(--d-text); background: var(--d-fill); }
+  .copy-btn.done { color: #30d158; border-color: rgba(48,209,88,.5); }
+  .hint { margin-top: 10px; font-size: 13px; color: var(--d-faint); }
+  .ai { margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07); }
+  .ai p { flex: 1; font-size: 14px; color: var(--d-muted); }
+  .ai b { color: var(--d-text); }
   .coffee { margin-top: 30px; display: none; }
   .coffee.on { display: block; }
   .btn.bmc { background: #ffdd00; color: #111; border: 0; }
 
-  footer { margin-top: 90px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer { margin-top: 80px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
   footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
   footer a:hover { color: var(--text); }
   footer .stats-note { flex-basis: 100%; font-size: 12px; }
@@ -305,22 +361,32 @@
 
   .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
   .reveal.in { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
-
-  @media (max-width: 900px) {
-    .stage { grid-template-columns: 1fr; padding: 18px; }
-    .stage .popover { justify-self: center; width: min(340px, 100%); }
-    .grid, .privacy, .replaces, .gallery { grid-template-columns: 1fr 1fr; }
-    .split, .split.rev { grid-template-columns: 1fr; gap: 32px; }
-    .split.rev .copy { order: 0; }
-    .menubar .left span:not(:first-child) { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .desk::before, .pop, .notch .dot { animation: none; }
   }
-  @media (max-width: 600px) {
-    .grid, .privacy, .replaces, .gallery { grid-template-columns: 1fr; }
+
+  @media (max-width: 960px) {
+    .desk-body { grid-template-columns: 1fr; padding: 56px 28px 0; }
+    .pop { margin: 0 auto; width: min(360px, 100%); }
+    .bar .left span:not(:first-child) { display: none; }
+    .tile.w4, .tile.w3, .tile.w2 { grid-column: span 6; }
+    .tile { min-height: 0; }
+    .grid, .replaces { grid-template-columns: 1fr 1fr; }
+    .split, .split.rev, .priv { grid-template-columns: 1fr; gap: 32px; }
+    .split.rev .copy { order: 0; }
+  }
+  @media (max-width: 640px) {
+    .desk { width: 100%; border-radius: 0; margin-top: 0; }
+    .desk-body { padding: 44px 16px 0; }
+    .bar .left, .bar .status { display: none; }
+    .notch { width: 120px; }
+    .notch.on { width: min(330px, 92vw); }
+    .grid, .replaces, .stats { grid-template-columns: 1fr; }
+    .tile { padding: 24px 20px 0; }
     .nav-links a.text { display: none; }
-    .hero { padding-top: 56px; }
     h1 br { display: none; }
-    .menubar .left { display: none; }
+    .rail-nav { display: none; }
   }
 </style>
 </head>
@@ -330,8 +396,8 @@
   <div class="wrap">
     <a class="logo" href="#"><img src="/assets/icon.png" alt="">Menew</a>
     <div class="nav-links">
+      <a class="text" href="#highlights">{{nav_highlights}}</a>
       <a class="text" href="#features">{{nav_features}}</a>
-      <a class="text" href="#clipboard">{{nav_clipboard}}</a>
       <a class="text" href="#privacy">{{nav_privacy}}</a>
       {{lang_switch}}
       <a class="btn small star-btn" data-goatcounter-click="github-nav" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
@@ -342,80 +408,88 @@
   </div>
 </nav>
 
-<header class="hero">
-  <div class="wrap">
-    <a class="badge" data-goatcounter-click="release-badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
-      <b data-version>{{badge_new}}</b> {{badge}}
-    </a>
-    <h1>{{h1}}</h1>
-    <p class="lead">{{lead}}</p>
-    <div class="cta">
-      <a class="btn primary" data-download data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
-        {{download_mac}}
-      </a>
-      <a class="btn" data-goatcounter-click="github-hero" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        {{star_github}}<span class="count" data-stars hidden></span>
-      </a>
-    </div>
-    <p class="meta"><span data-meta>{{platforms}}</span> · English, Português, Deutsch, Español, 中文</p>
-
-    <div class="menubar reveal" aria-hidden="true">
-      <div class="left">{{menubar}}</div>
-      <div class="status"><img src="/assets/statusbar-all.png" alt="Menew: CPU, RAM, network"></div>
+<header class="desk">
+  <div class="bar" aria-hidden="true">
+    <div class="left">{{menubar}}</div>
+    <div class="notch" data-notch><span data-n1></span><span data-n2></span></div>
+    <div class="right">
+      <div class="status"><img src="/assets/statusbar-all.png" alt=""></div>
       <span>{{clock}}</span>
     </div>
-    <div class="stage reveal">
-      <div>
-        <img class="shot light-only" src="{{shots}}/panel0-light.png" alt="{{alt_panel}}">
-        <img class="shot dark-only" src="{{shots}}/panel0-dark.png" alt="{{alt_panel}}">
+  </div>
+  <div class="desk-body">
+    <div>
+      <a class="badge" data-goatcounter-click="release-badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
+        <b data-version>{{badge_new}}</b> {{badge}}
+      </a>
+      <h1>{{h1}}</h1>
+      <p class="lead">{{lead}}</p>
+      <div class="cta">
+        <a class="btn primary" data-download data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
+          {{download_mac}}
+        </a>
+        <a class="btn ghost" data-goatcounter-click="github-hero" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          {{star_github}}<span class="count" data-stars hidden></span>
+        </a>
       </div>
-      <div class="popover">
-        <img class="shot light-only" src="{{shots}}/popover-now-light.png" alt="{{alt_system}}">
-        <img class="shot dark-only" src="{{shots}}/popover-now-dark.png" alt="{{alt_system}}">
-      </div>
+      <p class="meta"><span data-meta>{{platforms}}</span> · English, Português, Deutsch, Español, 中文</p>
+    </div>
+    <div class="pop">
+      <img class="light-only" src="{{shots}}/popover-now-light.png" alt="{{alt_system}}">
+      <img class="dark-only" src="{{shots}}/popover-now-dark.png" alt="{{alt_system}}">
     </div>
   </div>
+  <div class="desk-foot"></div>
 </header>
 
-<section id="features">
+<section id="highlights">
   <div class="wrap">
     <div class="center reveal">
-      <div class="eyebrow">{{features_eyebrow}}</div>
-      <h2>{{features_h2}}</h2>
-      <p class="sub">{{features_sub}}</p>
+      <div class="eyebrow">{{big_eyebrow}}</div>
+      <h2>{{big_h2}}</h2>
+      <p class="sub">{{big_sub}}</p>
     </div>
-    <div class="grid">
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff);color:#5c6bff"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
-        <h3>{{f1_t}}</h3>
-        {{f1_d_fold}}
+    <div class="bento">
+      <div class="tile w4 mem reveal">
+        <div class="k"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>K</kbd></div>
+        <h3>{{b1_t}}</h3>
+        <p>{{b1_d}}</p>
+        <div class="ask"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l1.9 5.6L19.5 9.5l-5.6 1.9L12 17l-1.9-5.6L4.5 9.5l5.6-1.9z"/></svg>{{b1_q}}</div>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="{{shots}}/hub-memory-light.png" alt="{{nat6_t}}">
+          <img class="dark-only" loading="lazy" src="{{shots}}/hub-memory-dark.png" alt="{{nat6_t}}">
+        </div>
       </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff);color:#9e40f2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
-        <h3>{{f2_t}}</h3>
-        {{f2_d_fold}}
+      <div class="tile w2 aitile reveal">
+        <h3>{{b4_t}}</h3>
+        <p>{{b4_d}}</p>
+        <div class="prompts" data-prompts>
+          <div class="prompt">{{b4_p1}}</div>
+          <div class="prompt">{{b4_p2}}</div>
+          <div class="prompt">{{b4_p3}}</div>
+          <div class="prompt">{{b4_p4}}</div>
+        </div>
       </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#f59e0b"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
-        <h3>{{f3_t}}</h3>
-        {{f3_d_fold}}
+      <div class="tile w3 rec reveal">
+        <div class="k"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>G</kbd></div>
+        <h3>{{b2_t}}</h3>
+        <p>{{b2_d}}</p>
+        <div class="flow"><span>{{b2_line}}</span><span class="arrow">→</span><span class="task">✓ {{b2_task}}</span></div>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="{{shots}}/hub-recordings-light.png" alt="{{nat7_t}}">
+          <img class="dark-only" loading="lazy" src="{{shots}}/hub-recordings-dark.png" alt="{{nat7_t}}">
+        </div>
       </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf);color:#14b8a6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
-        <h3>{{f4_t}}</h3>
-        {{f4_d_fold}}
-      </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa);color:#3b82f6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
-        <h3>{{f5_t}}</h3>
-        {{f5_d_fold}}
-      </div>
-      <div class="feature reveal">
-        <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6);color:#ec4899"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
-        <h3>{{f6_t}}</h3>
-        {{f6_d_fold}}
+      <div class="tile w3 pal reveal">
+        <div class="k"><kbd>⌃</kbd><kbd>⌥</kbd><kbd>Space</kbd></div>
+        <h3>{{b3_t}}</h3>
+        <p>{{b3_d}}</p>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="{{shots}}/palette-light.png" alt="{{b3_t}}">
+          <img class="dark-only" loading="lazy" src="{{shots}}/palette-dark.png" alt="{{b3_t}}">
+        </div>
       </div>
     </div>
   </div>
@@ -439,8 +513,50 @@
       </div>
     </div>
     <div class="reveal">
-      <img class="shot light-only" src="{{shots}}/panel2-light.png" alt="{{alt_color}}">
-      <img class="shot dark-only" src="{{shots}}/panel2-dark.png" alt="{{alt_color}}">
+      <img class="shot light-only" src="{{shots}}/panel0-light.png" alt="{{alt_panel}}">
+      <img class="shot dark-only" src="{{shots}}/panel0-dark.png" alt="{{alt_panel}}">
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{features_eyebrow}}</div>
+      <h2>{{features_h2}}</h2>
+      <p class="sub">{{features_sub}}</p>
+    </div>
+    <div class="grid">
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#5c6bff,#7b8bff)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg></div>
+        <h3>{{f1_t}}</h3>
+        {{f1_d_fold}}
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#9e40f2,#c06bff)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/></svg></div>
+        <h3>{{f2_t}}</h3>
+        {{f2_d_fold}}
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 2L3 14h8l-1 8 10-12h-8l1-8z"/></svg></div>
+        <h3>{{f3_t}}</h3>
+        {{f3_d_fold}}
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#14b8a6,#2dd4bf)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
+        <h3>{{f4_t}}</h3>
+        {{f4_d_fold}}
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#3b82f6,#60a5fa)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12.55a11 11 0 0114 0M1.42 9a16 16 0 0121.16 0M8.53 16.11a6 6 0 016.95 0M12 20h.01"/></svg></div>
+        <h3>{{f5_t}}</h3>
+        {{f5_d_fold}}
+      </div>
+      <div class="feature reveal">
+        <div class="icon" style="background:linear-gradient(135deg,#ec4899,#f472b6)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg></div>
+        <h3>{{f6_t}}</h3>
+        {{f6_d_fold}}
+      </div>
     </div>
   </div>
 </section>
@@ -473,92 +589,27 @@
   </div>
 </section>
 
-<section id="pro">
-  <div class="wrap">
-    <div class="center reveal">
-      <div class="eyebrow">{{pro_eyebrow}}</div>
-      <h2>{{pro_h2}}</h2>
-      <p class="sub">{{pro_sub}}</p>
+<section id="more">
+  <div class="wrap rail-head reveal">
+    <div>
+      <div class="eyebrow">{{gal_eyebrow}}</div>
+      <h2>{{gal_h2}}</h2>
+      <p class="sub">{{gal_sub}}</p>
     </div>
-    <div class="gallery">
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/history-light.png" alt="{{pro1_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/history-dark.png" alt="{{pro1_t}}">
-        <h3>{{pro1_t}}</h3><p>{{pro1_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/sensors-light.png" alt="{{pro2_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/sensors-dark.png" alt="{{pro2_t}}">
-        <h3>{{pro2_t}}</h3><p>{{pro2_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/metric-net-light.png" alt="{{pro3_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/metric-net-dark.png" alt="{{pro3_t}}">
-        <h3>{{pro3_t}}</h3><p>{{pro3_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/uninstaller-light.png" alt="{{pro4_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/uninstaller-dark.png" alt="{{pro4_t}}">
-        <h3>{{pro4_t}}</h3><p>{{pro4_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/startup-light.png" alt="{{pro5_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/startup-dark.png" alt="{{pro5_t}}">
-        <h3>{{pro5_t}}</h3><p>{{pro5_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/screentime-light.png" alt="{{pro6_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/screentime-dark.png" alt="{{pro6_t}}">
-        <h3>{{pro6_t}}</h3><p>{{pro6_d}}</p>
-      </figure>
-    </div>
+    <div class="rail-nav"><button data-rail="-1" aria-label="‹">‹</button><button data-rail="1" aria-label="›">›</button></div>
   </div>
-</section>
-
-<section id="native">
-  <div class="wrap">
-    <div class="center reveal">
-      <div class="eyebrow">{{nat_eyebrow}}</div>
-      <h2>{{nat_h2}}</h2>
-      <p class="sub">{{nat_sub}}</p>
-    </div>
-    <div class="gallery">
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/notch-hover-light.png" alt="{{nat1_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/notch-hover-dark.png" alt="{{nat1_t}}">
-        <h3>{{nat1_t}}</h3><p>{{nat1_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/widgets-light.png" alt="{{nat2_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/widgets-dark.png" alt="{{nat2_t}}">
-        <h3>{{nat2_t}}</h3><p>{{nat2_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/intents-light.png" alt="{{nat3_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/intents-dark.png" alt="{{nat3_t}}">
-        <h3>{{nat3_t}}</h3><p>{{nat3_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/captions-light.png" alt="{{nat4_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/captions-dark.png" alt="{{nat4_t}}">
-        <h3>{{nat4_t}}</h3><p>{{nat4_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/battery-light.png" alt="{{nat5_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/battery-dark.png" alt="{{nat5_t}}">
-        <h3>{{nat5_t}}</h3><p>{{nat5_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/hub-memory-light.png" alt="{{nat6_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/hub-memory-dark.png" alt="{{nat6_t}}">
-        <h3>{{nat6_t}}</h3><p>{{nat6_d}}</p>
-      </figure>
-      <figure class="reveal">
-        <img class="light-only" loading="lazy" src="{{shots}}/hub-recordings-light.png" alt="{{nat7_t}}">
-        <img class="dark-only" loading="lazy" src="{{shots}}/hub-recordings-dark.png" alt="{{nat7_t}}">
-        <h3>{{nat7_t}}</h3><p>{{nat7_d}}</p>
-      </figure>
-    </div>
+  <div class="rail" data-rail-track>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/notch-hover-light.png" alt="{{nat1_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/notch-hover-dark.png" alt="{{nat1_t}}"><h3>{{nat1_t}}</h3><p>{{nat1_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/widgets-light.png" alt="{{nat2_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/widgets-dark.png" alt="{{nat2_t}}"><h3>{{nat2_t}}</h3><p>{{nat2_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/intents-light.png" alt="{{nat3_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/intents-dark.png" alt="{{nat3_t}}"><h3>{{nat3_t}}</h3><p>{{nat3_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/captions-light.png" alt="{{nat4_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/captions-dark.png" alt="{{nat4_t}}"><h3>{{nat4_t}}</h3><p>{{nat4_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/screentime-light.png" alt="{{pro6_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/screentime-dark.png" alt="{{pro6_t}}"><h3>{{pro6_t}}</h3><p>{{pro6_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/history-light.png" alt="{{pro1_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/history-dark.png" alt="{{pro1_t}}"><h3>{{pro1_t}}</h3><p>{{pro1_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/sensors-light.png" alt="{{pro2_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/sensors-dark.png" alt="{{pro2_t}}"><h3>{{pro2_t}}</h3><p>{{pro2_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/metric-net-light.png" alt="{{pro3_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/metric-net-dark.png" alt="{{pro3_t}}"><h3>{{pro3_t}}</h3><p>{{pro3_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/battery-light.png" alt="{{nat5_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/battery-dark.png" alt="{{nat5_t}}"><h3>{{nat5_t}}</h3><p>{{nat5_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/uninstaller-light.png" alt="{{pro4_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/uninstaller-dark.png" alt="{{pro4_t}}"><h3>{{pro4_t}}</h3><p>{{pro4_d}}</p></figure>
+    <figure><img class="light-only" loading="lazy" src="{{shots}}/startup-light.png" alt="{{pro5_t}}"><img class="dark-only" loading="lazy" src="{{shots}}/startup-dark.png" alt="{{pro5_t}}"><h3>{{pro5_t}}</h3><p>{{pro5_d}}</p></figure>
   </div>
 </section>
 
@@ -590,10 +641,28 @@
       <h2>{{priv_h2}}</h2>
       <p class="sub">{{priv_sub}}</p>
     </div>
-    <div class="privacy">
-      <div class="reveal"><h3>{{priv1_t}}</h3><p>{{priv1_d}}</p></div>
-      <div class="reveal"><h3>{{priv2_t}}</h3><p>{{priv2_d}}</p></div>
-      <div class="reveal"><h3>{{priv3_t}}</h3><p>{{priv3_d}}</p></div>
+    <div class="priv">
+      <div class="reveal">
+        <div class="stats">
+          <div class="stat"><b>0</b><span>{{priv_s1}}</span></div>
+          <div class="stat"><b>0</b><span>{{priv_s2}}</span></div>
+          <div class="stat"><b class="grad">100%</b><span>{{priv_s3}}</span></div>
+        </div>
+        <div class="priv-cards">
+          <div><h3>{{priv1_t}}</h3><p>{{priv1_d}}</p></div>
+          <div><h3>{{priv2_t}}</h3><p>{{priv2_d}}</p></div>
+          <div><h3>{{priv3_t}}</h3><p>{{priv3_d}}</p></div>
+        </div>
+      </div>
+      <div class="conn reveal">
+        <h3>{{priv_conn_t}}</h3>
+        <ul>
+          <li>{{priv_c1}}</li>
+          <li>{{priv_c2}}</li>
+          <li>{{priv_c3}}</li>
+          <li>{{priv_c4}}</li>
+        </ul>
+      </div>
     </div>
   </div>
 </section>
@@ -626,9 +695,9 @@
     <img class="appicon" src="/assets/icon.png" alt="">
     <h2>{{final_h2}}</h2>
     <p class="sub" style="margin:0 auto">{{final_sub}}</p>
-    <div class="cta" style="margin-top:28px">
+    <div class="cta" style="margin-top:28px;justify-content:center">
       <a class="btn primary" data-download data-goatcounter-click="download-install" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">{{download_menew}}<span data-size></span></a>
-      <a class="btn" data-goatcounter-click="github-install" href="https://github.com/Quost/menew" target="_blank" rel="noopener">{{view_source}}</a>
+      <a class="btn ghost" data-goatcounter-click="github-install" href="https://github.com/Quost/menew" target="_blank" rel="noopener">{{view_source}}</a>
     </div>
     <div class="install" id="install">
       <div class="tabs" role="tablist">
@@ -674,7 +743,7 @@
 
 <footer>
   <div class="wrap">
-    <span>Menew · MIT License · {{made_by}} <a href="https://github.com/Quost">Quost</a></span>
+    <span>Menew · <a href="https://github.com/Quost/menew/blob/main/LICENSE">{{license}}</a> · {{made_by}} <a href="https://github.com/Quost">Quost</a></span>
     <span><a href="https://github.com/Quost/menew/releases" data-goatcounter-click="releases">{{footer_releases}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml" data-goatcounter-click="report-bug">{{footer_bug}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=feature_request.yml" data-goatcounter-click="suggest-idea">{{footer_idea}}</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md" data-goatcounter-click="contribute">{{footer_contribute}}</a></span>
     <span class="stats-note">{{site_stats}}</span>
   </div>
@@ -709,6 +778,39 @@
     const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
     document.querySelector("[data-meta]").textContent = `${T.version} ${v}${size} · ${T.platforms}`;
   }).catch(() => {});
+
+  // Notch vivo: reunião chegando, gravação e foco, como no app
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const notch = document.querySelector("[data-notch]");
+  const n1 = notch.querySelector("[data-n1]"), n2 = notch.querySelector("[data-n2]");
+  const states = [
+    [`<span class="ico" style="background:#ff9f0a">▶</span>${T.notch_meeting}`, `<span class="pill">${T.notch_join}</span>`],
+    [`<span class="dot"></span>REC`, `<span class="t">00:12</span>`],
+    [`<span class="ico" style="background:#5e5ce6">◐</span>${T.notch_focus}`, `<span class="t">24:13</span>`],
+  ];
+  let si = 0;
+  function cycle() {
+    const [a, b] = states[si % states.length];
+    n1.innerHTML = a; n2.innerHTML = b;
+    notch.classList.add("on");
+    if (still) return;
+    setTimeout(() => notch.classList.remove("on"), 3400);
+    si++;
+    setTimeout(cycle, 4600);
+  }
+  setTimeout(cycle, 900);
+
+  // Exemplos da IA, um de cada vez
+  const prompts = [...document.querySelectorAll("[data-prompts] .prompt")];
+  let pi = 0;
+  const lightPrompt = () => { prompts.forEach((p, i) => p.classList.toggle("on", i === pi % prompts.length)); pi++; };
+  lightPrompt();
+  if (!still) setInterval(lightPrompt, 2200);
+
+  // Carrossel
+  const rail = document.querySelector("[data-rail-track]");
+  document.querySelectorAll("[data-rail]").forEach(b => b.addEventListener("click", () =>
+    rail.scrollBy({ left: Number(b.dataset.rail) * Math.min(760, rail.clientWidth * .8), behavior: "smooth" })));
 
   // Instalação: abas
   document.querySelectorAll("[data-tab]").forEach(tab => tab.addEventListener("click", () => {
