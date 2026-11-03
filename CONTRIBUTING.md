@@ -98,7 +98,14 @@ Add `!` after the type (`feat!:`) for breaking changes.
 - **Test both themes.** Light and dark mode, and a small screen.
 - **One change per pull request**, with a screenshot if it touches the UI.
 
+## Changelog
+
+`CHANGELOG.md` is written by hand, for users, in English. In a pull request, add your line under `## Unreleased` at the top (create the section if it isn't there) and leave the version number out: it's chosen when releasing, and a numbered section conflicts as soon as another release ships first.
+
 ## Releasing (maintainers)
+
+Before tagging, rename `## Unreleased` to the new version (or add a `## X.Y.Z` section). That section becomes the release notes in the in-app update window and on GitHub.
+
 
 Push a tag and GitHub Actions does the rest:
 

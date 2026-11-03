@@ -125,6 +125,21 @@ struct BatteryCard: View {
                 Divider()
                 BatteryTrendRow(entries: BatteryLog.shared.entries, trend: trend)
             }
+            // Desgaste da semana: os detalhes (horas, apps, calor) ficam na janela Menew
+            let wear = BatteryWear.shared.summary()
+            if wear.daysWithData > 0 {
+                Button { MenewWindow.shared.show(.battery) } label: {
+                    HStack(spacing: 6) {
+                        Text(L("Desgaste esta semana")).font(.system(size: 10.5)).foregroundStyle(.secondary)
+                        Text(L("%@ ciclos", BatteryWearCard.fmt(wear.week))).font(.system(size: 11.5, weight: .semibold)).monospacedDigit()
+                        Spacer(minLength: 4)
+                        Text(L("Detalhes")).font(.system(size: 10.5, weight: .medium)).foregroundStyle(Theme.violet)
+                        Image(systemName: "chevron.right").font(.system(size: 9, weight: .semibold)).foregroundStyle(Theme.violet)
+                    }
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
             // Consumo agora e quanto falta (para acabar ou para encher)
             if health.systemWatts != nil || battery.minutesLeft != nil {
                 HStack(spacing: 0) {

@@ -256,6 +256,7 @@ struct HubView: View {
             ScrollView {
                 VStack(spacing: 12) {
                     if let b = monitor.battery, let h = monitor.batteryHealth { BatteryCard(battery: b, health: h) }
+                    BatteryWearCard()
                     HistoryMini(metric: .energy)
                     AccessoriesCard()
                 }

@@ -12,6 +12,6 @@
 - [ ] Every new UI string uses `L("…")` and has en, de, es and zh translations in `L10n.swift`.
 - [ ] Screenshots regenerated if a screen changed (`--snapshot`, see CONTRIBUTING).
 - [ ] README and website (`site/`, then `python3 scripts/build-site.py`) updated if the change is visible to users.
-- [ ] `CHANGELOG.md` has a line for users.
+- [ ] `CHANGELOG.md` has a line for users under `## Unreleased` (create it at the top if it isn't there; the version number is set when releasing).
 - [ ] Commits follow [Conventional Commits](https://www.conventionalcommits.org) (`feat(notes): …`, `fix(clipboard): …`).
 - [ ] No telemetry, no new network calls and no new dependencies (or explained above).

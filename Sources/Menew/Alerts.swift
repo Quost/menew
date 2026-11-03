@@ -74,6 +74,7 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
         }
         // Cuidados com a bateria: avisa ao chegar no nível escolhido na tomada e quando ela esquenta
         BatteryLog.shared.update(m.batteryHealth)
+        BatteryWear.shared.record(m.battery, m.batteryHealth)
         if let b = m.battery {
             let level = Self.chargedLevel
             evaluate(.charged, on: b.onAC && b.percent >= level && level < 100, off: !b.onAC || b.percent < level - 5) {

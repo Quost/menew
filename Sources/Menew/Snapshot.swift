@@ -79,7 +79,8 @@ enum Snapshot {
                        to: dir.appendingPathComponent("popover-passwords-\(suffix).png"))
                 // Janela Menew: algumas seções
                 MemoryStore.shared.showDemo()
-                for sec in [HubSection.overview, .memory, .tools, .performance] {
+                BatteryWear.shared.showDemo()
+                for sec in [HubSection.overview, .memory, .tools, .performance, .battery] {
                     let hs = HubState()
                     hs.section = sec
                     render(HubView(state: hs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
