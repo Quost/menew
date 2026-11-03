@@ -1,8 +1,15 @@
 # Menew
 
-> Free, open source Mac menu bar app: command palette, clipboard history, window snapping, screenshots, system monitor and on-device AI. No account, no tracking.
+> Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
 Menew 1.93.1 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+
+## Highlights
+
+- Memory: Press ⌃⌥⌘K and what’s on screen is saved, with its text, app and link. Later, just ask.
+- Recordings with minutes: Press ⌃⌥⌘G in a meeting. Your Mac transcribes it, tells who spoke, and writes the minutes with the tasks.
+- Command palette: ⌃⌥Space opens apps, actions, math, conversions, timers, reminders and your own scripts. Type what you want.
+- AI on your Mac: Summarizes, rewrites, translates and explains with Apple’s model, running on your Mac. No key, no account, no cloud.
 
 ## One app instead of many
 
@@ -14,6 +21,10 @@ Menew 1.93.1 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or late
 - Instead of Amphetamine or Caffeine: Keep the Mac awake for a while, until a time or while an app is open.
 - Instead of CleanMyMac: Disk cleaner for caches, logs, big files and duplicates; files go to the Trash. Plus an app uninstaller that removes the leftovers too.
 - Instead of Dropover or Yoink: A shelf for dragging files between apps, plus image and PDF tools. Split pages, extract the text (even from scanned PDFs) and password-protect PDFs.
+- Instead of Granola or Otter: Meeting recordings with transcript, minutes and tasks, made on your Mac (⌃⌥⌘G).
+- Instead of TextSniper: Copy text from anywhere on screen, even from videos and images (⌃⌥⌘T).
+- Instead of PopClip: Actions on selected text in any app: rewrite, explain, reply, or turn it into a reminder or event (⌃⌥⌘R).
+- Instead of Hazel: Tidy a folder like Downloads: names and folders suggested from each file’s content, with review and undo.
 
 ## Features
 
@@ -99,6 +110,18 @@ Menew is a native Swift app, not a web wrapper, and the download is about 8 MB. 
 ### Which languages does Menew speak?
 
 English, Portuguese, German, Spanish and Simplified Chinese. It follows your macOS language, and you can pick another one in Settings.
+
+### Can Menew record meetings and write the minutes?
+
+Yes. Press ⌃⌥⌘G (or Record in the Now tab) and choose Mac audio and microphone, Mac audio only, or microphone only. Your Mac transcribes it, tells you apart from the others, and Apple’s on-device AI writes a summary, decisions and tasks you can send to Reminders. No bot joins the call, nothing is uploaded, and short or empty recordings don’t get invented minutes.
+
+### Is there a free, private alternative to Granola or Otter on the Mac?
+
+Menew’s Recordings cover the everyday part: transcript, minutes and tasks, made on your Mac with Apple’s model, free and without an account. Granola and Otter go further with team sharing and cloud integrations.
+
+### How do I find something I saw on screen later?
+
+When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, reads the text and notes the app and link. Later, search or ask in plain words, like “which was that Swift chart library?”, and the on-device AI answers with the saved items as sources. Memory items also show up in Spotlight.
 
 ## Install
 

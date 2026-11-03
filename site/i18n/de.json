@@ -1,7 +1,7 @@
 {
   "title": "Menew – Kostenlose Menüleisten-App für den Mac",
-  "meta_desc": "Kostenlose Open-Source-App für die Mac-Menüleiste: Befehlspalette, Zwischenablage-Verlauf, Fenster, Bildschirmfotos, Systemmonitor und KI auf dem Mac. Ohne Konto.",
-  "og_desc": "Eine kostenlose, native App statt vieler: Befehlspalette, Zwischenablage-Verlauf, Fenster, Bildschirmfotos, Systemmonitor und KI auf dem Mac.",
+  "meta_desc": "Kostenlose Open-Source-App für die Mac-Menüleiste: Befehlspalette, Zwischenablage, Fenster, Bildschirmfotos, Meeting-Protokolle, Gedächtnis und KI auf dem Mac.",
+  "og_desc": "Kostenlose Open-Source-App für die Mac-Menüleiste: Befehlspalette, Zwischenablage, Fenster, Bildschirmfotos, Meeting-Protokolle, Gedächtnis und KI auf dem Mac.",
   "nav_features": "Funktionen",
   "nav_clipboard": "Zwischenablage",
   "nav_privacy": "Datenschutz",
@@ -204,5 +204,19 @@
   "priv_c2": "Deine öffentliche IP, im Netzwerkbereich",
   "priv_c3": "Der Geschwindigkeitstest, den du startest",
   "priv_c4": "Der Wechselkurs, den du abfragst",
-  "license": "GPLv3-Lizenz"
+  "license": "GPLv3-Lizenz",
+  "rep9_t": "Granola · Otter",
+  "rep9_d": "Meeting-Aufnahmen mit Transkript, Protokoll und Aufgaben, erstellt auf deinem Mac (⌃⌥⌘G).",
+  "rep10_t": "TextSniper",
+  "rep10_d": "Text von überall auf dem Bildschirm kopieren, sogar aus Videos und Bildern (⌃⌥⌘T).",
+  "rep11_t": "PopClip",
+  "rep11_d": "Aktionen für markierten Text in jeder App: umformulieren, erklären, antworten oder als Erinnerung oder Termin anlegen (⌃⌥⌘R).",
+  "rep12_t": "Hazel",
+  "rep12_d": "Einen Ordner wie Downloads aufräumen: Namen und Ordner nach dem Inhalt jeder Datei vorgeschlagen, mit Prüfung und Rückgängig.",
+  "faq13_q": "Kann Menew Meetings aufnehmen und das Protokoll schreiben?",
+  "faq13_a": "Ja. Drück ⌃⌥⌘G (oder Aufnehmen im Tab Jetzt) und wähle Mac-Ton und Mikrofon, nur Mac-Ton oder nur Mikrofon. Dein Mac transkribiert, unterscheidet dich von den anderen, und Apples KI auf dem Mac schreibt Zusammenfassung, Entscheidungen und Aufgaben, die du an Erinnerungen schicken kannst. Kein Bot tritt dem Call bei, nichts wird hochgeladen, und kurze oder leere Aufnahmen bekommen kein erfundenes Protokoll.",
+  "faq14_q": "Gibt es eine kostenlose, private Alternative zu Granola oder Otter auf dem Mac?",
+  "faq14_a": "Die Aufnahmen in Menew decken den Alltag ab: Transkript, Protokoll und Aufgaben, erstellt auf deinem Mac mit Apples Modell, kostenlos und ohne Konto. Granola und Otter bieten darüber hinaus Teamfreigabe und Cloud-Integrationen.",
+  "faq15_q": "Wie finde ich später etwas wieder, das ich auf dem Bildschirm gesehen habe?",
+  "faq15_a": "Drück in dem Moment ⌃⌥⌘K, um es im Gedächtnis zu speichern: Menew behält das Bild, liest den Text und merkt sich App und Link. Später suchst oder fragst du in eigenen Worten, etwa „wie hieß diese Swift-Diagramm-Bibliothek?“, und die KI auf dem Mac antwortet mit den gespeicherten Einträgen als Quellen. Einträge aus dem Gedächtnis erscheinen auch in Spotlight."
 }

@@ -1,7 +1,7 @@
 {
   "title": "Menew – App gratis para la barra de menús del Mac",
-  "meta_desc": "App gratis y de código abierto para la barra de menús del Mac: paleta de comandos, portapapeles, ventanas, capturas, monitor del sistema e IA en el Mac. Sin cuenta.",
-  "og_desc": "Una app gratis y nativa en lugar de varias: paleta de comandos, historial del portapapeles, ventanas, capturas, monitor del sistema e IA en el Mac.",
+  "meta_desc": "App gratis y de código abierto para la barra de menús del Mac: paleta de comandos, portapapeles, ventanas, capturas, actas de reuniones, memoria e IA en el Mac.",
+  "og_desc": "App gratis y de código abierto para la barra de menús del Mac: paleta de comandos, portapapeles, ventanas, capturas, actas de reuniones, memoria e IA en el Mac.",
   "nav_features": "Funciones",
   "nav_clipboard": "Portapapeles",
   "nav_privacy": "Privacidad",
@@ -204,5 +204,19 @@
   "priv_c2": "Tu IP pública, en el panel de red",
   "priv_c3": "La prueba de velocidad que tú inicias",
   "priv_c4": "El tipo de cambio que pides",
-  "license": "Licencia GPLv3"
+  "license": "Licencia GPLv3",
+  "rep9_t": "Granola · Otter",
+  "rep9_d": "Grabación de reuniones con transcripción, acta y tareas, hechas en tu Mac (⌃⌥⌘G).",
+  "rep10_t": "TextSniper",
+  "rep10_d": "Copia el texto de cualquier parte de la pantalla, incluso de vídeos e imágenes (⌃⌥⌘T).",
+  "rep11_t": "PopClip",
+  "rep11_d": "Acciones sobre el texto seleccionado en cualquier app: reescribir, explicar, responder o convertirlo en recordatorio o evento (⌃⌥⌘R).",
+  "rep12_t": "Hazel",
+  "rep12_d": "Ordena una carpeta como Descargas: nombres y carpetas sugeridos según el contenido de cada archivo, con revisión y deshacer.",
+  "faq13_q": "¿Menew puede grabar reuniones y escribir el acta?",
+  "faq13_a": "Sí. Pulsa ⌃⌥⌘G (o Grabar en la pestaña Ahora) y elige audio del Mac y micrófono, solo audio del Mac o solo micrófono. Tu Mac transcribe, te distingue de los demás y la IA de Apple, en tu propio Mac, escribe el resumen, las decisiones y las tareas, que puedes enviar a Recordatorios. Ningún bot entra en la llamada, nada se sube y las grabaciones cortas o vacías no reciben un acta inventada.",
+  "faq14_q": "¿Hay una alternativa gratis y privada a Granola u Otter en el Mac?",
+  "faq14_a": "Las Grabaciones de Menew cubren lo del día a día: transcripción, acta y tareas, hechas en tu Mac con el modelo de Apple, gratis y sin cuenta. Granola y Otter van más allá, con colaboración en equipo e integraciones en la nube.",
+  "faq15_q": "¿Cómo encuentro después algo que vi en pantalla?",
+  "faq15_a": "En ese momento, pulsa ⌃⌥⌘K para guardarlo en la Memoria: Menew guarda la imagen, lee el texto y anota la app y el enlace. Después, busca o pregunta con tus palabras, como «¿cuál era esa biblioteca de gráficos en Swift?», y la IA del Mac responde con los elementos guardados como fuentes. Los elementos de la Memoria también aparecen en Spotlight."
 }
