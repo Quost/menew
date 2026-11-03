@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.94.0 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.94.1 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## Highlights
 
