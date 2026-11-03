@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.93.0
+
+### New
+- **Screen recording with sound.** Right-click Record screen (Actions › Screen and capture) to choose the sound: none (as before), microphone, Mac audio, or both; or use “Record screen with sound” in the palette. The video gets the sound tracks, and with “Transcribe and write minutes” on (the default when there is sound), the audio also shows up in Recordings with a transcript, minutes and tasks, plus an Open the video button. Recording the microphone together with the screen needs macOS 15 or later.
+
 ## 1.92.0
 
 ### Changed
