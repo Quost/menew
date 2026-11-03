@@ -109,6 +109,10 @@ Every pull request runs the same checks on GitHub (`.github/workflows/ci.yml`): 
 - **Test both themes.** Light and dark mode, and a small screen.
 - **One change per pull request**, with a screenshot if it touches the UI.
 
+## Pull requests
+
+Pull requests are merged with **Squash and merge**: the whole PR becomes one commit on `main`, and its message is the PR title. So the title must follow Conventional Commits too (`fix(clipboard): …`), and a check fails the PR until it does. Your commits inside the PR can be as granular as you like.
+
 ## Changelog
 
 `CHANGELOG.md` is written by hand, for users, in English. In a pull request, add your line under `## Unreleased` at the top (create the section if it isn't there) and leave the version number out: it's chosen when releasing, and a numbered section conflicts as soon as another release ships first.
