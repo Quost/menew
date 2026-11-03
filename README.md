@@ -227,7 +227,7 @@ You review everything, and your files go to the Trash. **Uninstall apps**: drop 
 <details>
 <summary>🟣 <b>Live notch</b> — What matters right now appears on both sides of the camera, one thing at a time: a meeting about to start with a Join button, screen recording with the time and a Stop button, a timer or focus countdown, a muted mic during a call, and Menew’s confirmations like “Copied”.</summary>
 
-It disappears when there is nothing to show. Rest the pointer on the notch and it opens a panel with your next meeting (and Join), the focus or timer countdown and shortcuts (mute the mic, capture, clipboard, shelf, palette); drag files to the notch and drop them to keep them on the shelf. Settings › Notch has a live preview, a switch and a Test button for each alert, and how early meetings appear (1, 2 or 5 minutes). On Macs without a notch it can show as a pill at the top of the screen.
+It disappears when there is nothing to show. Rest the pointer on the notch and it opens a panel with your next meeting (and Join), the focus or timer countdown and shortcuts (mute the mic, capture, clipboard, shelf, palette); drag files to the notch and drop them to keep them on the shelf. Settings › Notch has a live preview, a switch and a Test button for each alert, and how early meetings appear (1, 2 or 5 minutes). On Macs without a notch it can show as a pill at the top of the screen. **In a call** (any app using the microphone), the hover panel shows the time in the call and puts mute, **Record minutes** (Mac audio and microphone) and live captions first; otherwise its shortcuts are Capture, Memory, Clipboard and Shelf. Below the next meeting, a line shows the one after it.
 
 </details>
 

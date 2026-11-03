@@ -6,6 +6,13 @@ Each version's section is shown in the in-app update window and on the GitHub re
 
 ### Fixed
 - **External monitor going black when Menew opens.** With some USB-C adapters, talking to the monitor over DDC/CI made it lose the signal; Menew then rescanned and asked again every time it came back, so the screen kept blinking and the CPU stayed high until you quit. Now, if a monitor reconfigures right after Menew talked to it, Menew remembers that monitor (even after you quit), stops sending it commands and uses software dimming instead. Turning “External monitor brightness” off and on again in Settings › Windows and displays makes Menew try the cable again.
+
+## 1.96.0
+
+### New
+- **The notch knows when you're in a call.** Rest the pointer on the notch while any app is using the microphone and the panel turns into call controls: how long you've been in the call, mute, **Record minutes** (Mac audio and microphone, transcribed into Recordings) and live captions. Outside a call, Memory takes the Palette's place among the shortcuts (Capture, Memory, Clipboard, Shelf), and a line below your next meeting shows the one after it.
+
+### Fixed
 - “No more meetings today” in the Menew window's agenda was shown in Portuguese in every language.
 
 ## 1.95.0

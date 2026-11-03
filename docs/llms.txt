@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.95.0 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.96.0 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## Highlights
 
@@ -47,7 +47,7 @@ Menew 1.95.0 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or late
 - Copy text from screen — press ⌃⌥⌘T, select any area (a video, a PDF, an error message) and its text goes to the clipboard. Works on copied images too. Runs entirely on your Mac. Or ask about it: “explain this error”, “translate this”, “what should I do?”, answered by your Mac’s own AI.
 - Focus timer — start 25 minutes (or any time: type “focus 50” in the palette) and the countdown shows in the menu bar. It can mute the mic, keep the Mac awake and pause the clipboard, then puts it all back and gives you a 5-minute break.
 - App control — quit all apps, quit everything but the one you're using, hide the rest or force quit a frozen app. A work profile can close everything else and open only what you need, and an automation can quit all apps when the battery hits 5%.
-- Live notch: An upcoming meeting with a Join button, recording, timers and a muted mic show next to the camera. Gone when there is nothing to show. Rest the pointer on it for your next meeting, the timer and shortcuts, or drop files on it to keep them on the shelf.
+- Live notch: An upcoming meeting with a Join button, recording, timers and a muted mic show next to the camera. Gone when there is nothing to show. Rest the pointer on it for your next meeting, the timer and shortcuts, or drop files on it to keep them on the shelf. In a call, it turns into call controls: the time in the call, mute, record with minutes and live captions.
 - Widgets: System, meetings, timers and screen time on your desktop or in Notification Center. Click to open Menew.
 - Siri, Shortcuts and Spotlight: Ask Siri how your Mac is doing, chain 27 actions in the Shortcuts app and find your notes in Spotlight. And Focus filters: with your Work Focus on, Menew pauses the clipboard or quiets the notch on its own.
 - Live captions: Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.

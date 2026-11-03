@@ -88,7 +88,8 @@ final class NotchHover: NSObject {
         mode = m
         model.mode = m
         model.refresh()
-        let size = m == .hover ? NSSize(width: 460, height: 150) : NSSize(width: 360, height: 110)
+        // A linha "depois:" da reunião seguinte pede um pouco mais de altura
+        let size = m == .hover ? NSSize(width: 480, height: model.after != nil ? 172 : 150) : NSSize(width: 360, height: 110)
         let frame = NSRect(x: s.frame.midX - size.width / 2, y: s.frame.maxY - size.height, width: size.width, height: size.height)
         let p = panel ?? makePanel()
         panel = p
@@ -135,9 +136,19 @@ final class NotchHoverModel: ObservableObject {
     @Published var focusEnd: Date?
     @Published var micMuted = false
     @Published var recordingSince: Date?
+    /// Em chamada (algum app usando o microfone): desde quando
+    @Published var callSince: Date?
+    @Published var captionsOn = false
+    /// A reunião depois da próxima, para planejar sem abrir o Calendário
+    @Published var after: Meeting?
 
     func refresh() {
+        let now = Date()
         meeting = MeetingStore.shared.next
+        let from = max(meeting?.start ?? now, now)
+        after = MeetingStore.shared.today.first { $0.start > from && $0.id != meeting?.id }
+        callSince = AudioControl.micInUse() ? (NotchCenter.shared.callSince ?? callSince ?? now) : nil
+        captionsOn = LiveCaptions.shared.running
         timers = Array(TimerStore.shared.active.prefix(2))
         focusEnd = FocusTimer.shared.isRunning ? FocusTimer.shared.endsAt : nil
         micMuted = AudioControl.isMuted(input: true)
@@ -194,6 +205,10 @@ struct NotchHoverView: View {
                             Text(m.title).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
                             Text(m.start > Date() ? L("às %@", m.start.formatted(date: .omitted, time: .shortened)) : L("agora"))
                                 .font(.system(size: 11)).foregroundStyle(.white.opacity(0.65))
+                            if let a = model.after {
+                                Text(L("depois: %@ às %@", a.title, a.start.formatted(date: .omitted, time: .shortened)))
+                                    .font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.5)).lineLimit(1)
+                            }
                         }
                         if m.link != nil {
                             Button { NotchHover.run { MeetingStore.shared.join() } } label: {
@@ -203,6 +218,8 @@ struct NotchHoverView: View {
                             .buttonStyle(.plain)
                         }
                     }
+                } else if model.callSince != nil {
+                    Label(L("Em chamada"), systemImage: "phone.fill").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.green)
                 } else {
                     Label(L("Sem reuniões chegando"), systemImage: "calendar").font(.system(size: 12)).foregroundStyle(.white.opacity(0.65))
                 }
@@ -220,6 +237,13 @@ struct NotchHoverView: View {
                     }
                     .buttonStyle(.plain)
                     .help(L("Parar a gravação"))
+                } else if let since = model.callSince {
+                    // O telefone já está à esquerda quando não há reunião; com reunião, ele diz que é chamada
+                    Label { Text(since, style: .timer).monospacedDigit() } icon: {
+                        if model.meeting != nil { Image(systemName: "phone.fill").foregroundStyle(.green) }
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .help(L("Tempo em chamada"))
                 } else if let end = model.focusEnd {
                     Label { Text(end, style: .timer).monospacedDigit() } icon: { Image(systemName: "scope").foregroundStyle(.orange) }
                         .font(.system(size: 12, weight: .semibold))
@@ -233,10 +257,25 @@ struct NotchHoverView: View {
                     _ = app?.toolbox.toggleMic()
                     model.micMuted = AudioControl.isMuted(input: true)
                 }
-                button("camera.viewfinder", L("Capturar"), .pink) { NotchHover.run { ScreenCapture.area() } }
-                button("doc.on.clipboard", L("Clipboard"), .purple) { NotchHover.run { app?.clipPanel.show() } }
-                button("tray.full.fill", L("Estante"), Theme.indigo) { NotchHover.run { app?.shelf.toggle() } }
-                button("command", L("Paleta"), .blue) { NotchHover.run { app?.palette.show() } }
+                if model.callSince != nil {
+                    // Numa chamada: o que serve agora (gravar com ata, legendas) vem na frente
+                    if model.recordingSince != nil {
+                        button("stop.fill", L("Parar"), .red) { NotchHover.run { RecordingStore.shared.stop() } }
+                    } else {
+                        button("waveform.badge.mic", L("Gravar ata"), .red) { NotchHover.run { RecordingStore.shared.start(source: .both) } }
+                    }
+                    button("captions.bubble.fill", L("Legendas"), model.captionsOn ? .green : .teal) {
+                        LiveCaptions.shared.toggle()
+                        model.captionsOn = LiveCaptions.shared.running
+                    }
+                    button("camera.viewfinder", L("Capturar"), .pink) { NotchHover.run { ScreenCapture.area() } }
+                    button("brain.head.profile", L("Memória"), .pink) { NotchHover.run { MemoryStore.shared.capture() } }
+                } else {
+                    button("camera.viewfinder", L("Capturar"), .pink) { NotchHover.run { ScreenCapture.area() } }
+                    button("brain.head.profile", L("Memória"), .pink) { NotchHover.run { MemoryStore.shared.capture() } }
+                    button("doc.on.clipboard", L("Clipboard"), .purple) { NotchHover.run { app?.clipPanel.show() } }
+                    button("tray.full.fill", L("Estante"), Theme.indigo) { NotchHover.run { app?.shelf.toggle() } }
+                }
             }
         }
     }
