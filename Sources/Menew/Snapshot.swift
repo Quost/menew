@@ -213,16 +213,26 @@ enum Snapshot {
                 hm.meeting = Meeting(id: "demo", title: L("Alinhamento semanal"), start: Date().addingTimeInterval(14 * 60), end: Date().addingTimeInterval(44 * 60),
                                      link: URL(string: "https://meet.example.com/abc"), color: .orange)
                 hm.focusEnd = Date().addingTimeInterval(18 * 60)
+                hm.after = Meeting(id: "d3", title: L("Revisão do trimestre"), start: Date().addingTimeInterval(3 * 3600), end: Date().addingTimeInterval(4 * 3600),
+                                   link: nil, color: .purple)
                 let dm = NotchHoverModel()
                 dm.shown = true
                 dm.mode = .drop
                 render(VStack(spacing: 18) {
-                    NotchHoverView(model: hm, notch: CGSize(width: 200, height: 37)).frame(width: 460, height: 150)
+                    NotchHoverView(model: hm, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 172)
                     NotchHoverView(model: dm, notch: CGSize(width: 200, height: 37)).frame(width: 360, height: 110)
                 }
                 .padding(.bottom, 18).frame(width: 560)
                 .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
-                       size: NSSize(width: 560, height: 296), dark: dark, to: dir.appendingPathComponent("notch-hover-\(suffix).png"))
+                       size: NSSize(width: 560, height: 318), dark: dark, to: dir.appendingPathComponent("notch-hover-\(suffix).png"))
+                // Notch numa chamada: tempo, gravar com ata e legendas
+                let cm = NotchHoverModel()
+                cm.shown = true
+                cm.callSince = Date().addingTimeInterval(-(12 * 60 + 3))
+                render(NotchHoverView(model: cm, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 150)
+                        .padding(.bottom, 18).frame(width: 560)
+                        .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                       size: NSSize(width: 560, height: 168), dark: dark, to: dir.appendingPathComponent("notch-call-\(suffix).png"))
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),

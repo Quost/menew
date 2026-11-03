@@ -43,6 +43,8 @@ final class NotchCenter: ObservableObject {
     private var muted = false
     /// Algum app usando o microfone (numa chamada): o aviso de reunião some depois do início
     private var micBusy = false
+    /// Desde quando algum app está usando o microfone (uma chamada): o painel do notch mostra o tempo
+    private(set) var callSince: Date?
     private var lastMuteCheck = Date.distantPast
 
     /// Ligado por padrão só em Macs com notch
@@ -88,6 +90,7 @@ final class NotchCenter: ObservableObject {
             lastMuteCheck = now
             // Só importa numa chamada: mic mudo com algum app usando o microfone
             micBusy = AudioControl.micInUse()
+            callSince = micBusy ? (callSince ?? now) : nil
             muted = AudioControl.isMuted(input: true) && micBusy
         }
         let next = Self.pick(now: now, flash: flash?.0, muted: muted, inCall: micBusy)
