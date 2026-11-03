@@ -34,6 +34,8 @@ let package = Package(
                 // Sparkle.framework vai em Contents/Frameworks
                 .unsafeFlags(["-Xlinker", "-rpath", "-Xlinker", "@executable_path/../Frameworks"]),
             ]
-        )
+        ),
+        // Lógica pura do app (senhas, bateria, reuniões, atas, busca): `swift test`, e em todo pull request
+        .testTarget(name: "MenewTests", dependencies: ["Menew"], path: "Tests/MenewTests"),
     ]
 )
