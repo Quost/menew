@@ -4,7 +4,7 @@ import SwiftUI
 /// Janela Menew: a profundidade. A barra de menus mostra o "agora"; aqui ficam a memória, o histórico,
 /// o desempenho em detalhe, as ferramentas e o resto, numa barra lateral como a dos Ajustes do Sistema.
 enum HubSection: String, CaseIterable, Identifiable {
-    case overview, memory, recordings, clipboard, notes, performance, history, battery, tools, automations
+    case overview, memory, recordings, clipboard, notes, performance, history, battery, tools, automations, settings
     var id: String { rawValue }
 
     var title: String {
@@ -19,6 +19,7 @@ enum HubSection: String, CaseIterable, Identifiable {
         case .battery: L("Bateria")
         case .tools: L("Ferramentas")
         case .automations: L("Apps, perfis e automações")
+        case .settings: L("Ajustes")
         }
     }
 
@@ -34,6 +35,7 @@ enum HubSection: String, CaseIterable, Identifiable {
         case .battery: "battery.75percent"
         case .tools: "wrench.and.screwdriver.fill"
         case .automations: "gearshape.2.fill"
+        case .settings: "gearshape.fill"
         }
     }
 
@@ -49,6 +51,7 @@ enum HubSection: String, CaseIterable, Identifiable {
         case .battery: .green
         case .tools: .teal
         case .automations: .gray
+        case .settings: .gray
         }
     }
 
@@ -69,10 +72,11 @@ final class MenewWindow: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     let state = HubState()
 
-    func show(_ section: HubSection? = nil) {
+    func show(_ section: HubSection? = nil, category: SettingsCategory? = nil) {
         NotificationCenter.default.post(name: .closeMenu, object: nil)
         guard let app = NSApp.delegate as? AppDelegate else { return }
         if let section { state.section = section }
+        if let category { state.section = .settings; state.category = category }
         let w = window ?? {
             let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1040, height: 680),
                              styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
@@ -82,7 +86,7 @@ final class MenewWindow: NSObject, NSWindowDelegate {
             w.minSize = NSSize(width: 780, height: 500)
             w.delegate = self
             w.contentView = NSHostingView(rootView: HubView(state: state, monitor: app.monitor, clipboard: app.clipboard, notes: app.notes,
-                                                             internet: app.internet, toolbox: app.toolbox))
+                                                             internet: app.internet, toolbox: app.toolbox, updater: app.updater))
             if !w.setFrameUsingName("MenewHub") { w.center() }
             w.setFrameAutosaveName("MenewHub")
             return w
@@ -104,6 +108,9 @@ final class MenewWindow: NSObject, NSWindowDelegate {
 @MainActor
 final class HubState: ObservableObject {
     @Published var section: HubSection = .overview
+    /// A categoria aberta quando a seção é Ajustes
+    @Published var category: SettingsCategory = .general
+    @Published var query = ""
 }
 
 struct HubView: View {
@@ -113,6 +120,7 @@ struct HubView: View {
     let notes: NotesStore
     let internet: InternetInfo
     let toolbox: Toolbox
+    @ObservedObject var updater: UpdaterModel
     @AppStorage(Module.clipboard.key) private var clipboardOn = true
     @AppStorage(Module.notes.key) private var notesOn = true
     @StateObject private var clipState = ClipListState()
@@ -122,11 +130,12 @@ struct HubView: View {
             sidebar
             Divider()
             VStack(alignment: .leading, spacing: 0) {
-                Text(state.section.title).font(.system(size: 20, weight: .bold))
+                Text(state.section == .settings ? state.category.title : state.section.title).font(.system(size: 20, weight: .bold))
                     .padding(.horizontal, 24).padding(.top, 34).padding(.bottom, 10)
                 content
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                    .id(state.section)
+                    .padding(.leading, 14)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                    .id(state.section == .settings ? "settings." + state.category.rawValue : state.section.rawValue)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
             .background(Theme.windowFill)
@@ -135,41 +144,85 @@ struct HubView: View {
     }
 
     private var sidebar: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            ForEach(HubSection.allCases.filter(\.isVisible)) { s in
-                if s == .performance {
-                    Text(L("Mac")).font(.system(size: 10.5, weight: .bold)).foregroundStyle(.secondary).textCase(.uppercase)
-                        .padding(.horizontal, 10).padding(.top, 12).padding(.bottom, 2)
+        VStack(alignment: .leading, spacing: 8) {
+            // Uma busca só: acha seções e ajustes
+            HStack(spacing: 6) {
+                Image(systemName: "magnifyingglass").font(.system(size: 12)).foregroundStyle(.secondary)
+                TextField(L("Buscar"), text: $state.query).textFieldStyle(.plain).font(.system(size: 13))
+                if !state.query.isEmpty {
+                    Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).foregroundStyle(.tertiary)
                 }
-                Button { state.section = s } label: {
-                    HStack(spacing: 9) {
-                        Image(systemName: s.icon).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
-                            .frame(width: 22, height: 22)
-                            .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(s.color.gradient))
-                        Text(s.title).font(.system(size: 13)).lineLimit(1)
-                        Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 8).padding(.vertical, 6)
+            .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.06)))
+            ScrollView {
+                VStack(alignment: .leading, spacing: 2) {
+                    if !state.query.isEmpty {
+                        searchResults
+                    } else if state.section == .settings {
+                        // Dentro dos Ajustes: as categorias, com um caminho de volta
+                        row(icon: "chevron.left", color: .clear, title: "Menew", on: false, plainIcon: true) { state.section = .overview }
+                        ForEach(SettingsCategory.allCases) { c in
+                            row(icon: c.icon, color: c.color, title: c.title, on: state.category == c) { state.category = c }
+                        }
+                    } else {
+                        ForEach(HubSection.allCases.filter { $0.isVisible && $0 != .settings }) { s in
+                            if s == .performance {
+                                Text(L("Mac")).font(.system(size: 10.5, weight: .bold)).foregroundStyle(.secondary).textCase(.uppercase)
+                                    .padding(.horizontal, 10).padding(.top, 12).padding(.bottom, 2)
+                            }
+                            row(icon: s.icon, color: s.color, title: s.title, on: state.section == s) { state.section = s }
+                        }
                     }
-                    .padding(.horizontal, 8).padding(.vertical, 5)
-                    .background(RoundedRectangle(cornerRadius: 7).fill(state.section == s ? Color.accentColor.opacity(0.18) : .clear))
-                    .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
             }
-            Spacer()
-            Button { SettingsWindow.shared.show() } label: {
-                HStack(spacing: 9) {
-                    Image(systemName: "gearshape.fill").font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
-                        .frame(width: 22, height: 22).background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(Color.gray.gradient))
-                    Text(L("Ajustes")).font(.system(size: 13))
-                    Spacer(minLength: 0)
-                }
-                .padding(.horizontal, 8).padding(.vertical, 5).contentShape(Rectangle())
+            .scrollIndicators(.never)
+            if state.section != .settings && state.query.isEmpty {
+                row(icon: "gearshape.fill", color: .gray, title: L("Ajustes"), on: false) { state.section = .settings }
             }
-            .buttonStyle(.plain)
         }
-        .padding(.horizontal, 10).padding(.top, 40).padding(.bottom, 12)
+        .padding(.horizontal, 10).padding(.top, 38).padding(.bottom, 12)
         .frame(width: 230)
         .background(VisualEffect(material: .sidebar).ignoresSafeArea())
+    }
+
+    @ViewBuilder private var searchResults: some View {
+        let q = PaletteSearch.fold(state.query.trimmingCharacters(in: .whitespaces))
+        let sections = HubSection.allCases.filter { $0.isVisible && $0 != .settings && PaletteSearch.fold($0.title).contains(q) }
+        let cats = SettingsCategory.allCases.filter { PaletteSearch.fold($0.keywords).contains(q) }
+        ForEach(sections) { s in
+            row(icon: s.icon, color: s.color, title: s.title, on: false) { state.section = s; state.query = "" }
+        }
+        if !cats.isEmpty {
+            Text(L("Ajustes")).font(.system(size: 10.5, weight: .bold)).foregroundStyle(.secondary).textCase(.uppercase)
+                .padding(.horizontal, 10).padding(.top, 8).padding(.bottom, 2)
+            ForEach(cats) { c in
+                row(icon: c.icon, color: c.color, title: c.title, on: false) { state.section = .settings; state.category = c; state.query = "" }
+            }
+        }
+        if sections.isEmpty && cats.isEmpty {
+            Text(L("Nada encontrado")).font(.system(size: 12)).foregroundStyle(.secondary).padding(.horizontal, 10).padding(.top, 6)
+        }
+    }
+
+    private func row(icon: String, color: Color, title: String, on: Bool, plainIcon: Bool = false, _ action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: 9) {
+                if plainIcon {
+                    Image(systemName: icon).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).frame(width: 22, height: 22)
+                } else {
+                    Image(systemName: icon).font(.system(size: 11, weight: .semibold)).foregroundStyle(.white)
+                        .frame(width: 22, height: 22)
+                        .background(RoundedRectangle(cornerRadius: 6, style: .continuous).fill(color.gradient))
+                }
+                Text(title).font(.system(size: 13)).lineLimit(1)
+                Spacer(minLength: 0)
+            }
+            .padding(.horizontal, 8).padding(.vertical, 5)
+            .background(RoundedRectangle(cornerRadius: 7).fill(on ? Color.accentColor.opacity(0.18) : .clear))
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
     }
 
     @ViewBuilder private var content: some View {
@@ -211,6 +264,10 @@ struct HubView: View {
             .frame(maxWidth: 560)
         case .tools:
             HubTools(monitor: monitor)
+        case .settings:
+            SettingsView(clipboard: clipboard, monitor: monitor, updater: updater, category: state.category)
+                .padding(.horizontal, 10)
+                .frame(maxWidth: 640, alignment: .topLeading)
         case .automations:
             ActionsView(tb: toolbox, clipboard: clipboard, group: .system, showsBack: false) { state.section = .tools }
                 .frame(maxWidth: 560)

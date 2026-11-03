@@ -76,13 +76,18 @@ enum Snapshot {
                 for sec in [HubSection.overview, .memory, .tools, .performance] {
                     let hs = HubState()
                     hs.section = sec
-                    render(HubView(state: hs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox),
+                    render(HubView(state: hs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
                            size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-\(sec.rawValue)-\(suffix).png"))
                 }
+                let ss = HubState()
+                ss.section = .settings
+                ss.category = .general
+                render(HubView(state: ss, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
+                       size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-settings-\(suffix).png"))
                 RecordingStore.shared.showDemo()
                 let rs = HubState()
                 rs.section = .recordings
-                render(HubView(state: rs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox),
+                render(HubView(state: rs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
                        size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-recordings-\(suffix).png"))
                 // Grafo do conhecimento com os dados de exemplo
                 let kg = KnowledgeGraph.build(memory: MemoryStore.shared.items, notes: [])

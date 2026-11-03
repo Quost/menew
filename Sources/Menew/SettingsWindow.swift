@@ -92,29 +92,9 @@ final class SettingsWindow: NSObject, NSWindowDelegate {
     static let shared = SettingsWindow()
     private var window: NSWindow?
 
+    /// Os Ajustes moram na janela Menew (última seção da barra lateral)
     func show(_ category: SettingsCategory? = nil) {
-        NotificationCenter.default.post(name: .closeMenu, object: nil)
-        guard let app = NSApp.delegate as? AppDelegate else { return }
-        let w = window ?? {
-            let w = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 760, height: 560),
-                             styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView], backing: .buffered, defer: false)
-            w.title = L("Ajustes do Menew")
-            w.titlebarAppearsTransparent = true
-            w.isReleasedWhenClosed = false
-            w.minSize = NSSize(width: 640, height: 420)
-            w.delegate = self
-            w.contentView = NSHostingView(rootView: SettingsWindowView(clipboard: app.clipboard, monitor: app.monitor, updater: app.updater,
-                                                                       initial: category ?? .general))
-            // Na primeira vez abre no centro da tela; depois, onde você deixou
-            w.setContentSize(NSSize(width: 760, height: 560))
-            if !w.setFrameUsingName("MenewSettings") { w.center() }
-            w.setFrameAutosaveName("MenewSettings")
-            return w
-        }()
-        window = w
-        if let category { NotificationCenter.default.post(name: .settingsCategory, object: category.rawValue) }
-        NSApp.activate(ignoringOtherApps: true)
-        w.makeKeyAndOrderFront(nil)
+        MenewWindow.shared.show(.settings, category: category ?? MenewWindow.shared.state.category)
     }
 }
 
