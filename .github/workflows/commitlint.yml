@@ -1,10 +1,12 @@
 name: Commits
 
-# Confere se os commits seguem o padrão Conventional Commits.
+# Confere se os commits seguem o padrão Conventional Commits. Em PR, o título também:
+# os PRs entram por squash, e o título vira o commit no main.
 on:
   push:
     branches: [main]
   pull_request:
+    types: [opened, edited, synchronize, reopened]
 
 permissions:
   contents: read
@@ -17,3 +19,17 @@ jobs:
         with:
           fetch-depth: 0
       - uses: wagoid/commitlint-github-action@v6
+
+  pr-title:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Título do PR
+        # Pelo env, nunca direto no script: o título vem de quem abriu o PR
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          npm install --no-save --silent @commitlint/cli@19 @commitlint/config-conventional@19
+          printf '%s\n' "$TITLE" | npx --no-install commitlint \
+            || { echo "::error::O título do PR vira o commit no main: use o padrão, ex.: fix(clipboard): …"; exit 1; }
