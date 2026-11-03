@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.94.1 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.95.0 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## Highlights
 
@@ -51,7 +51,7 @@ Menew 1.94.1 (updated 2026-11-03). Native Swift/SwiftUI app for macOS 14 or late
 - Widgets: System, meetings, timers and screen time on your desktop or in Notification Center. Click to open Menew.
 - Siri, Shortcuts and Spotlight: Ask Siri how your Mac is doing, chain 27 actions in the Shortcuts app and find your notes in Spotlight. And Focus filters: with your Work Focus on, Menew pauses the clipboard or quiets the notch on its own.
 - Live captions: Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.
-- Battery care: Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months.
+- Battery care: Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months. The Wear card shows cycles per day, the hours and apps that drain it most, and time spent hot or full on the charger.
 - Menew window and Memory: Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags. Then just ask: “which was that charts library?”, and AI answers with the sources. And in the graph, see how the topics connect.
 - Recordings with minutes: Press ⌃⌥⌘G and talk or take your call: your Mac transcribes it, tells you apart from others, and AI writes the minutes with tasks and tags.
 - History up to 30 days: CPU, memory and battery over 24 hours, 7 or 30 days, and the apps that used the most.
