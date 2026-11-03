@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.88.0
+
+### New
+- **Do more with selected text.** ⌃⌥⌘R still rewrites the selection anywhere, and now it can also **explain** it, **document code**, **write tests** for it, or turn it into a **reminder** or a **calendar event** (the Mac’s AI finds the title, date, time and place), a **note**, or a **memory** item. Explanations and tests open in the same small window to copy; documented code can replace the selection.
+- Without Apple Intelligence, ⌃⌥⌘R still turns selected text into a note or a memory item.
+
 ## 1.87.0
 
 ### New
