@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.93.2
+
+### Fixed
+- **Eject disks is always in the command palette.** It used to show up only while a disk was connected, so searching for it found nothing. Now it's always listed, says when no disk is connected, and is found by more words in every language (“eject”, “unmount”, “USB”, “drive”, “auswerfen”, “expulsar”, “推出”…). It also lives in Actions › Files.
+
 ## 1.93.1
 
 ### Fixed
