@@ -2,7 +2,10 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## Unreleased
+## 1.96.0
+
+### New
+- **The notch knows when you're in a call.** Rest the pointer on the notch while any app is using the microphone and the panel turns into call controls: how long you've been in the call, mute, **Record minutes** (Mac audio and microphone, transcribed into Recordings) and live captions. Outside a call, Memory takes the Palette's place among the shortcuts (Capture, Memory, Clipboard, Shelf), and a line below your next meeting shows the one after it.
 
 ### Fixed
 - “No more meetings today” in the Menew window's agenda was shown in Portuguese in every language.
