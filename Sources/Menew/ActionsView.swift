@@ -348,7 +348,22 @@ struct ActionsView: View {
                    help: L("Escolha uma área (ou ↩ para a tela toda) e grave. O arquivo vai para a Mesa.")) {
             ScreenRecorder.shared.start(gif: false)
         }
-        .contextMenu { Button(L("Gravar GIF")) { ScreenRecorder.shared.start(gif: true) } }
+        .contextMenu {
+            Button(L("Gravar GIF")) { ScreenRecorder.shared.start(gif: true) }
+            Divider()
+            Section(L("Som no vídeo")) {
+                soundOption(nil, L("Sem som"))
+                ForEach(RecordingStore.Source.allCases) { soundOption($0, $0.title) }
+            }
+            Toggle(L("Transcrever e fazer ata"), isOn: Binding(get: { ScreenRecorder.shared.transcribes },
+                                                              set: { UserDefaults.standard.set($0, forKey: ScreenRecorder.transcribeKey) }))
+        }
+    }
+
+    private func soundOption(_ s: RecordingStore.Source?, _ title: String) -> some View {
+        Button { UserDefaults.standard.set(s?.rawValue, forKey: ScreenRecorder.soundKey) } label: {
+            if ScreenRecorder.shared.sound == s { Label(title, systemImage: "checkmark") } else { Text(title) }
+        }
     }
     private var scrollTile: some View {
         ActionTile(icon: "arrow.down.doc", color: .blue, title: L("Captura com rolagem"), subtitle: L("página inteira"),

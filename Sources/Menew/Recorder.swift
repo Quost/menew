@@ -134,6 +134,14 @@ final class ScreenRecorder: ObservableObject {
 
     @Published private(set) var isRecording = false
     @Published private(set) var started = Date()
+
+    /// Som no vídeo: nenhum (padrão), microfone, som do Mac ou os dois
+    static let soundKey = "screenRecordingSound"
+    static let transcribeKey = "screenRecordingTranscribe"
+    var sound: RecordingStore.Source? { RecordingStore.Source(rawValue: UserDefaults.standard.string(forKey: Self.soundKey) ?? "") }
+    /// Com som, o áudio também vai para Gravações e vira transcrição e ata
+    var transcribes: Bool { UserDefaults.standard.object(forKey: Self.transcribeKey) as? Bool ?? true }
+    private var audioFiles: (mic: URL?, system: URL?) = (nil, nil)
     /// Onde os arquivos ficam (a Mesa); os testes trocam
     var folder = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0]
     var revealsInFinder = true
@@ -176,9 +184,35 @@ final class ScreenRecorder: ObservableObject {
             config.queueDepth = 6
 
             let url = FileManager.default.temporaryDirectory.appendingPathComponent("menew-rec-\(UUID().uuidString).mov")
-            let sink = try FrameSink(url: url, width: w, height: h)
+            // Som: o do Mac pelo próprio ScreenCaptureKit; o microfone também (macOS 15 ou mais novo)
+            let sound = gif ? nil : self.sound
+            var wantsMic = sound == .mic || sound == .both
+            let wantsSystem = sound == .system || sound == .both
+            if wantsSystem {
+                config.capturesAudio = true
+                config.excludesCurrentProcessAudio = true
+                config.sampleRate = 48_000
+                config.channelCount = 2
+            }
+            if wantsMic {
+                if #available(macOS 15, *) { config.captureMicrophone = true } else {
+                    wantsMic = false
+                    HUD.show(icon: "mic.slash", color: .orange, text: L("Gravar o microfone junto precisa do macOS 15"), duration: 2.5)
+                }
+            }
+            // Cópias só do áudio, para transcrever depois (separadas: você e os outros)
+            var micAudio: URL?, sysAudio: URL?
+            if transcribes, let dir = RecordingStore.shared.dir {
+                let id = UUID().uuidString
+                if wantsMic { micAudio = dir.appendingPathComponent("\(id)-mic.m4a") }
+                if wantsSystem { sysAudio = dir.appendingPathComponent("\(id)-system.m4a") }
+            }
+            audioFiles = (micAudio, sysAudio)
+            let sink = try FrameSink(url: url, width: w, height: h, mic: wantsMic, system: wantsSystem, micCopy: micAudio, systemCopy: sysAudio)
             let stream = SCStream(filter: filter, configuration: config, delegate: nil)
             try stream.addStreamOutput(sink, type: .screen, sampleHandlerQueue: sink.queue)
+            if wantsSystem { try stream.addStreamOutput(sink, type: .audio, sampleHandlerQueue: sink.queue) }
+            if wantsMic, #available(macOS 15, *) { try stream.addStreamOutput(sink, type: .microphone, sampleHandlerQueue: sink.queue) }
             try await stream.startCapture()
             self.stream = stream
             self.sink = sink
@@ -226,6 +260,13 @@ final class ScreenRecorder: ObservableObject {
                 try? FileManager.default.removeItem(at: file)
             } else {
                 ok = (try? FileManager.default.moveItem(at: file, to: dest)) != nil
+            }
+            let duration = Date().timeIntervalSince(self.started)
+            let audio = self.audioFiles
+            self.audioFiles = (nil, nil)
+            if ok, !gif, audio.mic != nil || audio.system != nil {
+                // O áudio do vídeo vira uma gravação com ata, ligada ao vídeo
+                RecordingStore.shared.importScreenRecording(mic: audio.mic, system: audio.system, video: dest, duration: duration)
             }
             if ok {
                 HUD.show(icon: "checkmark.circle.fill", color: .green, text: gif ? L("GIF salvo na Mesa") : L("Gravação salva na Mesa"))
@@ -281,40 +322,70 @@ private struct RecordingControl: View {
     }
 }
 
-/// Recebe os quadros do ScreenCaptureKit e grava num .mov (H.264)
+/// Recebe os quadros (e o som) do ScreenCaptureKit e grava num .mov (H.264 + AAC)
 private final class FrameSink: NSObject, SCStreamOutput, @unchecked Sendable {
     let queue = DispatchQueue(label: "menew.recorder")
     private let writer: AVAssetWriter
     private let input: AVAssetWriterInput
+    private var micInput: AVAssetWriterInput?
+    private var systemInput: AVAssetWriterInput?
+    private let micCopy: AudioFileWriter?
+    private let systemCopy: AudioFileWriter?
     private var startedSession = false
 
-    init(url: URL, width: Int, height: Int) throws {
+    init(url: URL, width: Int, height: Int, mic: Bool = false, system: Bool = false, micCopy: URL? = nil, systemCopy: URL? = nil) throws {
         writer = try AVAssetWriter(outputURL: url, fileType: .mov)
         input = AVAssetWriterInput(mediaType: .video, outputSettings: [
             AVVideoCodecKey: AVVideoCodecType.h264, AVVideoWidthKey: width, AVVideoHeightKey: height,
         ])
         input.expectsMediaDataInRealTime = true
         writer.add(input)
+        func audioInput(channels: Int) -> AVAssetWriterInput {
+            let i = AVAssetWriterInput(mediaType: .audio, outputSettings: [AVFormatIDKey: kAudioFormatMPEG4AAC, AVSampleRateKey: 48_000,
+                                                                          AVNumberOfChannelsKey: channels, AVEncoderBitRateKey: 128_000])
+            i.expectsMediaDataInRealTime = true
+            return i
+        }
+        if system { let i = audioInput(channels: 2); writer.add(i); systemInput = i }
+        if mic { let i = audioInput(channels: 1); writer.add(i); micInput = i }
+        self.micCopy = try micCopy.map { try AudioFileWriter(url: $0) }
+        self.systemCopy = try systemCopy.map { try AudioFileWriter(url: $0) }
         super.init()
     }
 
     func stream(_ stream: SCStream, didOutputSampleBuffer buffer: CMSampleBuffer, of type: SCStreamOutputType) {
-        guard type == .screen, buffer.isValid,
-              let info = (CMSampleBufferGetSampleAttachmentsArray(buffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]])?.first,
-              let raw = info[.status] as? Int, SCFrameStatus(rawValue: raw) == .complete else { return }
-        if !startedSession {
-            guard writer.startWriting() else { return }
-            writer.startSession(atSourceTime: buffer.presentationTimeStamp)
-            startedSession = true
+        guard buffer.isValid else { return }
+        if type == .screen {
+            guard let info = (CMSampleBufferGetSampleAttachmentsArray(buffer, createIfNecessary: false) as? [[SCStreamFrameInfo: Any]])?.first,
+                  let raw = info[.status] as? Int, SCFrameStatus(rawValue: raw) == .complete else { return }
+            if !startedSession {
+                guard writer.startWriting() else { return }
+                writer.startSession(atSourceTime: buffer.presentationTimeStamp)
+                startedSession = true
+            }
+            if input.isReadyForMoreMediaData { input.append(buffer) }
+            return
         }
-        if input.isReadyForMoreMediaData { input.append(buffer) }
+        // Som: só depois do primeiro quadro (o vídeo marca o começo)
+        guard startedSession else { return }
+        if type == .audio {
+            if let i = systemInput, i.isReadyForMoreMediaData { i.append(buffer) }
+            if let c = systemCopy, let pcm = CaptionAudioOutput.pcm(buffer) { c.write(pcm) }
+        } else if #available(macOS 15, *), type == .microphone {
+            if let i = micInput, i.isReadyForMoreMediaData { i.append(buffer) }
+            if let c = micCopy, let pcm = CaptionAudioOutput.pcm(buffer) { c.write(pcm) }
+        }
     }
 
     func finish() async {
         await withCheckedContinuation { (c: CheckedContinuation<Void, Never>) in
             queue.async {
+                self.micCopy?.close()
+                self.systemCopy?.close()
                 guard self.startedSession else { return c.resume() }
                 self.input.markAsFinished()
+                self.micInput?.markAsFinished()
+                self.systemInput?.markAsFinished()
                 self.writer.finishWriting { c.resume() }
             }
         }

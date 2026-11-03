@@ -38,6 +38,8 @@ struct Recording: Codable, Identifiable, Equatable {
     var people: [String] = []
     /// A nota com a ata (Notas › #gravação); opcional para gravações antigas
     var noteID: UUID?
+    /// O vídeo, quando veio de uma gravação de tela com som
+    var video: String?
 
     var haystack: String {
         PaletteSearch.fold([title, summary, decisions.joined(separator: " "), tasks.map(\.text).joined(separator: " "),
@@ -231,6 +233,20 @@ final class RecordingStore: NSObject, ObservableObject {
                 if src == .system { recordingID = nil; hideStopItem(); delete(rec.id); NotchCenter.shared.update() }
             }
         }
+    }
+
+    /// O som de uma gravação de tela vira uma gravação com ata, ligada ao vídeo
+    func importScreenRecording(mic: URL?, system: URL?, video: URL, duration: TimeInterval) {
+        var r = Recording(title: video.deletingPathExtension().lastPathComponent, locale: Transcriber.preferred.first?.code ?? "pt-BR")
+        r.date = Date().addingTimeInterval(-duration)
+        r.duration = duration
+        r.micFile = mic?.lastPathComponent
+        r.systemFile = system?.lastPathComponent
+        r.video = video.path
+        r.status = .transcribing
+        items.insert(r, at: 0)
+        save()
+        Task { await process(r.id) }
     }
 
     func stop() {

@@ -513,6 +513,12 @@ final class PaletteModel: ObservableObject {
                    subtitle: L("Para abrir no celular")) { QRCode.show() }
             action("qrwifi", L("QR code do Wi-Fi"), "wifi", .indigo,
                    "qr qrcode wifi wi-fi rede network senha password visitante guest wlan 无线") { QRCode.show(wifi: true) }
+            action("screen.record.sound", L("Gravar tela com som"), "record.circle", .red,
+                   "gravar tela com som record screen with audio sound voz voice video vídeo tutorial demo aufnehmen grabar pantalla 录屏 声音",
+                   subtitle: L("Vídeo com microfone e som do Mac; o áudio vira ata em Gravações")) {
+                UserDefaults.standard.set(RecordingStore.Source.both.rawValue, forKey: ScreenRecorder.soundKey)
+                ScreenRecorder.shared.start(gif: false)
+            }
             if RecordingStore.shared.isRecording {
                 action("recording.stop", L("Parar a gravação"), "stop.circle", .red,
                        "parar gravacao gravação stop recording audio áudio aufnahme stoppen detener 停止 录音") { RecordingStore.shared.stop() }

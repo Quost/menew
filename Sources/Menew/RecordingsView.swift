@@ -173,6 +173,9 @@ struct RecordingDetail: View {
                     .font(.system(size: 12)).foregroundStyle(.secondary)
                     if !rec.tags.isEmpty { FlowTags(tags: rec.tags).padding(.top, 2) }
                 }
+                if let v = rec.video, FileManager.default.fileExists(atPath: v) {
+                    PillButton(title: L("Abrir o vídeo"), icon: "play.rectangle") { NSWorkspace.shared.open(URL(fileURLWithPath: v)) }
+                }
                 if let url = store.audioURL(rec), FileManager.default.fileExists(atPath: url.path) {
                     HStack(spacing: 10) {
                         Button { player.toggle(url) } label: {
