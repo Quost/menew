@@ -83,7 +83,7 @@ Click a feature to read the details.
 <details>
 <summary>📋 <b>Clipboard history</b> — Text, links, images and files with instant search, filters, pins and a rich preview.</summary>
 
-Press **⌘⇧V** anywhere. Skips passwords and any app you pick to ignore, and you can pause it for 15 minutes or an hour. Copy the text inside any copied image with one click. **Paste queue**: turn it on, copy several things, then each <kbd>⌘</kbd><kbd>V</kbd> pastes the next one in the order you copied them; the count shows in the menu bar. **Smart actions**: copy a phone number, address, email, tracking code (Correios, UPS and other international codes), color or meeting link and the command palette (and the item's right-click menu) offers the right action: call or WhatsApp, open in Maps, write an email, track the package, copy the color as HEX/RGB/HSL or join the call. Search also finds **text inside copied screenshots and images**, read in the background on your Mac. **Smart search**: type what you remember, like “the hotel link from yesterday”, “that Xcode error” or “images from today”; Menew understands dates (today, yesterday, this week) and types (link, image, file) and matches word roots and synonyms with macOS’s own language model, no Apple Intelligence needed.
+Press **⌘⇧V** anywhere. Skips passwords and any app you pick to ignore, and you can pause it for 15 minutes or an hour. Copy the text inside any copied image with one click. **Paste queue**: turn it on, copy several things, then each <kbd>⌘</kbd><kbd>V</kbd> pastes the next one in the order you copied them; the count shows in the menu bar. **Smart actions**: copy a phone number, address, email, tracking code (Correios, UPS and other international codes), color or meeting link and the command palette (and the item's right-click menu) offers the right action: call or WhatsApp, open in Maps, write an email, track the package, copy the color as HEX/RGB/HSL or join the call. Search also finds **text inside copied screenshots and images**, read in the background on your Mac. **Smart search**: type what you remember, like “the hotel link from yesterday”, “that Xcode error” or “images from today”; Menew understands dates (today, yesterday, this week) and types (link, image, file) and matches word roots and synonyms with macOS’s own language model, no Apple Intelligence needed. Under **Passwords**, your passwords notes are one Touch ID away: ↩ pastes the password, ⌥↩ the username, and it's cleared from the clipboard after 30 seconds without entering the history.
 
 </details>
 
@@ -359,6 +359,10 @@ Menew covers the everyday features of these popular Mac utilities in one free, n
 | Amphetamine · Caffeine | Keep the Mac awake for a while, until a time or while an app is open. |
 | CleanMyMac | Disk cleaner for caches, logs, big files and duplicates, plus an app uninstaller with leftovers; files go to the Trash. |
 | Dropover · Yoink | A shelf for dragging files between apps, plus image and PDF tools. |
+| Granola · Otter | Meeting recordings with transcript, minutes and tasks, made on your Mac (⌃⌥⌘G). |
+| TextSniper | Copy text from anywhere on screen, even from videos and images (⌃⌥⌘T). |
+| PopClip | Actions on selected text in any app: rewrite, explain, reply, or turn it into a reminder or event (⌃⌥⌘R). |
+| Hazel | Tidy a folder like Downloads: names and folders suggested from each file's content, with review and undo. |
 
 <sub>Names are trademarks of their owners and appear only for comparison. Menew isn't affiliated with or endorsed by any of them.</sub>
 
@@ -414,6 +418,15 @@ Menew is signed with an Apple Developer ID and notarized by Apple, and all of it
 
 **Can I turn off the parts I don't use?**  
 Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.
+
+**Can Menew record meetings and write the minutes?**  
+Yes. Press ⌃⌥⌘G (or Record in the Now tab) and choose Mac audio and microphone, Mac audio only, or microphone only. Your Mac transcribes it, tells you apart from the others, and Apple’s on-device AI writes a summary, decisions and tasks you can send to Reminders. No bot joins the call, nothing is uploaded, and short or empty recordings don’t get invented minutes.
+
+**Is there a free, private alternative to Granola or Otter on the Mac?**  
+Menew’s Recordings cover the everyday part: transcript, minutes and tasks, made on your Mac with Apple’s model, free and without an account. Granola and Otter go further with team sharing and cloud integrations.
+
+**How do I find something I saw on screen later?**  
+When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, reads the text and notes the app and link. Later, search or ask in plain words, like “which was that Swift chart library?”, and the on-device AI answers with the saved items as sources. Memory items also show up in Spotlight.
 
 ## Roadmap
 
@@ -531,6 +544,6 @@ Menew is free and made in spare time. If it saves you a few minutes a day, a ⭐
 
 ## License
 
-[GPL-3.0](LICENSE) © Matheus Quost. Versions up to 1.81 were released under the MIT license.
+[GPL-3.0](LICENSE) © Matheus Quost.
 
 The name “Menew”, the icon and the website are not part of the license: a fork needs its own name and icon. See [TRADEMARK.md](TRADEMARK.md).

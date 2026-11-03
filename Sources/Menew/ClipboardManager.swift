@@ -15,6 +15,8 @@ struct ClipItem: Codable, Identifiable, Equatable {
     var pinned = false
     /// Preenchido só para snippets (não vão para o histórico)
     var snippetTitle: String?
+    /// Nota de senhas mostrada no ⌘⇧V: o segredo só sai das Chaves depois do Touch ID, na hora de colar
+    var secretNoteID: UUID?
     /// Texto lido da imagem (no Mac, em segundo plano), para achar prints pela busca. "" = já lida, sem texto.
     var ocrText: String?
 
@@ -57,7 +59,7 @@ struct ClipItem: Codable, Identifiable, Equatable {
 }
 
 enum ClipFilter: String, CaseIterable {
-    case all, text, link, image, file, pinned, snippets
+    case all, text, link, image, file, pinned, snippets, passwords
     var label: String {
         switch self {
         case .all: L("Tudo")
@@ -67,6 +69,7 @@ enum ClipFilter: String, CaseIterable {
         case .file: L("Arquivos")
         case .pinned: L("Fixados")
         case .snippets: L("Snippets")
+        case .passwords: L("Senhas")
         }
     }
     var icon: String {
@@ -78,6 +81,7 @@ enum ClipFilter: String, CaseIterable {
         case .file: "doc"
         case .pinned: "pin"
         case .snippets: "text.badge.star"
+        case .passwords: "key.fill"
         }
     }
     func matches(_ i: ClipItem) -> Bool {
@@ -88,7 +92,7 @@ enum ClipFilter: String, CaseIterable {
         case .image: i.kind == .image
         case .file: i.kind == .file
         case .pinned: i.pinned
-        case .snippets: false
+        case .snippets, .passwords: false
         }
     }
 }
@@ -272,6 +276,7 @@ final class ClipboardManager: ObservableObject {
 
     func filtered(_ query: String, _ filter: ClipFilter = .all) -> [ClipItem] {
         if filter == .snippets { return snippets.items(matching: query) }
+        if filter == .passwords { return passwordItems(matching: query) }
         let q = query.trimmingCharacters(in: .whitespaces)
         let base = items.filter(filter.matches)
         let matches = q.isEmpty ? base : base.filter { item in
@@ -287,6 +292,8 @@ final class ClipboardManager: ObservableObject {
     // MARK: Ações
 
     func copy(_ item: ClipItem) {
+        // Senha: só depois do Touch ID, e nunca o texto de aviso da linha
+        if let id = item.secretNoteID { pasteSecret(id, username: false, paste: false); return }
         write(item)
         // Sobe o item pro topo, como se tivesse acabado de ser copiado
         if let idx = items.firstIndex(where: { $0.id == item.id }) {
@@ -327,8 +334,62 @@ final class ClipboardManager: ObservableObject {
         // deixa o poll capturar normalmente
     }
 
+    // MARK: Senhas
+
+    /// De onde vêm as notas de senhas (nas capturas de tela, das notas fictícias)
+    var passwordNotes: () -> [Note] = { (NSApp.delegate as? AppDelegate)?.notes.notes ?? [] }
+
+    /// As notas de senhas, só pelo título (o conteúdo fica trancado nas Chaves)
+    func passwordItems(matching query: String) -> [ClipItem] {
+        let q = query.trimmingCharacters(in: .whitespaces)
+        return passwordNotes()
+            .filter { $0.isPasswords && (q.isEmpty || $0.title.range(of: q, options: [.caseInsensitive, .diacriticInsensitive]) != nil) }
+            .sorted { $0.updated > $1.updated }
+            .map { ClipItem(id: $0.id, kind: .text, text: "••••••••\n" + L("↩ cola a senha · ⌥↩ cola o usuário. O Mac pede a sua digital antes."),
+                            snippetTitle: $0.title, secretNoteID: $0.id) }
+    }
+
+    /// Pede o Touch ID, cola a senha (ou o usuário) no app da frente e tira do clipboard depois de 30 s.
+    /// Vai marcada como confidencial: o Menew e outros gerenciadores de clipboard não guardam.
+    /// `paste: false` só copia (na janela Menew não há app da frente para colar).
+    func pasteSecret(_ id: UUID, username: Bool, paste: Bool = true) {
+        guard let notes = (NSApp.delegate as? AppDelegate)?.notes else { return }
+        let target = WindowManager.shared.previousApp ?? NSWorkspace.shared.frontmostApplication
+        let wasOpen = !notes.isLocked(id)
+        Task { @MainActor in
+            guard await notes.unlock(id) else { return }
+            let fields = SecretField.parse(notes.text(of: id)).fields
+            if !wasOpen { notes.lock(id) }
+            guard let value = Self.secretValue(fields, username: username), !value.isEmpty else {
+                HUD.show(icon: "key.fill", color: .orange, text: username ? L("Essa nota não tem usuário") : L("Essa nota não tem senha"))
+                return
+            }
+            SecretCopy.copy(value)
+            lastChange = NSPasteboard.general.changeCount
+            guard paste, defaults.bool(forKey: "autoPaste"), AXIsProcessTrusted() else {
+                HUD.show(icon: "key.fill", color: .green, text: L("Copiado · some em 30 s"))
+                return
+            }
+            target?.activate()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.35) { Self.postCommandV() }
+        }
+    }
+
+    /// O campo de senha (ou de usuário) pelo nome, em qualquer idioma; sem nome conhecido, a senha é o último campo
+    /// e o usuário, o primeiro
+    static func secretValue(_ fields: [SecretField], username: Bool) -> String? {
+        let names = username
+            ? ["usuário", "usuario", "user", "username", "login", "e-mail", "email", "benutzer", "用户", "账号", "conta", "account"]
+            : ["senha", "password", "passwort", "contraseña", "contrasena", "密码", "pass", "pin", "token", "chave", "key", "secret"]
+        let fold = { (s: String) in s.folding(options: [.caseInsensitive, .diacriticInsensitive], locale: nil) }
+        if let f = fields.first(where: { f in names.contains { fold(f.key).contains(fold($0)) } }) { return f.value }
+        let filled = fields.filter { !$0.value.isEmpty }
+        return username ? (filled.count > 1 ? filled.first?.value : nil) : filled.last?.value
+    }
+
     /// Copia e simula ⌘V no app que estava na frente
     func paste(_ item: ClipItem, plainText: Bool = false) {
+        if let id = item.secretNoteID { pasteSecret(id, username: plainText); return }
         // Snippets: pergunta os campos {input:…}, cola e põe o cursor onde estava o {cursor}
         if item.snippetTitle != nil, let raw = item.text {
             let target = WindowManager.shared.previousApp ?? NSWorkspace.shared.frontmostApplication

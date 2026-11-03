@@ -585,9 +585,10 @@ final class PaletteModel: ObservableObject {
             action("shelf", L("Abrir a estante"), "tray.full.fill", Theme.indigo,
                    "estante shelf dropover arquivos files arrastar drag ablage estantería") { [weak self] in self?.openShelf() }
             action("lock", L("Bloquear tela"), "lock.fill", .gray, "bloquear lock tela screen senha") { tb.lockScreen() }
-            if tb.ejectableCount > 0 {
-                action("eject", L("Ejetar discos"), "eject.fill", .mint, "ejetar eject disco pendrive usb") { tb.ejectAll() }
-            }
+            // Sempre na lista, para quem procura achar; sem disco conectado, o aviso diz isso
+            action("eject", L("Ejetar discos"), "eject.fill", .mint,
+                   "ejetar eject disco disk drive pendrive usb hd ssd volume unmount desmontar auswerfen laufwerk expulsar unidad 推出 磁盘",
+                   subtitle: tb.ejectableCount == 0 ? L("nenhum conectado") : L("%d conectado(s)", tb.ejectableCount)) { tb.ejectAll() }
             action("trash", L("Esvaziar lixeira"), "trash", .red, "lixeira trash esvaziar empty") { tb.emptyTrash() }
 
             for p in ProfileStore.shared.profiles {

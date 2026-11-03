@@ -97,6 +97,9 @@ def switch(current):
             # Endereços fixos: o valor do <select> nunca vira URL direto (alerta do CodeQL)
             "var u=" + LANG_PATHS + "[this.value];if(u)location.href=u\">" + options + "</select>")
 
+# "Alternativa a X" como as pessoas buscam em cada idioma
+ALT = {"en": "alternative", "pt": "alternativa", "de": "Alternative", "es": "alternativa", "zh": "替代"}
+
 # Dados estruturados: o Menew como aplicativo (grátis, macOS) e as perguntas frequentes da página
 def jsonld(lang, texts):
     shots = "/assets" if lang == "en" else f"/assets/{lang}"
@@ -112,24 +115,30 @@ def jsonld(lang, texts):
         "downloadUrl": "https://github.com/Quost/menew/releases/latest/download/Menew.dmg",
         "image": f"{SITE}/assets/og/{lang}.png",
         "screenshot": [f"{SITE}{shots}/{name}-dark.png" for name in
-                       ("panel0", "popover-system", "popover-actions", "palette", "capture", "popover-notes")],
+                       ("popover-now", "hub-memory", "hub-recordings", "palette", "panel0", "popover-actions",
+                        "capture", "popover-notes")],
         "softwareVersion": VERSION,
         "dateModified": UPDATED,
-        "featureList": [plain(texts[f"f{i}_t"]) + ": " + plain(texts[f"f{i}_d"]) for i in range(1, 7)]
+        "featureList": [plain(texts[f"b{i}_t"]) + ": " + plain(texts[f"b{i}_d"]) for i in range(1, 5)]
+                       + [plain(texts[f"f{i}_t"]) + ": " + plain(texts[f"f{i}_d"]) for i in range(1, 7)]
                        + [plain(texts[f"act_l{i}"]) for i in range(1, 11)]
                        + [plain(texts[f"nat{i}_t"]) + ": " + plain(texts[f"nat{i}_d"]) for i in range(1, 8)]
-                       + [plain(texts[f"rep{i}_d"]) for i in range(1, 9)],
+                       + [plain(texts[f"rep{i}_d"]) for i in range(1, N_REP + 1)],
         "license": "https://www.gnu.org/licenses/gpl-3.0.html",
         "isAccessibleForFree": True,
+        "keywords": ", ".join(plain(texts[k]) for k in ("b1_t", "b2_t", "b3_t", "b4_t", "f2_t", "f1_t", "f3_t"))
+                    + ", " + ", ".join(f"{n} {ALT[lang]}" for i in range(1, N_REP + 1) for n in texts[f"rep{i}_t"].split(" · ")),
         "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"},
         "sameAs": ["https://github.com/Quost/menew"],
     }
     faq = {
         "@type": "FAQPage",
         "mainEntity": [{"@type": "Question", "name": plain(texts[f"faq{i}_q"]),
-                        "acceptedAnswer": {"@type": "Answer", "text": plain(texts[f"faq{i}_a"])}} for i in range(1, 13)],
+                        "acceptedAnswer": {"@type": "Answer", "text": plain(texts[f"faq{i}_a"])}} for i in range(1, N_FAQ + 1)],
     }
-    return json.dumps({"@context": "https://schema.org", "@graph": [app, faq]}, ensure_ascii=False).replace("</", "<\\/")
+    site = {"@type": "WebSite", "name": "Menew", "url": url(lang), "inLanguage": LANGS[lang][0],
+            "description": htmllib.unescape(texts["og_desc"])}
+    return json.dumps({"@context": "https://schema.org", "@graph": [site, app, faq]}, ensure_ascii=False).replace("</", "<\\/")
 
 # Capturas em WebP (cerca de 1/3 do tamanho do PNG): o site carrega mais rápido, o que também conta para o Google.
 # Só as que as páginas mostram, e só onde o cwebp existe (brew install webp); no CI os .webp já vêm no repositório.
@@ -153,8 +162,11 @@ def optimize_images(page):
         return tag
     return re.sub(r'<img [^>]*src="(/assets/[^"]+\.png)"[^>]*>', fix, page)
 
-template = (ROOT / "site/template.html").read_text()
 english = json.loads((ROOT / "site/i18n/en.json").read_text())
+# Quantas perguntas e comparações existem (faq1_q…, rep1_t…): crescem só com os textos
+N_FAQ = sum(1 for k in english if re.fullmatch(r"faq\d+_q", k))
+N_REP = sum(1 for k in english if re.fullmatch(r"rep\d+_t", k))
+template = (ROOT / "site/template.html").read_text()
 hreflang = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}">' for c in LANGS)
 hreflang += f'\n<link rel="alternate" hreflang="x-default" href="{url("en")}">'
 
@@ -205,8 +217,10 @@ lines = [
     f"> {plain(e['meta_desc'])}", "",
     f"Menew {VERSION} (updated {UPDATED}). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. "
     "Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
+    "## Highlights", "",
+    *[f"- {plain(e[f'b{i}_t'])}: {plain(e[f'b{i}_d'])}" for i in range(1, 5)], "",
     "## One app instead of many", "",
-    *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, 9)], "",
+    *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, N_REP + 1)], "",
     "## Features", "",
     *[f"- {plain(e[f'f{i}_t'])}: {plain(e[f'f{i}_d'])}" for i in range(1, 7)], "",
     "## More features", "",
@@ -214,7 +228,7 @@ lines = [
     *[f"- {plain(e[f'nat{i}_t'])}: {plain(e[f'nat{i}_d'])}" for i in range(1, 8)],
     *[f"- {plain(e[f'pro{i}_t'])}: {plain(e[f'pro{i}_d'])}" for i in range(1, 7)], "",
     "## FAQ", "",
-    *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, 13)],
+    *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, N_FAQ + 1)],
     "## Install", "",
     "- Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg",
     "- Homebrew: `brew tap quost/menew https://github.com/Quost/menew && brew install --cask menew`", "",

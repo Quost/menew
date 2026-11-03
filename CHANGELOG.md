@@ -2,10 +2,28 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## 1.93.2
+## Unreleased
 
 ### Fixed
 - **External monitor going black when Menew opens.** With some USB-C adapters, talking to the monitor over DDC/CI made it lose the signal; Menew then rescanned and asked again every time it came back, so the screen kept blinking and the CPU stayed high until you quit. Now, if a monitor reconfigures right after Menew talked to it, Menew remembers that monitor (even after you quit), stops sending it commands and uses software dimming instead. Turning “External monitor brightness” off and on again in Settings › Windows and displays makes Menew try the cable again.
+
+## 1.94.1
+
+### New
+- **Passwords tab in the menu.** The Clipboard tab now has History, Snippets and **Passwords**, with its own search and a New passwords note button. Picking one works like in ⌘⇧V: Touch ID first, ↩ pastes the password, ⌥↩ the username.
+
+### Fixed
+- In the Menew window, choosing a passwords note in Clipboard now asks for Touch ID and copies the password (cleared after 30 seconds), instead of copying the placeholder text.
+
+## 1.94.0
+
+### New
+- **Passwords in ⌘⇧V.** A new Passwords filter, after Snippets, lists your passwords notes by title. Pick one and your Mac asks for Touch ID (or your password), then pastes it straight into the app you were using: ↩ pastes the password, ⌥↩ the username. It's marked as confidential, so it never enters the clipboard history, and it's cleared from the clipboard after 30 seconds. Copy, share and transform are left out for these items on purpose.
+
+## 1.93.2
+
+### Fixed
+- **Eject disks is always in the command palette.** It used to show up only while a disk was connected, so searching for it found nothing. Now it's always listed, says when no disk is connected, and is found by more words in every language (“eject”, “unmount”, “USB”, “drive”, “auswerfen”, “expulsar”, “推出”…). It also lives in Actions › Files.
 
 ## 1.93.1
 
