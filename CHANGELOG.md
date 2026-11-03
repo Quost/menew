@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Fixed
+- “No more meetings today” in the Menew window's agenda was shown in Portuguese in every language.
+
 ## 1.95.0
 
 ### New
