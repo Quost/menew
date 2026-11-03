@@ -122,7 +122,9 @@ struct ClipThumb: View {
                     Image(nsImage: NSWorkspace.shared.icon(forFile: String(p))).resizable().padding(1)
                 }
             case .text:
-                if item.snippetTitle != nil {
+                if item.secretNoteID != nil {
+                    tile("key.fill", .orange)
+                } else if item.snippetTitle != nil {
                     tile("text.badge.star", .purple)
                 } else if let c = item.hexColor {
                     Color(nsColor: c)
@@ -197,6 +199,7 @@ struct ClipRow: View {
     }
 
     private var meta: String {
+        if item.secretNoteID != nil { return L("Pede Touch ID para colar") }
         if item.snippetTitle != nil { return item.preview }
         return [item.sourceApp, RelDate.string(item.date)].compactMap { $0 }.joined(separator: " · ")
     }
@@ -214,7 +217,9 @@ struct ClipList: View {
                 Image(systemName: state.query.isEmpty ? "doc.on.clipboard" : "magnifyingglass")
                     .font(.system(size: 30, weight: .light)).foregroundStyle(.tertiary)
                 Text(!state.query.isEmpty ? L("Nada encontrado")
-                     : state.filter == .snippets ? L("Nenhum snippet ainda") : L("Copie algo para começar"))
+                     : state.filter == .snippets ? L("Nenhum snippet ainda")
+                     : state.filter == .passwords ? L("Nenhuma nota de senhas. Crie em Notas › nova nota de senhas.")
+                     : L("Copie algo para começar"))
                     .font(.system(size: 13)).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -266,6 +271,16 @@ struct ClipContextMenu: View {
     var onActivate: (ClipItem, Bool) -> Void
 
     var body: some View {
+        if item.secretNoteID != nil {
+            // Nada de copiar, compartilhar ou transformar: o segredo só sai com o Touch ID, direto no app
+            Button(L("Colar a senha")) { onActivate(item, false) }
+            Button(L("Colar o usuário")) { onActivate(item, true) }
+        } else {
+            menu
+        }
+    }
+
+    @ViewBuilder private var menu: some View {
         Button(L("Colar")) { onActivate(item, false) }
         if item.kind == .text { Button(L("Colar como texto puro")) { onActivate(item, true) } }
         Button(L("Só copiar")) { manager.copy(item) }
@@ -329,7 +344,9 @@ struct ClipPreview: View {
             Divider().opacity(0.5)
 
             VStack(alignment: .leading, spacing: 7) {
-                if let title = item.snippetTitle {
+                if item.secretNoteID != nil, let title = item.snippetTitle {
+                    infoRow(L("Senhas")) { Text(title) }
+                } else if let title = item.snippetTitle {
                     infoRow(L("Snippet")) { Text(title) }
                 } else {
                 infoRow(L("Origem")) {
@@ -342,11 +359,19 @@ struct ClipPreview: View {
                 }
                 infoRow(L("Copiado")) { Text(item.date.formatted(.dateTime.day().month().hour().minute().locale(L10n.locale))) }
                 }
-                infoRow(L("Conteúdo")) { Text(stats) }
+                if item.secretNoteID == nil { infoRow(L("Conteúdo")) { Text(stats) } }
             }
             .font(.system(size: 11.5))
             .padding(.horizontal, 18).padding(.vertical, 12)
 
+            if item.secretNoteID != nil {
+                HStack(spacing: 8) {
+                    PillButton(title: L("Colar a senha"), icon: "key.fill", primary: true) { onActivate(item, false) }
+                    PillButton(title: L("Colar o usuário"), icon: "person.fill") { onActivate(item, true) }
+                    Spacer()
+                }
+                .padding(.horizontal, 14).padding(.bottom, 14)
+            } else {
             HStack(spacing: 8) {
                 PillButton(title: L("Colar"), icon: "arrow.turn.down.left", primary: true) { onActivate(item, false) }
                 PillButton(title: L("Copiar"), icon: "doc.on.doc") { manager.copy(item) }
@@ -381,6 +406,7 @@ struct ClipPreview: View {
                 }
             }
             .padding(.horizontal, 14).padding(.bottom, 14)
+            }
         }
     }
 
@@ -499,11 +525,16 @@ struct ClipboardPanelView: View {
 
             Divider().opacity(0.6)
             HStack(spacing: 14) {
-                hint("↩", L("colar"))
-                hint("⌥↩", L("texto puro"))
-                hint("⌘1–9", L("rápido"))
-                hint("⌘P", L("fixar"))
-                hint("⌘⌫", L("apagar"))
+                hint("↩", state.filter == .passwords ? L("senha") : L("colar"))
+                if state.filter == .passwords {
+                    hint("⌥↩", L("usuário"))
+                    hint("⌘1–9", L("rápido"))
+                } else {
+                    hint("⌥↩", L("texto puro"))
+                    hint("⌘1–9", L("rápido"))
+                    hint("⌘P", L("fixar"))
+                    hint("⌘⌫", L("apagar"))
+                }
                 Spacer()
                 Text(L("%d itens", manager.items.count)).foregroundStyle(.tertiary)
             }

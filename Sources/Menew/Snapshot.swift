@@ -282,6 +282,12 @@ enum Snapshot {
                     render(panel, size: NSSize(width: 780, height: 500), dark: dark,
                            to: dir.appendingPathComponent("panel\(i)-\(suffix).png"))
                 }
+                // Senhas no ⌘⇧V: só os títulos das notas fictícias
+                clipboard.passwordNotes = { notes.notes }
+                let pwState = ClipListState()
+                pwState.filter = .passwords
+                render(ClipboardPanelView(manager: clipboard, state: pwState, onActivate: { _, _ in }).frame(width: 780, height: 500),
+                       size: NSSize(width: 780, height: 500), dark: dark, to: dir.appendingPathComponent("panel-passwords-\(suffix).png"))
                 render(KeyboardLockView(controller: toolbox.cleaning), size: NSSize(width: 900, height: 560), dark: dark,
                        background: NSColor(calibratedRed: 0.3, green: 0.4, blue: 0.6, alpha: 1),
                        to: dir.appendingPathComponent("keyboard-lock-\(suffix).png"))
