@@ -13,6 +13,8 @@ final class Rewriter: ObservableObject {
     @Published var result = ""
     @Published var chosen: AIAction?
     @Published var chosenAction: SelectionAction?
+    /// Pedidos achados numa mensagem (para virar lembretes)
+    @Published var requests: [SelectionRequests.Item] = []
     /// O app de onde veio o texto (para a memória)
     private var origin = MemoryOrigin()
     @Published var working = false
@@ -73,7 +75,15 @@ final class Rewriter: ObservableObject {
         failed = false
         let text = original
         switch a {
-        case .explain, .document, .tests:
+        case .requests:
+            working = true
+            Task {
+                requests = await SelectionRequests.extract(from: text)
+                result = requests.isEmpty ? L("Nenhum pedido ou prazo nesta mensagem.")
+                    : requests.map { "• " + $0.text + ($0.due.isEmpty ? "" : " — " + $0.due) + ($0.from.isEmpty ? "" : " (" + $0.from + ")") }.joined(separator: "\n")
+                working = false
+            }
+        case .explain, .document, .tests, .reply:
             working = true
             Task {
                 do { result = Self.stripFences(try await AIText.ask(a.instruction, about: text)) } catch { failed = true }
@@ -105,6 +115,18 @@ final class Rewriter: ObservableObject {
                 let ok = await SelectionEvents.create(from: text)
                 working = false
                 if ok { cancel() } else { failed = true }
+            }
+        }
+    }
+
+    /// Cada pedido vira um lembrete, com a data quando a mensagem diz
+    func remindRequests() {
+        let list = requests
+        cancel()
+        Task {
+            for r in list {
+                let d = r.due.isEmpty ? nil : await SelectionEvents.draft(from: r.text + " " + r.due)
+                await QuickReminder.create(.init(title: r.text, due: d?.start, hasTime: d?.start != nil))
             }
         }
     }
@@ -259,10 +281,13 @@ struct RewriterView: View {
             HStack {
                 Spacer()
                 PillButton(title: L("Cancelar"), icon: "xmark") { model.cancel() }.keyboardShortcut(.cancelAction)
+                if model.chosenAction == .requests && !model.requests.isEmpty {
+                    PillButton(title: L("Criar lembretes"), icon: "checklist") { model.remindRequests() }.disabled(model.working)
+                }
                 PillButton(title: L("Copiar"), icon: "doc.on.doc") { model.copyResult() }
                     .disabled(model.working || model.result.isEmpty)
                 PillButton(title: L("Substituir"), icon: "arrow.turn.down.left", primary: true) { model.replace() }
-                    .disabled(model.working || model.result.isEmpty || model.chosenAction == .explain || model.chosenAction == .tests)
+                    .disabled(model.working || model.result.isEmpty || [.explain, .tests, .requests, .reply].contains(model.chosenAction))
                     .keyboardShortcut(.defaultAction)
             }
         }
@@ -286,13 +311,15 @@ struct RewriterView: View {
 
 /// O que fazer com o texto selecionado, além de reescrever
 enum SelectionAction: CaseIterable {
-    case explain, document, tests, reminder, event, note, memory
+    case explain, document, tests, requests, reply, reminder, event, note, memory
 
     var title: String {
         switch self {
         case .explain: L("Explicar")
         case .document: L("Documentar código")
         case .tests: L("Gerar testes")
+        case .requests: L("Pedidos e prazos")
+        case .reply: L("Rascunhar resposta")
         case .reminder: L("Virar lembrete")
         case .event: L("Virar evento")
         case .note: L("Virar nota")
@@ -305,6 +332,8 @@ enum SelectionAction: CaseIterable {
         case .explain: "lightbulb"
         case .document: "text.badge.plus"
         case .tests: "checkmark.diamond"
+        case .requests: "list.bullet.clipboard"
+        case .reply: "arrowshape.turn.up.left"
         case .reminder: "checklist"
         case .event: "calendar.badge.plus"
         case .note: "note.text"
@@ -319,6 +348,7 @@ enum SelectionAction: CaseIterable {
         case .explain: "Explain this in simple words, in a few sentences. If it is code, say what it does and point out any problem."
         case .document: "Return this code with clear documentation comments added in the language's usual style. Do not change the code itself."
         case .tests: "Write unit tests for this code, in the same language and the usual test framework for it. Return only the test code."
+        case .reply: "Draft a reply to this message, in the same language and tone, short and polite. Answer each question and say what the user will do. Keep the dates and facts the message gives; use placeholders like [date] only for what it doesn't say. \(AboutMe.context())"
         default: ""
         }
     }
@@ -401,3 +431,42 @@ enum SelectionEvents {
         #endif
     }
 }
+
+/// Pedidos e prazos de uma mensagem (e-mail, Slack, WhatsApp): o que pedem, de quem e até quando
+@MainActor
+enum SelectionRequests {
+    struct Item { var text: String; var from: String; var due: String }
+
+    static func extract(from text: String) async -> [Item] {
+        #if canImport(FoundationModels)
+        guard #available(macOS 26, *), AIText.unavailableReason == nil else { return [] }
+        let session = LanguageModelSession(instructions: """
+            List what this message asks the user to do and any commitments with deadlines. One short action per item, \
+            starting with a verb, in the message's language. \(AboutMe.context())
+            """)
+        guard let r = try? await session.respond(to: text, generating: MessageRequests.self).content else { return [] }
+        return r.items.map { Item(text: $0.action, from: meaningful($0.from) ?? "", due: meaningful($0.due) ?? "") }.filter { !$0.text.isEmpty }
+        #else
+        return []
+        #endif
+    }
+}
+
+#if canImport(FoundationModels)
+@available(macOS 26, *)
+@Generable
+struct MessageRequests {
+    var items: [MessageRequest]
+}
+
+@available(macOS 26, *)
+@Generable
+struct MessageRequest {
+    @Guide(description: "What has to be done, starting with a verb")
+    var action: String
+    @Guide(description: "Who asked, or empty")
+    var from: String
+    @Guide(description: "Deadline as written in the message, or empty")
+    var due: String
+}
+#endif

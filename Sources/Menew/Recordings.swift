@@ -320,10 +320,7 @@ final class RecordingStore: ObservableObject {
                 let r = try await session.respond(to: "Transcript:\n\(String(material.prefix(7500)))", generating: MeetingMinutes.self)
                 let c = r.content
                 // "não especificado", "Outros" e o próprio usuário não são informação
-                func real(_ s: String) -> String? {
-                    let f = PaletteSearch.fold(s.trimmingCharacters(in: .whitespaces))
-                    return f.isEmpty || ["nao especificado", "nao informado", "unspecified", "not specified", "none", "n/a", "-", "nenhum"].contains(f) ? nil : s
-                }
+                func real(_ s: String) -> String? { meaningful(s) }
                 let me = [L("Eu"), L("Outros"), "eu", "outros", "me", "others", AboutMe.name] + AboutMe.aliases
                 return Minutes(title: String(c.title.prefix(90)), summary: c.summary, decisions: c.decisions,
                                tasks: c.tasks.map { Recording.Task(text: $0.text, owner: real($0.owner), due: real($0.due)) },
@@ -478,6 +475,14 @@ final class RecordingSystemOutput: NSObject, SCStreamOutput, @unchecked Sendable
         guard type == .audio, sampleBuffer.isValid, let w = writer, let pcm = CaptionAudioOutput.pcm(sampleBuffer) else { return }
         w.write(pcm)
     }
+}
+
+/// O modelo às vezes escreve "não especificado" em vez de deixar vazio
+func meaningful(_ s: String) -> String? {
+    let f = PaletteSearch.fold(s.trimmingCharacters(in: .whitespaces))
+    let empty = ["nao especificado", "nao informado", "nao mencionado", "unspecified", "not specified", "not mentioned", "none", "n/a", "-",
+                 "nenhum", "nicht angegeben", "keine", "no especificado", "ninguno", "未指定", "无"]
+    return f.isEmpty || empty.contains(f) ? nil : s
 }
 
 // MARK: Sobre mim
