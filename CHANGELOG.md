@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.92.0
+
+### Changed
+- **One window.** Settings now live inside the Menew window, as the last item of the sidebar: click it and the sidebar shows the settings categories, with a way back. One search box at the top finds both sections (Memory, Recordings…) and settings (shortcuts, notch, AI…). ⌘, and the gear button open the same window, already on Settings.
+
 ## 1.91.0
 
 ### New
