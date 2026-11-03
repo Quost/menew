@@ -334,6 +334,7 @@ struct HubTools: View {
                     }
                     tool("trash.square", .red, L("Desinstalar app"), L("O app e as sobras vão para a Lixeira")) { Uninstaller.show() }
                     tool("power.circle", .orange, L("Itens de login"), L("O que abre com o Mac ou roda escondido")) { StartupItems.show() }
+                    tool("folder.badge.gearshape", .blue, L("Organizar arquivos"), L("Nomes e pastas pelo conteúdo; você revisa antes")) { OrganizerWindow.shared.show() }
                     tool("tray.full.fill", Theme.indigo, L("Estante"), L("Converter, reduzir e juntar imagens e PDFs")) { app?.shelf.show(nearMouse: false) }
                     tool("iphone.rear.camera", .green, L("Do iPhone"), L("Foto, scan ou desenho direto no Mac")) { ContinuityCamera.shared.showMenu(.clipboard) }
                     tool("captions.bubble.fill", .indigo, L("Legendas ao vivo"), L("Do som do Mac ou do microfone, com tradução")) { LiveCaptions.shared.toggle() }

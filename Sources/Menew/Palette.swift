@@ -519,6 +519,9 @@ final class PaletteModel: ObservableObject {
             action("recording.open", L("Gravações"), "waveform", .red,
                    "gravacoes gravações recordings atas minutes reuniões meetings aufnahmen grabaciones 录音",
                    subtitle: L("Atas, tarefas e etiquetas")) { MenewWindow.shared.show(.recordings) }
+            action("organize", L("Organizar arquivos"), "folder.badge.gearshape", .blue,
+                   "organizar arquivos downloads organize files tidy pastas folders renomear rename aufräumen ordenar archivos 整理 文件",
+                   subtitle: L("Nomes e pastas pelo conteúdo; você revisa antes")) { OrganizerWindow.shared.show() }
             action("hub.open", L("Janela Menew"), "macwindow", Theme.indigo,
                    "janela menew window visão geral overview painel dashboard histórico history ferramentas tools fenster ventana 窗口",
                    subtitle: L("Visão geral, memória, histórico e ferramentas")) { MenewWindow.shared.show() }

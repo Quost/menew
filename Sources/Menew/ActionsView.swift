@@ -188,7 +188,7 @@ struct ActionsView: View {
             section(L("Foco"), collapsible: false) { FocusCard() }
             tiles { recordAudioTile; captionsTile }
         case .files:
-            tiles { iphoneTile; shelfTile; plainTile; ejectTile; trashTile }
+            tiles { organizeTile; iphoneTile; shelfTile; plainTile; ejectTile; trashTile }
             controls { hiddenRow }
         case .ai:
             tiles {
@@ -421,6 +421,12 @@ struct ActionsView: View {
         .contextMenu {
             Button(L("Do iPhone para a estante")) { ContinuityCamera.shared.showMenu(.shelf) }
             Button(L("Do iPhone, só o texto")) { ContinuityCamera.shared.showMenu(.text) }
+        }
+    }
+    private var organizeTile: some View {
+        ActionTile(icon: "folder.badge.gearshape", color: .blue, title: L("Organizar arquivos"), subtitle: L("pelo conteúdo"),
+                   help: L("Lê os arquivos de uma pasta (Downloads, por padrão) e sugere nomes claros e pastas. Você revisa antes; dá para desfazer.")) {
+            OrganizerWindow.shared.show()
         }
     }
     private var shelfTile: some View {
