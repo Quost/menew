@@ -71,6 +71,12 @@ enum Snapshot {
                     render(v, size: NSSize(width: 400, height: 600), dark: dark,
                            to: dir.appendingPathComponent("popover-\(tab)-\(suffix).png"))
                 }
+                // Aba Senhas do Clipboard, com as notas fictícias
+                clipboard.passwordNotes = { notes.notes }
+                render(ClipboardTabView(manager: clipboard, state: ClipListState(), mode: .passwords, onActivate: { _, _ in })
+                        .padding(.top, 10).background(VisualEffect(material: .popover)),
+                       size: NSSize(width: 400, height: 600), dark: dark,
+                       to: dir.appendingPathComponent("popover-passwords-\(suffix).png"))
                 // Janela Menew: algumas seções
                 MemoryStore.shared.showDemo()
                 for sec in [HubSection.overview, .memory, .tools, .performance] {

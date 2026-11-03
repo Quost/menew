@@ -21,7 +21,7 @@ struct SearchField: View {
             Image(systemName: "magnifyingglass")
                 .font(.system(size: large ? 17 : 13, weight: .medium))
                 .foregroundStyle(.secondary)
-            TextField(L("Buscar no histórico, ex.: link do hotel de ontem"), text: $state.query)
+            TextField(state.filter == .passwords ? L("Buscar nas senhas") : L("Buscar no histórico, ex.: link do hotel de ontem"), text: $state.query)
                 .textFieldStyle(.plain)
                 .font(.system(size: large ? 19 : 13))
                 .frame(height: large ? 30 : 18)
@@ -30,8 +30,11 @@ struct SearchField: View {
                 Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
             }
-            PasteQueueButton()
-            ClipPauseMenu()
+            // Fila e pausa são do histórico, não das senhas
+            if state.filter != .passwords {
+                PasteQueueButton()
+                ClipPauseMenu()
+            }
         }
         .modifier(SearchFieldChrome(large: large))
         .onAppear { focused = true }
@@ -557,18 +560,51 @@ struct ClipboardTabView: View {
     @ObservedObject var manager: ClipboardManager
     @ObservedObject var state: ClipListState
     var onActivate: (ClipItem, Bool) -> Void
-    @State private var managingSnippets = false
+    @State private var mode: Mode = .history
+    /// Busca e seleção próprias da aba Senhas, para não mexer no filtro do histórico
+    @StateObject private var passwords: ClipListState = {
+        let s = ClipListState()
+        s.filter = .passwords
+        return s
+    }()
+
+    enum Mode { case history, snippets, passwords }
+
+    init(manager: ClipboardManager, state: ClipListState, mode: Mode = .history, onActivate: @escaping (ClipItem, Bool) -> Void) {
+        self.manager = manager
+        self.state = state
+        self.onActivate = onActivate
+        _mode = State(initialValue: mode)
+    }
 
     var body: some View {
         VStack(spacing: 10) {
-            GlassSegmented(selection: $managingSnippets, options: [
-                .init(value: false, title: L("Histórico"), icon: "clock.arrow.circlepath"),
-                .init(value: true, title: L("Snippets"), icon: "text.badge.star"),
+            GlassSegmented(selection: $mode, options: [
+                .init(value: .history, title: L("Histórico"), icon: "clock.arrow.circlepath"),
+                .init(value: .snippets, title: L("Snippets"), icon: "text.badge.star"),
+                .init(value: .passwords, title: L("Senhas"), icon: "key.fill"),
             ])
 
-            if managingSnippets {
+            switch mode {
+            case .snippets:
                 SnippetsView(store: manager.snippets)
-            } else {
+            case .passwords:
+                SearchField(state: passwords)
+                let list = manager.passwordItems(matching: passwords.query)
+                ClipList(manager: manager, state: passwords, list: list, onActivate: onActivate)
+                    .padding(.horizontal, -6)
+                    .background(quickPaste(list))
+                Button {
+                    guard let app = NSApp.delegate as? AppDelegate else { return }
+                    app.openNote(app.notes.createPasswords())
+                } label: {
+                    Label(L("Nova nota de senhas"), systemImage: "plus.circle.fill")
+                        .font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.violet)
+                }
+                .buttonStyle(.plain)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 10)
+            case .history:
                 SearchField(state: state)
                 PasteQueueBanner()
                 FilterChips(state: state, iconsOnly: true)
@@ -579,7 +615,7 @@ struct ClipboardTabView: View {
                     .background(quickPaste(list))
             }
         }
-        .padding(.horizontal, 12).padding(.top, 4).padding(.bottom, managingSnippets ? 12 : 0)
+        .padding(.horizontal, 12).padding(.top, 4).padding(.bottom, mode == .snippets ? 12 : 0)
     }
 
     /// ⌘1…⌘9 colam o item da posição, como no painel ⌘⇧V

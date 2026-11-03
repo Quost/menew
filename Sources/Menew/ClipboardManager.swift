@@ -292,6 +292,8 @@ final class ClipboardManager: ObservableObject {
     // MARK: Ações
 
     func copy(_ item: ClipItem) {
+        // Senha: só depois do Touch ID, e nunca o texto de aviso da linha
+        if let id = item.secretNoteID { pasteSecret(id, username: false, paste: false); return }
         write(item)
         // Sobe o item pro topo, como se tivesse acabado de ser copiado
         if let idx = items.firstIndex(where: { $0.id == item.id }) {
@@ -349,7 +351,8 @@ final class ClipboardManager: ObservableObject {
 
     /// Pede o Touch ID, cola a senha (ou o usuário) no app da frente e tira do clipboard depois de 30 s.
     /// Vai marcada como confidencial: o Menew e outros gerenciadores de clipboard não guardam.
-    func pasteSecret(_ id: UUID, username: Bool) {
+    /// `paste: false` só copia (na janela Menew não há app da frente para colar).
+    func pasteSecret(_ id: UUID, username: Bool, paste: Bool = true) {
         guard let notes = (NSApp.delegate as? AppDelegate)?.notes else { return }
         let target = WindowManager.shared.previousApp ?? NSWorkspace.shared.frontmostApplication
         let wasOpen = !notes.isLocked(id)
@@ -363,7 +366,7 @@ final class ClipboardManager: ObservableObject {
             }
             SecretCopy.copy(value)
             lastChange = NSPasteboard.general.changeCount
-            guard defaults.bool(forKey: "autoPaste"), AXIsProcessTrusted() else {
+            guard paste, defaults.bool(forKey: "autoPaste"), AXIsProcessTrusted() else {
                 HUD.show(icon: "key.fill", color: .green, text: L("Copiado · some em 30 s"))
                 return
             }

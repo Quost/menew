@@ -791,6 +791,7 @@ private let table: [String: [String]] = [
     "Nenhuma nota de senhas. Crie em Notas › nova nota de senhas.": ["No passwords notes. Create one in Notes › new passwords note.", "Keine Passwortnotizen. Leg eine in Notizen › neue Passwortnotiz an.", "No hay notas de contraseñas. Crea una en Notas › nueva nota de contraseñas.", "没有密码笔记。在“笔记 › 新建密码笔记”中创建。"],
     "senha": ["password", "Passwort", "contraseña", "密码"],
     "usuário": ["username", "Benutzername", "usuario", "用户名"],
+    "Buscar nas senhas": ["Search passwords", "Passwörter durchsuchen", "Buscar contraseñas", "搜索密码"],
     "Colar a senha": ["Paste the password", "Passwort einfügen", "Pegar la contraseña", "粘贴密码"],
     "Colar o usuário": ["Paste the username", "Benutzernamen einfügen", "Pegar el usuario", "粘贴用户名"],
     "Nova nota de senhas": ["New passwords note", "Neue Passwortnotiz", "Nueva nota de contraseñas", "新建密码笔记"],
