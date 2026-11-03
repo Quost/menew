@@ -5,3 +5,4 @@
 "NSRemindersUsageDescription" = "Menew erstellt die Erinnerungen, die du in der Befehlspalette eingibst, etwa „erinnern Rechnung zahlen morgen um 9“. Nichts verlässt deinen Mac.";
 "NSSpeechRecognitionUsageDescription" = "Menew transkribiert Audio- und Videodateien, die du in die Ablage legst, und zeigt Live-Untertitel, auf deinem Mac.";
 "NSMicrophoneUsageDescription" = "Menew nimmt deine Stimme nur auf, wenn du eine Aufnahme oder Live-Untertitel startest. Der Ton bleibt auf deinem Mac und wird nie gesendet.";
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Menew trägt Termine, die du aus ausgewähltem Text erstellst, in deinen Kalender ein. Nichts verlässt deinen Mac.";

@@ -5,3 +5,4 @@
 "NSRemindersUsageDescription" = "Menew 会创建你在命令面板中输入的提醒事项，例如“提醒 明天9点交账单”。数据不会离开你的 Mac。";
 "NSSpeechRecognitionUsageDescription" = "Menew 会在你的 Mac 上转写你拖到暂存架的音频和视频，并显示实时字幕。";
 "NSMicrophoneUsageDescription" = "只有在你开始录音或实时字幕时，Menew 才会录制你的声音。音频留在你的 Mac 上，绝不会被发送。";
+"NSCalendarsWriteOnlyAccessUsageDescription" = "Menew 会把你从所选文本创建的日程添加到日历。不会离开你的 Mac。";

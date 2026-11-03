@@ -32,6 +32,7 @@
     <key>NSCalendarsUsageDescription</key><string>Menew shows your next meeting and a button to join it. Your calendar is read on your Mac and never leaves it.</string>
     <key>NSRemindersFullAccessUsageDescription</key><string>Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.</string>
     <key>NSRemindersUsageDescription</key><string>Menew creates the reminders you type in the command palette, like “remind me to pay the bill tomorrow at 9”. Nothing leaves your Mac.</string>
+    <key>NSCalendarsWriteOnlyAccessUsageDescription</key><string>Menew adds the events you create from selected text to your calendar. Nothing leaves your Mac.</string>
     <key>NSMicrophoneUsageDescription</key><string>Menew records your voice only when you start a recording or live captions. Audio stays on your Mac and is never sent.</string>
     <key>NSSpeechRecognitionUsageDescription</key><string>Menew transcribes the audio and video files you drop on the shelf and shows live captions, on your Mac.</string>
     <key>NSAppleEventsUsageDescription</key><string>Menew uses Finder and System Events for quick actions (dark mode, empty trash).</string>
