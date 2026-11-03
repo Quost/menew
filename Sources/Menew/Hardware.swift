@@ -237,6 +237,41 @@ final class DisplayController: ObservableObject {
     private var reading = Set<CGDirectDisplayID>()
     private var observer: Any?
     private var pendingRefresh: DispatchWorkItem?
+    /// Última conversa DDC com cada monitor: se a tela reconfigurar logo depois, foi ela que derrubou o sinal
+    private var probes: [(id: CGDirectDisplayID, key: String, at: Date)] = []
+    private static let unstableKey = "ddcUnstable"
+    /// Janela em que uma reconfiguração das telas é atribuída à última conversa DDC
+    private static let blackoutWindow: TimeInterval = 10
+
+    /// Monitores que perderam o sinal ao falar DDC (lembrados entre aberturas do Menew)
+    private static var unstable: Set<String> {
+        get { Set(UserDefaults.standard.stringArray(forKey: unstableKey) ?? []) }
+        set { UserDefaults.standard.set(Array(newValue), forKey: unstableKey) }
+    }
+
+    /// Esquece os monitores marcados, para o DDC tentar de novo (ao religar o ajuste)
+    static func resetUnstable() { UserDefaults.standard.removeObject(forKey: unstableKey) }
+
+    private func noteProbe(_ id: CGDirectDisplayID) {
+        probes.removeAll { $0.id == id || Date().timeIntervalSince($0.at) > Self.blackoutWindow }
+        probes.append((id, monitorKey(id), Date()))
+    }
+
+    /// A tela reconfigurou logo depois de uma conversa DDC: o monitor (ou o adaptador) não aguenta.
+    /// Marca o monitor e passa a escurecer por software, em vez de insistir a cada reconexão.
+    private func blameRecentProbes() {
+        let recent = probes.filter { Date().timeIntervalSince($0.at) < Self.blackoutWindow }
+        probes.removeAll()
+        guard !recent.isEmpty else { return }
+        Self.unstable.formUnion(recent.map(\.key))
+        for p in recent {
+            ddc[p.id] = nil
+            if let i = screens.firstIndex(where: { $0.id == p.id }) {
+                screens[i].kind = .software
+                screens[i].brightness = SoftwareDim.level(p.id)
+            }
+        }
+    }
 
     init() {
         SoftwareDim.reapplyAll()
@@ -245,6 +280,7 @@ final class DisplayController: ObservableObject {
                                                           object: nil, queue: .main) { [weak self] _ in
             MainActor.assumeIsolated {
                 guard let self else { return }
+                self.blameRecentProbes()
                 self.pendingRefresh?.cancel()
                 let work = DispatchWorkItem { [weak self] in
                     MainActor.assumeIsolated {
@@ -268,7 +304,8 @@ final class DisplayController: ObservableObject {
         // Espelhadas aparecem uma vez só
         ids = ids.filter { CGDisplayMirrorsDisplay($0) == kCGNullDirectDisplay }
 
-        let externals = Self.ddcOn ? ids.filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) }.sorted() : []
+        let unstable = Self.unstable
+        let externals = Self.ddcOn ? ids.filter { CGDisplayIsBuiltin($0) == 0 && !DisplayServices.canChange($0) && !unstable.contains(monitorKey($0)) }.sorted() : []
         if externals != matched {
             matched = externals
             ddc = ddc.filter { externals.contains($0.key) }
@@ -302,6 +339,9 @@ final class DisplayController: ObservableObject {
             }
             let old = screens.first { $0.id == id }
             let svc = ddc[id]
+            if !builtin, Self.unstable.contains(monitorKey(id)) {
+                return ScreenInfo(id: id, name: name, builtin: builtin, kind: .software, brightness: SoftwareDim.level(id))
+            }
             let kind: ScreenInfo.Kind = svc.map { $0.disabled ? .software : $0.maxValue > 0 ? .ddc : (old?.kind ?? .ddc) }
                 ?? (matching ? (old?.kind ?? .ddc) : .software)
             if kind == .software { return ScreenInfo(id: id, name: name, builtin: builtin, kind: .software, brightness: SoftwareDim.level(id)) }
@@ -315,6 +355,7 @@ final class DisplayController: ObservableObject {
         for (id, svc) in ddc where !reading.contains(id) && !svc.tried {
             reading.insert(id)
             svc.tried = true
+            noteProbe(id)
             DDCService.queue.async {
                 let started = Date()
                 let value = svc.read(vcp: 0x10)
@@ -371,11 +412,17 @@ final class DisplayController: ObservableObject {
         guard !isDemo else { return }
         switch screens[i].kind {
         case .apple: DisplayServices.setBrightness(id, value)
-        case .ddc: if let svc = ddc[id], svc.maxValue > 0, !svc.disabled { writer.write(svc, value: value) }
+        case .ddc:
+            if let svc = ddc[id], svc.maxValue > 0, !svc.disabled { noteProbe(id); writer.write(svc, value: value) }
         case .software: SoftwareDim.set(id, value)
         case .unsupported: break
         }
     }
+}
+
+/// Identifica o monitor entre reconexões (o `CGDirectDisplayID` pode mudar)
+private func monitorKey(_ d: CGDirectDisplayID) -> String {
+    "\(CGDisplayVendorNumber(d))-\(CGDisplayModelNumber(d))-\(CGDisplaySerialNumber(d))"
 }
 
 /// Escurecimento por software para monitores sem DDC: baixa a curva de cor (gamma) só daquela tela.
@@ -386,9 +433,7 @@ enum SoftwareDim {
     /// Abaixo disso a tela fica preta demais para achar o slider de novo
     private static let floor = 0.15
 
-    private static func id(_ d: CGDirectDisplayID) -> String {
-        "\(CGDisplayVendorNumber(d))-\(CGDisplayModelNumber(d))-\(CGDisplaySerialNumber(d))"
-    }
+    private static func id(_ d: CGDirectDisplayID) -> String { monitorKey(d) }
 
     private static var saved: [String: Double] {
         get { UserDefaults.standard.dictionary(forKey: key) as? [String: Double] ?? [:] }

@@ -919,6 +919,7 @@ struct SettingsView: View {
                         ToggleRow(title: L("Brilho de monitores externos"),
                                   detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se a tela travar ao abrir Ações com um monitor ligado, desligue aqui."),
                                   isOn: $ddcBrightness)
+                            .onChange(of: ddcBrightness) { _, on in if on { DisplayController.resetUnstable() } }
                 }
                 }
 
