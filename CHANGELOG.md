@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.89.0
+
+### New
+- **Organize files by content.** Pick a folder (Downloads by default) and Menew reads each file: text from PDFs and documents, and from images with OCR. The Mac’s AI suggests a clear name and a folder, like “Invoice - Acme - 2026-10” in Invoices, or “Meeting minutes - Building - 2026-10” in Minutes and notes. Screenshots, installers and archives are sorted by rule. Review and edit every name and folder first; files are only moved and renamed inside that folder, nothing is deleted, and Undo puts everything back. Without Apple Intelligence, files are sorted by type. Find it in Actions › Files and iPhone, Tools in the Menew window, or “organize” in the palette.
+
 ## 1.88.0
 
 ### New
