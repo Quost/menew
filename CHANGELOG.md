@@ -2,6 +2,16 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.91.0
+
+### New
+- **Record faster.** A Record button in the Now tab with three choices: Mac audio and microphone (a call), Mac audio only (a video, a class, a call where you only listen) or microphone only (ideas and voice notes). The palette has a command for each, and ⌃⌥⌘G uses your last choice.
+- **Recordings in Notes.** A Recordings folder at the top of Notes lists every recording with search, tag filters and newest or oldest first; open one to read its minutes right there. Saving each set of minutes as a separate note is now optional.
+
+### Changed
+- **Discreet while recording.** Instead of the notch, there is only a small stop symbol in the menu bar (click it to stop), so nothing shows when you share your screen. Hover the notch to see the time and a Stop button. You can bring back the notch alert in Settings › Notch.
+- **No more invented minutes.** Short recordings get just a title, and tasks are only listed when someone actually asked for or promised something (each one is double-checked by the AI). A new Redo button rebuilds the minutes of an older recording.
+
 ## 1.90.0
 
 ### New
