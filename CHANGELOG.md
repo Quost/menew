@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.93.1
+
+### Fixed
+- **Meetings switch on time.** The meeting at the top of the menu now changes the second one meeting ends or the next begins (and two minutes early for back-to-back meetings), instead of waiting up to a minute. The Mac also rereads the calendar on wake.
+- **The notch meeting card leaves once you join.** It hides when you press Join, or when a call app is using the microphone after the meeting starts, instead of showing “Meeting now · Join” while you're already in the call.
+
 ## 1.93.0
 
 ### New
