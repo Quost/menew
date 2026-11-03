@@ -191,7 +191,8 @@ final class SystemHistory: ObservableObject {
 
     func save() {
         lastSave = Date()
-        guard let url, let data = try? JSONEncoder().encode(Saved(samples: samples, energy: energy)) else { return }
+        // O de hora em hora também: sem ele, os gráficos de 7 e 30 dias recomeçavam a cada abertura
+        guard let url, let data = try? JSONEncoder().encode(Saved(samples: samples, energy: energy, hourly: hourly)) else { return }
         try? data.write(to: url, options: .atomic)
     }
 

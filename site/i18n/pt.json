@@ -137,7 +137,7 @@
   "nat4_t": "Legendas ao vivo",
   "nat4_d": "O som do Mac ou o microfone vira legenda numa janelinha, traduzida na hora. Bom para chamadas e vídeos em outro idioma.",
   "nat5_t": "Cuidados com a bateria",
-  "nat5_d": "Avisa ao chegar em 80% na tomada e quando a bateria esquenta, e mostra quanto de saúde ela perdeu ao longo dos meses.",
+  "nat5_d": "Avisa ao chegar em 80% na tomada e quando a bateria esquenta, e mostra quanto de saúde ela perdeu ao longo dos meses. O cartão Desgaste mostra os ciclos de cada dia, as horas e os apps que mais gastam, e o tempo quente ou cheia na tomada.",
   "more": "Ver tudo",
   "nat6_t": "Janela Menew e Memória",
   "nat6_d": "Aperte ⌃⌥⌘K para guardar o que está na tela: o Menew lê o texto, anota o app e o link e a IA dá título e etiquetas. Depois é só perguntar: “qual era aquela biblioteca de gráficos?”, e a IA responde com as fontes. E no grafo, veja como os assuntos se ligam.",

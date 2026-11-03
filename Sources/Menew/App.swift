@@ -114,6 +114,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         AutomationStore.shared.load(dir: clipboard.dir)
         SystemHistory.shared.load(dir: clipboard.dir)
         BatteryLog.shared.load(dir: clipboard.dir)
+        BatteryWear.shared.load(dir: clipboard.dir)
         MemoryStore.shared.load(base: clipboard.dir)
         RecordingStore.shared.load(base: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)

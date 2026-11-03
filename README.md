@@ -201,7 +201,7 @@ Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery,
 <details>
 <summary>🔋 <b>Battery care</b> — Without an admin password or a helper: alerts when the battery reaches 80, 85, 90 or 95% on the charger (unplugging then helps it last longer) and when it gets to 40 °C or more, plus a health history in the Battery card with the trend and cycles per month.</summary>
 
-Turn the alerts on in Settings › Alerts.
+Turn the alerts on in Settings › Alerts. **Wear**, in the Menew window's Battery section, shows where the battery wears out: cycles per day over 30 days (100% drained = 1 cycle) with this week against the last, the hours of the day that drain it most, the apps that used the most battery, and what wears it without adding cycles (time at 35 °C or more, time plugged in above 95%, drops below 20%), with one tip for what weighed most.
 
 </details>
 
@@ -438,6 +438,7 @@ Recently shipped:
 - [x] Organize files by content, with review and undo
 - [x] Messages: requests and deadlines to reminders, reply drafts
 - [x] Screen recording with sound, transcribed into Recordings
+- [x] Battery wear: cycles per day, draining hours and apps, heat and full-charge time
 
 <details>
 <summary>Everything shipped before (79 items)</summary>

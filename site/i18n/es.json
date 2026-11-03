@@ -137,7 +137,7 @@
   "nat4_t": "Subtítulos en vivo",
   "nat4_d": "El sonido del Mac o el micrófono se convierte en subtítulos en una ventanita, traducidos al momento. Ideal para llamadas y vídeos en otro idioma.",
   "nat5_t": "Cuidado de la batería",
-  "nat5_d": "Avisa al llegar al 80% enchufado y cuando la batería se calienta, y muestra cuánta salud perdió con los meses.",
+  "nat5_d": "Avisa al llegar al 80% enchufado y cuando la batería se calienta, y muestra cuánta salud perdió con los meses. La tarjeta Desgaste muestra los ciclos de cada día, las horas y apps que más gastan, y el tiempo caliente o llena y enchufada.",
   "more": "Ver todo",
   "nat6_t": "Ventana de Menew y Memoria",
   "nat6_d": "Pulsa ⌃⌥⌘K para guardar lo que hay en pantalla: Menew lee el texto, anota la app y el enlace, y la IA añade título y etiquetas. Luego solo pregunta: “¿cuál era esa biblioteca de gráficos?”, y la IA responde con las fuentes. Y en el grafo, mira cómo se conectan los temas.",

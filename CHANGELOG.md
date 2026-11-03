@@ -7,7 +7,14 @@ Each version's section is shown in the in-app update window and on the GitHub re
 ### Fixed
 - **External monitor going black when Menew opens.** With some USB-C adapters, talking to the monitor over DDC/CI made it lose the signal; Menew then rescanned and asked again every time it came back, so the screen kept blinking and the CPU stayed high until you quit. Now, if a monitor reconfigures right after Menew talked to it, Menew remembers that monitor (even after you quit), stops sending it commands and uses software dimming instead. Turning “External monitor brightness” off and on again in Settings › Windows and displays makes Menew try the cable again.
 
-## 1.94.1
+## 1.95.0
+
+### New
+- **Battery wear.** A new Wear card in the Menew window's Battery section shows where your battery wears out: cycles per day over the last 30 days (100% drained = 1 cycle), this week against the last, the hours of the day that drain it most, the apps that used the most battery, and what wears it without adding cycles: time at 35 °C or more, time plugged in above 95% and drops below 20%, with one tip for whatever weighed most. The Battery card in the menu shows this week's cycles with a link to the details. It starts counting after you update, and it's all kept on your Mac.
+
+### Fixed
+- The 7- and 30-day system history kept its hourly points only until Menew quit, so the charts started over after every restart. They're saved now.
+
 
 ### New
 - **Passwords tab in the menu.** The Clipboard tab now has History, Snippets and **Passwords**, with its own search and a New passwords note button. Picking one works like in ⌘⇧V: Touch ID first, ↩ pastes the password, ⌥↩ the username.

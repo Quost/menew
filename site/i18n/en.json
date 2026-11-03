@@ -137,7 +137,7 @@
   "nat4_t": "Live captions",
   "nat4_d": "Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.",
   "nat5_t": "Battery care",
-  "nat5_d": "Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months.",
+  "nat5_d": "Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months. The Wear card shows cycles per day, the hours and apps that drain it most, and time spent hot or full on the charger.",
   "more": "See everything",
   "nat6_t": "Menew window and Memory",
   "nat6_d": "Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags. Then just ask: “which was that charts library?”, and AI answers with the sources. And in the graph, see how the topics connect.",
