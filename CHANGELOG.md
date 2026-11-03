@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.94.0
+
+### New
+- **Passwords in ⌘⇧V.** A new Passwords filter, after Snippets, lists your passwords notes by title. Pick one and your Mac asks for Touch ID (or your password), then pastes it straight into the app you were using: ↩ pastes the password, ⌥↩ the username. It's marked as confidential, so it never enters the clipboard history, and it's cleared from the clipboard after 30 seconds. Copy, share and transform are left out for these items on purpose.
+
 ## 1.93.2
 
 ### Fixed

@@ -83,7 +83,7 @@ Click a feature to read the details.
 <details>
 <summary>📋 <b>Clipboard history</b> — Text, links, images and files with instant search, filters, pins and a rich preview.</summary>
 
-Press **⌘⇧V** anywhere. Skips passwords and any app you pick to ignore, and you can pause it for 15 minutes or an hour. Copy the text inside any copied image with one click. **Paste queue**: turn it on, copy several things, then each <kbd>⌘</kbd><kbd>V</kbd> pastes the next one in the order you copied them; the count shows in the menu bar. **Smart actions**: copy a phone number, address, email, tracking code (Correios, UPS and other international codes), color or meeting link and the command palette (and the item's right-click menu) offers the right action: call or WhatsApp, open in Maps, write an email, track the package, copy the color as HEX/RGB/HSL or join the call. Search also finds **text inside copied screenshots and images**, read in the background on your Mac. **Smart search**: type what you remember, like “the hotel link from yesterday”, “that Xcode error” or “images from today”; Menew understands dates (today, yesterday, this week) and types (link, image, file) and matches word roots and synonyms with macOS’s own language model, no Apple Intelligence needed.
+Press **⌘⇧V** anywhere. Skips passwords and any app you pick to ignore, and you can pause it for 15 minutes or an hour. Copy the text inside any copied image with one click. **Paste queue**: turn it on, copy several things, then each <kbd>⌘</kbd><kbd>V</kbd> pastes the next one in the order you copied them; the count shows in the menu bar. **Smart actions**: copy a phone number, address, email, tracking code (Correios, UPS and other international codes), color or meeting link and the command palette (and the item's right-click menu) offers the right action: call or WhatsApp, open in Maps, write an email, track the package, copy the color as HEX/RGB/HSL or join the call. Search also finds **text inside copied screenshots and images**, read in the background on your Mac. **Smart search**: type what you remember, like “the hotel link from yesterday”, “that Xcode error” or “images from today”; Menew understands dates (today, yesterday, this week) and types (link, image, file) and matches word roots and synonyms with macOS’s own language model, no Apple Intelligence needed. Under **Passwords**, your passwords notes are one Touch ID away: ↩ pastes the password, ⌥↩ the username, and it's cleared from the clipboard after 30 seconds without entering the history.
 
 </details>
 
@@ -544,6 +544,6 @@ Menew is free and made in spare time. If it saves you a few minutes a day, a ⭐
 
 ## License
 
-[GPL-3.0](LICENSE) © Matheus Quost. Versions up to 1.81 were released under the MIT license.
+[GPL-3.0](LICENSE) © Matheus Quost.
 
 The name “Menew”, the icon and the website are not part of the license: a fork needs its own name and icon. See [TRADEMARK.md](TRADEMARK.md).
