@@ -1,0 +1,50 @@
+name: CI
+
+# Em todo pull request (e em cada push na main): compila o app como na Release, roda os testes,
+# confere as traduções e se as páginas do site foram geradas. As mensagens de commit ficam no commitlint.yml.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  app:
+    name: Build and tests
+    # macOS 26 traz o Xcode 26, o mesmo da Release
+    runs-on: macos-26
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compilar o app (como na Release, assinatura ad-hoc)
+        run: ./build.sh
+      - name: Testes
+        run: swift test
+
+  translations:
+    name: Translations
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Todo L("…") precisa de en, de, es e zh em L10n.swift; chave repetida derruba o app ao abrir
+      - run: python3 scripts/check-l10n.py
+
+  site:
+    name: Website pages
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # a data de atualização vem do histórico (scripts/build-site.py)
+      # docs/ é gerado a partir de site/. As linhas de data mudam com qualquer commit no CHANGELOG, então não contam aqui.
+      - name: Conferir páginas geradas
+        run: |
+          python3 scripts/build-site.py
+          git diff --exit-code -I '<lastmod>' -I 'dateModified' -I 'updated 20[0-9]' -- docs \
+            || { echo "::error::Rode python3 scripts/build-site.py e faça commit de docs/"; exit 1; }

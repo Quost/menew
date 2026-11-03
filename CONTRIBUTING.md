@@ -90,6 +90,17 @@ Examples: `feat(notes): add Markdown checklists`, `fix(clipboard): keep pinned i
 
 Add `!` after the type (`feat!:`) for breaking changes.
 
+## Tests and checks
+
+```bash
+swift test                        # the app's pure logic: passwords, battery wear, meetings, minutes, search
+python3 scripts/check-l10n.py     # every L("…") has en, de, es and zh, and no key is repeated
+```
+
+Tests live in `Tests/MenewTests` and only cover logic that needs no screen, network, permissions or user data. When you fix a bug in that kind of code, add a test that fails without the fix.
+
+Every pull request runs the same checks on GitHub (`.github/workflows/ci.yml`): it builds the app on macOS 26 like the release does, runs the tests, checks the translations and checks that `docs/` was regenerated after changing `site/`. Commit messages are checked separately. On a contributor's first pull request, GitHub waits for a maintainer to approve the run.
+
 ## Guidelines
 
 - **Keep it native and light.** No third-party dependencies unless there's a very good reason.
