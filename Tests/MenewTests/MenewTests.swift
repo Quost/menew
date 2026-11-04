@@ -199,3 +199,20 @@ final class SearchTests: XCTestCase {
         XCTAssertFalse(SmartClipSearch.sameRoot("cat", "car"))
     }
 }
+
+// MARK: Monitores (DDC)
+
+final class DDCBlameTests: XCTestCase {
+    func testOnlyAMonitorThatDroppedRightAfterDDCIsBlamed() {
+        let now = Date()
+        let probes: [(id: CGDirectDisplayID, key: String, at: Date)] = [
+            (1, "a", now.addingTimeInterval(-2)),   // falou DDC há 2 s e sumiu: culpado
+            (2, "b", now.addingTimeInterval(-2)),   // falou DDC há 2 s e continua na tela: outra mudança qualquer
+            (3, "c", now.addingTimeInterval(-30)),  // sumiu, mas a conversa foi há muito tempo
+        ]
+        let blamed = DisplayController.dropped(probes, online: [2, 99], now: now)
+        XCTAssertEqual(blamed.map(\.key), ["a"])
+        // Reconfiguração sem ninguém sumir (resolução, outro monitor entrando, acordar): ninguém é culpado
+        XCTAssertTrue(DisplayController.dropped(probes, online: [1, 2, 3], now: now).isEmpty)
+    }
+}

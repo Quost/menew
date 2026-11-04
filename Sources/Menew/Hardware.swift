@@ -240,8 +240,8 @@ final class DisplayController: ObservableObject {
     /// Última conversa DDC com cada monitor: se a tela reconfigurar logo depois, foi ela que derrubou o sinal
     private var probes: [(id: CGDirectDisplayID, key: String, at: Date)] = []
     private static let unstableKey = "ddcUnstable"
-    /// Janela em que uma reconfiguração das telas é atribuída à última conversa DDC
-    private static let blackoutWindow: TimeInterval = 10
+    /// Janela em que um monitor que some da lista é atribuído à última conversa DDC com ele (a queda vem logo depois)
+    nonisolated static let blackoutWindow: TimeInterval = 5
 
     /// Monitores que perderam o sinal ao falar DDC (lembrados entre aberturas do Menew)
     private static var unstable: Set<String> {
@@ -257,11 +257,23 @@ final class DisplayController: ObservableObject {
         probes.append((id, monitorKey(id), Date()))
     }
 
-    /// A tela reconfigurou logo depois de uma conversa DDC: o monitor (ou o adaptador) não aguenta.
+    /// Das conversas DDC recentes, as de monitores que sumiram da lista de telas: é esse o sinal de que o DDC
+    /// derrubou a imagem. Uma reconfiguração qualquer (outro monitor, resolução, tampa, acordar) não conta.
+    nonisolated static func dropped(_ probes: [(id: CGDirectDisplayID, key: String, at: Date)], online: Set<CGDirectDisplayID>,
+                                    now: Date = Date()) -> [(id: CGDirectDisplayID, key: String, at: Date)] {
+        probes.filter { now.timeIntervalSince($0.at) < blackoutWindow && !online.contains($0.id) }
+    }
+
+    /// Um monitor sumiu logo depois de uma conversa DDC: ele (ou o adaptador) não aguenta.
     /// Marca o monitor e passa a escurecer por software, em vez de insistir a cada reconexão.
     private func blameRecentProbes() {
-        let recent = probes.filter { Date().timeIntervalSince($0.at) < Self.blackoutWindow }
-        probes.removeAll()
+        var count: UInt32 = 0
+        CGGetOnlineDisplayList(0, nil, &count)
+        var ids = [CGDirectDisplayID](repeating: 0, count: Int(count))
+        CGGetOnlineDisplayList(count, &ids, &count)
+        let recent = Self.dropped(probes, online: Set(ids.prefix(Int(count))))
+        // Só sai da lista o que já passou da janela ou foi culpado; quem segue na tela pode ainda cair
+        probes.removeAll { p in Date().timeIntervalSince(p.at) >= Self.blackoutWindow || recent.contains { $0.id == p.id } }
         guard !recent.isEmpty else { return }
         Self.unstable.formUnion(recent.map(\.key))
         for p in recent {
@@ -330,6 +342,7 @@ final class DisplayController: ObservableObject {
     }
 
     private func build(_ ids: [CGDirectDisplayID]) {
+        let unstable = Self.unstable
         screens = ids.map { id in
             let builtin = CGDisplayIsBuiltin(id) != 0
             let name = NSScreen.screens.first { ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == id }?
@@ -339,7 +352,7 @@ final class DisplayController: ObservableObject {
             }
             let old = screens.first { $0.id == id }
             let svc = ddc[id]
-            if !builtin, Self.unstable.contains(monitorKey(id)) {
+            if !builtin, unstable.contains(monitorKey(id)) {
                 return ScreenInfo(id: id, name: name, builtin: builtin, kind: .software, brightness: SoftwareDim.level(id))
             }
             let kind: ScreenInfo.Kind = svc.map { $0.disabled ? .software : $0.maxValue > 0 ? .ddc : (old?.kind ?? .ddc) }
@@ -397,6 +410,8 @@ final class DisplayController: ObservableObject {
             let raw = svc.read(vcp: 0x10).map { "\($0.0)/\($0.1)" } ?? "no reply"
             print("ddc \(id) raw:", raw, String(format: "(%.0f ms)", Date().timeIntervalSince(t1) * 1000))
         }
+        print("ddc unstable:", unstable.isEmpty ? "none" : unstable.sorted().joined(separator: ", "),
+              "(religue o brilho de monitores externos nos Ajustes para tentar de novo)")
         print("mic muted:", AudioControl.isMuted(input: true), "sound muted:", AudioControl.isMuted(input: false))
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             for s in c.screens {
@@ -420,8 +435,9 @@ final class DisplayController: ObservableObject {
     }
 }
 
-/// Identifica o monitor entre reconexões (o `CGDirectDisplayID` pode mudar)
-private func monitorKey(_ d: CGDirectDisplayID) -> String {
+/// Identifica o monitor entre reconexões (o `CGDirectDisplayID` pode mudar). Muitos monitores informam número de série 0,
+/// então dois iguais podem ter a mesma chave: marcar um como instável marca os dois (mesmo modelo, quase sempre mesmo adaptador).
+func monitorKey(_ d: CGDirectDisplayID) -> String {
     "\(CGDisplayVendorNumber(d))-\(CGDisplayModelNumber(d))-\(CGDisplaySerialNumber(d))"
 }
 

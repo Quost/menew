@@ -917,7 +917,7 @@ struct SettingsView: View {
                 }
                 GlassSection(title: L("Telas")) {
                         ToggleRow(title: L("Brilho de monitores externos"),
-                                  detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se a tela travar ao abrir Ações com um monitor ligado, desligue aqui."),
+                                  detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se um monitor perder o sinal, o Menew passa a escurecê-lo por software sozinho; desligue e ligue aqui para tentar o cabo de novo."),
                                   isOn: $ddcBrightness)
                             .onChange(of: ddcBrightness) { _, on in if on { DisplayController.resetUnstable() } }
                 }
