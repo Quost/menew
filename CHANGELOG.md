@@ -28,6 +28,7 @@ Each version's section is shown in the in-app update window and on the GitHub re
 ### Fixed
 - The 7- and 30-day system history kept its hourly points only until Menew quit, so the charts started over after every restart. They're saved now.
 
+## 1.94.1
 
 ### New
 - **Passwords tab in the menu.** The Clipboard tab now has History, Snippets and **Passwords**, with its own search and a New passwords note button. Picking one works like in ⌘⇧V: Touch ID first, ↩ pastes the password, ⌥↩ the username.
