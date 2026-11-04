@@ -28,12 +28,16 @@ jobs:
         run: swift test
 
   translations:
-    name: Translations
+    name: Translations and changelog
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # as tags: toda versão publicada precisa da sua seção no CHANGELOG
       # Todo L("…") precisa de en, de, es e zh em L10n.swift; chave repetida derruba o app ao abrir
       - run: python3 scripts/check-l10n.py
+      # O CHANGELOG vira as notas de cada versão: uma seção por versão, na ordem
+      - run: python3 scripts/check-changelog.py
 
   site:
     name: Website pages
