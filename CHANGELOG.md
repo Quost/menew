@@ -7,6 +7,11 @@ Each version's section is shown in the in-app update window and on the GitHub re
 ### Fixed
 - **External monitor going black when Menew opens.** With some USB-C adapters, talking to the monitor over DDC/CI made it lose the signal; Menew then rescanned and asked again every time it came back, so the screen kept blinking and the CPU stayed high until you quit. Now, if a monitor reconfigures right after Menew talked to it, Menew remembers that monitor (even after you quit), stops sending it commands and uses software dimming instead. Turning “External monitor brightness” off and on again in Settings › Windows and displays makes Menew try the cable again.
 
+## 1.97.0
+
+### New
+- **Detailed meeting minutes.** Recordings now get minutes that follow the whole conversation, not just a summary: the main topic, a summary, every topic discussed with what was actually said (facts, numbers, names, concerns), decisions, a task table with owner and due date, next steps and notes. Long meetings are read in full, in parts, instead of being squeezed into a few lines, and tasks are extracted separately and checked against the part of the conversation they came from, so fewer get lost or end up with the wrong owner. Copy the minutes or save them as a note in Markdown; for older recordings, use Redo the minutes.
+
 ## 1.96.0
 
 ### New

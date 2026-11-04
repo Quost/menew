@@ -22,6 +22,13 @@ struct Recording: Codable, Identifiable, Equatable {
         var reminder = false
     }
 
+    /// Um assunto da reunião e o que foi dito sobre ele
+    struct Topic: Codable, Identifiable, Equatable {
+        var id = UUID()
+        var title: String
+        var points: [String]
+    }
+
     var id = UUID()
     var date = Date()
     var duration: TimeInterval = 0
@@ -40,9 +47,15 @@ struct Recording: Codable, Identifiable, Equatable {
     var noteID: UUID?
     /// O vídeo, quando veio de uma gravação de tela com som
     var video: String?
+    // Ata detalhada (opcionais: gravações antigas não têm; "Refazer a ata" preenche)
+    var theme: String?
+    var topics: [Topic]?
+    var nextSteps: [String]?
+    var remarks: [String]?
 
     var haystack: String {
-        PaletteSearch.fold([title, summary, decisions.joined(separator: " "), tasks.map(\.text).joined(separator: " "),
+        PaletteSearch.fold([title, theme ?? "", summary, (topics ?? []).map { $0.title + " " + $0.points.joined(separator: " ") }.joined(separator: " "),
+                            decisions.joined(separator: " "), tasks.map(\.text).joined(separator: " "),
                             tags.joined(separator: " "), people.joined(separator: " "), transcript].joined(separator: " "))
     }
 
@@ -53,13 +66,28 @@ struct Recording: Codable, Identifiable, Equatable {
         // #gravação junta todas as atas nas Notas
         out += "  #" + L("gravação").replacingOccurrences(of: " ", with: "-")
         if !tags.isEmpty { out += " " + tags.map { "#" + $0.replacingOccurrences(of: " ", with: "-") }.joined(separator: " ") }
+        func list(_ title: String, _ items: [String]?) {
+            guard let items, !items.isEmpty else { return }
+            out += "\n\n## \(title)\n\n" + items.map { "- \($0)" }.joined(separator: "\n")
+        }
+        if let theme, !theme.isEmpty { out += "\n\n## \(L("Tema central"))\n\n\(theme)" }
         if !summary.isEmpty { out += "\n\n## \(L("Resumo"))\n\n\(summary)" }
-        if !decisions.isEmpty { out += "\n\n## \(L("Decisões"))\n\n" + decisions.map { "- \($0)" }.joined(separator: "\n") }
+        if !people.isEmpty { out += "\n\n## \(L("Pessoas citadas"))\n\n" + people.joined(separator: ", ") }
+        if let topics, !topics.isEmpty {
+            out += "\n\n## \(L("Tópicos discutidos"))"
+            for t in topics { out += "\n\n### \(t.title)\n\n" + t.points.map { "- \($0)" }.joined(separator: "\n") }
+        }
+        list(L("Decisões"), decisions)
         if !tasks.isEmpty {
-            out += "\n\n## \(L("Tarefas"))\n\n" + tasks.map { t in
-                "- [\(t.done ? "x" : " ")] \(t.text)" + (t.owner.map { " — \($0)" } ?? "") + (t.due.map { " (\($0))" } ?? "")
+            // Tabela: fica legível colada num e-mail, no Notion ou no Confluence
+            let cell = { (s: String) in s.replacingOccurrences(of: "|", with: "/") }
+            out += "\n\n## \(L("Tarefas"))\n\n| \(L("Tarefa")) | \(L("Responsável")) | \(L("Prazo")) |\n|---|---|---|\n"
+            out += tasks.map { t in
+                "| \(t.done ? "✓ " : "")\(cell(t.text)) | \(cell(t.owner ?? "—")) | \(cell(t.due ?? L("A definir"))) |"
             }.joined(separator: "\n")
         }
+        list(L("Próximos passos"), nextSteps)
+        list(L("Observações"), remarks)
         if !transcript.isEmpty { out += "\n\n## \(L("Transcrição"))\n\n\(transcript)" }
         return out
     }
@@ -336,6 +364,10 @@ final class RecordingStore: NSObject, ObservableObject {
                 $0.tasks = notes.tasks
                 $0.tags = notes.tags
                 $0.people = notes.people
+                $0.theme = notes.theme.isEmpty ? nil : notes.theme
+                $0.topics = notes.topics.isEmpty ? nil : notes.topics
+                $0.nextSteps = notes.nextSteps.isEmpty ? nil : notes.nextSteps
+                $0.remarks = notes.remarks.isEmpty ? nil : notes.remarks
             }
         }
         update(id) { $0.status = .ready }
@@ -375,9 +407,12 @@ final class RecordingStore: NSObject, ObservableObject {
 
     struct Minutes {
         var title = "", summary = "", decisions: [String] = [], tasks: [Recording.Task] = [], tags: [String] = [], people: [String] = []
+        var theme = "", topics: [Recording.Topic] = [], nextSteps: [String] = [], remarks: [String] = []
     }
 
-    /// A ata. Gravações longas são resumidas em partes e depois juntadas, porque o modelo do Mac lê pouco texto de cada vez.
+    /// A ata. A transcrição é lida inteira, em partes (o modelo do Mac lê pouco texto de cada vez): cada parte vira
+    /// tópicos com o que foi dito de verdade, decisões, tarefas e próximos passos; depois, uma passada sobre os tópicos
+    /// escreve o título, o tema central e o resumo.
     static func minutes(_ transcript: String) async -> Minutes? {
         // Fala curta (um teste, um lembrete de 5 segundos): só um título com o que foi dito, sem ata inventada
         let spoken = transcript.split(whereSeparator: \.isNewline).map { line -> String in
@@ -391,59 +426,164 @@ final class RecordingStore: NSObject, ObservableObject {
         #if canImport(FoundationModels)
         if #available(macOS 26, *) {
             let me = AboutMe.context()
-            var material = transcript
-            if transcript.count > 7000 {
-                var parts: [String] = []
-                var rest = Substring(transcript)
-                while !rest.isEmpty {
-                    let chunk = rest.prefix(6500)
-                    rest = rest.dropFirst(chunk.count)
-                    let s = LanguageModelSession(instructions: "Summarize this part of a recording as short bullet points: what was said, decided and who will do what. Keep names. Same language as the text.")
-                    if let r = try? await s.respond(to: String(chunk)) { parts.append(r.content) }
+            let parts = chunks(transcript)
+            var topics: [Recording.Topic] = []
+            var decisions: [String] = [], steps: [String] = [], remarks: [String] = [], people: [String] = []
+            var candidates: [(task: MinuteTask, source: String)] = []
+            for (i, part) in parts.enumerated() {
+                let session = LanguageModelSession(instructions: """
+                    You take detailed, faithful notes from part of a meeting transcript. "Eu" or "Me" is the user; "Outros" or \
+                    "Others" are the other people. Group what was said into topics, in the order they came up. For each topic, \
+                    write the points that were actually said, each as one specific sentence: facts, numbers, names, problems, \
+                    options, concerns, explanations and conclusions. Prefer concrete details over generic statements, and keep \
+                    who said what when it is clear. Never invent anything that was not said. Write in the same language as the transcript. \
+                    Topics are subjects of the conversation, never "Tasks", "Decisions" or "Next steps". \
+                    Only list a decision when something was actually decided and a next step when something was planned. \
+                    Empty lists are fine. \
+                    \(me)
+                    """)
+                let prompt = "Transcript, part \(i + 1) of \(parts.count):\n\(part)"
+                if let c = try? await session.respond(to: prompt, generating: MeetingNotes.self).content {
+                    mergeTopics(&topics, c.topics.filter { !isSectionTitle($0.title) }.map { ($0.title, $0.points) })
+                    decisions += c.decisions
+                    steps += c.nextSteps
+                    remarks += c.remarks
+                    people += c.people
                 }
-                material = parts.joined(separator: "\n")
+                // As tarefas numa conversa à parte, só com elas: junto com o resto, o modelo esquecia algumas e errava o dono
+                let taskSession = LanguageModelSession(instructions: """
+                    You list the action items from part of a meeting transcript. "Eu" or "Me" is the user; "Outros" or "Others" \
+                    are the other people, who may be several. A task is something someone was asked to do or said that they or \
+                    another person will do, including in a recap at the end. The owner is the person who will do it: the name \
+                    said in the request or the recap, or the person who said "I will". When someone in "Outros" says "I will" \
+                    right after being asked by name, the owner is that name. Only use "Eu" when the user is the one doing it. \
+                    Keep the deadline as said (for example "até sexta"). Never invent tasks. Same language as the transcript. \
+                    \(me)
+                    """)
+                if let t = try? await taskSession.respond(to: prompt, generating: MeetingTasks.self).content {
+                    candidates += t.tasks.map { ($0, part) }
+                }
             }
-            let session = LanguageModelSession(instructions: """
-                You write meeting minutes from a transcript. "Eu" or "Me" is the user; "Outros" or "Others" are the other people. \
-                Be factual and concise, in the same language as the transcript. Only list a task when someone was asked to do something \
-                or said they will do it; only list a decision when something was actually decided. If there are none, return empty lists. \
-                Never turn the whole transcript into a task, and never invent anything that was not said. Set the owner only if it is clear. \
-                \(me)
+            guard !topics.isEmpty || !candidates.isEmpty else { return nil }
+
+            // Visão geral a partir dos tópicos (cabem no modelo mesmo numa reunião longa)
+            let outline = topics.map { t in "## \(t.title)\n" + t.points.prefix(5).map { "- \($0)" }.joined(separator: "\n") }
+                .joined(separator: "\n\n")
+            let overviewSession = LanguageModelSession(instructions: """
+                You write the header of meeting minutes from the notes below. Same language as the notes. Be specific to \
+                what was discussed; never invent anything. \(me)
                 """)
-            do {
-                let r = try await session.respond(to: "Transcript:\n\(String(material.prefix(7500)))", generating: MeetingMinutes.self)
-                let c = r.content
-                // "não especificado", "Outros" e o próprio usuário não são informação
-                func real(_ s: String) -> String? { meaningful(s) }
-                let me = [L("Eu"), L("Outros"), "eu", "outros", "me", "others", AboutMe.name] + AboutMe.aliases
-                // Tarefa que só repete o que foi dito não é tarefa
-                let said = PaletteSearch.fold(spoken)
-                let tasks = c.tasks.filter { t in
-                    let f = PaletteSearch.fold(t.text)
-                    return f.count >= 6 && !(said.count < 200 && (said.contains(f) || f.contains(said)))
-                }
-                // Sem nenhuma palavra de pedido ou compromisso, não há tarefa (uma reflexão em voz alta, por exemplo)
-                let cues = ["vou ", "vamos ", "vai ", "fica responsavel", "fico responsavel", "precisa", "preciso", "temos que", "tem que", "pode ",
-                            "consegue", "por favor", "ate ", "combinado", "reviso", "mando", "envio", "faco", "fecha ", "lembrar",
-                            "i'll", "we'll", "will ", "need", "can you", "please", "should", "must", "by friday", "let's", "going to",
-                            "ich werde", "wir werden", "bitte", "muss", "bis ", "voy a", "vamos a", "necesito", "puedes", "hay que",
-                            "我会", "我们会", "需要", "请", "要"]
-                let hasCue = cues.contains { said.contains($0) }
-                // Segunda opinião, uma tarefa por vez: alguém pediu ou prometeu isso mesmo?
-                var checked: [MinuteTask] = []
-                for t in tasks where hasCue {
-                    let judge = LanguageModelSession(instructions: "You check meeting minutes against a transcript. A task is real if someone asked for it, agreed to do it, or said that they or another person will do it. Reflections, feelings and descriptions are not tasks.")
-                    let q = "Transcript:\n\(String(material.prefix(6000)))\n\nIs this a real task from the transcript: \"\(t.text)\"?"
-                    if let v = try? await judge.respond(to: q, generating: TaskCheck.self).content, v.askedOrPromised { checked.append(t) }
-                }
-                return Minutes(title: String(c.title.prefix(90)), summary: c.summary, decisions: c.decisions,
-                               tasks: checked.map { Recording.Task(text: $0.text, owner: real($0.owner), due: real($0.due)) },
-                               tags: Array(c.tags.prefix(5)).map { $0.lowercased() },
-                               people: c.people.filter { p in !me.contains { PaletteSearch.fold($0) == PaletteSearch.fold(p) } })
-            } catch { return nil }
+            let o = try? await overviewSession.respond(
+                to: "Notes:\n\(String(outline.prefix(6000)))\n\nDecisions:\n\(dedupe(decisions).prefix(10).map { "- \($0)" }.joined(separator: "\n"))",
+                generating: MeetingOverview.self).content
+
+            // "não especificado", "Outros" e o próprio usuário não são informação
+            let meNames = [L("Eu"), L("Outros"), "eu", "outros", "me", "others", AboutMe.name] + AboutMe.aliases
+            // Tarefa que só repete o que foi dito não é tarefa
+            let said = PaletteSearch.fold(spoken)
+            // Sem nenhuma palavra de pedido ou compromisso, não há tarefa (uma reflexão em voz alta, por exemplo)
+            let cues = ["vou ", "vamos ", "vai ", "fica responsavel", "fico responsavel", "precisa", "preciso", "temos que", "tem que", "pode ",
+                        "consegue", "por favor", "ate ", "combinado", "reviso", "mando", "envio", "faco", "fecha ", "lembrar", "prepar", "ficou de",
+                        "i'll", "we'll", "will ", "need", "can you", "please", "should", "must", "by friday", "let's", "going to",
+                        "ich werde", "wir werden", "bitte", "muss", "bis ", "voy a", "vamos a", "necesito", "puedes", "hay que",
+                        "我会", "我们会", "需要", "请", "要"]
+            let hasCue = cues.contains { said.contains($0) }
+            var tasks: [Recording.Task] = []
+            var seen: [String] = []
+            for (t, source) in candidates where hasCue {
+                let f = PaletteSearch.fold(t.text)
+                guard f.count >= 6, !(said.count < 200 && (said.contains(f) || f.contains(said))),
+                      !seen.contains(where: { similar($0, f) }) else { continue }
+                // Segunda opinião, contra o trecho de onde a tarefa veio: alguém pediu ou prometeu isso mesmo?
+                let judge = LanguageModelSession(instructions: "You check meeting minutes against a transcript. A task is real if someone asked for it, agreed to do it, or said that they or another person will do it. Reflections, feelings and descriptions are not tasks.")
+                let q = "Transcript:\n\(String(source.prefix(6000)))\n\nIs this a real task from the transcript: \"\(t.text)\"?"
+                guard let v = try? await judge.respond(to: q, generating: TaskCheck.self).content, v.askedOrPromised else { continue }
+                seen.append(f)
+                tasks.append(Recording.Task(text: t.text, owner: meaningful(t.owner), due: meaningful(t.due)))
+            }
+            let names = dedupe(people + (o?.people ?? [])).filter { p in !meNames.contains { PaletteSearch.fold($0) == PaletteSearch.fold(p) } }
+            return Minutes(title: String((o?.title ?? topics.first?.title ?? "").prefix(90)),
+                           summary: o?.summary ?? "",
+                           decisions: Array(dedupe(decisions).prefix(12)),
+                           tasks: Array(tasks.prefix(15)),
+                           tags: Array((o?.tags ?? []).prefix(5)).map { $0.lowercased() },
+                           people: Array(names.prefix(12)),
+                           theme: o?.theme ?? "",
+                           topics: Array(topics.prefix(12)),
+                           nextSteps: Array(dedupe(steps).prefix(10)),
+                           remarks: Array(dedupe(remarks).prefix(8)))
         }
         #endif
         return nil
+    }
+
+    /// Partes de até `size` caracteres, cortadas entre falas (nunca no meio de uma linha, se der)
+    nonisolated static func chunks(_ text: String, size: Int = 5000) -> [String] {
+        var out: [String] = [], current = ""
+        for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
+            var line = String(line)
+            // Uma fala enorme sem quebra (só um lado gravado): corta por tamanho
+            while line.count > size {
+                if !current.isEmpty { out.append(current); current = "" }
+                out.append(String(line.prefix(size)))
+                line = String(line.dropFirst(size))
+            }
+            if current.count + line.count + 1 > size, !current.isEmpty { out.append(current); current = "" }
+            current += current.isEmpty ? line : "\n" + line
+        }
+        if !current.isEmpty { out.append(current) }
+        return out
+    }
+
+    /// Junta tópicos de partes diferentes que falam do mesmo assunto, na ordem em que apareceram
+    nonisolated static func mergeTopics(_ topics: inout [Recording.Topic], _ new: [(String, [String])], maxPoints: Int = 8) {
+        for (title, points) in new {
+            let clean = dedupe(points.compactMap { meaningful($0) })
+            let t = title.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !t.isEmpty, !clean.isEmpty else { continue }
+            let key = PaletteSearch.fold(t)
+            if let i = topics.firstIndex(where: { let k = PaletteSearch.fold($0.title); return k == key || k.contains(key) || key.contains(k) }) {
+                topics[i].points = Array(dedupe(topics[i].points + clean).prefix(maxPoints))
+            } else {
+                topics.append(Recording.Topic(title: t, points: Array(clean.prefix(maxPoints))))
+            }
+        }
+    }
+
+    /// Mesma ideia com outras palavras: um texto contido no outro, ou a maior parte das palavras importantes em comum
+    /// ("Preparar a conta de retorno" ~ "Preparar uma conta simples de retorno do piloto")
+    nonisolated static func similar(_ a: String, _ b: String) -> Bool {
+        let fa = PaletteSearch.fold(a), fb = PaletteSearch.fold(b)
+        if fa == fb || fa.contains(fb) || fb.contains(fa) { return true }
+        func words(_ s: String) -> Set<String> { Set(s.split { !$0.isLetter && !$0.isNumber }.map(String.init).filter { $0.count >= 4 }) }
+        let wa = words(fa), wb = words(fb)
+        guard min(wa.count, wb.count) >= 2 else { return false }
+        return Double(wa.intersection(wb).count) / Double(min(wa.count, wb.count)) >= 0.75
+    }
+
+    /// Um "tópico" que na verdade é uma seção da ata (o modelo às vezes devolve "Tarefas" como assunto)
+    nonisolated static func isSectionTitle(_ title: String) -> Bool {
+        let f = PaletteSearch.fold(title).trimmingCharacters(in: .punctuationCharacters.union(.whitespaces))
+        let sections = ["tarefas", "tasks", "action items", "decisoes", "decisions", "proximos passos", "next steps", "recapitulacao",
+                        "recap", "resumo", "summary", "encerramento", "aufgaben", "entscheidungen", "nachste schritte", "tareas",
+                        "decisiones", "proximos pasos", "任务", "决定", "后续步骤"]
+        return sections.contains(f)
+    }
+
+    /// Sem repetidos: a mesma ideia (sem acento e sem maiúsculas) só uma vez; fica a versão mais completa
+    nonisolated static func dedupe(_ items: [String]) -> [String] {
+        var out: [String] = []
+        for item in items {
+            let s = item.trimmingCharacters(in: .whitespacesAndNewlines)
+            let f = PaletteSearch.fold(s)
+            guard !f.isEmpty else { continue }
+            if let i = out.firstIndex(where: { similar($0, s) }) {
+                if s.count > out[i].count { out[i] = s }
+            } else {
+                out.append(s)
+            }
+        }
+        return out
     }
 
     // MARK: Lembretes e notas
@@ -507,6 +647,20 @@ final class RecordingStore: NSObject, ObservableObject {
                    Recording.Task(text: L("Fechar os textos da loja"), owner: "Bruno"),
                    Recording.Task(text: L("Preparar a lista de novidades"), owner: L("Eu"), reminder: true)]
         a.tags = [L("lançamento"), "menew", L("site")]; a.people = ["Ana", "Bruno"]
+        a.theme = L("Data e preparação do lançamento da versão nova, com o site e os textos da loja.")
+        a.topics = [
+            Recording.Topic(title: L("Data do lançamento"), points: [
+                L("A data ficou para quinta às 10h, depois que o build passou nos testes."),
+                L("A Ana lembrou que o site precisa estar no ar antes do anúncio.")]),
+            Recording.Topic(title: L("Site e textos da loja"), points: [
+                L("O site ainda tem páginas sem tradução para alemão e chinês."),
+                L("O Bruno fecha os textos da loja; as capturas novas já estão prontas.")]),
+            Recording.Topic(title: L("Preço do plano Pro"), points: [
+                L("Ficou em aberto: duas opções em discussão, mensal ou pagamento único."),
+                L("Ninguém quer anúncios no app grátis.")]),
+        ]
+        a.nextSteps = [L("Revisar a ata na quarta e confirmar o anúncio"), L("Decidir o preço do Pro na próxima reunião")]
+        a.remarks = [L("O lançamento depende do site revisado em todos os idiomas.")]
         a.transcript = L("Eu: Então fica para quinta?\nOutros: Isso, quinta às dez. Eu reviso o site até quarta.")
         var b = Recording(title: L("Ideias para o grafo da memória"), locale: "pt-BR")
         b.date = now.addingTimeInterval(-26 * 3600); b.duration = 412; b.status = .ready
@@ -527,15 +681,44 @@ final class RecordingStore: NSObject, ObservableObject {
 #if canImport(FoundationModels)
 @available(macOS 26, *)
 @Generable
-struct MeetingMinutes {
-    @Guide(description: "Short title for this recording, under 60 characters")
-    var title: String
-    @Guide(description: "Two to four sentences with what matters")
-    var summary: String
-    @Guide(description: "Decisions that were made, if any")
+struct MeetingNotes {
+    @Guide(description: "Topics discussed in this part, in order, each with what was actually said")
+    var topics: [NoteTopic]
+    @Guide(description: "Decisions that were actually made, if any")
     var decisions: [String]
-    @Guide(description: "Action items")
+    @Guide(description: "What was planned next: meetings, presentations, follow-ups")
+    var nextSteps: [String]
+    @Guide(description: "Other relevant context: background, current state, risks, open questions")
+    var remarks: [String]
+    @Guide(description: "Names of people mentioned")
+    var people: [String]
+}
+
+@available(macOS 26, *)
+@Generable
+struct MeetingTasks {
+    @Guide(description: "Every action item in this part, each with its owner and deadline")
     var tasks: [MinuteTask]
+}
+
+@available(macOS 26, *)
+@Generable
+struct NoteTopic {
+    @Guide(description: "Short title of the topic")
+    var title: String
+    @Guide(description: "Two to six specific points that were said about it")
+    var points: [String]
+}
+
+@available(macOS 26, *)
+@Generable
+struct MeetingOverview {
+    @Guide(description: "Short title for this meeting, under 60 characters")
+    var title: String
+    @Guide(description: "One or two sentences with the central subject of the meeting")
+    var theme: String
+    @Guide(description: "Three to five sentences with what matters, specific to what was discussed")
+    var summary: String
     @Guide(description: "Two to five short topic tags")
     var tags: [String]
     @Guide(description: "Names of people mentioned")
