@@ -135,7 +135,7 @@ final class RecordingMinutesTests: XCTestCase {
     }
 
     func testPlaceholderAnswersAreDropped() {
-        for empty in ["não especificado", "Not specified", "N/A", "-", "nicht angegeben", "未指定", "  "] {
+        for empty in ["não especificado", "Not specified", "N/A", "-", "nicht angegeben", "未指定", "  ", "sem data", "TBD"] {
             XCTAssertNil(meaningful(empty), empty)
         }
         XCTAssertEqual(meaningful("Ana"), "Ana")
@@ -173,6 +173,12 @@ final class RecordingMinutesTests: XCTestCase {
         XCTAssertTrue(RecordingStore.isSectionTitle("Tarefas"))
         XCTAssertTrue(RecordingStore.isSectionTitle("Próximos passos:"))
         XCTAssertFalse(RecordingStore.isSectionTitle("Tarefas do piloto na loja"))
+    }
+
+    func testEmptyDecisionsAreNotDecisions() {
+        XCTAssertTrue(RecordingStore.isNonItem("Não foi tomada qualquer decisão formal nesta parte do encontro."))
+        XCTAssertTrue(RecordingStore.isNonItem("No decisions were made."))
+        XCTAssertFalse(RecordingStore.isNonItem("Foi decidido que a vistoria será feita por vídeo."))
     }
 
     func testClock() {

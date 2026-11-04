@@ -179,6 +179,7 @@ final class NotesStore: ObservableObject {
             s.unlocked[wifi.id] = SecretField.format(title: wifi.text, fields: [
                 SecretField(key: L("Rede"), value: "Casa-5G"), SecretField(key: L("Senha"), value: "correct-horse-battery"),
                 SecretField(key: L("Roteador"), value: "http://192.168.0.1"), SecretField(key: "PIN", value: "4821"),
+                SecretField(key: "ROUTER_ADMIN_API_TOKEN_PRODUCTION", value: "sk_demo_4f9a2c7e1b8d3a6f0e5c9b2d7a4e1f8c3b6d9a2e5f"),
             ])
         }
         return s

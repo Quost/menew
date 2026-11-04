@@ -829,6 +829,7 @@ private let table: [String: [String]] = [
     "Tarefa": ["Task", "Aufgabe", "Tarea", "任务"],
     "Tema central": ["Main topic", "Hauptthema", "Tema central", "核心议题"],
     "Tópicos discutidos": ["Topics discussed", "Besprochene Themen", "Temas tratados", "讨论的议题"],
+    "A IA está escrevendo a ata · parte %d de %d…": ["AI is writing the minutes · part %d of %d…", "Die KI schreibt das Protokoll · Teil %d von %d…", "La IA está escribiendo el acta · parte %d de %d…", "AI 正在撰写纪要 · 第 %d 部分，共 %d 部分…"],
     "Brilho de monitores externos": ["External monitor brightness", "Helligkeit externer Monitore", "Brillo de monitores externos", "外接显示器亮度"],
     "Ajusta o brilho pelo cabo (DDC/CI). Se um monitor perder o sinal, o Menew passa a escurecê-lo por software sozinho; desligue e ligue aqui para tentar o cabo de novo.": ["Changes brightness over the cable (DDC/CI). If a monitor loses its signal, Menew switches it to software dimming by itself; turn this off and on to try the cable again.", "Ändert die Helligkeit über das Kabel (DDC/CI). Verliert ein Monitor das Signal, dimmt Menew ihn automatisch per Software; schalte das hier aus und wieder ein, um das Kabel erneut zu versuchen.", "Ajusta el brillo por el cable (DDC/CI). Si un monitor pierde la señal, Menew pasa a atenuarlo por software solo; desactívalo y vuelve a activarlo aquí para probar el cable otra vez.", "通过线缆（DDC/CI）调节亮度。如果显示器失去信号，Menew 会自动改用软件调暗；在此关闭再打开即可重新尝试线缆。"],
     "por software": ["by software", "per Software", "por software", "软件调节"],

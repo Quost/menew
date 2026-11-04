@@ -329,13 +329,15 @@ private struct NoteEditor: View {
     }
 }
 
-/// Nota de senhas: título e linhas de chave e valor. Valores escondidos, com olhinho para mostrar e botão de copiar.
+/// Nota de senhas: título e campos de nome e valor. Valores escondidos, com olhinho para mostrar e botão de copiar.
 private struct PasswordsEditor: View {
     @ObservedObject var store: NotesStore
     let id: UUID
     @State private var title = ""
     @State private var fields: [SecretField] = []
     @State private var shown: Set<UUID> = []
+    @State private var hovering: UUID?
+    @State private var copied: UUID?
     @FocusState private var focus: Focus?
 
     enum Focus: Hashable { case title, key(UUID), value(UUID) }
@@ -372,48 +374,56 @@ private struct PasswordsEditor: View {
         .onChange(of: fields) { save() }
     }
 
+    /// Um campo em duas linhas: o nome inteiro em cima e o valor na largura toda embaixo (mostrado, ele quebra em
+    /// várias linhas em vez de cortar). Apagar só aparece com o mouse em cima, para não ficar no caminho do copiar.
     private func row(_ f: Binding<SecretField>) -> some View {
         let fid = f.wrappedValue.id
         let visible = shown.contains(fid)
-        return HStack(spacing: 8) {
-            TextField(L("Nome"), text: f.key)
-                .textFieldStyle(.plain).font(.system(size: 11.5, weight: .medium)).foregroundStyle(.secondary)
-                .focused($focus, equals: .key(fid))
-                .frame(width: keyWidth)
-            Group {
-                if visible {
-                    TextField(L("Valor"), text: f.value)
-                } else {
-                    SecureField(L("Valor"), text: f.value)
+        return VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                TextField(L("Nome"), text: f.key)
+                    .textFieldStyle(.plain).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary)
+                    .focused($focus, equals: .key(fid))
+                if hovering == fid {
+                    iconButton("trash", help: L("Remover campo")) {
+                        fields.removeAll { $0.id == fid }
+                        shown.remove(fid)
+                    }
+                    .transition(.opacity)
                 }
             }
-            .textFieldStyle(.plain).font(.system(size: 12.5, design: .monospaced))
-            .focused($focus, equals: .value(fid))
-            iconButton(visible ? "eye.slash" : "eye", help: visible ? L("Esconder") : L("Mostrar")) {
-                if visible { shown.remove(fid) } else { shown.insert(fid) }
-            }
-            iconButton("doc.on.doc", help: L("Copiar")) { SecretCopy.copy(f.wrappedValue.value) }
+            HStack(alignment: .center, spacing: 4) {
+                Group {
+                    if visible {
+                        TextField(L("Valor"), text: f.value, axis: .vertical).lineLimit(1...6)
+                    } else {
+                        SecureField(L("Valor"), text: f.value)
+                    }
+                }
+                .textFieldStyle(.plain).font(.system(size: 13, design: .monospaced))
+                .focused($focus, equals: .value(fid))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                iconButton(visible ? "eye.slash" : "eye", help: visible ? L("Esconder") : L("Mostrar")) {
+                    if visible { shown.remove(fid) } else { shown.insert(fid) }
+                }
+                iconButton(copied == fid ? "checkmark" : "doc.on.doc", help: L("Copiar"), color: copied == fid ? .green : .secondary) {
+                    SecretCopy.copy(f.wrappedValue.value)
+                    copied = fid
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.4) { if copied == fid { copied = nil } }
+                }
                 .disabled(f.wrappedValue.value.isEmpty)
-            iconButton("minus.circle", help: L("Remover campo")) {
-                fields.removeAll { $0.id == fid }
-                shown.remove(fid)
             }
         }
-        .padding(.horizontal, 10).padding(.vertical, 7)
-        .background(RoundedRectangle(cornerRadius: 9, style: .continuous).fill(Color.primary.opacity(0.04)))
+        .padding(.horizontal, 12).padding(.vertical, 9)
+        .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.045)))
+        .contentShape(Rectangle())
+        .onHover { inside in withAnimation(.easeOut(duration: 0.12)) { hovering = inside ? fid : (hovering == fid ? nil : hovering) } }
     }
 
-    /// Coluna dos nomes do tamanho do maior nome (entre 60 e 160 pt); o valor fica com o resto
-    private var keyWidth: CGFloat {
-        let font = NSFont.systemFont(ofSize: 11.5, weight: .medium)
-        let widest = fields.map { ($0.key as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
-        return min(160, max(60, ceil(widest) + 6))
-    }
-
-    private func iconButton(_ icon: String, help: String, action: @escaping () -> Void) -> some View {
+    private func iconButton(_ icon: String, help: String, color: Color = .secondary, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Image(systemName: icon).font(.system(size: 11.5, weight: .medium)).foregroundStyle(.secondary)
-                .frame(width: 22, height: 22).contentShape(Rectangle())
+            Image(systemName: icon).font(.system(size: 12, weight: .medium)).foregroundStyle(color)
+                .frame(width: 26, height: 22).contentShape(Rectangle())
         }
         .buttonStyle(.plain).help(help).accessibilityLabel(help)
     }

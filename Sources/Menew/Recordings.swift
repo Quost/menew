@@ -137,6 +137,8 @@ final class RecordingStore: NSObject, ObservableObject {
     @Published private(set) var recordingID: UUID?
     @Published private(set) var startedAt = Date()
     @Published var level: Float = 0
+    /// A ata de uma reunião longa demora (minutos): em que parte a IA está, para a tela mostrar
+    @Published private(set) var minutesProgress: [UUID: (done: Int, total: Int)] = [:]
     private(set) var dir: URL?
     private var demo = false
 
@@ -356,7 +358,9 @@ final class RecordingStore: NSObject, ObservableObject {
             return
         }
         update(id) { $0.status = .summarizing }
-        if let notes = await Self.minutes(transcript) {
+        let notes = await Self.minutes(transcript) { [weak self] done, total in self?.minutesProgress[id] = (done, total) }
+        minutesProgress[id] = nil
+        if let notes {
             update(id) {
                 if !notes.title.isEmpty { $0.title = notes.title }
                 $0.summary = notes.summary
@@ -413,7 +417,7 @@ final class RecordingStore: NSObject, ObservableObject {
     /// A ata. A transcrição é lida inteira, em partes (o modelo do Mac lê pouco texto de cada vez): cada parte vira
     /// tópicos com o que foi dito de verdade, decisões, tarefas e próximos passos; depois, uma passada sobre os tópicos
     /// escreve o título, o tema central e o resumo.
-    static func minutes(_ transcript: String) async -> Minutes? {
+    static func minutes(_ transcript: String, progress: ((Int, Int) -> Void)? = nil) async -> Minutes? {
         // Fala curta (um teste, um lembrete de 5 segundos): só um título com o que foi dito, sem ata inventada
         let spoken = transcript.split(whereSeparator: \.isNewline).map { line -> String in
             let t = String(line)
@@ -431,12 +435,17 @@ final class RecordingStore: NSObject, ObservableObject {
             var decisions: [String] = [], steps: [String] = [], remarks: [String] = [], people: [String] = []
             var candidates: [(task: MinuteTask, source: String)] = []
             for (i, part) in parts.enumerated() {
+                progress?(i + 1, parts.count)
                 let session = LanguageModelSession(instructions: """
-                    You take detailed, faithful notes from part of a meeting transcript. "Eu" or "Me" is the user; "Outros" or \
-                    "Others" are the other people. Group what was said into topics, in the order they came up. For each topic, \
-                    write the points that were actually said, each as one specific sentence: facts, numbers, names, problems, \
-                    options, concerns, explanations and conclusions. Prefer concrete details over generic statements, and keep \
-                    who said what when it is clear. Never invent anything that was not said. Write in the same language as the transcript. \
+                    You are a professional minute-taker writing detailed, faithful minutes from part of a meeting transcript. \
+                    "Eu" or "Me" is the user; "Outros" or "Others" are the other people. Group what was said into topics, in the \
+                    order they came up. For each topic, write the points that were said: facts, numbers, places, names, problems, \
+                    options, concerns, explanations and conclusions. Write each point as one clean sentence in the third person, \
+                    in the style of formal minutes ("Foi apresentado...", "Davi explicou que..."), never copying the speech word \
+                    for word and never in the first person. The transcript comes from speech recognition: fix obvious recognition \
+                    errors and ignore filler, greetings and small talk. In sentences, call the user by their name (below), \
+                    never "Eu". Never invent anything that was not said. \
+                    Write in the same language as the transcript. \
                     Topics are subjects of the conversation, never "Tasks", "Decisions" or "Next steps". \
                     Only list a decision when something was actually decided and a next step when something was planned. \
                     Empty lists are fine. \
@@ -457,7 +466,9 @@ final class RecordingStore: NSObject, ObservableObject {
                     another person will do, including in a recap at the end. The owner is the person who will do it: the name \
                     said in the request or the recap, or the person who said "I will". When someone in "Outros" says "I will" \
                     right after being asked by name, the owner is that name. Only use "Eu" when the user is the one doing it. \
-                    Keep the deadline as said (for example "até sexta"). Never invent tasks. Same language as the transcript. \
+                    Leave the deadline empty unless a date or a time limit was actually said for that task; never repeat \
+                    one deadline for every task. Write each task as a short, clear action starting with a verb, not as a \
+                    quote. Never invent tasks. Same language as the transcript. \
                     \(me)
                     """)
                 if let t = try? await taskSession.respond(to: prompt, generating: MeetingTasks.self).content {
@@ -470,8 +481,8 @@ final class RecordingStore: NSObject, ObservableObject {
             let outline = topics.map { t in "## \(t.title)\n" + t.points.prefix(5).map { "- \($0)" }.joined(separator: "\n") }
                 .joined(separator: "\n\n")
             let overviewSession = LanguageModelSession(instructions: """
-                You write the header of meeting minutes from the notes below. Same language as the notes. Be specific to \
-                what was discussed; never invent anything. \(me)
+                You write the header of formal meeting minutes from the notes below: impersonal, in the third person, never in \
+                the first person. Same language as the notes. Be specific to what was discussed; never invent anything. \(me)
                 """)
             let o = try? await overviewSession.respond(
                 to: "Notes:\n\(String(outline.prefix(6000)))\n\nDecisions:\n\(dedupe(decisions).prefix(10).map { "- \($0)" }.joined(separator: "\n"))",
@@ -492,7 +503,8 @@ final class RecordingStore: NSObject, ObservableObject {
             var seen: [String] = []
             for (t, source) in candidates where hasCue {
                 let f = PaletteSearch.fold(t.text)
-                guard f.count >= 6, !(said.count < 200 && (said.contains(f) || f.contains(said))),
+                // Tarefa que vira um parágrafo é a fala copiada, não uma ação
+                guard f.count >= 6, t.text.count <= 180, !(said.count < 200 && (said.contains(f) || f.contains(said))),
                       !seen.contains(where: { similar($0, f) }) else { continue }
                 // Segunda opinião, contra o trecho de onde a tarefa veio: alguém pediu ou prometeu isso mesmo?
                 let judge = LanguageModelSession(instructions: "You check meeting minutes against a transcript. A task is real if someone asked for it, agreed to do it, or said that they or another person will do it. Reflections, feelings and descriptions are not tasks.")
@@ -504,21 +516,21 @@ final class RecordingStore: NSObject, ObservableObject {
             let names = dedupe(people + (o?.people ?? [])).filter { p in !meNames.contains { PaletteSearch.fold($0) == PaletteSearch.fold(p) } }
             return Minutes(title: String((o?.title ?? topics.first?.title ?? "").prefix(90)),
                            summary: o?.summary ?? "",
-                           decisions: Array(dedupe(decisions).prefix(12)),
+                           decisions: Array(dedupe(decisions.filter { !isNonItem($0) }).prefix(12)),
                            tasks: Array(tasks.prefix(15)),
                            tags: Array((o?.tags ?? []).prefix(5)).map { $0.lowercased() },
                            people: Array(names.prefix(12)),
                            theme: o?.theme ?? "",
                            topics: Array(topics.prefix(12)),
-                           nextSteps: Array(dedupe(steps).prefix(10)),
-                           remarks: Array(dedupe(remarks).prefix(8)))
+                           nextSteps: Array(dedupe(steps.filter { !isNonItem($0) }).prefix(10)),
+                           remarks: Array(dedupe(remarks.filter { !isNonItem($0) }).prefix(8)))
         }
         #endif
         return nil
     }
 
     /// Partes de até `size` caracteres, cortadas entre falas (nunca no meio de uma linha, se der)
-    nonisolated static func chunks(_ text: String, size: Int = 5000) -> [String] {
+    nonisolated static func chunks(_ text: String, size: Int = 6000) -> [String] {
         var out: [String] = [], current = ""
         for line in text.split(separator: "\n", omittingEmptySubsequences: true) {
             var line = String(line)
@@ -559,6 +571,15 @@ final class RecordingStore: NSObject, ObservableObject {
         let wa = words(fa), wb = words(fb)
         guard min(wa.count, wb.count) >= 2 else { return false }
         return Double(wa.intersection(wb).count) / Double(min(wa.count, wb.count)) >= 0.75
+    }
+
+    /// "Não foi tomada nenhuma decisão": o modelo às vezes preenche a lista dizendo que ela está vazia
+    nonisolated static func isNonItem(_ s: String) -> Bool {
+        let f = PaletteSearch.fold(s)
+        let empty = ["nao foi tomad", "nenhuma decisao", "nao houve decis", "nao houve nenhum", "nao pode ser registrad", "sem decis",
+                     "no decision", "no formal decision", "nothing was decided", "none were made", "keine entscheidung",
+                     "ninguna decision", "no se tomo", "没有做出", "无决定"]
+        return meaningful(s) == nil || empty.contains { f.contains($0) }
     }
 
     /// Um "tópico" que na verdade é uma seção da ata (o modelo às vezes devolve "Tarefas" como assunto)
@@ -801,7 +822,8 @@ final class RecordingSystemOutput: NSObject, SCStreamOutput, @unchecked Sendable
 func meaningful(_ s: String) -> String? {
     let f = PaletteSearch.fold(s.trimmingCharacters(in: .whitespaces))
     let empty = ["nao especificado", "nao informado", "nao mencionado", "unspecified", "not specified", "not mentioned", "none", "n/a", "-",
-                 "nenhum", "nicht angegeben", "keine", "no especificado", "ninguno", "未指定", "无"]
+                 "nenhum", "nicht angegeben", "keine", "no especificado", "ninguno", "未指定", "无",
+                 "sem data", "sem prazo", "a definir", "indefinido", "no date", "no deadline", "tbd", "kein datum", "sin fecha", "无期限"]
     return f.isEmpty || empty.contains(f) ? nil : s
 }
 

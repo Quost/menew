@@ -190,7 +190,11 @@ struct RecordingDetail: View {
                 case .transcribing, .summarizing:
                     HStack(spacing: 8) {
                         ProgressView().controlSize(.small)
-                        Text(rec.status == .transcribing ? L("Transcrevendo no seu Mac…") : L("A IA está escrevendo a ata…")).foregroundStyle(.secondary)
+                        if rec.status == .summarizing, let p = store.minutesProgress[rec.id], p.total > 1 {
+                            Text(L("A IA está escrevendo a ata · parte %d de %d…", p.done, p.total)).foregroundStyle(.secondary).monospacedDigit()
+                        } else {
+                            Text(rec.status == .transcribing ? L("Transcrevendo no seu Mac…") : L("A IA está escrevendo a ata…")).foregroundStyle(.secondary)
+                        }
                     }
                     .font(.system(size: 12.5))
                 case .failed:
