@@ -200,7 +200,26 @@ struct RecordingDetail: View {
                     }
                 default: EmptyView()
                 }
+                if let theme = rec.theme, !theme.isEmpty {
+                    section(L("Tema central")) { Text(theme).font(.system(size: 13, weight: .medium)).textSelection(.enabled) }
+                }
                 if !rec.summary.isEmpty { section(L("Resumo")) { Text(rec.summary).font(.system(size: 13)).textSelection(.enabled) } }
+                if let topics = rec.topics, !topics.isEmpty {
+                    section(L("Tópicos discutidos")) {
+                        ForEach(topics) { t in
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(t.title).font(.system(size: 12.5, weight: .semibold))
+                                ForEach(t.points, id: \.self) { p in
+                                    HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                        Text("•").foregroundStyle(.secondary)
+                                        Text(p).font(.system(size: 12.5)).textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+                                    }
+                                }
+                            }
+                            .padding(.bottom, 4)
+                        }
+                    }
+                }
                 if !rec.decisions.isEmpty {
                     section(L("Decisões")) {
                         ForEach(rec.decisions, id: \.self) { d in
@@ -233,6 +252,20 @@ struct RecordingDetail: View {
                         if rec.tasks.contains(where: { !$0.reminder && AboutMe.isMe($0.owner) }) {
                             Button(L("Criar lembretes das minhas tarefas")) { Task { await store.remindMine(rec.id) } }
                                 .buttonStyle(.plain).font(.system(size: 12, weight: .semibold)).foregroundStyle(Color.accentColor).padding(.top, 2)
+                        }
+                    }
+                }
+                if let steps = rec.nextSteps, !steps.isEmpty {
+                    section(L("Próximos passos")) {
+                        ForEach(steps, id: \.self) { s in
+                            Label { Text(s).font(.system(size: 12.5)) } icon: { Image(systemName: "arrow.right.circle").foregroundStyle(Color.accentColor) }
+                        }
+                    }
+                }
+                if let remarks = rec.remarks, !remarks.isEmpty {
+                    section(L("Observações")) {
+                        ForEach(remarks, id: \.self) { s in
+                            Label { Text(s).font(.system(size: 12.5)).foregroundStyle(.secondary) } icon: { Image(systemName: "info.circle").foregroundStyle(.secondary) }
                         }
                     }
                 }

@@ -141,6 +141,40 @@ final class RecordingMinutesTests: XCTestCase {
         XCTAssertEqual(meaningful("Ana"), "Ana")
     }
 
+    func testChunksCutBetweenLinesAndKeepEverything() {
+        let lines = (1...300).map { "Eu: fala número \($0) sobre o assunto da reunião" }
+        let text = lines.joined(separator: "\n")
+        let parts = RecordingStore.chunks(text, size: 1000)
+        XCTAssertGreaterThan(parts.count, 5)
+        XCTAssertTrue(parts.allSatisfy { $0.count <= 1000 })
+        // Nada se perde e nenhuma fala é cortada ao meio
+        XCTAssertEqual(parts.joined(separator: "\n"), text)
+        // Uma fala enorme sem quebra também é dividida
+        XCTAssertEqual(RecordingStore.chunks(String(repeating: "a", count: 2500), size: 1000).map(\.count), [1000, 1000, 500])
+    }
+
+    func testTopicsFromDifferentPartsAreMerged() {
+        var topics: [Recording.Topic] = []
+        RecordingStore.mergeTopics(&topics, [("Arquitetura", ["Integração ao Conex foi discutida."]), ("Aspectos jurídicos", ["Proxy pode ter implicações."])])
+        RecordingStore.mergeTopics(&topics, [("arquitetura na Tupi", ["Integração ao Conex foi discutida.", "Gateway OCPP como alternativa."]),
+                                             ("Vazio", ["não especificado"])])
+        XCTAssertEqual(topics.map(\.title), ["Arquitetura", "Aspectos jurídicos"])
+        XCTAssertEqual(topics[0].points, ["Integração ao Conex foi discutida.", "Gateway OCPP como alternativa."])
+    }
+
+    func testDedupeKeepsTheMoreCompleteVersion() {
+        XCTAssertEqual(RecordingStore.dedupe(["Reunião na segunda", "reuniao na segunda, das 11h às 12h", "Outro ponto", "  "]),
+                       ["reuniao na segunda, das 11h às 12h", "Outro ponto"])
+    }
+
+    func testSameIdeaInOtherWordsIsARepeat() {
+        XCTAssertTrue(RecordingStore.similar("Preparar a conta de retorno", "Preparar uma conta simples de retorno"))
+        XCTAssertFalse(RecordingStore.similar("Preparar a conta de retorno", "Mandar a planilha do cardápio"))
+        XCTAssertTrue(RecordingStore.isSectionTitle("Tarefas"))
+        XCTAssertTrue(RecordingStore.isSectionTitle("Próximos passos:"))
+        XCTAssertFalse(RecordingStore.isSectionTitle("Tarefas do piloto na loja"))
+    }
+
     func testClock() {
         XCTAssertEqual(RecordingStore.clock(65), "1:05")
         XCTAssertEqual(RecordingStore.clock(3725), "1:02:05")
