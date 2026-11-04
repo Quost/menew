@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Fixed
+- **External monitor going black when Menew opens.** With some USB-C adapters, talking to the monitor over DDC/CI made it lose the signal; Menew then rescanned and asked again every time it came back, so the screen kept blinking and the CPU stayed high until you quit. Now, if a monitor reconfigures right after Menew talked to it, Menew remembers that monitor (even after you quit), stops sending it commands and uses software dimming instead. Turning “External monitor brightness” off and on again in Settings › Windows and displays makes Menew try the cable again.
+
 ## 1.97.0
 
 ### New
