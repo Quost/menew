@@ -10,6 +10,8 @@ struct Meeting: Equatable {
     var end: Date
     var link: URL?
     var color: Color
+    /// Tem outras pessoas convidadas (sem ninguém, é um bloqueio na agenda: almoço, ginástica, foco)
+    var withOthers = false
 }
 
 /// Próxima reunião do app Calendário. Desligado por padrão; só pede acesso ao Calendário quando você liga.
@@ -35,6 +37,48 @@ final class MeetingStore: ObservableObject {
     private var wakeObservers: [Any] = []
     /// Reunião em que você clicou Entrar: o aviso do notch some
     private(set) var joinedID: String?
+    /// Avisos do notch dispensados nesta ocorrência (o mesmo evento repetido tem o mesmo id, então vai com o horário)
+    private var dismissed: Set<String> = []
+
+    // MARK: Avisos do notch
+
+    static let onlyRealKey = "notch.onlyRealMeetings"
+    static let mutedKey = "notch.mutedMeetingTitles"
+    /// Só avisa de reuniões com link ou com outras pessoas (ligado por padrão)
+    static var onlyReal: Bool { UserDefaults.standard.object(forKey: onlyRealKey) as? Bool ?? true }
+    /// Títulos que nunca avisam no notch ("Almoço", "Ginástica laboral")
+    static var mutedTitles: [String] {
+        get { UserDefaults.standard.stringArray(forKey: mutedKey) ?? [] }
+        set { UserDefaults.standard.set(newValue, forKey: mutedKey) }
+    }
+
+    static func occurrence(_ m: Meeting) -> String { "\(m.id)|\(Int(m.start.timeIntervalSince1970))" }
+
+    /// O aviso dessa reunião não aparece no notch
+    nonisolated static func notchIgnores(_ m: Meeting, dismissed: Set<String>, muted: [String], onlyReal: Bool) -> Bool {
+        if dismissed.contains("\(m.id)|\(Int(m.start.timeIntervalSince1970))") { return true }
+        let title = PaletteSearch.fold(m.title.trimmingCharacters(in: .whitespaces))
+        if muted.contains(where: { PaletteSearch.fold($0) == title }) { return true }
+        return onlyReal && m.link == nil && !m.withOthers
+    }
+
+    func notchIgnores(_ m: Meeting) -> Bool {
+        Self.notchIgnores(m, dismissed: dismissed, muted: Self.mutedTitles, onlyReal: Self.onlyReal)
+    }
+
+    /// Some com o aviso desta vez
+    func dismiss(_ m: Meeting) {
+        dismissed.insert(Self.occurrence(m))
+        NotchCenter.shared.update()
+    }
+
+    /// Nunca mais avisa de reuniões com esse título
+    func mute(_ title: String) {
+        let t = title.trimmingCharacters(in: .whitespaces)
+        guard !t.isEmpty, !Self.mutedTitles.contains(t) else { return }
+        Self.mutedTitles.append(t)
+        NotchCenter.shared.update()
+    }
     private var demo = false
 
     var isOn: Bool { UserDefaults.standard.bool(forKey: Self.key) }
@@ -150,7 +194,8 @@ final class MeetingStore: ObservableObject {
 
     private static func meeting(_ e: EKEvent) -> Meeting {
         Meeting(id: e.eventIdentifier ?? UUID().uuidString, title: e.title ?? "", start: e.startDate, end: e.endDate,
-                link: link(in: e), color: e.calendar.map { Color(cgColor: $0.cgColor) } ?? Theme.indigo)
+                link: link(in: e), color: e.calendar.map { Color(cgColor: $0.cgColor) } ?? Theme.indigo,
+                withOthers: (e.attendees ?? []).contains { !$0.isCurrentUser })
     }
 
     /// Abre a chamada, se tiver link, ou o evento no Calendário

@@ -109,6 +109,25 @@ final class MeetingTests: XCTestCase {
         XCTAssertEqual(MeetingStore.current(list, now: now)?.title, "a")
     }
 
+    func testNotchSkipsCalendarBlocksDismissedAndMutedMeetings() {
+        var lunch = meeting("almoço", 0, 60); lunch.title = "Almoço"
+        var call = meeting("call", 0, 30); call.link = URL(string: "https://meet.example.com/x")
+        var sync = meeting("sync", 0, 30); sync.withOthers = true
+        // Sem link nem convidados é bloqueio de agenda
+        XCTAssertTrue(MeetingStore.notchIgnores(lunch, dismissed: [], muted: [], onlyReal: true))
+        XCTAssertFalse(MeetingStore.notchIgnores(lunch, dismissed: [], muted: [], onlyReal: false))
+        XCTAssertFalse(MeetingStore.notchIgnores(call, dismissed: [], muted: [], onlyReal: true))
+        XCTAssertFalse(MeetingStore.notchIgnores(sync, dismissed: [], muted: [], onlyReal: true))
+        // Silenciado pelo título, sem ligar para acento e maiúsculas
+        XCTAssertTrue(MeetingStore.notchIgnores(sync, dismissed: [], muted: ["SYNC"], onlyReal: true))
+        XCTAssertTrue(MeetingStore.notchIgnores(lunch, dismissed: [], muted: ["almoco"], onlyReal: false))
+        // Dispensado só nesta ocorrência: o mesmo evento em outro horário volta a avisar
+        let key = MeetingStore.occurrence(call)
+        XCTAssertTrue(MeetingStore.notchIgnores(call, dismissed: [key], muted: [], onlyReal: true))
+        var tomorrow = call; tomorrow.start = call.start.addingTimeInterval(86_400)
+        XCTAssertFalse(MeetingStore.notchIgnores(tomorrow, dismissed: [key], muted: [], onlyReal: true))
+    }
+
     func testNotchMeetingCardLeavesOnceYouJoin() {
         let m = meeting("x", 0, 30)
         XCTAssertTrue(NotchCenter.showsMeeting(m, now: t0.addingTimeInterval(-60), inCall: false, joined: false))

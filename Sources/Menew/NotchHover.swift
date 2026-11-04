@@ -217,6 +217,16 @@ struct NotchHoverView: View {
                             }
                             .buttonStyle(.plain)
                         }
+                        // Bloqueio de agenda (almoço, ginástica) ou aviso que atrapalha: some desta vez ou para sempre
+                        Menu {
+                            Button(L("Dispensar este aviso")) { NotchHover.run { MeetingStore.shared.dismiss(m) } }
+                            Button(L("Nunca avisar de “%@”", m.title)) { NotchHover.run { MeetingStore.shared.mute(m.title) } }
+                        } label: {
+                            Image(systemName: "xmark").font(.system(size: 10, weight: .bold)).foregroundStyle(.white.opacity(0.6))
+                                .frame(width: 22, height: 22).background(Circle().fill(.white.opacity(0.12)))
+                        }
+                        .menuStyle(.borderlessButton).menuIndicator(.hidden).fixedSize()
+                        .help(L("Dispensar o aviso"))
                     }
                 } else if model.callSince != nil {
                     Label(L("Em chamada"), systemImage: "phone.fill").font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.green)

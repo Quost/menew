@@ -102,8 +102,8 @@ final class NotchCenter: ObservableObject {
 
     /// A ordem de importância
     static func pick(now: Date, flash: Activity?, muted: Bool, inCall: Bool = false) -> Activity? {
-        if Kind.meeting.isOn, let m = MeetingStore.shared.next, showsMeeting(m, now: now, inCall: inCall,
-                                                                             joined: MeetingStore.shared.joinedID == m.id) {
+        if Kind.meeting.isOn, let m = MeetingStore.shared.next, !MeetingStore.shared.notchIgnores(m),
+           showsMeeting(m, now: now, inCall: inCall, joined: MeetingStore.shared.joinedID == m.id) {
             return .meeting(title: m.title, start: m.start, hasLink: m.link != nil)
         }
         if Kind.recording.isOn, ScreenRecorder.shared.isRecording { return .recording(since: ScreenRecorder.shared.started) }
@@ -326,6 +326,8 @@ struct NotchSettingsSection: View {
     @State private var drop = NotchHover.dropOn
     @State private var kinds: [NotchCenter.Kind: Bool] = Dictionary(uniqueKeysWithValues: NotchCenter.Kind.allCases.map { ($0, $0.isOn) })
     @AppStorage(NotchCenter.leadKey) private var lead = 2
+    @State private var onlyReal = MeetingStore.onlyReal
+    @State private var muted = MeetingStore.mutedTitles
     @StateObject private var preview = NotchCenter()
     @State private var step = 0
     private let tick = Timer.publish(every: 2.5, on: .main, in: .common).autoconnect()
@@ -351,7 +353,7 @@ struct NotchSettingsSection: View {
             if NotchCenter.hasNotch {
                 GlassSection(title: L("Painel do notch")) {
                     ToggleRow(title: L("Abrir ao passar o mouse"),
-                              detail: L("Pare o mouse no notch: aparecem a próxima reunião, o timer e atalhos (microfone, captura, clipboard, estante, paleta)."),
+                              detail: L("Pare o mouse no notch: aparecem a próxima reunião, o timer e atalhos (microfone, captura, memória, clipboard, estante). Numa chamada, gravar com ata e legendas."),
                               isOn: Binding(get: { hover }, set: { hover = $0; UserDefaults.standard.set($0, forKey: NotchHover.hoverKey); NotchHover.shared.refresh() }))
                     RowDivider()
                     ToggleRow(title: L("Soltar arquivos no notch"),
@@ -373,6 +375,26 @@ struct NotchSettingsSection: View {
                                     ForEach([1, 2, 5], id: \.self) { Text(L("%@ min antes", "\($0)")).tag($0) }
                                 }
                                 .labelsHidden().pickerStyle(.menu).fixedSize().padding(.top, 2)
+                                Toggle(L("Só reuniões com link ou outras pessoas"), isOn: Binding(get: { onlyReal }, set: {
+                                    onlyReal = $0; UserDefaults.standard.set($0, forKey: MeetingStore.onlyRealKey); NotchCenter.shared.update()
+                                }))
+                                .toggleStyle(.checkbox).font(.system(size: 11.5))
+                                .help(L("Sem link nem convidados, o evento é um bloqueio na agenda (almoço, ginástica, foco) e não avisa."))
+                                if !muted.isEmpty {
+                                    Text(L("Nunca avisar de:")).font(.system(size: 11)).foregroundStyle(.secondary).padding(.top, 2)
+                                    FlowLayout(spacing: 6) {
+                                        ForEach(muted, id: \.self) { t in
+                                            Button {
+                                                muted.removeAll { $0 == t }; MeetingStore.mutedTitles = muted; NotchCenter.shared.update()
+                                            } label: {
+                                                HStack(spacing: 4) { Text(t); Image(systemName: "xmark").font(.system(size: 8, weight: .bold)) }
+                                                    .font(.system(size: 11)).padding(.horizontal, 8).padding(.vertical, 3)
+                                                    .background(Capsule().fill(Color.primary.opacity(0.07)))
+                                            }
+                                            .buttonStyle(.plain).help(L("Voltar a avisar de “%@”", t))
+                                        }
+                                    }
+                                }
                             }
                         }
                         Spacer(minLength: 8)
