@@ -20,6 +20,21 @@ LANGS = {  # código: (atributo lang, nome nativo)
     "zh": ("zh-Hans", "中文"),
 }
 
+# Fatos diretos para o llms.txt: o que cada parte faz, sem a IA precisar deduzir (ela errava "não tem terços", "não tem temperatura")
+FACTS = [
+    ("Window manager", "Snap windows to halves, quarters (corners), thirds and two-thirds, maximize, center and restore, with the same ⌃⌥ shortcuts as Rectangle; drag a window to a screen edge or corner to snap it; move it to the next display; a layout grid in Actions; work profiles bring apps and window layouts back."),
+    ("Command palette (⌃⌥Space)", "Apps, Menew actions, window layouts, snippets, notes and clipboard items; math, unit, currency and time zone conversions; text transforms (case, JSON, Base64, word count); developer tools (ports in use, UUID, Unix timestamps, JWT); quick links and web search; emoji and symbols; timers, alarms and reminders; your own script commands in shell, Python, Node or AppleScript (Raycast-compatible); natural-language commands with on-device AI."),
+    ("Clipboard history (⌘⇧V)", "Text, links, images and files with search (including text inside images, read on the Mac, and search by meaning), pins, filters and previews; snippets with abbreviations that expand as you type, variables, fields and cursor position; a paste queue; items marked by password managers are skipped; a Passwords tab pastes passwords notes after Touch ID."),
+    ("System monitor", "CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, network usage per app, battery health, cycles and wear over time, temperatures of the chip, SSD and battery, fan speed, performance and efficiency cores, power in watts, SSD health, 24-hour, 7-day and 30-day history, custom alert rules, a plain-language 'Why is my Mac slow?' diagnosis and screen time."),
+    ("Screenshots and recording", "Capture an area, window or the whole screen; annotate with arrows, text and blur; pin on screen; record the screen with sound, as video or GIF; scrolling capture; copy text from anywhere on screen (OCR on the Mac)."),
+    ("Meetings and recordings", "Next meeting with a Join button for Zoom, Meet, Teams and Webex; notch alerts that skip calendar blocks; record Mac audio and the microphone as separate tracks; on-device transcription; minutes with the main topic, a summary, each topic discussed, decisions, a task table with owner and deadline, and next steps; tasks to Reminders."),
+    ("Memory", "⌃⌥⌘K saves what is on screen with its text, app and link; ask in plain words and get an answer with sources; a knowledge graph of topics; items appear in Spotlight."),
+    ("Files and cleanup", "A drag-and-drop shelf with image and PDF tools (convert, compress, split, OCR, password-protect); organize a folder by file content with review and undo; disk cleaner for caches, logs, large and duplicate files (files go to the Trash); app uninstaller with leftovers; login and background items."),
+    ("Made for macOS", "Live notch alerts and a hover panel with call controls; desktop widgets; Siri, Shortcuts and Spotlight actions; Focus filters; Live Text in images; Continuity Camera; live translated captions; Liquid Glass design on macOS 26; English, Portuguese, German, Spanish and Chinese."),
+]
+NOT_INCLUDED = ("Menew does not hide or rearrange other apps' menu bar icons (use Ice or Thaw), has no extension store "
+                "(it runs your own scripts), does not sync to a cloud, and does not embed a web browser in the menu bar.")
+
 # Contador de visitas do site (GoatCounter: sem cookies, sem dados pessoais). Vazio = desligado.
 # O app em si continua sem nenhuma telemetria.
 GOATCOUNTER = "menew"
@@ -106,6 +121,9 @@ def jsonld(lang, texts):
     app = {
         "@type": "SoftwareApplication",
         "name": "Menew",
+        # O nome sozinho também é de um sistema de restaurantes (Linx Menew): estes deixam claro qual é qual
+        "alternateName": ["Menew for Mac", "Menew Mac app", "Menew menu bar app", "Quost Menew"],
+        "disambiguatingDescription": "Free, open source macOS menu bar app by Quost (github.com/Quost/menew). Not related to Linx Menew, a restaurant point-of-sale system.",
         "url": url(lang),
         "description": htmllib.unescape(texts["meta_desc"]),
         "inLanguage": LANGS[lang][0],
@@ -136,7 +154,7 @@ def jsonld(lang, texts):
         "mainEntity": [{"@type": "Question", "name": plain(texts[f"faq{i}_q"]),
                         "acceptedAnswer": {"@type": "Answer", "text": plain(texts[f"faq{i}_a"])}} for i in range(1, N_FAQ + 1)],
     }
-    site = {"@type": "WebSite", "name": "Menew", "url": url(lang), "inLanguage": LANGS[lang][0],
+    site = {"@type": "WebSite", "name": "Menew", "alternateName": "Menew for Mac", "url": url(lang), "inLanguage": LANGS[lang][0],
             "description": htmllib.unescape(texts["og_desc"])}
     return json.dumps({"@context": "https://schema.org", "@graph": [site, app, faq]}, ensure_ascii=False).replace("</", "<\\/")
 
@@ -167,6 +185,13 @@ english = json.loads((ROOT / "site/i18n/en.json").read_text())
 N_FAQ = sum(1 for k in english if re.fullmatch(r"faq\d+_q", k))
 N_REP = sum(1 for k in english if re.fullmatch(r"rep\d+_t", k))
 template = (ROOT / "site/template.html").read_text()
+# Páginas "Menew vs X" (em inglês, onde estão as buscas "X alternative"): site/compare.json + site/compare.html
+COMPARE = json.loads((ROOT / "site/compare.json").read_text())
+
+def compare_links(label):
+    links = " · ".join(f'<a href="/vs/{slug}/" data-goatcounter-click="vs-{slug}">{htmllib.escape(c["other"])}</a>' for slug, c in COMPARE.items())
+    return f'<p class="rep-note">{label} {links}</p>'
+
 hreflang = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}">' for c in LANGS)
 hreflang += f'\n<link rel="alternate" hreflang="x-default" href="{url("en")}">'
 
@@ -187,6 +212,10 @@ for lang in LANGS:
         "jsonld": jsonld(lang, texts),
         **{f"f{i}_d_fold": fold(texts[f"f{i}_d"], texts["more"]) for i in range(1, 7)},
         **{f"act_l{i}_fold": "<div>" + fold(texts[f"act_l{i}"], texts["more"], "span") + "</div>" for i in range(1, 11)},
+        # Perguntas do FAQ: quantas houver nos textos (faq1_q, faq2_q…)
+        "faq_items": "\n".join(f'      <details class="reveal"><summary>{texts[f"faq{i}_q"]}</summary><p>{texts[f"faq{i}_a"]}</p></details>'
+                               for i in range(1, N_FAQ + 1)),
+        "compare_links": compare_links(texts["compare_label"]),
         "analytics": ANALYTICS,
         "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt", "notch_meeting", "notch_join", "notch_focus")},
                                   "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
@@ -200,9 +229,62 @@ for lang in LANGS:
     print(f"{lang}: {out.relative_to(ROOT)}")
 
 
+# Páginas de comparação
+ctpl = (ROOT / "site/compare.html").read_text()
+MARK = {"yes": ("✓ Yes", "yes"), "partial": ("◐ Partly", "partial"), "no": ("— No", "no")}
+esc = htmllib.escape
+for slug, c in COMPARE.items():
+    rows = []
+    for feature, menew, other, note in c["rows"]:
+        n = f'<span class="note">{esc(note)}</span>' if note else ""
+        rows.append(f'      <tr><td>{esc(feature)}{n}</td>'
+                    f'<td class="mark {MARK[menew][1]}">{MARK[menew][0]}</td><td class="mark {MARK[other][1]}">{MARK[other][0]}</td></tr>')
+    page_url = f"{SITE}/vs/{slug}/"
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "WebPage", "name": c["title"], "url": page_url, "description": c["description"], "inLanguage": "en",
+         "about": {"@type": "SoftwareApplication", "name": "Menew", "alternateName": "Menew for Mac", "operatingSystem": "macOS",
+                   "url": SITE + "/", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
+         "dateModified": UPDATED},
+        {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Menew", "item": SITE + "/"},
+            {"@type": "ListItem", "position": 2, "name": "Comparisons", "item": f"{SITE}/vs/"},
+            {"@type": "ListItem", "position": 3, "name": f"Menew vs {c['other']}", "item": page_url}]},
+    ]}
+    values = {
+        "title": esc(c["title"]), "description": esc(c["description"]), "url": page_url, "slug": slug,
+        "other": esc(c["other"]), "short": esc(c["other"]), "intro": esc(c["intro"]),
+        "rows": "\n".join(rows),
+        "other_better": "".join(f"<li>{esc(x)}</li>" for x in c["other_better"]),
+        "menew_better": "".join(f"<li>{esc(x)}</li>" for x in c["menew_better"]),
+        "others": " ".join(f'<a href="/vs/{s2}/">{esc(c2["other"])}</a>' for s2, c2 in COMPARE.items() if s2 != slug),
+        "jsonld": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
+        "analytics": ANALYTICS,
+    }
+    page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], ctpl)
+    out = ROOT / "docs/vs" / slug / "index.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(page)
+# Índice das comparações, com o mesmo visual
+head, rest = ctpl.split("<main", 1)
+cards = "".join(f'<div class="box" style="margin-bottom:14px"><h3><a href="/vs/{slug}/">Menew vs {esc(c["other"])}</a></h3>'
+                f'<p style="color:var(--muted);font-size:15px">{esc(c["description"])}</p></div>' for slug, c in COMPARE.items())
+index_values = {"title": "Menew compared: free, open source alternatives for Mac utilities",
+                "description": "How Menew, a free and open source Mac menu bar app, compares with Raycast, Maccy, Rectangle, iStat Menus, CleanShot X and Otter.",
+                "url": f"{SITE}/vs/", "short": "All", "jsonld": "{}", "analytics": ANALYTICS}
+index = re.sub(r"\{\{(\w+)\}\}", lambda m: index_values.get(m.group(1), ""), head)
+index += ('<main class="wrap"><header><div class="eyebrow">Comparisons</div><h1>Menew compared</h1>'
+          '<p class="intro">Menew is one free, open source app for the Mac menu bar that covers the everyday part of several utilities. '
+          'Here is how it compares, including where the specialized apps go further.</p></header><div style="margin-top:28px">'
+          + cards + '</div><p class="disclaimer">Names are trademarks of their owners and appear only for comparison.</p></main>'
+          '<footer><div class="wrap">Menew · <a href="/">menew.web.app</a> · Not related to Linx Menew.</div></footer></body></html>\n')
+(ROOT / "docs/vs/index.html").write_text(index)
+print("docs/vs/ (" + str(len(COMPARE)) + " comparações)")
+
 # Mapa do site (com as versões em cada idioma) e robots.txt para os buscadores
 alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}"/>' for c in LANGS)
 entries = "".join(f"\n  <url>\n    <loc>{url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{alternates}\n  </url>" for c in LANGS)
+entries += "".join(f"\n  <url>\n    <loc>{SITE}/vs/{p}</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
+                   for p in [""] + [f"{slug}/" for slug in COMPARE])
 (ROOT / "docs/sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
@@ -219,6 +301,12 @@ lines = [
     "Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
     "## Highlights", "",
     *[f"- {plain(e[f'b{i}_t'])}: {plain(e[f'b{i}_d'])}" for i in range(1, 5)], "",
+    "## Capabilities in detail", "",
+    *[f"- {name}: {text}" for name, text in FACTS], "",
+    "## Not included", "",
+    NOT_INCLUDED, "",
+    "## Name", "",
+    "Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost/menew. It is not related to Linx Menew, a restaurant point-of-sale system in Brazil.", "",
     "## One app instead of many", "",
     *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, N_REP + 1)], "",
     "## Features", "",
@@ -235,6 +323,7 @@ lines = [
     "## Links", "",
     f"- Website: {SITE}/ (also in Portuguese, German, Spanish and Chinese: {SITE}/pt, {SITE}/de, {SITE}/es, {SITE}/zh)",
     "- Source code and README: https://github.com/Quost/menew",
+    *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}/" for slug, c in COMPARE.items()],
     "- Releases and changelog: https://github.com/Quost/menew/releases",
 ]
 (ROOT / "docs/llms.txt").write_text("\n".join(lines) + "\n")

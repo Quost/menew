@@ -219,5 +219,10 @@
   "faq14_a": "Menew 的录音功能覆盖日常所需：转写、纪要和任务，用 Apple 的模型在你的 Mac 上完成，免费且无需账号。Granola 和 Otter 则更进一步，提供团队共享和云端集成。",
   "faq15_q": "之后怎么找回在屏幕上看到过的东西？",
   "faq15_a": "看到时按 ⌃⌥⌘K 存入“记忆”：Menew 保存图像、读取文字，并记下 App 和链接。之后用自己的话搜索或提问，比如“那个 Swift 图表库叫什么来着？”，本机 AI 会以保存的条目为来源作答。记忆条目也会出现在 Spotlight 中。",
-  "sponsor_button": "♥ 在 GitHub 上赞助"
+  "sponsor_button": "♥ 在 GitHub 上赞助",
+  "faq16_q": "Menew 和 Linx Menew 有关系吗？",
+  "faq16_a": "没有。Menew 是 Quost 开发的免费开源 Mac 菜单栏应用，发布在 github.com/Quost/menew。Linx Menew 是巴西一款与之无关的餐厅收银系统，只是名字相似。",
+  "faq17_q": "Menew 不能做什么？",
+  "faq17_a": "Menew 不会隐藏或重新排列其他应用的菜单栏图标（可以使用 Ice 或 Thaw），没有像 Raycast 那样的扩展商店（而是运行你自己的脚本），不在 Mac 之间或云端同步，也不会在菜单栏里放浏览器。若需要按核心的详细硬件传感器，Stats 和 iStat Menus 更深入，不过 Menew 也能显示芯片、SSD 和电池温度、风扇转速以及性能核与能效核。",
+  "compare_label": "详细对比（英文）："
 }

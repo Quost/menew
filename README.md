@@ -365,6 +365,8 @@ Menew covers the everyday features of these popular Mac utilities in one free, n
 | PopClip | Actions on selected text in any app: rewrite, explain, reply, or turn it into a reminder or event (⌃⌥⌘R). |
 | Hazel | Tidy a folder like Downloads: names and folders suggested from each file's content, with review and undo. |
 
+Detailed comparisons, including where the specialized apps go further: [Raycast](https://menew.web.app/vs/raycast/) · [Maccy and Paste](https://menew.web.app/vs/maccy/) · [Rectangle and Magnet](https://menew.web.app/vs/rectangle/) · [iStat Menus and Stats](https://menew.web.app/vs/istat-menus/) · [CleanShot X](https://menew.web.app/vs/cleanshot/) · [Otter and Granola](https://menew.web.app/vs/otter/).
+
 <sub>Names are trademarks of their owners and appear only for comparison. Menew isn't affiliated with or endorsed by any of them.</sub>
 
 ## Keyboard shortcuts

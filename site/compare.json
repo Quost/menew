@@ -1,0 +1,456 @@
+{
+  "raycast": {
+    "other": "Raycast",
+    "title": "Menew vs Raycast: a free, open source Raycast alternative for Mac",
+    "description": "How Menew compares with Raycast: command palette, clipboard history, window management, snippets and AI. Free, open source and on-device, without an extension store.",
+    "intro": "Raycast is a polished launcher with a huge extension store. Menew covers the everyday part of it (command palette, clipboard history, snippets, window snapping, script commands) and adds a system monitor, screenshots and meeting minutes, all free, open source and with AI that runs on your Mac.",
+    "rows": [
+      [
+        "Command palette for apps, actions, math and conversions",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Clipboard history with search and pins",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Snippets that expand as you type",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Window snapping with keyboard shortcuts",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Your own script commands",
+        "yes",
+        "yes",
+        "Menew runs Raycast-style script commands"
+      ],
+      [
+        "Extension store",
+        "no",
+        "yes",
+        "Raycast's community extensions are its biggest strength"
+      ],
+      [
+        "AI",
+        "yes",
+        "yes",
+        "Menew uses Apple's on-device model, free; Raycast AI is mostly part of the paid Pro plan"
+      ],
+      [
+        "System monitor in the menu bar",
+        "yes",
+        "partial",
+        "Raycast through extensions"
+      ],
+      [
+        "Screenshots with annotations",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Meeting recordings with minutes",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Cloud sync between Macs",
+        "no",
+        "yes",
+        "Raycast Pro"
+      ],
+      [
+        "Open source",
+        "yes",
+        "no",
+        "Menew is GPL-3.0"
+      ]
+    ],
+    "other_better": [
+      "You rely on extensions for Jira, GitHub, Notion, Spotify and other services.",
+      "You want settings and snippets synced across several Macs.",
+      "You prefer chatting with cloud AI models."
+    ],
+    "menew_better": [
+      "You want the everyday launcher features plus clipboard, windows, system monitor and screenshots in one free app.",
+      "You want AI that never leaves your Mac and no account.",
+      "You want an open source app you can read and change."
+    ]
+  },
+  "maccy": {
+    "other": "Maccy and Paste",
+    "title": "Menew vs Maccy and Paste: a free clipboard manager for Mac, and more",
+    "description": "How Menew's clipboard history compares with Maccy and Paste: search, pins, snippets, paste queue and privacy. Free and open source.",
+    "intro": "Maccy is a lightweight, free and open source clipboard manager, and Paste is a paid one with pinboards and iCloud sync. Menew includes a full clipboard history (⌘⇧V) with snippets, a paste queue and search inside images, as part of a menu bar app that also replaces several other utilities.",
+    "rows": [
+      [
+        "Clipboard history for text, links, images and files",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Instant search and pins",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Search by meaning (\"the hotel link from yesterday\")",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Snippets with abbreviations and variables",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Paste queue (paste several items in order)",
+        "yes",
+        "partial",
+        "Paste has a paste stack"
+      ],
+      [
+        "Skips passwords from password managers",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Paste passwords notes after Touch ID",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Sync across Macs and iPhone",
+        "no",
+        "partial",
+        "Paste syncs with iCloud; Maccy doesn't"
+      ],
+      [
+        "Single-purpose and minimal",
+        "no",
+        "yes",
+        "Maccy does one thing and stays tiny"
+      ]
+    ],
+    "other_better": [
+      "You only want a clipboard manager and nothing else (Maccy).",
+      "You need your clipboard synced to an iPhone or iPad (Paste)."
+    ],
+    "menew_better": [
+      "You want to find screenshots by the text inside them, read on your Mac.",
+      "You want snippets, a paste queue and search inside images along with the clipboard.",
+      "You'd rather install one free app than several.",
+      "You want it open source and with no account."
+    ]
+  },
+  "rectangle": {
+    "other": "Rectangle and Magnet",
+    "title": "Menew vs Rectangle and Magnet: window snapping for Mac, built in",
+    "description": "How Menew's window manager compares with Rectangle and Magnet: halves, thirds, corners, drag to edges and the same keyboard shortcuts.",
+    "intro": "Rectangle is a free, open source window manager and Magnet is a paid one. Menew snaps windows with the same ⌃⌥ shortcuts as Rectangle and by dragging to the screen edges, as part of a menu bar app that also has a command palette, clipboard history and more.",
+    "rows": [
+      [
+        "Halves, corners, thirds and two-thirds",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Same ⌃⌥ keyboard shortcuts as Rectangle",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Drag a window to an edge or corner to snap",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Move a window to the next display",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Restore a window's previous size",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Sixths, fourths and more layouts",
+        "no",
+        "partial",
+        "Rectangle has more layouts and finer settings"
+      ],
+      [
+        "Save and restore apps with their window layouts",
+        "yes",
+        "no",
+        "Menew work profiles"
+      ],
+      [
+        "Window layouts from a command palette",
+        "yes",
+        "no",
+        ""
+      ]
+    ],
+    "other_better": [
+      "You want sixths, fourths or very fine-grained snapping options.",
+      "You only need a window manager."
+    ],
+    "menew_better": [
+      "The common layouts are enough and you'd like them in the same app as your clipboard and launcher.",
+      "You want work profiles that reopen apps and put their windows back."
+    ]
+  },
+  "istat-menus": {
+    "other": "iStat Menus and Stats",
+    "title": "Menew vs iStat Menus and Stats: a free system monitor for the Mac menu bar",
+    "description": "How Menew's system monitor compares with iStat Menus and Stats: CPU, GPU, memory, disk, network, battery, temperatures, history and alerts.",
+    "intro": "iStat Menus is a paid, very detailed system monitor and Stats is a free, open source one. Menew shows CPU, GPU, memory, disk, network and battery in the menu bar, with temperatures, history, alerts and a plain-language diagnosis, inside an app that also replaces several other utilities.",
+    "rows": [
+      [
+        "CPU, GPU, memory, disk and network in the menu bar",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Separate menu bar icons, each with its own panel",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Chip, SSD and battery temperatures and fan speed",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Performance and efficiency cores",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Every sensor, per core",
+        "partial",
+        "yes",
+        "iStat Menus and Stats list many more sensors"
+      ],
+      [
+        "24-hour, 7-day and 30-day history",
+        "yes",
+        "partial",
+        ""
+      ],
+      [
+        "Custom alerts (\"CPU above 80% for 10 min\")",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "\"Why is my Mac slow?\" in plain words",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Battery wear over time: cycles per day, heat, apps",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Network usage per app",
+        "yes",
+        "yes",
+        ""
+      ]
+    ],
+    "other_better": [
+      "You want every sensor and very detailed per-core readings.",
+      "You want the deepest menu bar customization for monitoring."
+    ],
+    "menew_better": [
+      "You want a clear picture of your Mac, with history, alerts and a plain-language diagnosis, without installing a separate monitor.",
+      "You want to see where your battery wears out."
+    ]
+  },
+  "cleanshot": {
+    "other": "CleanShot X",
+    "title": "Menew vs CleanShot X: free screenshots with annotations for Mac",
+    "description": "How Menew's screenshots compare with CleanShot X: annotations, blur, pinning, screen recording with sound, GIF, scrolling capture and copying text from the screen.",
+    "intro": "CleanShot X is a paid screenshot and recording app with cloud sharing. Menew captures and annotates screenshots, pins them on screen, records the screen with sound or as a GIF, takes scrolling captures and copies text from the screen, all on your Mac and for free.",
+    "rows": [
+      [
+        "Capture an area, a window or the whole screen",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Arrows, text and blur",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Pin a screenshot on top of everything",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Screen recording with sound",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "GIF recording",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Scrolling capture",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Copy text from anywhere on screen",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Upload and share by link",
+        "no",
+        "yes",
+        "CleanShot Cloud"
+      ],
+      [
+        "Video trimming and more annotation tools",
+        "no",
+        "yes",
+        ""
+      ],
+      [
+        "Recording transcribed into meeting minutes",
+        "yes",
+        "no",
+        ""
+      ]
+    ],
+    "other_better": [
+      "You share screenshots by link a lot.",
+      "You need richer annotation and video editing."
+    ],
+    "menew_better": [
+      "You want capture, annotation and recording without a subscription.",
+      "You want recordings with sound turned into a transcript and minutes on your Mac."
+    ]
+  },
+  "otter": {
+    "other": "Otter and Granola",
+    "title": "Menew vs Otter and Granola: private meeting minutes on your Mac",
+    "description": "How Menew's recordings compare with Otter and Granola: on-device transcription, meeting minutes, tasks and privacy, with no bot and no account.",
+    "intro": "Otter and Granola are cloud services for meeting notes, with team sharing and integrations. Menew records your call (Mac audio and microphone), transcribes it on your Mac and writes minutes with the main topic, each topic discussed, decisions, tasks and next steps, with no bot joining the call, no account and nothing uploaded.",
+    "rows": [
+      [
+        "Transcript of the meeting",
+        "yes",
+        "yes",
+        "Menew transcribes on the Mac"
+      ],
+      [
+        "Minutes with topics, decisions and tasks",
+        "yes",
+        "yes",
+        ""
+      ],
+      [
+        "Task table with owner and deadline",
+        "yes",
+        "partial",
+        ""
+      ],
+      [
+        "Tasks to Apple Reminders",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "No bot joins the call",
+        "yes",
+        "partial",
+        "Otter can join as a bot; Granola doesn't"
+      ],
+      [
+        "Works without an account or internet",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Audio never leaves your Mac",
+        "yes",
+        "no",
+        ""
+      ],
+      [
+        "Team sharing and workspace",
+        "no",
+        "yes",
+        ""
+      ],
+      [
+        "Speaker names for everyone in the call",
+        "partial",
+        "yes",
+        "Menew separates you from the others"
+      ],
+      [
+        "Mobile apps",
+        "no",
+        "yes",
+        ""
+      ]
+    ],
+    "other_better": [
+      "Your team shares and edits notes together.",
+      "You need every speaker identified by name, or notes on your phone."
+    ],
+    "menew_better": [
+      "Your meetings are confidential and you don't want audio in a cloud.",
+      "You want minutes and tasks for free, without a bot in the call."
+    ]
+  }
+}

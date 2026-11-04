@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menew vs CleanShot X: free screenshots with annotations for Mac</title>
+<meta name="description" content="How Menew&#x27;s screenshots compare with CleanShot X: annotations, blur, pinning, screen recording with sound, GIF, scrolling capture and copying text from the screen.">
+<meta property="og:title" content="Menew vs CleanShot X: free screenshots with annotations for Mac">
+<meta property="og:description" content="How Menew&#x27;s screenshots compare with CleanShot X: annotations, blur, pinning, screen recording with sound, GIF, scrolling capture and copying text from the screen.">
+<meta property="og:image" content="https://menew.web.app/assets/og/en.png">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Menew">
+<meta property="og:url" content="https://menew.web.app/vs/cleanshot/">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://menew.web.app/vs/cleanshot/">
+<link rel="icon" type="image/png" href="/assets/icon.png">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "name": "Menew vs CleanShot X: free screenshots with annotations for Mac", "url": "https://menew.web.app/vs/cleanshot/", "description": "How Menew's screenshots compare with CleanShot X: annotations, blur, pinning, screen recording with sound, GIF, scrolling capture and copying text from the screen.", "inLanguage": "en", "about": {"@type": "SoftwareApplication", "name": "Menew", "alternateName": "Menew for Mac", "operatingSystem": "macOS", "url": "https://menew.web.app/", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}}, "dateModified": "2026-11-04"}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Menew", "item": "https://menew.web.app/"}, {"@type": "ListItem", "position": 2, "name": "Comparisons", "item": "https://menew.web.app/vs/"}, {"@type": "ListItem", "position": 3, "name": "Menew vs CleanShot X", "item": "https://menew.web.app/vs/cleanshot/"}]}]}</script>
+<script data-goatcounter="https://menew.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<style>
+  :root {
+    --bg: #f6f6f9; --bg-elev: #fff; --text: #121218; --muted: #5a5a6b; --faint: #8b8b9c;
+    --line: rgba(20, 20, 40, .09); --card: rgba(255, 255, 255, .8);
+    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
+    --yes: #1f9d55; --partial: #c27a00; --no: #9a9aab;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045);
+      --yes: #34c759; --partial: #ffb340; --no: #6e6e80;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045);
+    --yes: #34c759; --partial: #ffb340; --no: #6e6e80;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .wrap { width: min(860px, 100% - 32px); margin: 0 auto; }
+  nav { border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .logo img { width: 28px; height: 28px; }
+  .crumbs { font-size: 14px; color: var(--muted); }
+  .crumbs a { color: var(--muted); }
+  header { padding: 56px 0 8px; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; }
+  h1 { font-size: clamp(30px, 5vw, 46px); line-height: 1.08; letter-spacing: -.035em; font-weight: 800; margin: 10px 0 16px; }
+  .intro { font-size: 18px; color: var(--muted); max-width: 720px; }
+  h2 { font-size: 24px; letter-spacing: -.02em; margin: 44px 0 14px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; font-size: 15px; }
+  th, td { text-align: left; padding: 12px 14px; border-top: 1px solid var(--line); vertical-align: top; }
+  thead th { border-top: 0; font-size: 13px; color: var(--muted); font-weight: 600; background: var(--bg-elev); }
+  td.mark { white-space: nowrap; font-weight: 600; width: 1%; }
+  .yes { color: var(--yes); } .partial { color: var(--partial); } .no { color: var(--no); }
+  .note { display: block; font-size: 13px; color: var(--muted); margin-top: 2px; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .box { padding: 20px 22px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .box h3 { font-size: 16px; margin-bottom: 8px; }
+  .box li { margin: 6px 0 0 18px; color: var(--muted); font-size: 15px; }
+  .cta { margin: 44px 0 0; padding: 36px 28px; border-radius: 24px; text-align: center; border: 1px solid var(--line); background: var(--card); }
+  .cta p { color: var(--muted); margin: 8px auto 22px; max-width: 560px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 12px 20px; border-radius: 12px; text-decoration: none; margin: 4px; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text); }
+  .btn.primary { background: var(--brand); color: #fff; border: 0; }
+  .others { margin-top: 36px; font-size: 14px; color: var(--muted); }
+  .others a { margin-right: 12px; }
+  footer { margin-top: 56px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13.5px; }
+  .disclaimer { margin-top: 18px; font-size: 12.5px; color: var(--faint); }
+  @media (max-width: 640px) {
+    .cols { grid-template-columns: 1fr; }
+    th, td { padding: 10px; font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/"><img src="/assets/icon.png" alt="">Menew</a>
+    <span class="crumbs"><a href="/vs/">Comparisons</a> · CleanShot X</span>
+  </div>
+</nav>
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Menew vs CleanShot X</div>
+    <h1>Menew vs CleanShot X: free screenshots with annotations for Mac</h1>
+    <p class="intro">CleanShot X is a paid screenshot and recording app with cloud sharing. Menew captures and annotates screenshots, pins them on screen, records the screen with sound or as a GIF, takes scrolling captures and copies text from the screen, all on your Mac and for free.</p>
+  </header>
+
+  <h2>Side by side</h2>
+  <table>
+    <thead><tr><th>Feature</th><th>Menew</th><th>CleanShot X</th></tr></thead>
+    <tbody>
+      <tr><td>Capture an area, a window or the whole screen</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Arrows, text and blur</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Pin a screenshot on top of everything</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Screen recording with sound</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>GIF recording</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Scrolling capture</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Copy text from anywhere on screen</td><td class="mark yes">✓ Yes</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Upload and share by link<span class="note">CleanShot Cloud</span></td><td class="mark no">— No</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Video trimming and more annotation tools</td><td class="mark no">— No</td><td class="mark yes">✓ Yes</td></tr>
+      <tr><td>Recording transcribed into meeting minutes</td><td class="mark yes">✓ Yes</td><td class="mark no">— No</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Which one fits you</h2>
+  <div class="cols">
+    <div class="box"><h3>Choose CleanShot X if</h3><ul><li>You share screenshots by link a lot.</li><li>You need richer annotation and video editing.</li></ul></div>
+    <div class="box"><h3>Menew is enough if</h3><ul><li>You want capture, annotation and recording without a subscription.</li><li>You want recordings with sound turned into a transcript and minutes on your Mac.</li></ul></div>
+  </div>
+
+  <div class="cta">
+    <h2 style="margin:0">Try Menew</h2>
+    <p>Free and open source (GPL-3.0), native for macOS 14 or later, no account and no telemetry. AI features run on your Mac with Apple Intelligence.</p>
+    <a class="btn primary" data-goatcounter-click="download-vs-cleanshot" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">Download for Mac</a>
+    <a class="btn" href="/">See everything Menew does</a>
+  </div>
+
+  <p class="others">Other comparisons: <a href="/vs/raycast/">Raycast</a> <a href="/vs/maccy/">Maccy and Paste</a> <a href="/vs/rectangle/">Rectangle and Magnet</a> <a href="/vs/istat-menus/">iStat Menus and Stats</a> <a href="/vs/otter/">Otter and Granola</a></p>
+  <p class="disclaimer">Names are trademarks of their owners and appear only for comparison; Menew isn't affiliated with or endorsed by them. Comparisons reflect each app's publicly described features and may change; corrections are welcome on <a href="https://github.com/Quost/menew/issues/new">GitHub</a>.</p>
+</main>
+<footer>
+  <div class="wrap">Menew · <a href="https://github.com/Quost/menew">github.com/Quost/menew</a> · Not related to Linx Menew.</div>
+</footer>
+</body>
+</html>

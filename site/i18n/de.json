@@ -219,5 +219,10 @@
   "faq14_a": "Die Aufnahmen in Menew decken den Alltag ab: Transkript, Protokoll und Aufgaben, erstellt auf deinem Mac mit Apples Modell, kostenlos und ohne Konto. Granola und Otter bieten darüber hinaus Teamfreigabe und Cloud-Integrationen.",
   "faq15_q": "Wie finde ich später etwas wieder, das ich auf dem Bildschirm gesehen habe?",
   "faq15_a": "Drück in dem Moment ⌃⌥⌘K, um es im Gedächtnis zu speichern: Menew behält das Bild, liest den Text und merkt sich App und Link. Später suchst oder fragst du in eigenen Worten, etwa „wie hieß diese Swift-Diagramm-Bibliothek?“, und die KI auf dem Mac antwortet mit den gespeicherten Einträgen als Quellen. Einträge aus dem Gedächtnis erscheinen auch in Spotlight.",
-  "sponsor_button": "♥ Auf GitHub sponsern"
+  "sponsor_button": "♥ Auf GitHub sponsern",
+  "faq16_q": "Hat Menew etwas mit Linx Menew zu tun?",
+  "faq16_a": "Nein. Menew ist eine kostenlose Open-Source-App für die Mac-Menüleiste, entwickelt von Quost und veröffentlicht auf github.com/Quost/menew. Linx Menew ist ein davon unabhängiges Kassensystem für Restaurants in Brasilien; nur die Namen ähneln sich.",
+  "faq17_q": "Was kann Menew nicht?",
+  "faq17_a": "Menew blendet keine Menüleistensymbole anderer Apps aus und ordnet sie nicht neu (dafür gibt es Ice oder Thaw), hat keinen Erweiterungs-Store wie Raycast (stattdessen führt es deine eigenen Skripte aus), synchronisiert nicht zwischen Macs oder mit einer Cloud und bringt keinen Webbrowser in die Menüleiste. Für detaillierte Hardware-Sensoren pro Kern gehen Stats und iStat Menus weiter, auch wenn Menew Temperaturen von Chip, SSD und Akku, die Lüfterdrehzahl sowie Leistungs- und Effizienzkerne anzeigt.",
+  "compare_label": "Ausführliche Vergleiche (auf Englisch):"
 }

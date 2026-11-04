@@ -11,6 +11,26 @@ Menew 1.98.0 (updated 2026-11-04). Native Swift/SwiftUI app for macOS 14 or late
 - Command palette: ⌃⌥Space opens apps, actions, math, conversions, timers, reminders and your own scripts. Type what you want.
 - AI on your Mac: Summarizes, rewrites, translates and explains with Apple’s model, running on your Mac. No key, no account, no cloud.
 
+## Capabilities in detail
+
+- Window manager: Snap windows to halves, quarters (corners), thirds and two-thirds, maximize, center and restore, with the same ⌃⌥ shortcuts as Rectangle; drag a window to a screen edge or corner to snap it; move it to the next display; a layout grid in Actions; work profiles bring apps and window layouts back.
+- Command palette (⌃⌥Space): Apps, Menew actions, window layouts, snippets, notes and clipboard items; math, unit, currency and time zone conversions; text transforms (case, JSON, Base64, word count); developer tools (ports in use, UUID, Unix timestamps, JWT); quick links and web search; emoji and symbols; timers, alarms and reminders; your own script commands in shell, Python, Node or AppleScript (Raycast-compatible); natural-language commands with on-device AI.
+- Clipboard history (⌘⇧V): Text, links, images and files with search (including text inside images, read on the Mac, and search by meaning), pins, filters and previews; snippets with abbreviations that expand as you type, variables, fields and cursor position; a paste queue; items marked by password managers are skipped; a Passwords tab pastes passwords notes after Touch ID.
+- System monitor: CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, network usage per app, battery health, cycles and wear over time, temperatures of the chip, SSD and battery, fan speed, performance and efficiency cores, power in watts, SSD health, 24-hour, 7-day and 30-day history, custom alert rules, a plain-language 'Why is my Mac slow?' diagnosis and screen time.
+- Screenshots and recording: Capture an area, window or the whole screen; annotate with arrows, text and blur; pin on screen; record the screen with sound, as video or GIF; scrolling capture; copy text from anywhere on screen (OCR on the Mac).
+- Meetings and recordings: Next meeting with a Join button for Zoom, Meet, Teams and Webex; notch alerts that skip calendar blocks; record Mac audio and the microphone as separate tracks; on-device transcription; minutes with the main topic, a summary, each topic discussed, decisions, a task table with owner and deadline, and next steps; tasks to Reminders.
+- Memory: ⌃⌥⌘K saves what is on screen with its text, app and link; ask in plain words and get an answer with sources; a knowledge graph of topics; items appear in Spotlight.
+- Files and cleanup: A drag-and-drop shelf with image and PDF tools (convert, compress, split, OCR, password-protect); organize a folder by file content with review and undo; disk cleaner for caches, logs, large and duplicate files (files go to the Trash); app uninstaller with leftovers; login and background items.
+- Made for macOS: Live notch alerts and a hover panel with call controls; desktop widgets; Siri, Shortcuts and Spotlight actions; Focus filters; Live Text in images; Continuity Camera; live translated captions; Liquid Glass design on macOS 26; English, Portuguese, German, Spanish and Chinese.
+
+## Not included
+
+Menew does not hide or rearrange other apps' menu bar icons (use Ice or Thaw), has no extension store (it runs your own scripts), does not sync to a cloud, and does not embed a web browser in the menu bar.
+
+## Name
+
+Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost/menew. It is not related to Linx Menew, a restaurant point-of-sale system in Brazil.
+
 ## One app instead of many
 
 - Instead of Raycast or Alfred: Command palette: apps, actions, math, conversions, quick links and AI (⌃⌥Space).
@@ -123,6 +143,14 @@ Menew’s Recordings cover the everyday part: transcript, minutes and tasks, mad
 
 When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, reads the text and notes the app and link. Later, search or ask in plain words, like “which was that Swift chart library?”, and the on-device AI answers with the saved items as sources. Memory items also show up in Spotlight.
 
+### Is Menew related to Linx Menew?
+
+No. Menew is a free, open source app for the Mac menu bar, made by Quost and published at github.com/Quost/menew. Linx Menew is an unrelated point-of-sale system for restaurants in Brazil; the names are just alike.
+
+### What doesn't Menew do?
+
+Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or Thaw), has no extension store like Raycast's (it runs your own scripts instead), doesn't sync between Macs or to a cloud, and doesn't put a web browser in the menu bar. For deep hardware sensors per core, Stats and iStat Menus go further, though Menew shows chip, SSD and battery temperatures, fan speed and performance and efficiency cores.
+
 ## Install
 
 - Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg
@@ -132,4 +160,10 @@ When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, r
 
 - Website: https://menew.web.app/ (also in Portuguese, German, Spanish and Chinese: https://menew.web.app/pt, https://menew.web.app/de, https://menew.web.app/es, https://menew.web.app/zh)
 - Source code and README: https://github.com/Quost/menew
+- Menew vs Raycast: https://menew.web.app/vs/raycast/
+- Menew vs Maccy and Paste: https://menew.web.app/vs/maccy/
+- Menew vs Rectangle and Magnet: https://menew.web.app/vs/rectangle/
+- Menew vs iStat Menus and Stats: https://menew.web.app/vs/istat-menus/
+- Menew vs CleanShot X: https://menew.web.app/vs/cleanshot/
+- Menew vs Otter and Granola: https://menew.web.app/vs/otter/
 - Releases and changelog: https://github.com/Quost/menew/releases

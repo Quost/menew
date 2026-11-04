@@ -219,5 +219,10 @@
   "faq14_a": "Menew’s Recordings cover the everyday part: transcript, minutes and tasks, made on your Mac with Apple’s model, free and without an account. Granola and Otter go further with team sharing and cloud integrations.",
   "faq15_q": "How do I find something I saw on screen later?",
   "faq15_a": "When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, reads the text and notes the app and link. Later, search or ask in plain words, like “which was that Swift chart library?”, and the on-device AI answers with the saved items as sources. Memory items also show up in Spotlight.",
-  "sponsor_button": "♥ Sponsor on GitHub"
+  "sponsor_button": "♥ Sponsor on GitHub",
+  "faq16_q": "Is Menew related to Linx Menew?",
+  "faq16_a": "No. Menew is a free, open source app for the Mac menu bar, made by Quost and published at github.com/Quost/menew. Linx Menew is an unrelated point-of-sale system for restaurants in Brazil; the names are just alike.",
+  "faq17_q": "What doesn't Menew do?",
+  "faq17_a": "Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or Thaw), has no extension store like Raycast's (it runs your own scripts instead), doesn't sync between Macs or to a cloud, and doesn't put a web browser in the menu bar. For deep hardware sensors per core, Stats and iStat Menus go further, though Menew shows chip, SSD and battery temperatures, fan speed and performance and efficiency cores.",
+  "compare_label": "Detailed comparisons:"
 }
