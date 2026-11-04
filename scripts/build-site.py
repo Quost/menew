@@ -189,7 +189,7 @@ template = (ROOT / "site/template.html").read_text()
 COMPARE = json.loads((ROOT / "site/compare.json").read_text())
 
 def compare_links(label):
-    links = " · ".join(f'<a href="/vs/{slug}/" data-goatcounter-click="vs-{slug}">{htmllib.escape(c["other"])}</a>' for slug, c in COMPARE.items())
+    links = " · ".join(f'<a href="/vs/{slug}" data-goatcounter-click="vs-{slug}">{htmllib.escape(c["other"])}</a>' for slug, c in COMPARE.items())
     return f'<p class="rep-note">{label} {links}</p>'
 
 hreflang = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}">' for c in LANGS)
@@ -239,7 +239,7 @@ for slug, c in COMPARE.items():
         n = f'<span class="note">{esc(note)}</span>' if note else ""
         rows.append(f'      <tr><td>{esc(feature)}{n}</td>'
                     f'<td class="mark {MARK[menew][1]}">{MARK[menew][0]}</td><td class="mark {MARK[other][1]}">{MARK[other][0]}</td></tr>')
-    page_url = f"{SITE}/vs/{slug}/"
+    page_url = f"{SITE}/vs/{slug}"
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebPage", "name": c["title"], "url": page_url, "description": c["description"], "inLanguage": "en",
          "about": {"@type": "SoftwareApplication", "name": "Menew", "alternateName": "Menew for Mac", "operatingSystem": "macOS",
@@ -247,7 +247,7 @@ for slug, c in COMPARE.items():
          "dateModified": UPDATED},
         {"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Menew", "item": SITE + "/"},
-            {"@type": "ListItem", "position": 2, "name": "Comparisons", "item": f"{SITE}/vs/"},
+            {"@type": "ListItem", "position": 2, "name": "Comparisons", "item": f"{SITE}/vs"},
             {"@type": "ListItem", "position": 3, "name": f"Menew vs {c['other']}", "item": page_url}]},
     ]}
     values = {
@@ -256,7 +256,7 @@ for slug, c in COMPARE.items():
         "rows": "\n".join(rows),
         "other_better": "".join(f"<li>{esc(x)}</li>" for x in c["other_better"]),
         "menew_better": "".join(f"<li>{esc(x)}</li>" for x in c["menew_better"]),
-        "others": " ".join(f'<a href="/vs/{s2}/">{esc(c2["other"])}</a>' for s2, c2 in COMPARE.items() if s2 != slug),
+        "others": " ".join(f'<a href="/vs/{s2}">{esc(c2["other"])}</a>' for s2, c2 in COMPARE.items() if s2 != slug),
         "jsonld": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
         "analytics": ANALYTICS,
     }
@@ -266,11 +266,11 @@ for slug, c in COMPARE.items():
     out.write_text(page)
 # Índice das comparações, com o mesmo visual
 head, rest = ctpl.split("<main", 1)
-cards = "".join(f'<div class="box" style="margin-bottom:14px"><h3><a href="/vs/{slug}/">Menew vs {esc(c["other"])}</a></h3>'
+cards = "".join(f'<div class="box" style="margin-bottom:14px"><h3><a href="/vs/{slug}">Menew vs {esc(c["other"])}</a></h3>'
                 f'<p style="color:var(--muted);font-size:15px">{esc(c["description"])}</p></div>' for slug, c in COMPARE.items())
 index_values = {"title": "Menew compared: free, open source alternatives for Mac utilities",
                 "description": "How Menew, a free and open source Mac menu bar app, compares with Raycast, Maccy, Rectangle, iStat Menus, CleanShot X and Otter.",
-                "url": f"{SITE}/vs/", "short": "All", "jsonld": "{}", "analytics": ANALYTICS}
+                "url": f"{SITE}/vs", "short": "All", "jsonld": "{}", "analytics": ANALYTICS}
 index = re.sub(r"\{\{(\w+)\}\}", lambda m: index_values.get(m.group(1), ""), head)
 index += ('<main class="wrap"><header><div class="eyebrow">Comparisons</div><h1>Menew compared</h1>'
           '<p class="intro">Menew is one free, open source app for the Mac menu bar that covers the everyday part of several utilities. '
@@ -283,8 +283,8 @@ print("docs/vs/ (" + str(len(COMPARE)) + " comparações)")
 # Mapa do site (com as versões em cada idioma) e robots.txt para os buscadores
 alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}"/>' for c in LANGS)
 entries = "".join(f"\n  <url>\n    <loc>{url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{alternates}\n  </url>" for c in LANGS)
-entries += "".join(f"\n  <url>\n    <loc>{SITE}/vs/{p}</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
-                   for p in [""] + [f"{slug}/" for slug in COMPARE])
+entries += "".join(f"\n  <url>\n    <loc>{SITE}/vs{p}</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
+                   for p in [""] + [f"/{slug}" for slug in COMPARE])
 (ROOT / "docs/sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
@@ -323,7 +323,7 @@ lines = [
     "## Links", "",
     f"- Website: {SITE}/ (also in Portuguese, German, Spanish and Chinese: {SITE}/pt, {SITE}/de, {SITE}/es, {SITE}/zh)",
     "- Source code and README: https://github.com/Quost/menew",
-    *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}/" for slug, c in COMPARE.items()],
+    *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}" for slug, c in COMPARE.items()],
     "- Releases and changelog: https://github.com/Quost/menew/releases",
 ]
 (ROOT / "docs/llms.txt").write_text("\n".join(lines) + "\n")

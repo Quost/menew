@@ -160,10 +160,10 @@ Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or
 
 - Website: https://menew.web.app/ (also in Portuguese, German, Spanish and Chinese: https://menew.web.app/pt, https://menew.web.app/de, https://menew.web.app/es, https://menew.web.app/zh)
 - Source code and README: https://github.com/Quost/menew
-- Menew vs Raycast: https://menew.web.app/vs/raycast/
-- Menew vs Maccy and Paste: https://menew.web.app/vs/maccy/
-- Menew vs Rectangle and Magnet: https://menew.web.app/vs/rectangle/
-- Menew vs iStat Menus and Stats: https://menew.web.app/vs/istat-menus/
-- Menew vs CleanShot X: https://menew.web.app/vs/cleanshot/
-- Menew vs Otter and Granola: https://menew.web.app/vs/otter/
+- Menew vs Raycast: https://menew.web.app/vs/raycast
+- Menew vs Maccy and Paste: https://menew.web.app/vs/maccy
+- Menew vs Rectangle and Magnet: https://menew.web.app/vs/rectangle
+- Menew vs iStat Menus and Stats: https://menew.web.app/vs/istat-menus
+- Menew vs CleanShot X: https://menew.web.app/vs/cleanshot
+- Menew vs Otter and Granola: https://menew.web.app/vs/otter
 - Releases and changelog: https://github.com/Quost/menew/releases
