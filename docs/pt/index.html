@@ -349,6 +349,7 @@
   .coffee { margin-top: 30px; display: none; }
   .coffee.on { display: block; }
   .btn.bmc { background: #ffdd00; color: #111; border: 0; }
+  .btn.sponsor { background: #ea4aaa; color: #fff; border: 0; }
 
   footer { margin-top: 80px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
   footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -748,7 +749,10 @@
     </div>
     <div class="coffee" data-coffee>
       <p class="sub" style="margin:0 auto 14px;font-size:15px">O Menew é feito no tempo livre. Se ele te poupa alguns minutos por dia:</p>
-      <a class="btn bmc" data-coffee-link data-goatcounter-click="coffee" target="_blank" rel="noopener">☕ Me pague um café</a>
+      <div class="cta" style="justify-content:center">
+        <a class="btn sponsor" data-goatcounter-click="sponsor" href="https://github.com/sponsors/Quost" target="_blank" rel="noopener">♥ Patrocinar no GitHub</a>
+        <a class="btn bmc" data-coffee-link data-goatcounter-click="coffee" target="_blank" rel="noopener">☕ Me pague um café</a>
+      </div>
     </div>
   </div>
 </div>

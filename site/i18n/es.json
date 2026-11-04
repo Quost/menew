@@ -218,5 +218,6 @@
   "faq14_q": "¿Hay una alternativa gratis y privada a Granola u Otter en el Mac?",
   "faq14_a": "Las Grabaciones de Menew cubren lo del día a día: transcripción, acta y tareas, hechas en tu Mac con el modelo de Apple, gratis y sin cuenta. Granola y Otter van más allá, con colaboración en equipo e integraciones en la nube.",
   "faq15_q": "¿Cómo encuentro después algo que vi en pantalla?",
-  "faq15_a": "En ese momento, pulsa ⌃⌥⌘K para guardarlo en la Memoria: Menew guarda la imagen, lee el texto y anota la app y el enlace. Después, busca o pregunta con tus palabras, como «¿cuál era esa biblioteca de gráficos en Swift?», y la IA del Mac responde con los elementos guardados como fuentes. Los elementos de la Memoria también aparecen en Spotlight."
+  "faq15_a": "En ese momento, pulsa ⌃⌥⌘K para guardarlo en la Memoria: Menew guarda la imagen, lee el texto y anota la app y el enlace. Después, busca o pregunta con tus palabras, como «¿cuál era esa biblioteca de gráficos en Swift?», y la IA del Mac responde con los elementos guardados como fuentes. Los elementos de la Memoria también aparecen en Spotlight.",
+  "sponsor_button": "♥ Patrocinar en GitHub"
 }
