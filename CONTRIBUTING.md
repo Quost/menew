@@ -122,7 +122,7 @@ Pull requests are merged with **Squash and merge**: the whole PR becomes one com
 Before tagging, rename `## Unreleased` to the new version (or add a `## X.Y.Z` section). That section becomes the release notes in the in-app update window and on GitHub.
 
 
-Push a tag and GitHub Actions does the rest:
+Maintainers run `scripts/release.sh X.Y.Z "type(scope): message"`: it checks the changelog and translations, regenerates the site, commits, waits for any running release, tags and follows the `Release` workflow to the end. Under the hood it's just a tag, and GitHub Actions does the rest:
 
 ```bash
 git tag v1.2.0

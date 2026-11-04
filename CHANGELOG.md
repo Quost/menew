@@ -2,9 +2,15 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## Unreleased
+## 1.97.1
+
+### Improved
+- **Minutes read like minutes.** Topics, decisions and next steps are written in the third person, in the style of formal minutes, instead of quoting the speech; obvious speech-recognition errors and small talk are left out, and your name is used instead of "Eu".
+- **Passwords notes are easier to read.** Each field now has its name on top, in full, and its value below across the whole width; a revealed value wraps instead of being cut off. Copying shows a checkmark, and the remove button only appears when you point at a field.
+- **Progress while the minutes are written.** A long meeting takes a few minutes on your Mac; the recording now shows which part the AI is on ("part 3 of 10").
 
 ### Fixed
+- Tasks no longer get a deadline nobody said, and placeholders like "no decision was made" or "no date" don't show up as decisions or deadlines.
 - **External monitor going black when Menew opens.** With some USB-C adapters, talking to the monitor over DDC/CI made it lose the signal; Menew then rescanned and asked again every time it came back, so the screen kept blinking and the CPU stayed high until you quit. Now, if a monitor reconfigures right after Menew talked to it, Menew remembers that monitor (even after you quit), stops sending it commands and uses software dimming instead. Turning “External monitor brightness” off and on again in Settings › Windows and displays makes Menew try the cable again.
 
 ## 1.97.0
