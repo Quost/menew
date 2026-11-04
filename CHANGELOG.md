@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.98.0
+
+### New
+- **Dismiss the meeting alert in the notch.** Rest the pointer on the notch and use the ✕ next to Join: dismiss this alert, or never show that title again (like "Lunch"). Silenced titles are listed in Settings › Notch, where a click brings them back.
+- **Calendar blocks no longer show up.** By default, the notch only alerts you about meetings with a call link or other people invited; events that are only yours (lunch, a workout, focus time) stay quiet. Turn it off in Settings › Notch.
+
 ## 1.97.1
 
 ### Improved
