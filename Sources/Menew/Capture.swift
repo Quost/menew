@@ -32,9 +32,18 @@ enum ScreenCapture {
         return false
     }
 
+    /// Prints copiados também vão para a Memória (ligado por padrão), com o app e o link de onde vieram
+    static let memoryKey = "capture.saveToMemory"
+    static var savesToMemory: Bool { UserDefaults.standard.object(forKey: memoryKey) as? Bool ?? true }
+    /// De onde veio a captura: lido antes da mira, quando o app da frente ainda é o certo
+    private static var origin = MemoryOrigin()
+    /// Os prints já guardados nesta sessão (copiar duas vezes a mesma captura não duplica)
+    private static var saved: Set<Int> = []
+
     /// Área ou janela
     static func area() {
         guard hasAccess() else { return }
+        origin = MemoryOrigin.current()
         NotificationCenter.default.post(name: .closeMenu, object: nil)
         run(["-i", "-x"])
     }
@@ -42,6 +51,7 @@ enum ScreenCapture {
     /// A tela onde está o mouse; espera o menu fechar antes
     static func fullScreen() {
         guard hasAccess() else { return }
+        origin = MemoryOrigin.current()
         NotificationCenter.default.post(name: .closeMenu, object: nil)
         let mouse = NSEvent.mouseLocation
         let index = (NSScreen.screens.firstIndex { NSMouseInRect(mouse, $0.frame, false) } ?? 0) + 1
@@ -81,7 +91,12 @@ enum ScreenCapture {
         let pb = NSPasteboard.general
         pb.clearContents()
         pb.writeObjects([image])
-        HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Captura copiada"))
+        guard savesToMemory, let data = png(image), saved.insert(data.hashValue).inserted else {
+            HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Captura copiada"))
+            return
+        }
+        MemoryStore.shared.add(imageData: data, origin: origin)
+        HUD.show(icon: "brain.head.profile", color: .green, text: L("Copiada e guardada na memória"))
     }
 
     static func save(_ image: NSImage) {

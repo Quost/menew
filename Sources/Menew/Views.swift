@@ -715,6 +715,7 @@ struct SettingsView: View {
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
+    @AppStorage(ScreenCapture.memoryKey) private var capturesToMemory = true
     @AppStorage(TextExpander.key) private var textExpander = false
     @AppStorage("maxItems") private var maxItems = 300
     @AppStorage("autoDeleteDays") private var autoDeleteDays = 0
@@ -828,6 +829,10 @@ struct SettingsView: View {
                     ToggleRow(title: L("Pausar captura"), isOn: $paused)
                     RowDivider()
                     ToggleRow(title: L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
+                    RowDivider()
+                    ToggleRow(title: L("Guardar na Memória os prints copiados"),
+                              detail: L("Ao copiar uma captura do Menew (⌃⌥⌘S), ela também vai para a Memória, com o app e o link de onde veio, para achar depois perguntando."),
+                              isOn: $capturesToMemory)
                     RowDivider()
                     ToggleRow(title: L("Buscar texto dentro das imagens"),
                               detail: L("O Menew lê o texto dos prints e imagens copiados, no Mac, para achar pela busca."),

@@ -288,6 +288,14 @@ struct RecordingDetail: View {
                         NSPasteboard.general.setString(rec.markdown, forType: .string)
                         HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Copiado"))
                     }
+                    Menu {
+                        Button(L("Baixar o áudio (.m4a)")) { store.saveAudio(rec.id) }
+                        Button(L("Baixar áudio e ata (.zip)")) { store.saveBundle(rec.id) }
+                    } label: {
+                        Label(L("Exportar"), systemImage: "square.and.arrow.down")
+                    }
+                    .menuStyle(.borderlessButton).fixedSize()
+                    .disabled(rec.status == .recording)
                     Spacer()
                     if rec.status == .ready {
                         IconButton(icon: "arrow.clockwise", help: L("Refazer a ata")) { Task { await store.process(rec.id) } }
