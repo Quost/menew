@@ -608,6 +608,10 @@ struct BrightnessRow: View {
                 HStack {
                     Text(screen.name).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
                     Spacer()
+                    if !screen.builtin, screen.kind != .unsupported, DisplayController.follows {
+                        Image(systemName: "sun.max.fill").font(.system(size: 9)).foregroundStyle(.yellow)
+                            .help(L("Acompanha o brilho da tela do Mac"))
+                    }
                     if screen.kind == .software {
                         Text(L("por software")).font(.system(size: 10, weight: .medium)).foregroundStyle(.tertiary)
                             .help(L("Este monitor não aceita ajuste pelo cabo (DDC/CI). O Menew escurece a imagem, sem mexer na luz do monitor."))

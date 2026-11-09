@@ -730,6 +730,7 @@ struct SettingsView: View {
     @AppStorage(ScreenTime.key) private var screenTimeOn = false
     @AppStorage(SpotlightNotes.key) private var spotlightNotes = true
     @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
+    @AppStorage(DisplayController.followKey) private var followBuiltin = false
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
@@ -925,6 +926,11 @@ struct SettingsView: View {
                                   detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se um monitor perder o sinal, o Menew passa a escurecê-lo por software sozinho; desligue e ligue aqui para tentar o cabo de novo."),
                                   isOn: $ddcBrightness)
                             .onChange(of: ddcBrightness) { _, on in if on { DisplayController.resetUnstable() } }
+                        RowDivider()
+                        ToggleRow(title: L("Monitores acompanham a tela do Mac"),
+                                  detail: L("Quando a tela do Mac clareia ou escurece com a luz do ambiente, os monitores externos acompanham. Mexa no brilho de um monitor para deixá-lo mais claro ou mais escuro que a tela do Mac."),
+                                  isOn: $followBuiltin)
+                            .onChange(of: followBuiltin) { _, _ in (NSApp.delegate as? AppDelegate)?.toolbox.displays.updateFollowing() }
                 }
                 }
 

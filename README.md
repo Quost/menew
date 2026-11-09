@@ -133,7 +133,7 @@ One-click actions: color picker, plain-text clipboard, lock screen, eject disks,
 <details>
 <summary>🔆 <b>Display brightness</b> — A slider for every screen: the Mac's own display and external monitors over DDC/CI (Apple Silicon).</summary>
 
-Monitors that don't accept DDC (often because of a USB-C adapter or hub) are dimmed by software instead, remembered per monitor.
+Monitors that don't accept DDC (often because of a USB-C adapter or hub) are dimmed by software instead, remembered per monitor. Optionally, external monitors **follow the Mac display** as it adapts to the room's light, each keeping the difference you set with its slider (Settings › Windows and displays).
 
 </details>
 

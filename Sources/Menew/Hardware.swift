@@ -342,6 +342,8 @@ final class DisplayController: ObservableObject {
     }
 
     private func build(_ ids: [CGDirectDisplayID]) {
+        // Telas mudaram: na próxima leitura, aplica o brilho acompanhado de novo
+        lastBuiltin = nil
         let unstable = Self.unstable
         screens = ids.map { id in
             let builtin = CGDisplayIsBuiltin(id) != 0
@@ -382,6 +384,8 @@ final class DisplayController: ObservableObject {
                         self.screens[i].kind = .ddc
                         // O brilho de verdade assume: tira o escurecimento por software, se havia
                         SoftwareDim.clear(id)
+                        // Monitor pronto: se estiver acompanhando a tela do Mac, aplica já
+                        if Self.follows { self.lastBuiltin = nil; self.follow() }
                     } else {
                         // Não respondeu (ou demorou): o monitor não aceita DDC ou está numa porta que não repassa.
                         // Fica o escurecimento por software, que não conversa com o monitor.
@@ -421,7 +425,67 @@ final class DisplayController: ObservableObject {
         }
     }
 
+    // MARK: Acompanhar a tela do Mac
+
+    /// Os monitores externos acompanham o brilho da tela do Mac (que o sensor de luz ajusta sozinho). Desligado por padrão.
+    static let followKey = "brightness.followBuiltin"
+    static var follows: Bool { UserDefaults.standard.bool(forKey: followKey) }
+    /// Diferença de cada monitor em relação à tela do Mac (mexeu no slider dele: fica mais claro ou mais escuro que ela)
+    private static let offsetsKey = "brightness.followOffsets"
+    private var followTimer: Timer?
+    private var lastBuiltin: Double?
+
+    /// O brilho do externo: o da tela do Mac mais a diferença, sem apagar a tela (mínimo de 5%)
+    nonisolated static func followed(builtin: Double, offset: Double) -> Double {
+        min(1, max(0.05, builtin + offset))
+    }
+
+    private static var offsets: [String: Double] {
+        get { UserDefaults.standard.dictionary(forKey: offsetsKey) as? [String: Double] ?? [:] }
+        set { UserDefaults.standard.set(newValue, forKey: offsetsKey) }
+    }
+
+    private var builtinBrightness: Double? {
+        var count: UInt32 = 0
+        CGGetOnlineDisplayList(0, nil, &count)
+        var ids = [CGDirectDisplayID](repeating: 0, count: Int(count))
+        CGGetOnlineDisplayList(count, &ids, &count)
+        return ids.first { CGDisplayIsBuiltin($0) != 0 }.flatMap { DisplayServices.brightness($0) }
+    }
+
+    /// Liga ou desliga conforme o ajuste. Lê a tela do Mac a cada 2 s e só mexe no monitor quando ela muda de verdade.
+    func updateFollowing() {
+        followTimer?.invalidate(); followTimer = nil
+        lastBuiltin = nil
+        guard Self.follows, !isDemo else { return }
+        if matched == nil { refresh() }
+        followTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+            MainActor.assumeIsolated { self?.follow() }
+        }
+        follow()
+    }
+
+    private func follow() {
+        // Mudanças pequenas não valem uma conversa com o monitor (o sensor oscila um pouco)
+        guard let b = builtinBrightness, abs(b - (lastBuiltin ?? -1)) >= 0.02 else { return }
+        lastBuiltin = b
+        let offsets = Self.offsets
+        for s in screens where !s.builtin && (s.kind == .ddc || s.kind == .software) {
+            apply(Self.followed(builtin: b, offset: offsets[monitorKey(s.id)] ?? 0), to: s.id)
+        }
+    }
+
     func set(_ value: Double, for id: CGDirectDisplayID) {
+        // Mexeu no slider de um externo acompanhando a tela do Mac: guarda a diferença, e ele segue a tela com ela
+        if Self.follows, let i = screens.firstIndex(where: { $0.id == id }), !screens[i].builtin, let b = builtinBrightness {
+            var o = Self.offsets
+            o[monitorKey(id)] = value - b
+            Self.offsets = o
+        }
+        apply(value, to: id)
+    }
+
+    private func apply(_ value: Double, to id: CGDirectDisplayID) {
         guard let i = screens.firstIndex(where: { $0.id == id }) else { return }
         screens[i].brightness = value
         guard !isDemo else { return }
