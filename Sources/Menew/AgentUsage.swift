@@ -109,14 +109,55 @@ struct RateWindow: Equatable, Identifiable {
     /// Previsão pelo ritmo desde o início da janela: quando chega a 100%, se chegar antes de zerar.
     /// nil quando ainda é cedo para dizer, ou quando dá folga até o reset.
     func forecast(now: Date = Date()) -> Date? {
-        guard let resetsAt, let windowMinutes, usedPercent >= 5, usedPercent < 100 else { return nil }
-        let start = resetsAt.addingTimeInterval(-Double(windowMinutes) * 60)
-        let elapsed = now.timeIntervalSince(start)
-        guard elapsed > 10 * 60 else { return nil }
-        let perSecond = usedPercent / elapsed
-        let hits = now.addingTimeInterval((100 - usedPercent) / perSecond)
-        return hits < resetsAt ? hits : nil
+        if case .runsOut(let d)? = projection(pace: nil, now: now)?.kind { return d }
+        return nil
     }
+
+    /// Para onde vai no ritmo `pace` (% por segundo, medido nos últimos minutos); sem ele, no ritmo médio da janela.
+    /// Acaba antes de zerar (e quando) ou até onde chega no reset.
+    func projection(pace: Double?, now: Date = Date()) -> LimitProjection? {
+        guard let resetsAt, resetsAt > now, usedPercent < 100 else { return nil }
+        var perSecond = pace
+        if perSecond == nil, let windowMinutes {
+            let elapsed = now.timeIntervalSince(resetsAt.addingTimeInterval(-Double(windowMinutes) * 60))
+            guard elapsed > 10 * 60, usedPercent >= 2 else { return nil }
+            perSecond = usedPercent / elapsed
+        }
+        guard let perSecond else { return nil }
+        let left = resetsAt.timeIntervalSince(now)
+        if perSecond > 0 {
+            let hits = now.addingTimeInterval((100 - usedPercent) / perSecond)
+            if hits < resetsAt { return LimitProjection(kind: .runsOut(hits), perHour: perSecond * 3600, recent: pace != nil) }
+        }
+        return LimitProjection(kind: .reaches(min(100, usedPercent + max(0, perSecond) * left)), perHour: max(0, perSecond) * 3600, recent: pace != nil)
+    }
+}
+
+/// No ritmo de agora: o limite acaba numa hora, ou chega a uma % quando zerar
+struct LimitProjection: Equatable {
+    enum Kind: Equatable { case runsOut(Date), reaches(Double) }
+    let kind: Kind
+    /// Pontos percentuais por hora
+    let perHour: Double
+    /// Medido nas últimas leituras (true) ou pela média da janela (false)
+    let recent: Bool
+
+    var runsOut: Date? { if case .runsOut(let d) = kind { return d }; return nil }
+
+    /// "acaba às 14:10" / "acaba amanhã 09:30" / "chega a ~48% até zerar"
+    var text: String {
+        switch kind {
+        case .runsOut(let d):
+            let t = d.formatted(.dateTime.hour().minute().locale(L10n.locale))
+            return Calendar.current.isDateInToday(d) ? L("No ritmo atual, acaba às %@", t)
+                : L("No ritmo atual, acaba %@", d.formatted(.dateTime.weekday(.abbreviated).hour().minute().locale(L10n.locale)))
+        case .reaches(let p):
+            return L("No ritmo atual, chega a ~%d%% até zerar", Int(p.rounded()))
+        }
+    }
+
+    /// "12%/h"
+    var paceText: String { L("%@%%/h", perHour < 10 ? String(format: "%.1f", locale: L10n.locale, perHour) : String(Int(perHour.rounded()))) }
 }
 
 // MARK: Leitura dos registros
@@ -231,6 +272,8 @@ struct CodexLog {
     private var lastTotal = (input: 0, cached: 0, output: 0)
     private(set) var limits: [RateWindow] = []
     private(set) var plan: String?
+    /// Cada leitura de limite das últimas horas (para medir o ritmo)
+    private(set) var history: [RateWindow] = []
 
     private static let markers = [#""session_meta""#, #""turn_context""#, #""token_count""#].map { Array($0.utf8) }
 
@@ -279,7 +322,11 @@ struct CodexLog {
             let reset = (w["resets_at"] as? NSNumber).map { Date(timeIntervalSince1970: $0.doubleValue) }
             out.append(RateWindow(label: RateWindow.label(minutes: mins), usedPercent: used, resetsAt: reset, windowMinutes: mins, asOf: date))
         }
-        if !out.isEmpty { limits = out }
+        if !out.isEmpty {
+            limits = out
+            history.append(contentsOf: out.filter { $0.asOf > Date().addingTimeInterval(-3 * 3600) })
+            if history.count > 400 { history.removeFirst(history.count - 400) }
+        }
         if let p = rl["plan_type"] as? String, !p.isEmpty { plan = p.capitalized }
     }
 }
@@ -407,6 +454,7 @@ final class AgentUsageScanner: @unchecked Sendable {
         var records: [UsageRecord]
         var codexLimits: [RateWindow]
         var codexPlan: String?
+        var codexHistory: [RateWindow] = []
     }
 
     func scan(_ done: @escaping @Sendable (Result) -> Void) {
@@ -436,8 +484,9 @@ final class AgentUsageScanner: @unchecked Sendable {
             updateWhole(url)
         }
         files = files.filter { alive.contains($0.key) }
+        let codexHistory = files.values.flatMap(\.codex.history).sorted { $0.asOf < $1.asOf }
         let records = files.values.flatMap { $0.records.filter { $0.date >= cutoff } }.sorted { $0.date < $1.date }
-        return Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2)
+        return Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory)
     }
 
     private func update(_ url: URL, agent: AgentKind) {
@@ -661,6 +710,7 @@ final class AgentUsageStore: ObservableObject {
                 MainActor.assumeIsolated {
                     let s = AgentUsageStore.shared
                     s.records = result.records
+                    for w in result.codexHistory { s.record(.codex, w) }
                     if !result.codexLimits.isEmpty { s.limits[.codex] = result.codexLimits }
                     if let p = result.codexPlan { s.plans[.codex] = p }
                     s.lastScan = Date()
@@ -675,6 +725,7 @@ final class AgentUsageStore: ObservableObject {
                 switch await ClaudePlanLimits.fetch() {
                 case .success(let r):
                     limits[.claude] = r.windows
+                    r.windows.forEach { record(.claude, $0) }
                     if let p = r.plan { plans[.claude] = p }
                     claudeLimitError = nil
                     checkAlerts()
@@ -693,6 +744,40 @@ final class AgentUsageStore: ObservableObject {
         UserDefaults.standard.set(on, forKey: ClaudePlanLimits.key)
         lastClaudeFetch = .distantPast
         refresh()
+    }
+
+    // MARK: Ritmo
+
+    /// Leituras de cada janela (por ferramenta, nome e horário do reset): o ritmo recente sai delas
+    private var samples: [String: [(Date, Double)]] = [:]
+
+    private func sampleKey(_ a: AgentKind, _ w: RateWindow) -> String {
+        "\(a.rawValue).\(w.windowMinutes ?? 0).\(w.label).\(Int((w.resetsAt?.timeIntervalSince1970 ?? 0) / 60))"
+    }
+
+    func record(_ a: AgentKind, _ w: RateWindow) {
+        let k = sampleKey(a, w)
+        var list = samples[k] ?? []
+        if let last = list.last, last.0 >= w.asOf { return }
+        // A % só sobe dentro de uma janela; se desceu, a janela zerou
+        if let last = list.last, w.usedPercent < last.1 - 0.5 { list = [] }
+        list.append((w.asOf, w.usedPercent))
+        samples[k] = Array(list.filter { $0.0 > Date().addingTimeInterval(-3 * 3600) }.suffix(120))
+    }
+
+    /// % por segundo na última hora (pelo menos 10 min de leituras); nil sem dados suficientes
+    func pace(_ a: AgentKind, _ w: RateWindow, now: Date = Date()) -> Double? {
+        Self.pace(samples[sampleKey(a, w)] ?? [], now: now)
+    }
+
+    nonisolated static func pace(_ list: [(Date, Double)], now: Date = Date()) -> Double? {
+        let recent = list.filter { $0.0 > now.addingTimeInterval(-3600) }
+        guard let first = recent.first, let last = recent.last, last.0.timeIntervalSince(first.0) >= 600 else { return nil }
+        return max(0, (last.1 - first.1) / last.0.timeIntervalSince(first.0))
+    }
+
+    func projection(_ a: AgentKind, _ w: RateWindow) -> LimitProjection? {
+        w.projection(pace: pace(a, w))
     }
 
     // MARK: Contas
@@ -758,6 +843,17 @@ final class AgentUsageStore: ObservableObject {
                 }
             }
         }
+        // No ritmo de agora, acaba antes de zerar (em menos de 1 hora): avisa uma vez por janela
+        for (agent, windows) in limits {
+            for w in windows {
+                guard let p = projection(agent, w), p.recent, let d = p.runsOut, d.timeIntervalSinceNow < 3600, d.timeIntervalSinceNow > 120 else { continue }
+                let id = "\(agent.rawValue).\(w.label).\(Int(w.resetsAt?.timeIntervalSince1970 ?? 0)).pace"
+                guard !fired.contains(id) else { continue }
+                fired.insert(id)
+                Alerts.shared.notify(id: "menew.agent.\(id)", title: L("%@: o limite de %@ vai acabar", agent.name, w.label.lowercased()),
+                                     body: p.text + (w.resetsAt.map { " · " + L("Zera %@.", $0.formatted(.dateTime.hour().minute().locale(L10n.locale))) } ?? ""))
+            }
+        }
         UserDefaults.standard.set(Array(fired.suffix(200)), forKey: "agents.alertsFired")
     }
 
@@ -794,6 +890,9 @@ final class AgentUsageStore: ObservableObject {
             .codex: [RateWindow(label: L("5 horas"), usedPercent: 21, resetsAt: now.addingTimeInterval(9000), windowMinutes: 300, asOf: now),
                      RateWindow(label: L("Semana"), usedPercent: 9, resetsAt: now.addingTimeInterval(5 * 86400), windowMinutes: 10080, asOf: now)],
         ]
+        // Leituras da última meia hora: no ritmo de agora, a janela de 5 h do Claude acaba antes de zerar
+        record(.claude, RateWindow(label: L("5 horas"), usedPercent: 50, resetsAt: now.addingTimeInterval(5400), windowMinutes: 300, asOf: now.addingTimeInterval(-1500)))
+        limits[.claude]?.forEach { record(.claude, $0) }
         plans = [.claude: "Max", .codex: "Plus"]
         localModels = [LocalModel(app: "Ollama", name: "qwen3-coder:30b", bytes: 19_400_000_000)]
         lastScan = now

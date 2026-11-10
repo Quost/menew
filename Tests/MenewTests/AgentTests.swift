@@ -109,6 +109,27 @@ final class RateWindowTests: XCTestCase {
         XCTAssertNil(slow.forecast(now: now))
     }
 
+    func testProjectionWithRecentPace() {
+        let now = Date()
+        let w = RateWindow(label: "5h", usedPercent: 60, resetsAt: now.addingTimeInterval(2 * 3600), windowMinutes: 300, asOf: now)
+        // 30 pontos por hora: os 40 que faltam acabam em 80 min, antes de zerar (2 h)
+        let fast = w.projection(pace: 30.0 / 3600, now: now)
+        XCTAssertEqual(fast?.runsOut?.timeIntervalSince(now) ?? 0, 4800, accuracy: 1)
+        XCTAssertEqual(fast?.perHour ?? 0, 30, accuracy: 0.001)
+        // 5 pontos por hora: chega a 70% quando zerar
+        let slow = w.projection(pace: 5.0 / 3600, now: now)
+        XCTAssertNil(slow?.runsOut)
+        if case .reaches(let p)? = slow?.kind { XCTAssertEqual(p, 70, accuracy: 0.01) } else { XCTFail() }
+        XCTAssertNil(RateWindow(label: "x", usedPercent: 100, resetsAt: now.addingTimeInterval(60), windowMinutes: 300, asOf: now).projection(pace: 1))
+    }
+
+    func testRecentPace() {
+        let now = Date()
+        XCTAssertNil(AgentUsageStore.pace([(now.addingTimeInterval(-300), 10), (now, 12)], now: now))   // menos de 10 min
+        let p = AgentUsageStore.pace([(now.addingTimeInterval(-5000), 0), (now.addingTimeInterval(-1800), 40), (now, 46)], now: now)
+        XCTAssertEqual(p! * 3600, 12, accuracy: 0.01)   // só a última hora conta: 6 pontos em 30 min
+    }
+
     func testClaudeLimitsParse() {
         let json = #"{"five_hour":{"utilization":42,"resets_at":"2026-11-10T15:00:00Z"},"seven_day":{"utilization":10,"resets_at":"2026-11-14T00:00:00Z"},"seven_day_opus":null,"extra":"x"}"#
         let w = ClaudePlanLimits.parse(Data(json.utf8))!

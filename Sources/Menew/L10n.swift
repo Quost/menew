@@ -1950,4 +1950,11 @@ private let table: [String: [String]] = [
     "%@: zera %@": ["%@: resets %@", "%@: wird %@ zurückgesetzt", "%@: se reinicia %@", "%@：%@重置"],
     "sem limites lidos": ["no limits read", "keine Limits gelesen", "sin límites leídos", "未读取到限额"],
     "%@ hoje": ["%@ today", "%@ heute", "%@ hoy", "今天 %@"],
+    "No ritmo atual, acaba às %@": ["At this pace, runs out at %@", "In diesem Tempo aufgebraucht um %@", "A este ritmo, se acaba a las %@", "按当前速度，%@ 用完"],
+    "No ritmo atual, acaba %@": ["At this pace, runs out %@", "In diesem Tempo aufgebraucht %@", "A este ritmo, se acaba el %@", "按当前速度，%@ 用完"],
+    "No ritmo atual, chega a ~%d%% até zerar": ["At this pace, reaches ~%d%% before it resets", "In diesem Tempo ~%d %% bis zum Zurücksetzen", "A este ritmo, llega a ~%d %% antes de reiniciarse", "按当前速度，重置前将达到约 %d%%"],
+    "%@%%/h": ["%@%%/h", "%@ %%/h", "%@ %%/h", "%@%%/小时"],
+    "%@: o limite de %@ vai acabar": ["%@: the %@ limit is about to run out", "%@: das Limit (%@) ist bald aufgebraucht", "%@: el límite de %@ está por acabarse", "%@：%@ 限额即将用完"],
+    "Pelo ritmo da última hora": ["Based on the pace of the last hour", "Nach dem Tempo der letzten Stunde", "Según el ritmo de la última hora", "按过去一小时的速度"],
+    "Pelo ritmo médio desde o começo da janela": ["Based on the average pace since the window started", "Nach dem Durchschnittstempo seit Beginn des Zeitraums", "Según el ritmo medio desde que empezó el período", "按本周期开始以来的平均速度"],
 ]

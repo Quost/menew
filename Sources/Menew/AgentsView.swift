@@ -109,7 +109,7 @@ struct AgentsView: View {
                             Text(L("lido %@", asOf.formatted(.relative(presentation: .named).locale(L10n.locale)))).font(.system(size: 11)).foregroundStyle(.tertiary)
                         }
                     }
-                    ForEach(usage.limits[a] ?? []) { w in windowBar(w, color: a.color) }
+                    ForEach(usage.limits[a] ?? []) { w in windowBar(w, agent: a, color: a.color) }
                 }
                 .padding(.vertical, 4)
             }
@@ -129,7 +129,7 @@ struct AgentsView: View {
         }
     }
 
-    private func windowBar(_ w: RateWindow, color: Color) -> some View {
+    private func windowBar(_ w: RateWindow, agent: AgentKind, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
                 Text(w.label).font(.system(size: 12, weight: .medium))
@@ -149,9 +149,10 @@ struct AgentsView: View {
                 if let r = w.resetsAt {
                     Text(L("zera %@", r.formatted(.relative(presentation: .named).locale(L10n.locale))))
                 }
-                if let f = w.forecast() {
-                    Label(L("no ritmo atual, acaba %@", f.formatted(.relative(presentation: .named).locale(L10n.locale))), systemImage: "speedometer")
-                        .foregroundStyle(.orange)
+                if let p = usage.projection(agent, w) {
+                    Label(p.text + " · " + p.paceText, systemImage: p.runsOut != nil ? "exclamationmark.triangle.fill" : "speedometer")
+                        .foregroundStyle(p.runsOut != nil ? Color.orange : .secondary)
+                        .help(p.recent ? L("Pelo ritmo da última hora") : L("Pelo ritmo médio desde o começo da janela"))
                 }
             }
             .font(.system(size: 11)).foregroundStyle(.secondary)
