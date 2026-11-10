@@ -24,7 +24,10 @@ enum AgentHookCommand {
         info["cwd"] = obj["cwd"] as? String ?? FileManager.default.currentDirectoryPath
         info["message"] = (obj["message"] as? String).map { String($0.prefix(200)) }
         info["kind"] = obj["notification_type"] as? String
-        info["step"] = step(obj)
+        if let (tool, detail) = step(obj) {
+            info["tool"] = tool
+            info["detail"] = detail
+        }
         info["prompt"] = (obj["prompt"] as? String).map { oneLine($0, 140) }
         let chain = ProcessTree.ancestors(of: getppid())
         if let agentPID = chain.first(where: { AgentProcesses.matches(ProcessTree.name($0), agent: agent) }) {
@@ -41,12 +44,12 @@ enum AgentHookCommand {
 }
 
 extension AgentHookCommand {
-    /// O passo em poucas palavras: "Edit · AgentsView.swift", "Bash · Rodar os testes", "Grep · TODO"
-    static func step(_ obj: [String: Any]) -> String? {
+    /// A ferramenta e o detalhe que importa: o arquivo, a descrição do comando, o comando, a busca
+    static func step(_ obj: [String: Any]) -> (tool: String, detail: String?)? {
         guard let tool = obj["tool_name"] as? String, !tool.isEmpty else { return nil }
         let input = obj["tool_input"] as? [String: Any] ?? [:]
         var detail: String?
-        if let f = (input["file_path"] ?? input["path"] ?? input["notebook_path"]) as? String, !f.isEmpty {
+        if let f = (input["file_path"] ?? input["path"] ?? input["notebook_path"] ?? input["absolute_path"]) as? String, !f.isEmpty {
             detail = URL(fileURLWithPath: f).lastPathComponent
         } else {
             detail = ["description", "command", "cmd", "pattern", "url", "query", "prompt"].lazy
@@ -54,9 +57,7 @@ extension AgentHookCommand {
             // O Codex passa o comando como lista: ["bash", "-lc", "swift test"]
             if detail == nil, let parts = input["command"] as? [String] { detail = parts.last }
         }
-        // mcp__menew__search_notes → menew · search_notes
-        let name = tool.hasPrefix("mcp__") ? tool.dropFirst(5).replacingOccurrences(of: "__", with: " · ") : tool
-        return detail.map { "\(name) · \(oneLine($0, 80))" } ?? name
+        return (tool, detail.map { oneLine($0, 160) })
     }
 
     static func oneLine(_ s: String, _ max: Int) -> String {
@@ -161,9 +162,12 @@ struct AgentSession: Identifiable, Equatable {
     /// Quando começou o pedido atual (para dizer quanto tempo levou)
     var turnStart: Date?
     var message: String?
-    /// O que você pediu (a primeira linha do prompt) e o passo de agora (a última ferramenta)
+    /// O que você pediu (a primeira linha do prompt) e o passo de agora (a ferramenta e o detalhe)
     var task: String?
-    var step: String?
+    var tool: String?
+    var detail: String?
+    /// Quanto levou o último pedido (para o aviso de pronto)
+    var lastDuration: TimeInterval?
     var appBundle: String?
     var appPID: pid_t?
     var pid: pid_t?
@@ -173,6 +177,19 @@ struct AgentSession: Identifiable, Equatable {
 
     var project: String { AgentDates.project(cwd) }
 
+    /// "Editando AgentsView.swift", "Rodando swift test"
+    var step: String? { AgentStep.text(tool: tool, detail: detail) }
+    var stepIcon: String { AgentStep.kind(tool ?? "").icon }
+
+    /// O que dizer quando espera você: o pedido de permissão com o passo, ou que espera uma resposta
+    var waitingText: String {
+        let m = (message ?? "").lowercased()
+        if m.contains("permission") || m.contains("approv") || m.contains("permiss") {
+            return step.map { L("Pede permissão: %@", $0) } ?? L("Pede sua permissão")
+        }
+        if m.isEmpty || m.contains("waiting for your input") || m.contains("waiting for input") { return L("Espera sua resposta") }
+        return message ?? L("Espera sua resposta")
+    }
     var stateTitle: String {
         switch state {
         case .working: L("Trabalhando")
@@ -267,19 +284,22 @@ final class AgentHub: ObservableObject {
             s.state = .working
             s.turnStart = now
             s.message = nil
-            s.step = nil
+            s.tool = nil
+            s.detail = nil
             if let p = info["prompt"], !p.isEmpty { s.task = p }
         case "pretooluse", "posttooluse", "beforetool", "aftertool", "subagentstart", "subagentstop":
             if s.state != .working { s.state = .working; if s.turnStart == nil { s.turnStart = now } }
             s.message = nil
-            if let st = info["step"] { s.step = st }
+            if let t = info["tool"] { s.tool = t; s.detail = info["detail"] }
         case "notification", "permissionrequest":
             // "Esperando sua resposta" depois de um tempo parado não é um pedido novo
             if info["kind"] == "idle_prompt" || (s.state == .done && e == "notification") { break }
             s.state = .waiting
             s.message = info["message"]
+            if let t = info["tool"] { s.tool = t; s.detail = info["detail"] }
         case "stop", "afteragent":
             s.state = .done
+            s.lastDuration = s.turnStart.map { now.timeIntervalSince($0) }
         default:
             break
         }
@@ -289,25 +309,27 @@ final class AgentHub: ObservableObject {
     }
 
     private func announce(_ s: AgentSession, from: AgentSession.State, now: Date) {
-        let text: String
-        switch s.state {
-        case .waiting:
-            text = L("%@ espera você · %@", s.agent.short, s.project)
-        case .done:
-            guard let t = s.turnStart, now.timeIntervalSince(t) >= Self.doneAfter else { return }
-            text = L("%@ terminou · %@", s.agent.short, s.project)
-        default:
-            return
-        }
+        let waiting = s.state == .waiting
+        guard waiting || s.state == .done else { return }
+        if !waiting { guard let d = s.lastDuration, d >= Self.doneAfter else { return } }
         // Você já está olhando o terminal do agente: não precisa de aviso
         if let b = s.appBundle, NSWorkspace.shared.frontmostApplication?.bundleIdentifier == b { return }
-        let shown = NotchCenter.shared.show(icon: s.state == .waiting ? "hand.raised.fill" : "checkmark.circle.fill",
-                                            color: s.state == .waiting ? .orange : .green, text: text, duration: 6)
-        if UserDefaults.standard.object(forKey: Self.notifyKey) as? Bool ?? true {
-            Alerts.shared.notify(id: "menew.agent.\(s.id).\(s.state.rawValue)", title: text, body: s.message ?? (s.state == .waiting ? L("Uma permissão ou pergunta no terminal") : ""))
-        } else if !shown {
-            HUD.show(icon: "sparkles", color: s.agent.color, text: text, duration: 3)
+        let line = waiting ? s.waitingText : (s.task ?? s.step ?? s.agent.name)
+        let shown = NotchCenter.shared.showAgent(.agentEvent(id: s.id, agent: s.agent, project: s.project, waiting: waiting, line: line,
+                                                              duration: waiting ? nil : s.lastDuration), duration: waiting ? 12 : 7)
+        guard UserDefaults.standard.object(forKey: Self.notifyKey) as? Bool ?? true else {
+            if !shown { HUD.show(icon: waiting ? "hand.raised.fill" : "checkmark.circle.fill", color: waiting ? .orange : .green,
+                                 text: "\(s.agent.short) · \(s.project)", duration: 3) }
+            return
         }
+        let title = waiting ? L("%@ precisa de você · %@", s.agent.short, s.project) : L("%@ terminou · %@", s.agent.short, s.project)
+        var body = line
+        if !waiting, let d = s.lastDuration { body += " · " + L("levou %@", AgentStep.duration(d)) }
+        Alerts.shared.notify(id: "menew.agent.\(s.id).\(s.state.rawValue)", title: title, body: body, userInfo: ["agentSession": s.id])
+    }
+
+    func focus(id: String) {
+        if let s = sessions.first(where: { $0.id == id }) { focus(s) }
     }
 
     /// Traz para a frente o terminal onde o agente está
@@ -344,12 +366,12 @@ final class AgentHub: ObservableObject {
         let now = Date()
         sessions = [
             AgentSession(id: "1", agent: .claude, cwd: "/Users/ana/apps/menew", state: .waiting, since: now.addingTimeInterval(-1800), turnStart: now.addingTimeInterval(-240),
-                         message: "Claude needs your permission to use Bash", task: "Add a hover panel to the notch", step: "Bash · swift test",
+                         message: "Claude needs your permission to use Bash", task: "Add a hover panel to the notch", tool: "Bash", detail: "swift test",
                          updated: now.addingTimeInterval(-30)),
             AgentSession(id: "2", agent: .codex, cwd: "/Users/ana/apps/api", state: .working, since: now.addingTimeInterval(-900), turnStart: now.addingTimeInterval(-420),
-                         task: "Fix the login timeout", step: "Edit · session.ts", updated: now.addingTimeInterval(-5)),
+                         task: "Fix the login timeout", tool: "Edit", detail: "session.ts", updated: now.addingTimeInterval(-5)),
             AgentSession(id: "3", agent: .claude, cwd: "/Users/ana/apps/site", state: .done, since: now.addingTimeInterval(-5400), turnStart: now.addingTimeInterval(-700),
-                         updated: now.addingTimeInterval(-120)),
+                         task: "Update the pricing page", lastDuration: 252, updated: now.addingTimeInterval(-120)),
         ]
     }
 }
@@ -444,5 +466,65 @@ enum AgentHooks {
         let next = updated(current, agent: a, install: install)
         guard let data = try? JSONSerialization.data(withJSONObject: next, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]) else { throw Failure.write }
         do { try data.write(to: url, options: .atomic) } catch { throw Failure.write }
+    }
+}
+
+/// Como mostrar um passo: um ícone, um verbo e o detalhe limpo ("cd /tmp/x && swift test" → "swift test")
+enum AgentStep {
+    static func kind(_ tool: String) -> (icon: String, verb: String?) {
+        let t = tool.lowercased()
+        if t.hasPrefix("mcp__") { return ("puzzlepiece.extension", nil) }
+        switch t {
+        case "bash", "shell", "exec_command", "run_shell_command", "local_shell", "unified_exec", "bashoutput":
+            return ("terminal", L("Rodando"))
+        case "edit", "multiedit", "apply_patch", "replace", "edit_file", "notebookedit":
+            return ("pencil", L("Editando"))
+        case "write", "write_file", "create_file":
+            return ("doc.badge.plus", L("Criando"))
+        case "read", "read_file", "read_many_files", "view_image", "view":
+            return ("doc.text", L("Lendo"))
+        case "grep", "glob", "ls", "search_file_content", "list_directory", "file_search", "find":
+            return ("magnifyingglass", L("Buscando"))
+        case "webfetch", "websearch", "web_fetch", "google_web_search", "web_search":
+            return ("globe", L("Na web"))
+        case "task", "agent", "spawn_agent":
+            return ("person.2", L("Subagente"))
+        case "todowrite", "update_plan", "write_todos":
+            return ("checklist", L("Planejando"))
+        default:
+            return ("wrench.and.screwdriver", nil)
+        }
+    }
+
+    static func text(tool: String?, detail: String?) -> String? {
+        guard let tool, !tool.isEmpty else { return detail }
+        let k = kind(tool)
+        // mcp__menew__search_notes → "menew: search_notes"
+        let name = tool.hasPrefix("mcp__") ? tool.dropFirst(5).replacingOccurrences(of: "__", with: ": ") : tool
+        let d = detail.map { k.icon == "terminal" ? clean($0) : $0 }.flatMap { $0.isEmpty ? nil : $0 }
+        switch (k.verb, d) {
+        case let (verb?, d?): return "\(verb) \(d)"
+        case let (verb?, nil): return verb
+        case let (nil, d?): return "\(name) · \(d)"
+        default: return name
+        }
+    }
+
+    /// Tira o que só atrapalha de ler um comando: `cd pasta &&`, variáveis no começo, o caminho do executável
+    static func clean(_ command: String) -> String {
+        var parts = command.components(separatedBy: " && ").map { $0.trimmingCharacters(in: .whitespaces) }
+        while parts.count > 1, let f = parts.first, f.hasPrefix("cd ") || f.hasPrefix("export ") || f.hasPrefix("source ") { parts.removeFirst() }
+        var words = parts.joined(separator: " && ").split(separator: " ", omittingEmptySubsequences: true).map(String.init)
+        while let w = words.first, w.contains("="), !w.hasPrefix("-"), words.count > 1 { words.removeFirst() }
+        if let w = words.first, w.contains("/"), !w.hasPrefix(".") { words[0] = String(w.split(separator: "/").last ?? Substring(w)) }
+        return words.joined(separator: " ")
+    }
+
+    /// 252 → "4 min 12 s"; 40 → "40 s"; 4000 → "1 h 6 min"
+    static func duration(_ t: TimeInterval) -> String {
+        let s = Int(t.rounded())
+        if s < 60 { return "\(s) s" }
+        if s < 3600 { return s % 60 == 0 ? "\(s / 60) min" : "\(s / 60) min \(s % 60) s" }
+        return "\(s / 3600) h \(s / 60 % 60) min"
     }
 }

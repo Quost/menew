@@ -82,6 +82,18 @@ struct RateWindow: Equatable, Identifiable {
     /// Quando o número foi lido (o Codex só atualiza enquanto você usa)
     var asOf: Date
 
+    /// Para o notch: "5 h", "Sem.", "Mês"; janelas por modelo ("Semana · Opus") ficam com o nome do modelo
+    var short: String {
+        if let r = label.range(of: " · ") { return String(label[r.upperBound...]) }
+        switch windowMinutes ?? 0 {
+        case 300: return "5 h"
+        case 1440: return L("Dia")
+        case 10080: return L("Sem.")
+        case 40000...46000: return L("Mês")
+        default: return label
+        }
+    }
+
     /// Nome da janela pelos minutos: 300 → "5 horas", 10080 → "Semana"
     static func label(minutes: Int?) -> String {
         guard let m = minutes, m > 0 else { return L("Limite") }

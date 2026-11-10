@@ -34,6 +34,8 @@ final class NotchCenter: ObservableObject {
         case micMuted
         /// Agentes de IA: quantos trabalham e quantos esperam você
         case agents(working: Int, waiting: Int)
+        /// Um agente terminou ou precisa de você: o pedido, quanto levou e o botão Abrir
+        case agentEvent(id: String, agent: AgentKind, project: String, waiting: Bool, line: String, duration: TimeInterval?)
     }
 
     @Published private(set) var activity: Activity?
@@ -76,6 +78,14 @@ final class NotchCenter: ObservableObject {
         return true
     }
 
+    /// Aviso de um agente de IA (terminou, precisa de você): no lugar dos avisos rápidos, com o interruptor dos agentes
+    func showAgent(_ a: Activity, duration: TimeInterval) -> Bool {
+        guard isOn, Kind.agents.isOn else { return false }
+        flash = (a, Date().addingTimeInterval(duration))
+        update()
+        return true
+    }
+
     /// Para as capturas de tela
     func showDemo(_ a: Activity) { activity = a }
 
@@ -112,7 +122,9 @@ final class NotchCenter: ObservableObject {
         if Kind.recording.isOn, RecordingStore.shared.isRecording { return .recording(since: RecordingStore.shared.startedAt) }
         // Filtro de Foco "só reuniões": o resto espera o Foco acabar
         if FocusFilterState.shared.quietNotch { return nil }
-        if Kind.flash.isOn, let flash { return flash }
+        if let flash {
+            if case .agentEvent = flash { if Kind.agents.isOn { return flash } } else if Kind.flash.isOn { return flash }
+        }
         let hub = AgentHub.shared
         if Kind.agents.isOn, hub.waiting > 0 { return .agents(working: hub.working, waiting: hub.waiting) }
         let focus = FocusTimer.shared
@@ -142,9 +154,21 @@ final class NotchCenter: ObservableObject {
     private func place() {
         guard let activity, let screen = Self.screen else { panel?.orderOut(nil); return }
         let notch = Self.notchSize(screen)
-        let tall = { if case .meeting(_, _, true) = activity { return true }; if case .recording = activity { return true }; return false }()
+        let tall = {
+            if case .meeting(_, _, true) = activity { return true }
+            if case .recording = activity { return true }
+            if case .agentEvent = activity { return true }
+            return false
+        }()
         // Avisos e reuniões têm texto: um pouco mais de espaço dos lados
-        let ear: CGFloat = { if case .flash = activity { return 210 }; if case .meeting = activity { return 150 }; return 115 }()
+        let ear: CGFloat = {
+            switch activity {
+            case .flash: return 210
+            case .agentEvent: return 175
+            case .meeting, .agents: return 150
+            default: return 115
+            }
+        }()
         let width = notch.width > 0 ? notch.width + ear * 2 : 300
         let height = (notch.height > 0 ? notch.height : 32) + (tall ? 38 : 0)
         let y = notch.height > 0 ? screen.frame.maxY - height : screen.visibleFrame.maxY - height - 6
@@ -211,10 +235,17 @@ struct NotchView: View {
             Label(label.isEmpty ? L("Timer") : label, systemImage: "hourglass").font(.system(size: 12, weight: .semibold)).lineLimit(1)
         case .micMuted:
             Image(systemName: "mic.slash.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(.red)
-        case .agents(_, let waiting):
-            Image(systemName: waiting > 0 ? "hand.raised.fill" : "sparkles").font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(waiting > 0 ? .orange : .purple)
-                .symbolEffect(.pulse, isActive: waiting == 0)
+        case .agents:
+            // Os agentes ativos, um ao lado do outro, cada um com o ponto do estado
+            HStack(spacing: 4) {
+                ForEach(AgentHub.shared.active().filter { $0.state != .done }.prefix(3)) { s in Self.agentBadge(s.agent, state: s.state, size: 20) }
+            }
+        case .agentEvent(_, let agent, _, let waiting, _, _):
+            HStack(spacing: 7) {
+                Self.agentBadge(agent, state: nil, size: 20)
+                Text(waiting ? L("Precisa de você") : L("Pronto")).font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(waiting ? Color.orange : Color.green).lineLimit(1)
+            }
         }
     }
 
@@ -231,8 +262,25 @@ struct NotchView: View {
         case .micMuted:
             Text(L("Mic mudo")).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(.red)
         case .agents(let working, let waiting):
-            Text(waiting > 0 ? L("%d espera você", waiting) : (working == 1 ? L("1 trabalhando") : L("%d trabalhando", working)))
-                .font(.system(size: 12, weight: .semibold)).foregroundStyle(waiting > 0 ? .orange : .white).lineLimit(1)
+            if waiting > 0 {
+                Label(waiting == 1 ? L("Precisa de você") : L("%d precisam de você", waiting), systemImage: "hand.raised.fill")
+                    .font(.system(size: 12, weight: .semibold)).foregroundStyle(.orange).lineLimit(1)
+            } else if working == 1, let s = AgentHub.shared.sessions.first(where: { $0.state == .working }) {
+                HStack(spacing: 6) {
+                    Text(s.project).font(.system(size: 12, weight: .semibold)).lineLimit(1).truncationMode(.middle)
+                    if let t = s.turnStart {
+                        Text(Self.clock(now.timeIntervalSince(t))).font(.system(size: 12, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.6))
+                    }
+                }
+            } else {
+                HStack(spacing: 5) {
+                    Text(L("%d agentes", working)).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                    Image(systemName: "ellipsis").font(.system(size: 12, weight: .bold)).foregroundStyle(.white.opacity(0.7))
+                        .symbolEffect(.variableColor.iterative, options: .repeating)
+                }
+            }
+        case .agentEvent(_, _, let project, _, _, _):
+            Text(project).font(.system(size: 12, weight: .semibold)).lineLimit(1).truncationMode(.middle)
         }
     }
 
@@ -256,23 +304,41 @@ struct NotchView: View {
                     .padding(.horizontal, 14).padding(.vertical, 5).background(Capsule().fill(Color.white.opacity(0.18)))
             }
             .buttonStyle(.plain).padding(.bottom, 8)
-        case .agents(_, let waiting) where waiting > 0:
-            // Quem espera, com um botão que traz o terminal dele para a frente
-            if let s = AgentHub.shared.sessions.first(where: { $0.state == .waiting }) {
-                HStack(spacing: 10) {
-                    Text("\(s.agent.short) · \(s.project)").font(.system(size: 12, weight: .medium)).lineLimit(1).foregroundStyle(.white.opacity(0.85))
-                    Spacer(minLength: 6)
-                    Button { AgentHub.shared.focus(s) } label: {
-                        Label(L("Abrir"), systemImage: "terminal.fill").font(.system(size: 12, weight: .semibold))
-                            .padding(.horizontal, 14).padding(.vertical, 5).background(Capsule().fill(Color.orange.opacity(0.85)))
-                    }
-                    .buttonStyle(.plain)
+        case .agentEvent(let id, _, _, let waiting, let line, let duration):
+            // O pedido (ou o que ele quer de você), quanto levou e o botão que abre o terminal
+            HStack(spacing: 10) {
+                Text(line).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.tail).foregroundStyle(.white.opacity(0.85))
+                Spacer(minLength: 6)
+                if let duration {
+                    Text(AgentStep.duration(duration)).font(.system(size: 11.5, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.55))
                 }
-                .padding(.horizontal, 14).padding(.bottom, 8)
+                Button { AgentHub.shared.focus(id: id); NotchCenter.shared.hideFlash() } label: {
+                    Label(L("Abrir"), systemImage: "terminal.fill").font(.system(size: 12, weight: .semibold))
+                        .padding(.horizontal, 14).padding(.vertical, 5)
+                        .background(Capsule().fill(waiting ? Color.orange.opacity(0.9) : Color.white.opacity(0.18)))
+                }
+                .buttonStyle(.plain)
             }
+            .padding(.horizontal, 14).padding(.bottom, 8)
         default:
             EmptyView()
         }
+    }
+
+    /// O ícone do agente, com o ponto do estado embaixo à direita (laranja espera, azul trabalha, verde pronto)
+    static func agentBadge(_ a: AgentKind, state: AgentSession.State?, size: CGFloat) -> some View {
+        Image(systemName: a.icon).font(.system(size: size * 0.45, weight: .bold)).foregroundStyle(.white)
+            .frame(width: size, height: size)
+            .background(RoundedRectangle(cornerRadius: size * 0.28, style: .continuous).fill(a.color.gradient))
+            .overlay(alignment: .bottomTrailing) {
+                if let state, state != .idle, state != .running {
+                    Circle().fill(state == .waiting ? Color.orange : state == .working ? .blue : .green)
+                        .frame(width: size * 0.38, height: size * 0.38)
+                        .overlay(Circle().stroke(.black, lineWidth: 1.5))
+                        .offset(x: size * 0.12, y: size * 0.12)
+                }
+            }
+            .overlay(RoundedRectangle(cornerRadius: size * 0.28, style: .continuous).stroke(.black, lineWidth: 1.5))
     }
 
     /// 125 → "2:05"; 3725 → "1:02:05"

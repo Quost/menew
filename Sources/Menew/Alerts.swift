@@ -122,12 +122,13 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
     }
 
     /// Aviso avulso (bateria de acessório, por exemplo); só aparece se as notificações estiverem permitidas
-    func notify(id: String, title: String, body: String) {
+    func notify(id: String, title: String, body: String, userInfo: [String: String] = [:]) {
         guard let center else { return }
         center.delegate = self
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
+        content.userInfo = userInfo
         content.sound = .default
         center.add(UNNotificationRequest(identifier: id, content: content, trigger: nil))
     }
@@ -147,6 +148,10 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
                                             withCompletionHandler completionHandler: @escaping () -> Void) {
         if let s = response.notification.request.content.userInfo["url"] as? String, let url = URL(string: s) {
             DispatchQueue.main.async { NSWorkspace.shared.open(url) }
+        }
+        // O aviso de um agente de IA traz o terminal dele para a frente
+        if let id = response.notification.request.content.userInfo["agentSession"] as? String {
+            DispatchQueue.main.async { MainActor.assumeIsolated { AgentHub.shared.focus(id: id) } }
         }
         completionHandler()
     }
