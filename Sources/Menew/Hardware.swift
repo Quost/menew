@@ -435,9 +435,20 @@ final class DisplayController: ObservableObject {
     private var followTimer: Timer?
     private var lastBuiltin: Double?
 
-    /// O brilho do externo: o da tela do Mac mais a diferença, sem apagar a tela (mínimo de 5%)
+    /// O fundo da escala da tela do Mac é quase preto, e um monitor externo com a luz no mínimo ainda fica bem mais claro.
+    /// Abaixo deste ponto a luz do monitor fica no mínimo e o Menew escurece a imagem (gamma) até chegar perto do preto.
+    nonisolated static let followKnee = 0.25
+
+    /// O brilho do externo: o da tela do Mac mais a diferença que a pessoa escolheu, de 0 a 100%
     nonisolated static func followed(builtin: Double, offset: Double) -> Double {
-        min(1, max(0.05, builtin + offset))
+        min(1, max(0, builtin + offset))
+    }
+
+    /// Como chegar a esse brilho num monitor com DDC: a luz dele (0–100%) e o escurecimento da imagem
+    /// (1 = imagem normal; 0 = o mais escuro que o escurecimento por software chega).
+    nonisolated static func followedParts(builtin: Double, offset: Double) -> (backlight: Double, image: Double) {
+        let v = followed(builtin: builtin, offset: offset)
+        return (v, v >= followKnee ? 1 : v / followKnee)
     }
 
     private static var offsets: [String: Double] {
@@ -458,7 +469,12 @@ final class DisplayController: ObservableObject {
         followTimer?.invalidate(); followTimer = nil
         lastBuiltin = nil
         // Nas capturas de tela (dados fictícios) nada de ler as telas reais nem mexer no monitor
-        guard Self.follows, !isDemo, !CommandLine.arguments.contains("--snapshot") else { return }
+        guard !isDemo, !CommandLine.arguments.contains("--snapshot") else { return }
+        guard Self.follows else {
+            // Desligou: tira o escurecimento extra dos monitores com DDC (nos sem DDC ele é o próprio brilho)
+            for s in screens where s.kind == .ddc { SoftwareDim.clear(s.id) }
+            return
+        }
         if matched == nil { refresh() }
         followTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.follow() }
@@ -471,8 +487,18 @@ final class DisplayController: ObservableObject {
         guard let b = builtinBrightness, abs(b - (lastBuiltin ?? -1)) >= 0.02 else { return }
         lastBuiltin = b
         let offsets = Self.offsets
-        for s in screens where !s.builtin && (s.kind == .ddc || s.kind == .software) {
-            apply(Self.followed(builtin: b, offset: offsets[monitorKey(s.id)] ?? 0), to: s.id)
+        for s in screens where !s.builtin {
+            let offset = offsets[monitorKey(s.id)] ?? 0
+            switch s.kind {
+            case .ddc:
+                // Luz do monitor pelo cabo e, com pouca luz, a imagem mais escura para chegar perto da tela do Mac
+                let parts = Self.followedParts(builtin: b, offset: offset)
+                apply(parts.backlight, to: s.id)
+                if abs(SoftwareDim.level(s.id) - parts.image) > 0.005 { SoftwareDim.set(s.id, parts.image) }
+            case .software:
+                apply(max(0.05, Self.followed(builtin: b, offset: offset)), to: s.id)
+            default: break
+            }
         }
     }
 

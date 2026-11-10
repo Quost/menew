@@ -249,8 +249,20 @@ final class FollowBrightnessTests: XCTestCase {
         XCTAssertEqual(DisplayController.followed(builtin: 0.6, offset: 0), 0.6, accuracy: 0.0001)
         // Deixado 20% mais claro: segue a tela, sempre 20% acima
         XCTAssertEqual(DisplayController.followed(builtin: 0.5, offset: 0.2), 0.7, accuracy: 0.0001)
-        // Nunca passa de 100% nem apaga a tela
+        // Nunca passa de 100% nem de 0%
         XCTAssertEqual(DisplayController.followed(builtin: 0.95, offset: 0.2), 1, accuracy: 0.0001)
-        XCTAssertEqual(DisplayController.followed(builtin: 0.1, offset: -0.3), 0.05, accuracy: 0.0001)
+        XCTAssertEqual(DisplayController.followed(builtin: 0.1, offset: -0.3), 0, accuracy: 0.0001)
+    }
+
+    func testLowLightDimsTheImageBeyondTheBacklight() {
+        // Com luz normal, só a luz do monitor muda
+        let normal = DisplayController.followedParts(builtin: 0.6, offset: 0)
+        XCTAssertEqual(normal.backlight, 0.6, accuracy: 0.0001)
+        XCTAssertEqual(normal.image, 1, accuracy: 0.0001)
+        // Com pouca luz, a imagem também escurece, até o mínimo com a tela do Mac em 0
+        let dim = DisplayController.followedParts(builtin: 0.125, offset: 0)
+        XCTAssertEqual(dim.backlight, 0.125, accuracy: 0.0001)
+        XCTAssertEqual(dim.image, 0.5, accuracy: 0.0001)
+        XCTAssertEqual(DisplayController.followedParts(builtin: 0, offset: 0).image, 0, accuracy: 0.0001)
     }
 }
