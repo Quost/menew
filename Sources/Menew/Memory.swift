@@ -9,7 +9,7 @@ import FoundationModels
 /// anota de onde veio (app, janela, link da aba) e, com a IA do Mac, dá um título e etiquetas. Captura sempre explícita,
 /// nunca a tela o tempo todo. Tudo fica numa pasta no Mac.
 struct MemoryItem: Codable, Identifiable, Equatable {
-    enum Kind: String, Codable { case capture, text, link }
+    enum Kind: String, Codable { case capture, text, link, session }
 
     var id = UUID()
     var date = Date()
@@ -28,6 +28,8 @@ struct MemoryItem: Codable, Identifiable, Equatable {
     var imageFile: String?
     /// A IA já passou por aqui (título, resumo, etiquetas)
     var enriched = false
+    /// De onde entrou sozinho ("shot:<pixels>", "claude:<sessão>"): não duplica e deixa atualizar a sessão
+    var sourceKey: String?
 
     /// Tudo o que a busca olha, já sem acentos e em minúsculas
     var haystack: String {
@@ -119,28 +121,89 @@ final class MemoryStore: ObservableObject {
         }
     }
 
-    func add(imageData: Data, origin: MemoryOrigin) {
+    func has(sourceKey: String) -> Bool { items.contains { $0.sourceKey == sourceKey } }
+
+    /// `auto`: veio de uma fonte automática (sem aviso na tela, texto lido sem segredos, IA na fila)
+    func add(imageData: Data, origin: MemoryOrigin, sourceKey: String? = nil, auto: Bool = false, date: Date = Date()) {
+        if let sourceKey, has(sourceKey: sourceKey) { return }
         guard let dir = imagesDir, let image = NSImage(data: imageData),
               let cg = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
         var item = MemoryItem(kind: .capture, title: origin.window ?? origin.app ?? L("Captura"))
+        item.date = date
         item.app = origin.app
         item.bundle = origin.bundle
         item.window = origin.window
         item.url = origin.url
+        item.sourceKey = sourceKey ?? ImageFingerprint.key(imageData)
         let name = "\(item.id.uuidString).png"
         try? imageData.write(to: dir.appendingPathComponent(name))
         item.imageFile = name
-        items.insert(item, at: 0)
+        insertByDate(item)
         save()
-        HUD.show(icon: "brain.head.profile", color: .pink, text: L("Guardado na memória"))
+        if !auto { HUD.show(icon: "brain.head.profile", color: .pink, text: L("Guardado na memória")) }
         Task {
-            let text = await TextRecognizer.recognize(cg)
+            let read = await TextRecognizer.recognize(cg)
+            let text = auto ? SecretScrubber.scrub(read) : read
             update(item.id) {
                 $0.text = text
                 // Sem IA, o título vem da primeira linha com conteúdo
-                if $0.title == L("Captura") || $0.title.isEmpty, let first = Self.firstLine(text) { $0.title = first }
+                if $0.title == L("Captura") || $0.title.isEmpty || $0.title == $0.app, let first = Self.firstLine(text) { $0.title = first }
             }
-            await enrich(item.id)
+            if auto { queueEnrich(item.id) } else { await enrich(item.id) }
+        }
+    }
+
+    /// Mais novos primeiro: o que entra do passado (sessões e prints antigos) vai para o seu lugar na fila
+    private func insertByDate(_ item: MemoryItem) {
+        let i = items.firstIndex { $0.date <= item.date } ?? items.endIndex
+        items.insert(item, at: i)
+    }
+
+    /// Uma sessão de agente: cria o item ou atualiza o da mesma sessão
+    func upsertSession(_ d: AgentSessionDigest) {
+        let text = d.text
+        let date = d.end ?? Date()
+        if let i = items.firstIndex(where: { $0.sourceKey == d.sourceKey }) {
+            guard items[i].text != text else { return }
+            var item = items.remove(at: i)
+            item.text = text
+            item.date = date
+            if !item.enriched { item.title = d.title; item.summary = d.summary }
+            item.enriched = false
+            insertByDate(item)
+            save()
+            queueEnrich(item.id)
+            return
+        }
+        var item = MemoryItem(kind: .session, title: d.title)
+        item.date = date
+        item.summary = d.summary
+        item.text = text
+        item.app = d.agent.name
+        item.window = d.project
+        item.tags = [d.agent.short.lowercased(), PaletteSearch.fold(d.project)]
+        item.entities = [d.project]
+        item.sourceKey = d.sourceKey
+        insertByDate(item)
+        save()
+        queueEnrich(item.id)
+    }
+
+    /// A IA do Mac passa por um item de cada vez: muitas sessões de uma vez não travam nada
+    private var enrichQueue: [UUID] = []
+    private var enriching = false
+
+    func queueEnrich(_ id: UUID) {
+        guard !demo else { return }
+        if !enrichQueue.contains(id) { enrichQueue.append(id) }
+        guard !enriching else { return }
+        enriching = true
+        Task {
+            while !enrichQueue.isEmpty {
+                let next = enrichQueue.removeFirst()
+                await enrich(next)
+            }
+            enriching = false
         }
     }
 
@@ -229,6 +292,8 @@ final class MemoryStore: ObservableObject {
             return i
         }
         items = [
+            make(.session, L("Busca por raiz de palavra na Memória"), L("“gráficos” agora acha “gráfico”; testes passando."),
+                 ["claude", "menew"], "Claude Code", nil, 1, ["Menew", "SwiftUI"]),
             make(.capture, L("Swift Charts: gráfico de linhas com área"), L("Exemplo de LineMark e AreaMark com gradiente, da documentação da Apple."),
                  ["swift", "gráficos", "swiftui"], "Safari", "https://developer.apple.com/documentation/charts", 3, ["Swift Charts", "SwiftUI", "Apple"]),
             make(.link, L("Firebase: regras de segurança do Firestore"), L("Como permitir leitura só para o dono do documento."),

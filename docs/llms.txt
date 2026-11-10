@@ -74,7 +74,7 @@ Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost
 - Siri, Shortcuts and Spotlight: Ask Siri how your Mac is doing, chain 27 actions in the Shortcuts app and find your notes in Spotlight. And Focus filters: with your Work Focus on, Menew pauses the clipboard or quiets the notch on its own.
 - Live captions: Your Mac’s audio or the microphone turns into captions in a small window, translated as you go. Great for calls and videos in another language.
 - Battery care: Alerts at 80% on the charger and when the battery gets hot, and shows how much health it lost over the months. The Wear card shows cycles per day, the hours and apps that drain it most, and time spent hot or full on the charger.
-- Menew window and Memory: Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags. Then just ask: “which was that charts library?”, and AI answers with the sources. And in the graph, see how the topics connect.
+- Menew window and Memory: Press ⌃⌥⌘K to save what’s on screen: Menew reads the text, notes the app and link, and AI adds a title and tags. Then just ask: “which was that charts library?”, and AI answers with the sources. And in the graph, see how the topics connect. Turn on Automatic Memory and it also fills itself with every screenshot and a summary of each Claude Code, Codex and Gemini CLI session.
 - Recordings with minutes: Press ⌃⌥⌘G and talk or take your call: your Mac transcribes it, tells you apart from others, and AI writes the minutes with tasks and tags. The minutes follow the whole conversation: the main topic, a summary, each topic discussed with what was actually said (facts, numbers, names, concerns), decisions, a task table with owner and due date, next steps and notes.
 - History up to 30 days: CPU, memory and battery over 24 hours, 7 or 30 days, and the apps that used the most.
 - Sensors and cores: Chip, SSD and battery temperatures, fan speed and every performance and efficiency core.
@@ -143,7 +143,7 @@ Menew’s Recordings cover the everyday part: transcript, minutes and tasks, mad
 
 ### How do I find something I saw on screen later?
 
-When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, reads the text and notes the app and link. Later, search or ask in plain words, like “which was that Swift chart library?”, and the on-device AI answers with the saved items as sources. Memory items also show up in Spotlight.
+When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, reads the text and notes the app and link. Later, search or ask in plain words, like “which was that Swift chart library?”, and the on-device AI answers with the saved items as sources. Memory items also show up in Spotlight. Or turn on Automatic Memory: every screenshot and a summary of each coding-agent session are saved by themselves, on your Mac.
 
 ### Is Menew related to Linx Menew?
 

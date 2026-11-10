@@ -98,6 +98,12 @@ struct MemoryView: View {
                 }
                 Button(L("Mostrar a pasta no Finder")) { if let d = store.dir { NSWorkspace.shared.open(d) } }
                 Divider()
+                Section(L("Guardar sozinho")) {
+                    ForEach(MemoryFeedToggles.visible) { s in
+                        Toggle(s.title, isOn: MemoryFeed.binding(s))
+                    }
+                }
+                Divider()
                 Button(L("Apagar toda a memória…"), role: .destructive) { confirmErase = true }
             } label: { Image(systemName: "ellipsis.circle") }
                 .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
@@ -112,9 +118,24 @@ struct MemoryView: View {
             Text(L("Aperte %@ e escolha uma área ou janela. O Menew guarda a imagem, lê o texto e anota de onde veio (app, janela e link). Depois é só buscar aqui ou na paleta.",
                    Shortcut.load(MemoryStore.shortcutKey, default: .memoryDefault).display))
                 .font(.system(size: 13)).foregroundStyle(.secondary).multilineTextAlignment(.center).frame(maxWidth: 420)
-            Text(L("Só guarda quando você pede. Fica tudo no seu Mac.")).font(.system(size: 11.5)).foregroundStyle(.tertiary)
+            Text(MemoryFeed.Source.allCases.contains(where: \.isOn) ? L("Guardando sozinho o que você ligou nos Ajustes. Fica tudo no seu Mac.")
+                 : L("Só guarda quando você pede. Fica tudo no seu Mac.")).font(.system(size: 11.5)).foregroundStyle(.tertiary)
+            if !MemoryFeed.Source.allCases.contains(where: \.isOn) {
+                PillButton(title: L("Guardar sozinho…"), icon: "wand.and.stars") { SettingsWindow.shared.show(.clipboard) }
+            }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+extension MemoryItem {
+    /// O ícone do cartão sem imagem: o do agente numa sessão, um elo num link
+    var placeholderIcon: String {
+        switch kind {
+        case .link: "link"
+        case .session: AgentKind.allCases.first { $0.name == app }?.icon ?? "terminal"
+        case .capture, .text: "text.alignleft"
+        }
     }
 }
 
@@ -130,7 +151,7 @@ struct RecallCard: View {
                 if let image {
                     Image(nsImage: image).resizable().aspectRatio(contentMode: .fill)
                 } else {
-                    Image(systemName: item.kind == .link ? "link" : "text.alignleft").font(.system(size: 26, weight: .light)).foregroundStyle(.secondary)
+                    Image(systemName: item.placeholderIcon).font(.system(size: 26, weight: .light)).foregroundStyle(.secondary)
                 }
             }
             .frame(height: 110).clipShape(RoundedRectangle(cornerRadius: 8))

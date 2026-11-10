@@ -67,7 +67,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .menubar: [L("Barra de menus"), L("Abrir ao iniciar o Mac"), "CPU", "RAM"]
         case .clipboard: [L("Colar automaticamente ao escolher"), L("Expandir abreviações dos snippets ao digitar"), L("Pausar captura"),
                           L("Ignorar senhas (1Password, Keychain…)"), L("Guardar na Memória os prints copiados"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
-                          L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
+                          L("Ignorar apps"), L("Limpar histórico (mantém fixados)"), L("Memória automática")] + MemoryFeed.Source.allCases.map { $0.title }
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
                           L("Capturar tela"), L("Guardar na memória"), L("Reescrever texto selecionado"), L("Atalhos")]
         case .windows: [L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Abrir a estante ao chacoalhar arquivos"), L("Brilho de monitores externos"), L("Monitores acompanham a tela do Mac"), L("Brilho automático"), L("Janelas")]

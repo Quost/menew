@@ -165,6 +165,9 @@ enum Snapshot {
                        size: NSSize(width: 400, height: 370), dark: dark, to: dir.appendingPathComponent("history-\(suffix).png"))
                 render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .clipboard),
                        size: NSSize(width: 760, height: 560), dark: dark, to: dir.appendingPathComponent("settings-window-\(suffix).png"))
+                // Ajustes do clipboard inteiros, com a Memória automática no fim
+                render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .clipboard),
+                       size: NSSize(width: 760, height: 1180), dark: dark, to: dir.appendingPathComponent("settings-memory-\(suffix).png"))
                 render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .ai),
                        size: NSSize(width: 760, height: 760), dark: dark, to: dir.appendingPathComponent("settings-ai-\(suffix).png"))
                 render(SettingsWindowView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false), initial: .notch),

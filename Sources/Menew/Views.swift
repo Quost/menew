@@ -831,10 +831,6 @@ struct SettingsView: View {
                     RowDivider()
                     ToggleRow(title: L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
                     RowDivider()
-                    ToggleRow(title: L("Guardar na Memória os prints copiados"),
-                              detail: L("Ao copiar uma captura do Menew (⌃⌥⌘S), ela também vai para a Memória, com o app e o link de onde veio, para achar depois perguntando."),
-                              isOn: $capturesToMemory)
-                    RowDivider()
                     ToggleRow(title: L("Buscar texto dentro das imagens"),
                               detail: L("O Menew lê o texto dos prints e imagens copiados, no Mac, para achar pela busca."),
                               isOn: $clipboardOCR)
@@ -858,6 +854,17 @@ struct SettingsView: View {
                     .confirmationDialog(L("Apagar todo o histórico não fixado?"), isPresented: $confirmClear) {
                         Button(L("Apagar"), role: .destructive) { clipboard.clear() }
                     }
+                }
+                }
+
+                if show(.clipboard) {
+                GlassSection(title: L("Memória automática"),
+                             footer: L("A Memória cresce sozinha com o que você liga aqui. Lido e guardado só no seu Mac, sem internet; itens ocultos, apps de senhas, chaves e tokens ficam de fora.")) {
+                    ToggleRow(title: L("Guardar na Memória os prints copiados"),
+                              detail: L("Ao copiar uma captura do Menew (⌃⌥⌘S), ela também vai para a Memória, com o app e o link de onde veio, para achar depois perguntando."),
+                              icon: "plus.viewfinder", isOn: $capturesToMemory)
+                    RowDivider()
+                    MemoryFeedToggles()
                 }
                 }
 

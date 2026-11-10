@@ -120,6 +120,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         BatteryLog.shared.load(dir: clipboard.dir)
         BatteryWear.shared.load(dir: clipboard.dir)
         MemoryStore.shared.load(base: clipboard.dir)
+        MemoryFeed.start()
         RecordingStore.shared.load(base: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
