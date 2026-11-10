@@ -48,7 +48,7 @@ final class Alerts: NSObject, UNUserNotificationCenterDelegate {
     private var cpuStreak = 0
     private var center: UNUserNotificationCenter? {
         // Sem bundle (binário solto, testes) o UNUserNotificationCenter derruba o app
-        Bundle.main.bundleIdentifier == nil ? nil : .current()
+        Bundle.main.bundleIdentifier == nil || Bundle.main.bundleURL.pathExtension != "app" ? nil : .current()
     }
 
     func requestPermission(_ done: @escaping @MainActor (Bool) -> Void) {

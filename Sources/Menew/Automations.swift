@@ -624,7 +624,7 @@ struct AutomationEditor: View {
             }
             Menu(L("Microfone")) {
                 Button(L("Mutar")) { add(.mic(muted: true)) }
-                Button(L("Ligar")) { add(.mic(muted: false)) }
+                Button(L("Desmutar")) { add(.mic(muted: false)) }
             }
             Menu(L("Aparência")) {
                 Button(L("Claro")) { add(.dark(false)) }

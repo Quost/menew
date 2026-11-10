@@ -196,7 +196,7 @@
     position: relative; overflow: hidden; border-radius: 26px; border: 1px solid var(--line); background: var(--card);
     padding: 30px 30px 0; display: flex; flex-direction: column; min-height: 420px;
   }
-  .tile.w4 { grid-column: span 4; } .tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; }
+  .tile.w6 { grid-column: span 6; } .tile.w4 { grid-column: span 4; } .tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; }
   .tile::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .9; }
   .tile.mem::before { background: radial-gradient(500px 300px at 100% 0%, rgba(255, 92, 168, .18), transparent 70%); }
   .tile.rec::before { background: radial-gradient(500px 300px at 0% 0%, rgba(255, 69, 58, .14), transparent 70%); }
@@ -492,6 +492,14 @@
           <img class="dark-only" loading="lazy" src="{{shots}}/palette-dark.png" alt="{{b3_t}}">
         </div>
       </div>
+      <div class="tile w6 agents reveal">
+        <h3>{{b5_t}}</h3>
+        <p>{{b5_d}}</p>
+        <div class="shot">
+          <img class="light-only" loading="lazy" src="{{shots}}/hub-agents-light.png" alt="{{b5_t}}">
+          <img class="dark-only" loading="lazy" src="{{shots}}/hub-agents-dark.png" alt="{{b5_t}}">
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -667,6 +675,7 @@
           <li>{{priv_c2}}</li>
           <li>{{priv_c3}}</li>
           <li>{{priv_c4}}</li>
+          <li>{{priv_c5}}</li>
         </ul>
       </div>
     </div>

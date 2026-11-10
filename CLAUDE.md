@@ -31,7 +31,7 @@ Whenever a change is visible to users (new feature, renamed screen, new setting,
 
 ## Don'ts
 
-- No telemetry or analytics in the app, ever (the README and site promise this). The website only uses GoatCounter (cookieless; `GOATCOUNTER` in `scripts/build-site.py`, clicks tagged with `data-goatcounter-click`); never add cookies or another tracker. Network calls are limited to the update check, the public-IP lookup, the user-started speed test and the currency rate fetched when the user presses ↩ on a conversion in the command palette.
+- No telemetry or analytics in the app, ever (the README and site promise this). The website only uses GoatCounter (cookieless; `GOATCOUNTER` in `scripts/build-site.py`, clicks tagged with `data-goatcounter-click`); never add cookies or another tracker. Network calls are limited to the update check, the public-IP lookup, the user-started speed test, the currency rate fetched when the user presses ↩ on a conversion in the command palette, and the opt-in Claude plan limits (`api.anthropic.com/api/oauth/usage`, off by default). Ollama/LM Studio are read on `127.0.0.1` only.
 - Don't add third-party dependencies without a strong reason (only Sparkle today).
 - Don't use the WEG certificates in the keychain; the project uses the personal Developer ID (team `9527N6XKKW`).
 - Cleaner: user files go to the Trash, only caches/logs are deleted, and `com.apple.*` caches are skipped.

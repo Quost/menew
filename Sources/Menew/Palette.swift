@@ -536,6 +536,9 @@ final class PaletteModel: ObservableObject {
             action("recording.open", L("Gravações"), "waveform", .red,
                    "gravacoes gravações recordings atas minutes reuniões meetings aufnahmen grabaciones 录音",
                    subtitle: L("Atas, tarefas e etiquetas")) { MenewWindow.shared.show(.recordings) }
+            action("agents.open", L("Agentes de IA"), "sparkles", .orange,
+                   "agentes agents ia ai claude code codex gemini uso usage limites limits tokens custo cost mcp terminal ki-agenten 智能体 用量",
+                   subtitle: L("Uso, limites e quem espera você")) { MenewWindow.shared.show(.agents) }
             action("organize", L("Organizar arquivos"), "folder.badge.gearshape", .blue,
                    "organizar arquivos downloads organize files tidy pastas folders renomear rename aufräumen ordenar archivos 整理 文件",
                    subtitle: L("Nomes e pastas pelo conteúdo; você revisa antes")) { OrganizerWindow.shared.show() }

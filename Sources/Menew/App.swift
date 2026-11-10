@@ -7,6 +7,10 @@ import SwiftUI
 enum MenewMain {
     static let delegate = AppDelegate()
     static func main() {
+        // Rodados pelos agentes de IA: respondem e saem, sem abrir o app (nem a barra de menus)
+        let args = CommandLine.arguments
+        if let i = args.firstIndex(of: AgentHookCommand.flag) { AgentHookCommand.run(agent: args.count > i + 1 ? args[i + 1] : "") }
+        if args.contains(MCPServer.flag) { MCPServer.run() }
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
         Migration.run()
@@ -119,6 +123,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         RecordingStore.shared.load(base: clipboard.dir)
         ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
+        AgentHub.shared.start()
+        AgentUsageStore.shared.start()
+        MCPBridge.start()
         WidgetBridge.shared.start(monitor: monitor)
         SpotlightNotes.shared.start(notes)
         AutomationStore.shared.start(toolbox: toolbox)

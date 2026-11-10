@@ -96,6 +96,12 @@ enum Snapshot {
                 rs.section = .recordings
                 render(HubView(state: rs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
                        size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-recordings-\(suffix).png"))
+                AgentUsageStore.shared.showDemo()
+                AgentHub.shared.showDemo()
+                let ags = HubState()
+                ags.section = .agents
+                render(HubView(state: ags, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
+                       size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-agents-\(suffix).png"))
                 // Grafo do conhecimento com os dados de exemplo
                 let kg = KnowledgeGraph.build(memory: MemoryStore.shared.items, notes: [])
                 let gsize = CGSize(width: 760, height: 460)
@@ -105,6 +111,10 @@ enum Snapshot {
                 // Uma página de grupo da aba Ações
                 render(ActionsView(tb: toolbox, clipboard: clipboard, group: .windows) {}.frame(width: 400, height: 600).background(Theme.popoverFill),
                        size: NSSize(width: 400, height: 600), dark: dark, to: dir.appendingPathComponent("actions-group-\(suffix).png"))
+                if CommandLine.arguments.contains("--full-agents") { // Agentes de IA inteiros, para revisar o layout
+                    render(AgentsView().frame(width: 760).padding(.top, 10).background(Theme.windowFill),
+                           size: NSSize(width: 760, height: 1900), dark: dark, to: dir.appendingPathComponent("agents-full-\(suffix).png"))
+                }
                 if CommandLine.arguments.contains("--full-settings") { // Ajustes inteiros, para revisar o layout
                     render(SettingsView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false)).background(Theme.windowFill),
                            size: NSSize(width: 400, height: 1900), dark: dark, to: dir.appendingPathComponent("settings-full-\(suffix).png"))
@@ -233,6 +243,15 @@ enum Snapshot {
                         .padding(.bottom, 18).frame(width: 560)
                         .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
                        size: NSSize(width: 560, height: 168), dark: dark, to: dir.appendingPathComponent("notch-call-\(suffix).png"))
+                // Notch com agentes de IA trabalhando: o passo de cada um e o uso de hoje
+                let am = NotchHoverModel()
+                am.shown = true
+                am.agents = Array(AgentHub.shared.active().prefix(3))
+                am.usageLine = NotchHoverModel.usage()
+                render(NotchHoverView(model: am, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 150 + CGFloat(am.agents.count) * 40 + 30)
+                        .padding(.bottom, 18).frame(width: 560)
+                        .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                       size: NSSize(width: 560, height: 168 + CGFloat(am.agents.count) * 40 + 30), dark: dark, to: dir.appendingPathComponent("notch-agents-\(suffix).png"))
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),

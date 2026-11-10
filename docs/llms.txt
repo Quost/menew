@@ -10,6 +10,7 @@ Menew 1.98.0 (updated 2026-11-10). Native Swift/SwiftUI app for macOS 14 or late
 - Recordings with minutes: Press ⌃⌥⌘G in a meeting. Your Mac transcribes it, tells who spoke, and writes the minutes with the tasks.
 - Command palette: ⌃⌥Space opens apps, actions, math, conversions, timers, reminders and your own scripts. Type what you want.
 - AI on your Mac: Summarizes, rewrites, translates and explains with Apple’s model, running on your Mac. No key, no account, no cloud.
+- Your AI agents, at a glance: Claude Code, Codex and Gemini CLI: who is working and who is waiting for you (in the notch, with a button to open the terminal), your 5-hour and weekly limits with when you’d run out, and tokens and cost per day, model and project. Plus an MCP server so your agents can search your Memory, notes and meeting minutes. Read from your Mac, no account.
 
 ## Capabilities in detail
 
@@ -21,6 +22,7 @@ Menew 1.98.0 (updated 2026-11-10). Native Swift/SwiftUI app for macOS 14 or late
 - Meetings and recordings: Next meeting with a Join button for Zoom, Meet, Teams and Webex; notch alerts that skip calendar blocks; record Mac audio and the microphone as separate tracks; on-device transcription; minutes with the main topic, a summary, each topic discussed, decisions, a task table with owner and deadline, and next steps; tasks to Reminders.
 - Memory: ⌃⌥⌘K saves what is on screen with its text, app and link; ask in plain words and get an answer with sources; a knowledge graph of topics; items appear in Spotlight.
 - Files and cleanup: A drag-and-drop shelf with image and PDF tools (convert, compress, split, OCR, password-protect); organize a folder by file content with review and undo; disk cleaner for caches, logs, large and duplicate files (files go to the Trash); app uninstaller with leftovers; login and background items.
+- AI coding agents: Claude Code, Codex and Gemini CLI sessions with their state (working, done, waiting for a permission or answer) through each tool's hooks, shown in the notch with a button that opens the right terminal; plan limits (5-hour and weekly windows) with reset times, a forecast at the current pace and alerts at 75% and 90%; tokens per day, estimated cost at Anthropic API prices, cache savings, top models and projects, read from the tools' local logs; Ollama and LM Studio models loaded in memory; a local MCP server (Menew --mcp) for Claude Code, Codex, Gemini CLI, Claude Desktop and Cursor to search Memory, notes and meeting minutes, check the Mac and save notes.
 - Made for macOS: Live notch alerts and a hover panel with call controls; desktop widgets; Siri, Shortcuts and Spotlight actions; Focus filters; Live Text in images; Continuity Camera; live translated captions; Liquid Glass design on macOS 26; English, Portuguese, German, Spanish and Chinese.
 
 ## Not included
@@ -89,7 +91,7 @@ Yes. Menew is free and open source under the GPL-3.0 license: no ads, no subscri
 
 ### Does Menew collect my data?
 
-No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.
+No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only. Only if you turn it on, Menew also checks your Claude plan limits with Anthropic.
 
 ### Which Macs does it run on?
 
@@ -150,6 +152,10 @@ No. Menew is a free, open source app for the Mac menu bar, made by Quost and pub
 ### What doesn't Menew do?
 
 Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or Thaw), has no extension store like Raycast's (it runs your own scripts instead), doesn't sync between Macs or to a cloud, and doesn't put a web browser in the menu bar. For deep hardware sensors per core, Stats and iStat Menus go further, though Menew shows chip, SSD and battery temperatures, fan speed and performance and efficiency cores.
+
+### Can Menew show my Claude Code, Codex and Gemini usage and limits?
+
+Yes. The AI agents section reads the logs Claude Code, Codex and Gemini CLI already keep on your Mac and shows tokens per day, the estimated cost at API prices, cache savings and the top models and projects. Codex limits come from its own logs; Claude’s 5-hour and weekly limits are optional, since they come from Anthropic. Turn on the agent hooks and the notch tells you when an agent finishes or is waiting for your permission. An MCP server lets the agents search your Memory, notes and meeting minutes.
 
 ## Install
 
