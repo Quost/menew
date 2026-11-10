@@ -457,7 +457,8 @@ final class DisplayController: ObservableObject {
     func updateFollowing() {
         followTimer?.invalidate(); followTimer = nil
         lastBuiltin = nil
-        guard Self.follows, !isDemo else { return }
+        // Nas capturas de tela (dados fictícios) nada de ler as telas reais nem mexer no monitor
+        guard Self.follows, !isDemo, !CommandLine.arguments.contains("--snapshot") else { return }
         if matched == nil { refresh() }
         followTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.follow() }
