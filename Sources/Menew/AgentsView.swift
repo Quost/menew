@@ -6,6 +6,7 @@ import SwiftUI
 struct AgentsView: View {
     @ObservedObject var usage = AgentUsageStore.shared
     @ObservedObject var hub = AgentHub.shared
+    @ObservedObject var mcpStatus = MCPStatus.shared
     @State private var days = 7
     @State private var confirm: (AgentKind, Bool)?
     @State private var error: String?
@@ -25,7 +26,7 @@ struct AgentsView: View {
             .padding(.horizontal, 24).padding(.bottom, 24)
         }
         .scrollIndicators(.never)
-        .onAppear { usage.isVisible = true; hub.isVisible = true }
+        .onAppear { usage.isVisible = true; hub.isVisible = true; mcpStatus.refresh() }
         .onDisappear { usage.isVisible = false; hub.isVisible = false }
         .alert(item: Binding(get: { confirm.map { ConfirmBox(agent: $0.0, install: $0.1) } }, set: { _ in confirm = nil })) { c in
             Alert(title: Text(c.install ? L("Ligar os avisos do %@?", c.agent.name) : L("Desligar os avisos do %@?", c.agent.name)),
@@ -303,15 +304,15 @@ struct AgentsView: View {
                     HStack {
                         Text(c.name).font(.system(size: 12.5, weight: .medium))
                         Spacer()
-                        Toggle("", isOn: Binding(get: { c.isInstalled }, set: { on in
-                            error = c.set(on)
-                            tick += 1
-                        })).toggleStyle(.switch).controlSize(.small).labelsHidden()
+                        if mcpStatus.busy.contains(c) { ProgressView().controlSize(.mini) }
+                        Toggle("", isOn: Binding(get: { mcpStatus.installed[c] ?? false }, set: { mcpStatus.set(c, $0) }))
+                            .toggleStyle(.switch).controlSize(.small).labelsHidden().disabled(mcpStatus.busy.contains(c))
                     }
                     .padding(.horizontal, 10).padding(.vertical, 6)
                     .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
                 }
             }
+            if let e = mcpStatus.error { Text(e).font(.system(size: 12)).foregroundStyle(.red) }
             Text(L("O que os agentes podem usar")).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(.secondary).padding(.top, 4)
             ForEach(MCPSource.allCases) { s in
                 Toggle(isOn: defaultsBinding(s.key, s != .clipboard)) {

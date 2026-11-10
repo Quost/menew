@@ -415,9 +415,9 @@ enum MCPClient: String, CaseIterable, Identifiable {
     var isInstalled: Bool {
         switch self {
         case .claudeCode:
-            let url = Self.home.appendingPathComponent(".claude.json")
-            guard let data = try? Data(contentsOf: url), let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return false }
-            return (obj["mcpServers"] as? [String: Any])?["menew"] != nil
+            // Onde o Claude Code guarda a lista muda de versão para versão: pergunta a ele (leva ~1 s; chamar fora da tela)
+            guard let c = Self.cli("claude") else { return false }
+            return Self.exec(c, ["mcp", "get", "menew"]) == nil
         case .codex:
             let toml = (try? String(contentsOf: Self.home.appendingPathComponent(".codex/config.toml"), encoding: .utf8)) ?? ""
             return toml.contains("[mcp_servers.menew]")
@@ -482,7 +482,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
     }
 
     /// Roda um CLI com um PATH de terminal (o do Codex é um script Node); nil se deu certo
-    private static func exec(_ path: String, _ args: [String]) -> String? {
+    static func exec(_ path: String, _ args: [String]) -> String? {
         let p = Process()
         p.executableURL = URL(fileURLWithPath: path)
         p.arguments = args
@@ -497,5 +497,36 @@ enum MCPClient: String, CaseIterable, Identifiable {
         if p.terminationStatus == 0 { return nil }
         let msg = String(decoding: err.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
         return msg.isEmpty ? L("O comando falhou") : String(msg.prefix(200))
+    }
+}
+
+/// Se cada app já tem o Menew na lista de MCP. Perguntar ao Claude Code leva um segundo, então é lido em segundo plano
+@MainActor
+final class MCPStatus: ObservableObject {
+    static let shared = MCPStatus()
+    @Published private(set) var installed: [MCPClient: Bool] = [:]
+    @Published private(set) var busy: Set<MCPClient> = []
+    @Published var error: String?
+
+    func refresh() {
+        Task.detached {
+            let r = Dictionary(uniqueKeysWithValues: MCPClient.allCases.filter(\.isAvailable).map { ($0, $0.isInstalled) })
+            await MainActor.run { MCPStatus.shared.installed = r }
+        }
+    }
+
+    func set(_ c: MCPClient, _ on: Bool) {
+        busy.insert(c)
+        installed[c] = on
+        Task.detached {
+            let err = c.set(on)
+            let now = c.isInstalled
+            await MainActor.run {
+                let s = MCPStatus.shared
+                s.busy.remove(c)
+                s.installed[c] = now
+                s.error = err
+            }
+        }
     }
 }
