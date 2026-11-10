@@ -24,6 +24,8 @@ enum AgentHookCommand {
         info["cwd"] = obj["cwd"] as? String ?? FileManager.default.currentDirectoryPath
         info["message"] = (obj["message"] as? String).map { String($0.prefix(200)) }
         info["kind"] = obj["notification_type"] as? String
+        info["step"] = step(obj)
+        info["prompt"] = (obj["prompt"] as? String).map { oneLine($0, 140) }
         let chain = ProcessTree.ancestors(of: getppid())
         if let agentPID = chain.first(where: { AgentProcesses.matches(ProcessTree.name($0), agent: agent) }) {
             info["pid"] = String(agentPID)
@@ -35,6 +37,31 @@ enum AgentHookCommand {
         }
         DistributedNotificationCenter.default().postNotificationName(notification, object: nil, userInfo: info, deliverImmediately: true)
         exit(0)
+    }
+}
+
+extension AgentHookCommand {
+    /// O passo em poucas palavras: "Edit · AgentsView.swift", "Bash · Rodar os testes", "Grep · TODO"
+    static func step(_ obj: [String: Any]) -> String? {
+        guard let tool = obj["tool_name"] as? String, !tool.isEmpty else { return nil }
+        let input = obj["tool_input"] as? [String: Any] ?? [:]
+        var detail: String?
+        if let f = (input["file_path"] ?? input["path"] ?? input["notebook_path"]) as? String, !f.isEmpty {
+            detail = URL(fileURLWithPath: f).lastPathComponent
+        } else {
+            detail = ["description", "command", "cmd", "pattern", "url", "query", "prompt"].lazy
+                .compactMap { input[$0] as? String }.first { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            // O Codex passa o comando como lista: ["bash", "-lc", "swift test"]
+            if detail == nil, let parts = input["command"] as? [String] { detail = parts.last }
+        }
+        // mcp__menew__search_notes → menew · search_notes
+        let name = tool.hasPrefix("mcp__") ? tool.dropFirst(5).replacingOccurrences(of: "__", with: " · ") : tool
+        return detail.map { "\(name) · \(oneLine($0, 80))" } ?? name
+    }
+
+    static func oneLine(_ s: String, _ max: Int) -> String {
+        let t = s.split(whereSeparator: \.isNewline).first.map(String.init)?.trimmingCharacters(in: .whitespaces) ?? ""
+        return t.count > max ? String(t.prefix(max - 1)) + "…" : t
     }
 }
 
@@ -134,6 +161,9 @@ struct AgentSession: Identifiable, Equatable {
     /// Quando começou o pedido atual (para dizer quanto tempo levou)
     var turnStart: Date?
     var message: String?
+    /// O que você pediu (a primeira linha do prompt) e o passo de agora (a última ferramenta)
+    var task: String?
+    var step: String?
     var appBundle: String?
     var appPID: pid_t?
     var pid: pid_t?
@@ -178,6 +208,13 @@ final class AgentHub: ObservableObject {
     var isVisible = false { didSet { if isVisible { scanProcesses() } } }
 
     var working: Int { sessions.filter { $0.state == .working }.count }
+
+    /// Para o painel do notch: quem espera, quem trabalha e quem terminou há pouco (até 15 min)
+    func active(now: Date = Date()) -> [AgentSession] {
+        let order: [AgentSession.State] = [.waiting, .working, .done]
+        return sessions.filter { $0.state == .waiting || $0.state == .working || ($0.state == .done && now.timeIntervalSince($0.updated) < 900) }
+            .sorted { (order.firstIndex(of: $0.state) ?? 9, $1.updated) < (order.firstIndex(of: $1.state) ?? 9, $0.updated) }
+    }
     var waiting: Int { sessions.filter { $0.state == .waiting }.count }
 
     /// Tudo o que aparece na lista: as sessões dos hooks e, das ferramentas sem hooks, os processos rodando
@@ -230,9 +267,12 @@ final class AgentHub: ObservableObject {
             s.state = .working
             s.turnStart = now
             s.message = nil
+            s.step = nil
+            if let p = info["prompt"], !p.isEmpty { s.task = p }
         case "pretooluse", "posttooluse", "beforetool", "aftertool", "subagentstart", "subagentstop":
             if s.state != .working { s.state = .working; if s.turnStart == nil { s.turnStart = now } }
             s.message = nil
+            if let st = info["step"] { s.step = st }
         case "notification", "permissionrequest":
             // "Esperando sua resposta" depois de um tempo parado não é um pedido novo
             if info["kind"] == "idle_prompt" || (s.state == .done && e == "notification") { break }
@@ -304,9 +344,10 @@ final class AgentHub: ObservableObject {
         let now = Date()
         sessions = [
             AgentSession(id: "1", agent: .claude, cwd: "/Users/ana/apps/menew", state: .waiting, since: now.addingTimeInterval(-1800), turnStart: now.addingTimeInterval(-240),
-                         message: "Claude needs your permission to use Bash", updated: now.addingTimeInterval(-30)),
+                         message: "Claude needs your permission to use Bash", task: "Add a hover panel to the notch", step: "Bash · swift test",
+                         updated: now.addingTimeInterval(-30)),
             AgentSession(id: "2", agent: .codex, cwd: "/Users/ana/apps/api", state: .working, since: now.addingTimeInterval(-900), turnStart: now.addingTimeInterval(-420),
-                         updated: now.addingTimeInterval(-5)),
+                         task: "Fix the login timeout", step: "Edit · session.ts", updated: now.addingTimeInterval(-5)),
             AgentSession(id: "3", agent: .claude, cwd: "/Users/ana/apps/site", state: .done, since: now.addingTimeInterval(-5400), turnStart: now.addingTimeInterval(-700),
                          updated: now.addingTimeInterval(-120)),
         ]
@@ -328,13 +369,13 @@ enum AgentHooks {
         }
     }
 
-    /// Só o que o Menew precisa: começo e fim de cada pedido, ferramentas (para saber que voltou a trabalhar
-    /// depois de uma permissão) e os pedidos de atenção
+    /// Só o que o Menew precisa: começo e fim de cada pedido, antes e depois de cada ferramenta (o passo de agora, e
+    /// saber que voltou a trabalhar depois de uma permissão) e os pedidos de atenção
     static func events(_ a: AgentKind) -> [String] {
         switch a {
-        case .claude: ["SessionStart", "UserPromptSubmit", "PostToolUse", "Notification", "Stop", "SessionEnd"]
-        case .codex: ["SessionStart", "UserPromptSubmit", "PostToolUse", "PermissionRequest", "Stop", "SessionEnd"]
-        case .gemini: ["SessionStart", "BeforeAgent", "AfterTool", "Notification", "AfterAgent", "SessionEnd"]
+        case .claude: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Notification", "Stop", "SessionEnd"]
+        case .codex: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest", "Stop", "SessionEnd"]
+        case .gemini: ["SessionStart", "BeforeAgent", "BeforeTool", "AfterTool", "Notification", "AfterAgent", "SessionEnd"]
         }
     }
 

@@ -1927,4 +1927,6 @@ private let table: [String: [String]] = [
     "Agentes de IA": ["AI agents", "KI-Agenten", "Agentes de IA", "AI 智能体"],
     "Quantos agentes trabalham e quem espera você, com um botão para abrir o terminal. Precisa dos avisos ligados em Agentes de IA.": ["How many agents are working and who is waiting for you, with a button to open the terminal. Needs notices turned on in AI agents.", "Wie viele Agenten arbeiten und wer auf dich wartet, mit einer Taste zum Öffnen des Terminals. Hinweise müssen unter KI-Agenten an sein.", "Cuántos agentes trabajan y quién te espera, con un botón para abrir la terminal. Necesita los avisos activados en Agentes de IA.", "显示有几个智能体在工作、谁在等你，并可一键打开终端。需在“AI 智能体”中开启提醒。"],
     "Uso, limites e quem espera você": ["Usage, limits and who is waiting for you", "Nutzung, Limits und wer auf dich wartet", "Uso, límites y quién te espera", "用量、限额以及谁在等你"],
+    "Hoje %@ tokens": ["Today %@ tokens", "Heute %@ Tokens", "Hoy %@ tokens", "今天 %@ token"],
+    "Abrir Agentes de IA": ["Open AI agents", "KI-Agenten öffnen", "Abrir Agentes de IA", "打开 AI 智能体"],
 ]

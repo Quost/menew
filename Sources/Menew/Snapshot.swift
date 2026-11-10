@@ -243,6 +243,15 @@ enum Snapshot {
                         .padding(.bottom, 18).frame(width: 560)
                         .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
                        size: NSSize(width: 560, height: 168), dark: dark, to: dir.appendingPathComponent("notch-call-\(suffix).png"))
+                // Notch com agentes de IA trabalhando: o passo de cada um e o uso de hoje
+                let am = NotchHoverModel()
+                am.shown = true
+                am.agents = Array(AgentHub.shared.active().prefix(3))
+                am.usageLine = NotchHoverModel.usage()
+                render(NotchHoverView(model: am, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 150 + CGFloat(am.agents.count) * 40 + 30)
+                        .padding(.bottom, 18).frame(width: 560)
+                        .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                       size: NSSize(width: 560, height: 168 + CGFloat(am.agents.count) * 40 + 30), dark: dark, to: dir.appendingPathComponent("notch-agents-\(suffix).png"))
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),

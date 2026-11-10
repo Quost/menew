@@ -89,7 +89,9 @@ final class NotchHover: NSObject {
         model.mode = m
         model.refresh()
         // A linha "depois:" da reunião seguinte pede um pouco mais de altura
-        let size = m == .hover ? NSSize(width: 480, height: model.after != nil ? 172 : 150) : NSSize(width: 360, height: 110)
+        // Cada agente ativo ganha uma linha, e o uso de hoje, outra
+        let agentsH: CGFloat = model.agents.isEmpty ? 0 : CGFloat(model.agents.count) * 40 + 30
+        let size = m == .hover ? NSSize(width: 480, height: (model.after != nil ? 172 : 150) + agentsH) : NSSize(width: 360, height: 110)
         let frame = NSRect(x: s.frame.midX - size.width / 2, y: s.frame.maxY - size.height, width: size.width, height: size.height)
         let p = panel ?? makePanel()
         panel = p
@@ -141,6 +143,9 @@ final class NotchHoverModel: ObservableObject {
     @Published var captionsOn = false
     /// A reunião depois da próxima, para planejar sem abrir o Calendário
     @Published var after: Meeting?
+    /// Agentes de IA trabalhando, esperando você ou que terminaram há pouco (até 3)
+    @Published var agents: [AgentSession] = []
+    @Published var usageLine: String?
 
     func refresh() {
         let now = Date()
@@ -153,6 +158,20 @@ final class NotchHoverModel: ObservableObject {
         focusEnd = FocusTimer.shared.isRunning ? FocusTimer.shared.endsAt : nil
         micMuted = AudioControl.isMuted(input: true)
         recordingSince = RecordingStore.shared.isRecording ? RecordingStore.shared.startedAt : nil
+        agents = Array(AgentHub.shared.active(now: now).prefix(3))
+        usageLine = agents.isEmpty ? nil : Self.usage()
+    }
+
+    /// "Hoje 9,3 mi tokens · ~US$ 5,80 · Claude 5 h 62% · Codex 5 h 21%"
+    static func usage() -> String {
+        let u = AgentUsageStore.shared
+        let t = u.totals(since: Calendar.current.startOfDay(for: Date()))
+        var parts = [L("Hoje %@ tokens", AgentsView.tokens(t.tokens))]
+        if t.cost > 0 { parts.append("~" + AgentsView.money(t.cost)) }
+        for a in AgentKind.allCases {
+            if let w = u.limits[a]?.first { parts.append("\(a.short) \(w.label) \(Int(w.usedPercent.rounded()))%") }
+        }
+        return parts.joined(separator: " · ")
     }
 }
 
@@ -194,9 +213,51 @@ struct NotchHoverView: View {
         }
     }
 
+    // Agentes de IA: o que cada um está fazendo agora
+    private var agentsBlock: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(model.agents) { s in
+                Button { NotchHover.run { AgentHub.shared.focus(s) } } label: {
+                    HStack(spacing: 9) {
+                        Image(systemName: s.agent.icon).font(.system(size: 10, weight: .bold)).foregroundStyle(.white)
+                            .frame(width: 22, height: 22).background(RoundedRectangle(cornerRadius: 6).fill(s.agent.color.gradient))
+                        VStack(alignment: .leading, spacing: 1) {
+                            HStack(spacing: 6) {
+                                Text(s.project).font(.system(size: 12, weight: .semibold)).lineLimit(1)
+                                Circle().fill(s.state == .waiting ? Color.orange : s.state == .working ? .blue : .green).frame(width: 6, height: 6)
+                                Text(s.stateTitle).font(.system(size: 10.5, weight: .medium))
+                                    .foregroundStyle(s.state == .waiting ? Color.orange : .white.opacity(0.6))
+                            }
+                            Text(s.state == .waiting ? (s.message ?? s.step ?? "") : (s.step ?? s.task ?? s.agent.name))
+                                .font(.system(size: 11)).foregroundStyle(.white.opacity(0.65)).lineLimit(1).truncationMode(.middle)
+                        }
+                        Spacer(minLength: 6)
+                        if s.state == .working, let t = s.turnStart {
+                            Text(t, style: .timer).font(.system(size: 11.5, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.7))
+                        }
+                        Image(systemName: "terminal.fill").font(.system(size: 11)).foregroundStyle(.white.opacity(0.7))
+                            .frame(width: 26, height: 22).background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.12)))
+                    }
+                    .frame(height: 36)
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .help(s.task ?? s.project)
+            }
+            if let u = model.usageLine {
+                Button { NotchHover.run { MenewWindow.shared.show(.agents) } } label: {
+                    Label(u, systemImage: "chart.bar.fill").font(.system(size: 10.5, weight: .medium)).foregroundStyle(.white.opacity(0.55)).lineLimit(1)
+                }
+                .buttonStyle(.plain)
+                .help(L("Abrir Agentes de IA"))
+            }
+        }
+    }
+
     // Passando o mouse: o que vem agora e atalhos
     private var hover: some View {
         VStack(alignment: .leading, spacing: 10) {
+            if !model.agents.isEmpty { agentsBlock }
             HStack(spacing: 12) {
                 if let m = model.meeting {
                     HStack(spacing: 8) {

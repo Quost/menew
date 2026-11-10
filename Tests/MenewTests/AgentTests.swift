@@ -144,6 +144,14 @@ final class AgentHooksTests: XCTestCase {
         XCTAssertEqual(group["matcher"] as? String, "*")
     }
 
+    func testStepSummary() {
+        XCTAssertEqual(AgentHookCommand.step(["tool_name": "Edit", "tool_input": ["file_path": "/a/b/AgentsView.swift"]]), "Edit · AgentsView.swift")
+        XCTAssertEqual(AgentHookCommand.step(["tool_name": "Bash", "tool_input": ["command": "swift test\nmore", "description": "Run the tests"]]), "Bash · Run the tests")
+        XCTAssertEqual(AgentHookCommand.step(["tool_name": "shell", "tool_input": ["command": ["bash", "-lc", "npm test"]]]), "shell · npm test")
+        XCTAssertEqual(AgentHookCommand.step(["tool_name": "mcp__menew__search_notes", "tool_input": [:]]), "menew · search_notes")
+        XCTAssertNil(AgentHookCommand.step([:]))
+    }
+
     func testProcessListParsing() {
         let ps = """
           101 /Users/ana/.local/bin/claude --resume
