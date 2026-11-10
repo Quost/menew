@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   release:
-    # macOS 26 traz o Xcode 26 (SDK com Liquid Glass)
+    # macOS 26 com o Xcode 27 escolhido abaixo (SDK do macOS 27)
     runs-on: macos-26
     env:
       HAS_CERT: ${{ secrets.DEVELOPER_ID_P12 != '' }}
@@ -43,6 +43,16 @@ jobs:
           security list-keychains -d user -s "$KC" $(security list-keychains -d user | tr -d '"')
           IDENTITY=$(security find-identity -v -p codesigning "$KC" | grep "Developer ID Application" | head -1 | sed -E 's/.*"(.*)"/\1/')
           echo "SIGN_IDENTITY=$IDENTITY" >> "$GITHUB_ENV"
+
+      # O SDK do macOS 27 é obrigatório: compilada com o Xcode 26, a extensão de widgets cai ao abrir no macOS 27
+      # (fica fora da galeria de widgets). Sem o Xcode 27 na imagem, para aqui em vez de publicar widgets quebrados.
+      - name: Xcode 27
+        run: |
+          X=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1)
+          [ -n "$X" ] || { echo "::error::Xcode 27 não está nesta imagem do runner"; ls -d /Applications/Xcode*.app; exit 1; }
+          sudo xcode-select -s "$X"
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
 
       - name: Compilar
         run: UNIVERSAL=1 ./build.sh --dmg
