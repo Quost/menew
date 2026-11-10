@@ -144,12 +144,23 @@ final class AgentHooksTests: XCTestCase {
         XCTAssertEqual(group["matcher"] as? String, "*")
     }
 
-    func testStepSummary() {
-        XCTAssertEqual(AgentHookCommand.step(["tool_name": "Edit", "tool_input": ["file_path": "/a/b/AgentsView.swift"]]), "Edit · AgentsView.swift")
-        XCTAssertEqual(AgentHookCommand.step(["tool_name": "Bash", "tool_input": ["command": "swift test\nmore", "description": "Run the tests"]]), "Bash · Run the tests")
-        XCTAssertEqual(AgentHookCommand.step(["tool_name": "shell", "tool_input": ["command": ["bash", "-lc", "npm test"]]]), "shell · npm test")
-        XCTAssertEqual(AgentHookCommand.step(["tool_name": "mcp__menew__search_notes", "tool_input": [:]]), "menew · search_notes")
+    func testStepFromHook() {
+        let e = AgentHookCommand.step(["tool_name": "Edit", "tool_input": ["file_path": "/a/b/AgentsView.swift"]])
+        XCTAssertEqual(e?.tool, "Edit")
+        XCTAssertEqual(e?.detail, "AgentsView.swift")
+        XCTAssertEqual(AgentHookCommand.step(["tool_name": "Bash", "tool_input": ["command": "swift test\nmore", "description": "Run the tests"]])?.detail, "Run the tests")
+        XCTAssertEqual(AgentHookCommand.step(["tool_name": "shell", "tool_input": ["command": ["bash", "-lc", "npm test"]]])?.detail, "npm test")
         XCTAssertNil(AgentHookCommand.step([:]))
+    }
+
+    func testStepText() {
+        XCTAssertEqual(AgentStep.clean("cd /private/tmp/x && FOO=1 /usr/bin/git commit -m x"), "git commit -m x")
+        XCTAssertEqual(AgentStep.clean("cd a && cd b"), "cd b")
+        XCTAssertEqual(AgentStep.text(tool: "Bash", detail: "cd /tmp/x && swift test"), L("Rodando") + " swift test")
+        XCTAssertEqual(AgentStep.text(tool: "Edit", detail: "Notch.swift"), L("Editando") + " Notch.swift")
+        XCTAssertEqual(AgentStep.text(tool: "mcp__menew__search_notes", detail: nil), "menew: search_notes")
+        XCTAssertEqual(AgentStep.duration(252), "4 min 12 s")
+        XCTAssertEqual(AgentStep.duration(40), "40 s")
     }
 
     func testProcessListParsing() {

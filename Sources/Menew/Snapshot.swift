@@ -247,11 +247,24 @@ enum Snapshot {
                 let am = NotchHoverModel()
                 am.shown = true
                 am.agents = Array(AgentHub.shared.active().prefix(3))
-                am.usageLine = NotchHoverModel.usage()
-                render(NotchHoverView(model: am, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 150 + CGFloat(am.agents.count) * 40 + 30)
-                        .padding(.bottom, 18).frame(width: 560)
+                am.limitRows = AgentLimitRow.current()
+                render(NotchHoverView(model: am, notch: CGSize(width: 200, height: 37)).frame(width: 540, height: 150 + am.agentsHeight)
+                        .padding(.bottom, 18).frame(width: 600)
                         .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
-                       size: NSSize(width: 560, height: 168 + CGFloat(am.agents.count) * 40 + 30), dark: dark, to: dir.appendingPathComponent("notch-agents-\(suffix).png"))
+                       size: NSSize(width: 600, height: 168 + am.agentsHeight), dark: dark, to: dir.appendingPathComponent("notch-agents-\(suffix).png"))
+                // O notch fechado e os avisos de agente
+                for (name, act) in [("agents-working", NotchCenter.Activity.agents(working: 2, waiting: 0)),
+                                    ("agents-waiting", .agents(working: 1, waiting: 1)),
+                                    ("agent-done", .agentEvent(id: "3", agent: .claude, project: "site", waiting: false, line: "Update the pricing page", duration: 252)),
+                                    ("agent-waiting", .agentEvent(id: "1", agent: .claude, project: "menew", waiting: true, line: L("Pede permissão: %@", "\(L("Rodando")) swift test"), duration: nil))] {
+                    let c = NotchCenter()
+                    c.showDemo(act)
+                    let tall: Bool = { if case .agentEvent = act { return true }; return false }()
+                    render(NotchView(center: c, notch: CGSize(width: 200, height: 37)).frame(width: 550, height: tall ? 75 : 37)
+                            .padding(.bottom, 12).frame(width: 600)
+                            .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                           size: NSSize(width: 600, height: tall ? 87 : 49), dark: dark, to: dir.appendingPathComponent("notch-\(name)-\(suffix).png"))
+                }
                 // Notch: três momentos, sobre um fundo de barra de menus
                 for (name, act) in [("meeting", NotchCenter.Activity.meeting(title: L("Alinhamento semanal"), start: Date().addingTimeInterval(95), hasLink: true)),
                                     ("timer", .timer(label: L("Chá"), end: Date().addingTimeInterval(9 * 60 + 41))),

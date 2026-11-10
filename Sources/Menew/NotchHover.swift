@@ -89,9 +89,9 @@ final class NotchHover: NSObject {
         model.mode = m
         model.refresh()
         // A linha "depois:" da reunião seguinte pede um pouco mais de altura
-        // Cada agente ativo ganha uma linha, e o uso de hoje, outra
-        let agentsH: CGFloat = model.agents.isEmpty ? 0 : CGFloat(model.agents.count) * 40 + 30
-        let size = m == .hover ? NSSize(width: 480, height: (model.after != nil ? 172 : 150) + agentsH) : NSSize(width: 360, height: 110)
+        // Cada agente ativo ganha uma linha, e cada ferramenta com limite ou uso hoje, outra
+        let size = m == .hover ? NSSize(width: model.agentsHeight > 0 ? 540 : 480, height: (model.after != nil ? 172 : 150) + model.agentsHeight)
+                               : NSSize(width: 360, height: 110)
         let frame = NSRect(x: s.frame.midX - size.width / 2, y: s.frame.maxY - size.height, width: size.width, height: size.height)
         let p = panel ?? makePanel()
         panel = p
@@ -143,9 +143,17 @@ final class NotchHoverModel: ObservableObject {
     @Published var captionsOn = false
     /// A reunião depois da próxima, para planejar sem abrir o Calendário
     @Published var after: Meeting?
-    /// Agentes de IA trabalhando, esperando você ou que terminaram há pouco (até 3)
+    /// Agentes de IA trabalhando, esperando você ou que terminaram há pouco (até 3), e quantos mais
     @Published var agents: [AgentSession] = []
-    @Published var usageLine: String?
+    @Published var moreAgents = 0
+    /// Uma linha por ferramenta: as janelas do plano e o uso de hoje
+    @Published var limitRows: [AgentLimitRow] = []
+
+    /// A altura que os agentes acrescentam ao painel
+    var agentsHeight: CGFloat {
+        guard !agents.isEmpty || !limitRows.isEmpty else { return 0 }
+        return CGFloat(agents.count) * 42 + (moreAgents > 0 ? 18 : 0) + (limitRows.isEmpty ? 0 : CGFloat(limitRows.count) * 42 + 18) + 10
+    }
 
     func refresh() {
         let now = Date()
@@ -158,20 +166,10 @@ final class NotchHoverModel: ObservableObject {
         focusEnd = FocusTimer.shared.isRunning ? FocusTimer.shared.endsAt : nil
         micMuted = AudioControl.isMuted(input: true)
         recordingSince = RecordingStore.shared.isRecording ? RecordingStore.shared.startedAt : nil
-        agents = Array(AgentHub.shared.active(now: now).prefix(3))
-        usageLine = agents.isEmpty ? nil : Self.usage()
-    }
-
-    /// "Hoje 9,3 mi tokens · ~US$ 5,80 · Claude 5 h 62% · Codex 5 h 21%"
-    static func usage() -> String {
-        let u = AgentUsageStore.shared
-        let t = u.totals(since: Calendar.current.startOfDay(for: Date()))
-        var parts = [L("Hoje %@ tokens", AgentsView.tokens(t.tokens))]
-        if t.cost > 0 { parts.append("~" + AgentsView.money(t.cost)) }
-        for a in AgentKind.allCases {
-            if let w = u.limits[a]?.first { parts.append("\(a.short) \(w.label) \(Int(w.usedPercent.rounded()))%") }
-        }
-        return parts.joined(separator: " · ")
+        let active = AgentHub.shared.active(now: now)
+        agents = Array(active.prefix(3))
+        moreAgents = max(0, active.count - 3)
+        limitRows = agents.isEmpty ? [] : AgentLimitRow.current()
     }
 }
 
@@ -213,45 +211,116 @@ struct NotchHoverView: View {
         }
     }
 
-    // Agentes de IA: o que cada um está fazendo agora
+    // Agentes de IA: o que cada um está fazendo agora, e os limites
     private var agentsBlock: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ForEach(model.agents) { s in
-                Button { NotchHover.run { AgentHub.shared.focus(s) } } label: {
-                    HStack(spacing: 9) {
-                        Image(systemName: s.agent.icon).font(.system(size: 10, weight: .bold)).foregroundStyle(.white)
-                            .frame(width: 22, height: 22).background(RoundedRectangle(cornerRadius: 6).fill(s.agent.color.gradient))
-                        VStack(alignment: .leading, spacing: 1) {
-                            HStack(spacing: 6) {
-                                Text(s.project).font(.system(size: 12, weight: .semibold)).lineLimit(1)
-                                Circle().fill(s.state == .waiting ? Color.orange : s.state == .working ? .blue : .green).frame(width: 6, height: 6)
-                                Text(s.stateTitle).font(.system(size: 10.5, weight: .medium))
-                                    .foregroundStyle(s.state == .waiting ? Color.orange : .white.opacity(0.6))
-                            }
-                            Text(s.state == .waiting ? (s.message ?? s.step ?? "") : (s.step ?? s.task ?? s.agent.name))
-                                .font(.system(size: 11)).foregroundStyle(.white.opacity(0.65)).lineLimit(1).truncationMode(.middle)
-                        }
-                        Spacer(minLength: 6)
-                        if s.state == .working, let t = s.turnStart {
-                            Text(t, style: .timer).font(.system(size: 11.5, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.7))
-                        }
-                        Image(systemName: "terminal.fill").font(.system(size: 11)).foregroundStyle(.white.opacity(0.7))
-                            .frame(width: 26, height: 22).background(RoundedRectangle(cornerRadius: 6).fill(.white.opacity(0.12)))
-                    }
-                    .frame(height: 36)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .help(s.task ?? s.project)
-            }
-            if let u = model.usageLine {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(model.agents) { s in agentRow(s) }
+            if model.moreAgents > 0 {
                 Button { NotchHover.run { MenewWindow.shared.show(.agents) } } label: {
-                    Label(u, systemImage: "chart.bar.fill").font(.system(size: 10.5, weight: .medium)).foregroundStyle(.white.opacity(0.55)).lineLimit(1)
+                    Text(L("e mais %d", model.moreAgents)).font(.system(size: 11)).foregroundStyle(.white.opacity(0.5))
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(.plain).padding(.leading, 34)
+            }
+            if !model.limitRows.isEmpty {
+                VStack(spacing: 9) {
+                    ForEach(model.limitRows) { r in limitRow(r) }
+                }
+                .padding(.horizontal, 10).padding(.vertical, 8)
+                .background(RoundedRectangle(cornerRadius: 10).fill(.white.opacity(0.07)))
+                .contentShape(Rectangle())
+                .onTapGesture { NotchHover.run { MenewWindow.shared.show(.agents) } }
                 .help(L("Abrir Agentes de IA"))
+                .padding(.top, 6)
             }
         }
+    }
+
+    private func agentRow(_ s: AgentSession) -> some View {
+        Button { NotchHover.run { AgentHub.shared.focus(s) } } label: {
+            HStack(spacing: 10) {
+                NotchView.agentBadge(s.agent, state: s.state, size: 24)
+                VStack(alignment: .leading, spacing: 2) {
+                    HStack(spacing: 6) {
+                        Text(s.project).font(.system(size: 12.5, weight: .semibold)).lineLimit(1).layoutPriority(1)
+                        if let t = s.task {
+                            Text(t).font(.system(size: 11.5)).foregroundStyle(.white.opacity(0.45)).lineLimit(1)
+                        }
+                    }
+                    HStack(spacing: 5) {
+                        switch s.state {
+                        case .waiting:
+                            Image(systemName: "hand.raised.fill").font(.system(size: 9.5))
+                            Text(s.waitingText).lineLimit(1).truncationMode(.middle)
+                        case .done:
+                            Image(systemName: "checkmark.circle.fill").font(.system(size: 9.5))
+                            Text(s.lastDuration.map { L("Pronto em %@", AgentStep.duration($0)) } ?? L("Pronto")).lineLimit(1)
+                        default:
+                            Image(systemName: s.stepIcon).font(.system(size: 9.5))
+                            Text(s.step ?? L("Pensando…")).lineLimit(1).truncationMode(.middle)
+                        }
+                    }
+                    .font(.system(size: 11.5))
+                    .foregroundStyle(s.state == .waiting ? Color.orange : s.state == .done ? Color.green.opacity(0.9) : .white.opacity(0.7))
+                }
+                Spacer(minLength: 8)
+                if s.state == .working, let t = s.turnStart {
+                    Text(t, style: .timer).font(.system(size: 12, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.6))
+                }
+                Image(systemName: "terminal.fill").font(.system(size: 11)).foregroundStyle(.white.opacity(0.75))
+                    .frame(width: 28, height: 24)
+                    .background(RoundedRectangle(cornerRadius: 7).fill(s.state == .waiting ? Color.orange.opacity(0.85) : .white.opacity(0.12)))
+            }
+            .frame(height: 40)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .help(s.task ?? s.project)
+    }
+
+    /// Claude                                  601 mil hoje · US$ 0,41
+    /// 5 h ▰▰▱ 62% · 10:55     Sem. ▰▱▱ 38% · sex.
+    private func limitRow(_ r: AgentLimitRow) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            HStack(spacing: 6) {
+                Image(systemName: r.agent.icon).font(.system(size: 9, weight: .bold)).foregroundStyle(r.agent.color)
+                Text(r.agent.name).font(.system(size: 11.5, weight: .semibold))
+                Spacer(minLength: 8)
+                Text(r.today).font(.system(size: 10.5, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.55)).fixedSize()
+            }
+            if r.windows.isEmpty {
+                Text(L("sem limites lidos")).font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.35)).padding(.leading, 15)
+            } else {
+                HStack(spacing: 18) {
+                    ForEach(r.windows) { w in
+                        HStack(spacing: 6) {
+                            Text(w.short).font(.system(size: 10.5, weight: .medium)).foregroundStyle(.white.opacity(0.55)).fixedSize()
+                            ZStack(alignment: .leading) {
+                                Capsule().fill(.white.opacity(0.14))
+                                Capsule().fill(Self.limitColor(w.usedPercent, base: r.agent.color)).frame(width: max(3, 56 * min(1, w.usedPercent / 100)))
+                            }
+                            .frame(width: 56, height: 5)
+                            Text("\(Int(w.usedPercent.rounded()))%").font(.system(size: 11, weight: .semibold)).monospacedDigit()
+                                .foregroundStyle(w.usedPercent >= 90 ? Color.red : w.usedPercent >= 75 ? .orange : .white).fixedSize()
+                            if let reset = w.resetsAt {
+                                Text(Self.resetShort(reset)).font(.system(size: 10)).foregroundStyle(.white.opacity(0.4)).fixedSize()
+                            }
+                        }
+                        .help(w.resetsAt.map { L("%@: zera %@", w.label, $0.formatted(.relative(presentation: .named).locale(L10n.locale))) } ?? w.label)
+                    }
+                    Spacer(minLength: 0)
+                }
+                .padding(.leading, 15)
+            }
+        }
+    }
+
+    static func limitColor(_ p: Double, base: Color) -> Color { p >= 90 ? .red : p >= 75 ? .orange : base }
+
+    /// Hoje: "14:30"; esta semana: "sex."; mais longe: "12/11"
+    static func resetShort(_ d: Date, now: Date = Date()) -> String {
+        if d.timeIntervalSince(now) < 20 * 3600 { return d.formatted(.dateTime.hour().minute().locale(L10n.locale)) }
+        if d.timeIntervalSince(now) < 6 * 86400 { return d.formatted(.dateTime.weekday(.abbreviated).locale(L10n.locale)) }
+        return d.formatted(.dateTime.day().month(.defaultDigits).locale(L10n.locale))
     }
 
     // Passando o mouse: o que vem agora e atalhos
@@ -361,5 +430,26 @@ struct NotchHoverView: View {
             .background(RoundedRectangle(cornerRadius: 10).fill(.white.opacity(0.1)))
         }
         .buttonStyle(.plain)
+    }
+}
+
+/// Uma linha do painel: as janelas do plano de uma ferramenta e quanto ela usou hoje
+struct AgentLimitRow: Identifiable, Equatable {
+    var id: String { agent.rawValue }
+    let agent: AgentKind
+    let windows: [RateWindow]
+    let today: String
+
+    @MainActor static func current() -> [AgentLimitRow] {
+        let u = AgentUsageStore.shared
+        let start = Calendar.current.startOfDay(for: Date())
+        return AgentKind.allCases.compactMap { a in
+            let t = u.totals(since: start, agent: a)
+            let windows = Array((u.limits[a] ?? []).prefix(3))
+            guard !windows.isEmpty || t.tokens > 0 else { return nil }
+            var today = L("%@ hoje", AgentsView.tokens(t.tokens))
+            if t.cost >= 0.01 { today += " · " + AgentsView.money(t.cost) }
+            return AgentLimitRow(agent: a, windows: windows, today: today)
+        }
     }
 }
