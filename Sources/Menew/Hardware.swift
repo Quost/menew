@@ -435,9 +435,18 @@ final class DisplayController: ObservableObject {
     private var followTimer: Timer?
     private var lastBuiltin: Double?
 
-    /// O brilho do externo: o da tela do Mac mais a diferença, sem apagar a tela (mínimo de 5%)
+    /// O fundo da escala da tela do Mac é quase preto; num monitor externo isso fica escuro demais.
+    /// Então os 0–100% da tela do Mac viram 25–100% no monitor.
+    nonisolated static let followFloor = 0.25
+
+    /// O brilho do externo para um brilho da tela do Mac, antes da diferença que a pessoa escolheu
+    nonisolated static func mapped(builtin: Double) -> Double {
+        followFloor + (1 - followFloor) * min(1, max(0, builtin))
+    }
+
+    /// O brilho do externo: o da tela do Mac (na escala do monitor) mais a diferença, sem apagar a tela (mínimo de 5%)
     nonisolated static func followed(builtin: Double, offset: Double) -> Double {
-        min(1, max(0.05, builtin + offset))
+        min(1, max(0.05, mapped(builtin: builtin) + offset))
     }
 
     private static var offsets: [String: Double] {
@@ -480,7 +489,7 @@ final class DisplayController: ObservableObject {
         // Mexeu no slider de um externo acompanhando a tela do Mac: guarda a diferença, e ele segue a tela com ela
         if Self.follows, let i = screens.firstIndex(where: { $0.id == id }), !screens[i].builtin, let b = builtinBrightness {
             var o = Self.offsets
-            o[monitorKey(id)] = value - b
+            o[monitorKey(id)] = value - Self.mapped(builtin: b)
             Self.offsets = o
         }
         apply(value, to: id)
