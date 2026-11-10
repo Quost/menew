@@ -161,6 +161,10 @@ final class AgentHooksTests: XCTestCase {
         XCTAssertEqual(AgentStep.text(tool: "mcp__menew__search_notes", detail: nil), "menew: search_notes")
         XCTAssertEqual(AgentStep.duration(252), "4 min 12 s")
         XCTAssertEqual(AgentStep.duration(40), "40 s")
+        XCTAssertEqual(AgentStep.task("<agent-message from=\"a99\">\nRebase docs onto develop\n</agent-message>"), "Rebase docs onto develop")
+        XCTAssertEqual(AgentStep.task("<command-name>/review</command-name>\n<command-args>PR 12</command-args>"), "/review")
+        XCTAssertEqual(AgentStep.task("Fix the a < b check"), "Fix the a < b check")
+        XCTAssertNil(AgentStep.task("<system-reminder></system-reminder>"))
     }
 
     func testProcessListParsing() {

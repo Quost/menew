@@ -28,7 +28,7 @@ enum AgentHookCommand {
             info["tool"] = tool
             info["detail"] = detail
         }
-        info["prompt"] = (obj["prompt"] as? String).map { oneLine($0, 140) }
+        info["prompt"] = (obj["prompt"] as? String).flatMap(AgentStep.task)
         let chain = ProcessTree.ancestors(of: getppid())
         if let agentPID = chain.first(where: { AgentProcesses.matches(ProcessTree.name($0), agent: agent) }) {
             info["pid"] = String(agentPID)
@@ -286,7 +286,7 @@ final class AgentHub: ObservableObject {
             s.message = nil
             s.tool = nil
             s.detail = nil
-            if let p = info["prompt"], !p.isEmpty { s.task = p }
+            if let p = info["prompt"].flatMap(AgentStep.task) { s.task = p }
         case "pretooluse", "posttooluse", "beforetool", "aftertool", "subagentstart", "subagentstop":
             if s.state != .working { s.state = .working; if s.turnStart == nil { s.turnStart = now } }
             s.message = nil
@@ -518,6 +518,15 @@ enum AgentStep {
         while let w = words.first, w.contains("="), !w.hasPrefix("-"), words.count > 1 { words.removeFirst() }
         if let w = words.first, w.contains("/"), !w.hasPrefix(".") { words[0] = String(w.split(separator: "/").last ?? Substring(w)) }
         return words.joined(separator: " ")
+    }
+
+    /// O pedido em uma linha, sem as marcas internas que alguns agentes recebem junto
+    /// (`<agent-message from="…">`, `<system-reminder>`, `<command-name>`): a primeira linha com texto de verdade
+    static func task(_ prompt: String) -> String? {
+        let noTags = prompt.replacingOccurrences(of: "<[A-Za-z/!][^>]*>", with: "\n", options: .regularExpression)
+        guard let line = noTags.split(whereSeparator: \.isNewline).map({ $0.trimmingCharacters(in: .whitespaces) }).first(where: { !$0.isEmpty })
+        else { return nil }
+        return line.count > 140 ? String(line.prefix(139)) + "…" : line
     }
 
     /// 252 → "4 min 12 s"; 40 → "40 s"; 4000 → "1 h 6 min"

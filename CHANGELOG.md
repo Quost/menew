@@ -2,7 +2,7 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## Unreleased
+## 1.99.0
 
 ### New
 - **External monitors follow the Mac display.** Turn on Settings › Windows and displays › "Monitors follow the Mac display" and, as the Mac's display gets brighter or dimmer with the room's light, external monitors follow, over the cable (DDC/CI) or by software dimming. Move a monitor's slider to keep it brighter or dimmer than the Mac display; it then follows with that difference. Off by default.
@@ -12,6 +12,7 @@ Each version's section is shown in the in-app update window and on the GitHub re
 - **MCP server.** Your agents can ask Menew: search Memory and notes, read meeting minutes and tasks, check how the Mac is doing or see agent usage, and save something to Memory, create a note or notify you. One switch adds it to Claude Code, Codex, Gemini CLI, Claude Desktop or Cursor; it runs on your Mac with no network, and each source has its own switch.
 
 ### Fixed
+- **Widgets missing on macOS 27.** Menew's widgets didn't show up in the widget gallery on macOS 27; they're back.
 - Buttons that turn something on (screen time, keep awake, presentation mode) said "Unmute" in English.
 
 ## 1.98.0
