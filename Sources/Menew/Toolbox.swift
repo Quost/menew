@@ -27,6 +27,8 @@ final class Toolbox: ObservableObject {
         hiddenFiles = Self.finderBool("AppleShowAllFiles") ?? false
         desktopIconsHidden = (Self.finderBool("CreateDesktop") ?? true) == false
         dockAutohide = Self.dockAutohideOn
+        // Monitores externos acompanhando o brilho da tela do Mac, se ligado
+        displays.updateFollowing()
         // Acompanha o modo escuro mesmo quando ele muda fora do Menew
         DistributedNotificationCenter.default().addObserver(forName: Notification.Name("AppleInterfaceThemeChangedNotification"),
                                                             object: nil, queue: .main) { [weak self] _ in

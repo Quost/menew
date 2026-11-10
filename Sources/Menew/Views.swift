@@ -715,6 +715,7 @@ struct SettingsView: View {
     @AppStorage("appearance") private var appearance = AppAppearance.system.rawValue
     @AppStorage("language") private var language = "auto"
     @AppStorage("autoPaste") private var autoPaste = true
+    @AppStorage(ScreenCapture.memoryKey) private var capturesToMemory = true
     @AppStorage(TextExpander.key) private var textExpander = false
     @AppStorage("maxItems") private var maxItems = 300
     @AppStorage("autoDeleteDays") private var autoDeleteDays = 0
@@ -729,6 +730,7 @@ struct SettingsView: View {
     @AppStorage(ScreenTime.key) private var screenTimeOn = false
     @AppStorage(SpotlightNotes.key) private var spotlightNotes = true
     @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
+    @AppStorage(DisplayController.followKey) private var followBuiltin = false
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var axTrusted = AXIsProcessTrusted()
@@ -829,6 +831,10 @@ struct SettingsView: View {
                     RowDivider()
                     ToggleRow(title: L("Ignorar senhas (1Password, Keychain…)"), isOn: $ignoreConcealed)
                     RowDivider()
+                    ToggleRow(title: L("Guardar na Memória os prints copiados"),
+                              detail: L("Ao copiar uma captura do Menew (⌃⌥⌘S), ela também vai para a Memória, com o app e o link de onde veio, para achar depois perguntando."),
+                              isOn: $capturesToMemory)
+                    RowDivider()
                     ToggleRow(title: L("Buscar texto dentro das imagens"),
                               detail: L("O Menew lê o texto dos prints e imagens copiados, no Mac, para achar pela busca."),
                               isOn: $clipboardOCR)
@@ -920,6 +926,11 @@ struct SettingsView: View {
                                   detail: L("Ajusta o brilho pelo cabo (DDC/CI). Se um monitor perder o sinal, o Menew passa a escurecê-lo por software sozinho; desligue e ligue aqui para tentar o cabo de novo."),
                                   isOn: $ddcBrightness)
                             .onChange(of: ddcBrightness) { _, on in if on { DisplayController.resetUnstable() } }
+                        RowDivider()
+                        ToggleRow(title: L("Monitores acompanham a tela do Mac"),
+                                  detail: L("Quando a tela do Mac clareia ou escurece com a luz do ambiente, os monitores externos acompanham. Mexa no brilho de um monitor para deixá-lo mais claro ou mais escuro que a tela do Mac."),
+                                  isOn: $followBuiltin)
+                            .onChange(of: followBuiltin) { _, _ in (NSApp.delegate as? AppDelegate)?.toolbox.displays.updateFollowing() }
                 }
                 }
 

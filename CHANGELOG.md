@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### New
+- **External monitors follow the Mac display.** Turn on Settings › Windows and displays › "Monitors follow the Mac display" and, as the Mac's display gets brighter or dimmer with the room's light, external monitors follow, over the cable (DDC/CI) or by software dimming. Move a monitor's slider to keep it brighter or dimmer than the Mac display; it then follows with that difference. Off by default.
+- **Download a recording.** A new Export menu in Recordings saves the audio as one .m4a (your voice and the Mac's audio mixed, light enough to send: about 30 MB per hour) or a .zip with the audio and the minutes in Markdown.
+- **Copied captures go to Memory.** When you copy a capture from Menew (⌃⌥⌘S), it's also saved to Memory with the app and link it came from, so you can find it later by asking. Turn it off in Settings › Clipboard.
+
 ## 1.98.0
 
 ### New

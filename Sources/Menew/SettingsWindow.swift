@@ -66,7 +66,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
         case .general: [L("Aparência"), L("Tema"), L("Idioma"), L("Módulos"), L("Clipboard"), L("Ações"), L("Notas"), L("Foco"), L("Filtros de Foco")]
         case .menubar: [L("Barra de menus"), L("Abrir ao iniciar o Mac"), "CPU", "RAM"]
         case .clipboard: [L("Colar automaticamente ao escolher"), L("Expandir abreviações dos snippets ao digitar"), L("Pausar captura"),
-                          L("Ignorar senhas (1Password, Keychain…)"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
+                          L("Ignorar senhas (1Password, Keychain…)"), L("Guardar na Memória os prints copiados"), L("Buscar texto dentro das imagens"), L("Apagar itens com mais de"),
                           L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
                           L("Capturar tela"), L("Guardar na memória"), L("Reescrever texto selecionado"), L("Atalhos")]

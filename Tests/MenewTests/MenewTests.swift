@@ -241,3 +241,16 @@ final class DDCBlameTests: XCTestCase {
         XCTAssertTrue(DisplayController.dropped(probes, online: [1, 2, 3], now: now).isEmpty)
     }
 }
+
+// MARK: Brilho acompanhando a tela do Mac
+
+final class FollowBrightnessTests: XCTestCase {
+    func testMonitorFollowsTheMacDisplayWithItsOwnOffset() {
+        XCTAssertEqual(DisplayController.followed(builtin: 0.6, offset: 0), 0.6, accuracy: 0.0001)
+        // Deixado 20% mais claro: segue a tela, sempre 20% acima
+        XCTAssertEqual(DisplayController.followed(builtin: 0.5, offset: 0.2), 0.7, accuracy: 0.0001)
+        // Nunca passa de 100% nem apaga a tela
+        XCTAssertEqual(DisplayController.followed(builtin: 0.95, offset: 0.2), 1, accuracy: 0.0001)
+        XCTAssertEqual(DisplayController.followed(builtin: 0.1, offset: -0.3), 0.05, accuracy: 0.0001)
+    }
+}

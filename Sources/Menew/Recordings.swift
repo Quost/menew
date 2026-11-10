@@ -1,5 +1,6 @@
 import AppKit
 import AVFoundation
+import UniformTypeIdentifiers
 import ScreenCaptureKit
 import Speech
 import SwiftUI
@@ -643,6 +644,128 @@ final class RecordingStore: NSObject, ObservableObject {
         if let dir { for f in [r.micFile, r.systemFile].compactMap({ $0 }) { try? FileManager.default.removeItem(at: dir.appendingPathComponent(f)) } }
         items.removeAll { $0.id == id }
         save()
+    }
+
+    // MARK: Exportar
+
+    /// Um nome de arquivo a partir do título, sem caracteres que o Finder recusa
+    nonisolated static func fileName(_ title: String, date: Date) -> String {
+        let clean = title.components(separatedBy: CharacterSet(charactersIn: "/:\\?%*|\"<>")).joined(separator: "-")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let day = date.formatted(.iso8601.year().month().day())
+        return String((clean.isEmpty ? "Gravação" : clean).prefix(80)) + " " + day
+    }
+
+    /// O áudio num arquivo só: a sua voz e o som do Mac juntos (as duas faixas tocam ao mesmo tempo)
+    func mixedAudio(_ id: UUID) async -> URL? {
+        guard let r = items.first(where: { $0.id == id }), let dir else { return nil }
+        let files = [r.micFile, r.systemFile].compactMap { $0 }.map { dir.appendingPathComponent($0) }
+            .filter { FileManager.default.fileExists(atPath: $0.path) }
+        guard !files.isEmpty else { return nil }
+        let out = FileManager.default.temporaryDirectory.appendingPathComponent("menew-audio-\(UUID().uuidString).m4a")
+        let comp = AVMutableComposition()
+        var params: [AVMutableAudioMixInputParameters] = []
+        for f in files {
+            let asset = AVURLAsset(url: f)
+            guard let src = try? await asset.loadTracks(withMediaType: .audio).first,
+                  let duration = try? await asset.load(.duration),
+                  let track = comp.addMutableTrack(withMediaType: .audio, preferredTrackID: kCMPersistentTrackID_Invalid),
+                  (try? track.insertTimeRange(CMTimeRange(start: .zero, duration: duration), of: src, at: .zero)) != nil else { continue }
+            params.append(AVMutableAudioMixInputParameters(track: track))
+        }
+        let mix = AVMutableAudioMix()
+        mix.inputParameters = params
+        // Voz em AAC mono 64 kbps: ~30 MB por hora, em vez de ~100 MB em qualidade de música
+        return await Self.writeVoice(comp, mix: mix, to: out) ? out : nil
+    }
+
+    /// Mistura as faixas e grava em AAC mono 64 kbps (bom para voz e leve para mandar)
+    nonisolated static func writeVoice(_ asset: AVAsset, mix: AVAudioMix?, to out: URL) async -> Bool {
+        guard let tracks = try? await asset.loadTracks(withMediaType: .audio), !tracks.isEmpty,
+              let reader = try? AVAssetReader(asset: asset),
+              let writer = try? AVAssetWriter(outputURL: out, fileType: .m4a) else { return false }
+        let output = AVAssetReaderAudioMixOutput(audioTracks: tracks, audioSettings: [
+            AVFormatIDKey: kAudioFormatLinearPCM, AVSampleRateKey: 44_100, AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 16, AVLinearPCMIsFloatKey: false, AVLinearPCMIsBigEndianKey: false,
+        ])
+        output.audioMix = mix
+        let input = AVAssetWriterInput(mediaType: .audio, outputSettings: [
+            AVFormatIDKey: kAudioFormatMPEG4AAC, AVSampleRateKey: 44_100, AVNumberOfChannelsKey: 1, AVEncoderBitRateKey: 64_000,
+        ])
+        input.expectsMediaDataInRealTime = false
+        guard reader.canAdd(output), writer.canAdd(input) else { return false }
+        reader.add(output)
+        writer.add(input)
+        guard reader.startReading(), writer.startWriting() else { return false }
+        writer.startSession(atSourceTime: .zero)
+        // Lê e grava em lotes até acabar (sem tempo real: é rápido)
+        while reader.status == .reading {
+            if input.isReadyForMoreMediaData {
+                guard let buffer = output.copyNextSampleBuffer() else { break }
+                if !input.append(buffer) { break }
+            } else {
+                try? await Task.sleep(for: .milliseconds(5))
+            }
+        }
+        input.markAsFinished()
+        await writer.finishWriting()
+        return writer.status == .completed && reader.status != .failed
+    }
+
+    /// Salva o áudio da gravação onde você escolher
+    func saveAudio(_ id: UUID) {
+        guard let r = items.first(where: { $0.id == id }) else { return }
+        Task {
+            guard let audio = await mixedAudio(id) else {
+                HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("Não achei o áudio desta gravação"), duration: 2.5)
+                return
+            }
+            defer { try? FileManager.default.removeItem(at: audio) }
+            guard let dest = Self.askDestination(Self.fileName(r.title, date: r.date) + ".m4a", type: .mpeg4Audio) else { return }
+            try? FileManager.default.removeItem(at: dest)
+            if (try? FileManager.default.copyItem(at: audio, to: dest)) != nil {
+                HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Áudio salvo"))
+            }
+        }
+    }
+
+    /// Um .zip com o áudio e a ata (Markdown), pronto para mandar ou arquivar
+    func saveBundle(_ id: UUID) {
+        guard let r = items.first(where: { $0.id == id }) else { return }
+        Task {
+            let name = Self.fileName(r.title, date: r.date)
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("menew-export-\(UUID().uuidString)").appendingPathComponent(name)
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            defer { try? FileManager.default.removeItem(at: folder.deletingLastPathComponent()) }
+            try? r.markdown.write(to: folder.appendingPathComponent(L("Ata") + ".md"), atomically: true, encoding: .utf8)
+            if let audio = await mixedAudio(id) {
+                try? FileManager.default.moveItem(at: audio, to: folder.appendingPathComponent(L("Áudio") + ".m4a"))
+            }
+            let zip = folder.deletingLastPathComponent().appendingPathComponent(name + ".zip")
+            // ditto é o mesmo que o Finder usa em "Comprimir"
+            let ok = await Task.detached { () -> Bool in
+                let p = Process()
+                p.executableURL = URL(fileURLWithPath: "/usr/bin/ditto")
+                p.arguments = ["-c", "-k", "--sequesterRsrc", "--keepParent", folder.path, zip.path]
+                guard (try? p.run()) != nil else { return false }
+                p.waitUntilExit()
+                return p.terminationStatus == 0
+            }.value
+            guard ok, let dest = Self.askDestination(name + ".zip", type: .zip) else { return }
+            try? FileManager.default.removeItem(at: dest)
+            if (try? FileManager.default.copyItem(at: zip, to: dest)) != nil {
+                HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Áudio e ata salvos"))
+            }
+        }
+    }
+
+    private static func askDestination(_ name: String, type: UTType) -> URL? {
+        let panel = NSSavePanel()
+        panel.nameFieldStringValue = name
+        panel.allowedContentTypes = [type]
+        panel.directoryURL = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+        NSApp.activate(ignoringOtherApps: true)
+        return panel.runModal() == .OK ? panel.url : nil
     }
 
     func audioURL(_ r: Recording) -> URL? {
