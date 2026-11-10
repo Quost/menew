@@ -95,6 +95,17 @@ if [ -n "${VERSION:-}" ]; then
   plutil -replace CFBundleVersion -string "$(plutil -extract CFBundleVersion raw "$APP/Contents/Info.plist")" "$APPEX/Contents/Info.plist"
 fi
 
+# O build universal (XCBuild) grava como SDK o deployment target (14.0), não o SDK de verdade. Com isso o macOS
+# roda o app em modo de compatibilidade e, no macOS 27, a extensão de widgets cai ao abrir (some da galeria).
+# Grava o SDK real nos dois executáveis, antes de assinar.
+if [ "${UNIVERSAL:-0}" = 1 ]; then
+  REAL_SDK=$(xcrun --sdk macosx --show-sdk-version)
+  for BIN in "$APP/Contents/MacOS/Menew" "$APPEX/Contents/MacOS/MenewWidgets"; do
+    vtool -set-build-version macos 14.0 "$REAL_SDK" -replace -output "$BIN.sdk" "$BIN"
+    mv "$BIN.sdk" "$BIN"
+  done
+fi
+
 # Assina de dentro para fora: partes do Sparkle, o framework e por fim o app
 if [ -n "${SIGN_IDENTITY:-}" ]; then
   SIGN=(codesign --force --options runtime --timestamp --sign "$SIGN_IDENTITY")
