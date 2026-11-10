@@ -70,7 +70,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
                           L("Ignorar apps"), L("Limpar histórico (mantém fixados)")]
         case .shortcuts: [L("Histórico do clipboard"), L("Abrir este menu"), L("Paleta de comandos"), L("Mutar microfone"), L("Copiar texto da tela"),
                           L("Capturar tela"), L("Guardar na memória"), L("Reescrever texto selecionado"), L("Atalhos")]
-        case .windows: [L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Abrir a estante ao chacoalhar arquivos"), L("Brilho de monitores externos"), L("Janelas")]
+        case .windows: [L("Organizar janelas com ⌃⌥"), L("Encaixar janelas arrastando"), L("Abrir a estante ao chacoalhar arquivos"), L("Brilho de monitores externos"), L("Monitores acompanham a tela do Mac"), L("Brilho automático"), L("Janelas")]
         case .notch: ["notch", L("Avisos ao vivo no notch"), L("Avisos ao vivo no topo da tela")] + NotchCenter.Kind.allCases.map(\.title)
         case .ai: [L("Apple Intelligence")] + AIFeature.allCases.map(\.title)
         case .calendar: [L("Calendário"), L("Mostrar a próxima reunião"), L("Horário de trabalho"), L("Avisar 1 minuto antes"), L("Relógios"), L("Adicionar cidade…")]

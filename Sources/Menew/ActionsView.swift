@@ -15,6 +15,7 @@ struct ActionsView: View {
     @State private var editingAutomation: UUID?
     /// Seções de "Mais ações" abertas (as outras ficam recolhidas, só com o resumo)
     @AppStorage("actionsOpen") private var openRaw = ""
+    @AppStorage(DisplayController.followKey) private var followBuiltin = false
     let clipboard: ClipboardManager
     var openCleaner: () -> Void
 
@@ -173,6 +174,16 @@ struct ActionsView: View {
                             ForEach(Array(displays.screens.enumerated()), id: \.element.id) { i, screen in
                                 if i > 0 { Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52) }
                                 BrightnessRow(screen: screen) { displays.set($0, for: screen.id) }
+                            }
+                            // Monitor externo com brilho ajustável e a tela do Mac aberta: dá para ele acompanhar o sensor de luz
+                            if displays.screens.contains(where: \.builtin),
+                               displays.screens.contains(where: { !$0.builtin && $0.kind != .unsupported }) {
+                                Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52)
+                                ControlRow(icon: "sun.max.fill", color: .yellow, title: L("Acompanhar a tela do Mac"),
+                                           state: followBuiltin ? L("Muda junto com o brilho automático") : L("Desligado"),
+                                           help: L("Quando a tela do Mac clareia ou escurece com a luz do ambiente, os monitores externos acompanham. Mexa no brilho de um monitor para deixá-lo mais claro ou mais escuro que a tela do Mac."),
+                                           isOn: $followBuiltin)
+                                    .onChange(of: followBuiltin) { _, _ in displays.updateFollowing() }
                             }
                         }
                         .padding(.vertical, 4)
