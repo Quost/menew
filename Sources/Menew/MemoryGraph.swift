@@ -21,7 +21,8 @@ struct KnowledgeGraph: Sendable {
         var topicLabel: [String: String] = [:]
         var links: [(item: Node, topics: [String])] = []
         func key(_ s: String) -> String { PaletteSearch.fold(s.trimmingCharacters(in: .whitespaces)) }
-        for m in memory {
+        // As notas espelhadas na memória já entram como notas
+        for m in memory where m.kind != .note {
             let ts = Array(Set((m.entities + m.tags).map(key).filter { $0.count >= 2 }))
             for t in m.entities + m.tags where topicLabel[key(t)] == nil { topicLabel[key(t)] = t }
             if !ts.isEmpty { links.append((Node(id: "m:\(m.id)", label: m.title, kind: .memory(m.id), weight: 1), ts)) }

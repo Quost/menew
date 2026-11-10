@@ -178,7 +178,8 @@ final class ClipboardManager: ObservableObject {
         if !Module.clipboard.isOn || Self.isPaused { return }
 
         let types = (pb.types ?? []).map(\.rawValue)
-        if defaults.bool(forKey: "ignoreConcealed"), types.contains(where: ignoredTypes.contains) { return }
+        let concealed = types.contains(where: ignoredTypes.contains)
+        if defaults.bool(forKey: "ignoreConcealed"), concealed { return }
 
         let front = NSWorkspace.shared.frontmostApplication
         if let bundle = front?.bundleIdentifier, ignoredApps.contains(bundle) { return }
@@ -205,7 +206,12 @@ final class ClipboardManager: ObservableObject {
         new.sourceBundle = front?.bundleIdentifier
         insert(new)
         PasteQueue.shared.captured(new)
-        if new.kind == .image { queueOCR() }
+        if new.kind == .image {
+            queueOCR()
+            if let f = new.imageFile {
+                MemoryFeed.clipboardImage(imagesDir.appendingPathComponent(f), types: types, concealed: concealed, app: new.sourceApp, bundle: new.sourceBundle)
+            }
+        }
     }
 
     // MARK: Texto das imagens
