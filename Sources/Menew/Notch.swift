@@ -11,7 +11,7 @@ final class NotchCenter: ObservableObject {
 
     /// O que pode aparecer; cada um tem seu interruptor em Ajustes → Notch
     enum Kind: String, CaseIterable, Identifiable {
-        case meeting, recording, flash, focus, timer, mic
+        case meeting, recording, flash, agents, focus, timer, mic
         var id: String { rawValue }
         var key: String { "notch.\(rawValue)" }
         /// A gravação vem desligada: discreta, para quem compartilha a tela (aparece no painel ao passar o mouse)
@@ -32,6 +32,8 @@ final class NotchCenter: ObservableObject {
         case focus(end: Date, rest: Bool)
         case timer(label: String, end: Date)
         case micMuted
+        /// Agentes de IA: quantos trabalham e quantos esperam você
+        case agents(working: Int, waiting: Int)
     }
 
     @Published private(set) var activity: Activity?
@@ -111,9 +113,12 @@ final class NotchCenter: ObservableObject {
         // Filtro de Foco "só reuniões": o resto espera o Foco acabar
         if FocusFilterState.shared.quietNotch { return nil }
         if Kind.flash.isOn, let flash { return flash }
+        let hub = AgentHub.shared
+        if Kind.agents.isOn, hub.waiting > 0 { return .agents(working: hub.working, waiting: hub.waiting) }
         let focus = FocusTimer.shared
         if Kind.focus.isOn, focus.isRunning { return .focus(end: focus.endsAt, rest: focus.phase == .rest) }
         if Kind.timer.isOn, let t = TimerStore.shared.active.min(by: { $0.end < $1.end }) { return .timer(label: t.label, end: t.end) }
+        if Kind.agents.isOn, hub.working > 0 { return .agents(working: hub.working, waiting: 0) }
         if Kind.mic.isOn, muted { return .micMuted }
         return nil
     }
@@ -206,6 +211,10 @@ struct NotchView: View {
             Label(label.isEmpty ? L("Timer") : label, systemImage: "hourglass").font(.system(size: 12, weight: .semibold)).lineLimit(1)
         case .micMuted:
             Image(systemName: "mic.slash.fill").font(.system(size: 13, weight: .semibold)).foregroundStyle(.red)
+        case .agents(_, let waiting):
+            Image(systemName: waiting > 0 ? "hand.raised.fill" : "sparkles").font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(waiting > 0 ? .orange : .purple)
+                .symbolEffect(.pulse, isActive: waiting == 0)
         }
     }
 
@@ -221,6 +230,9 @@ struct NotchView: View {
             Text(Self.clock(max(0, end.timeIntervalSince(now)))).font(.system(size: 12, weight: .semibold)).monospacedDigit()
         case .micMuted:
             Text(L("Mic mudo")).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(.red)
+        case .agents(let working, let waiting):
+            Text(waiting > 0 ? L("%d espera você", waiting) : (working == 1 ? L("1 trabalhando") : L("%d trabalhando", working)))
+                .font(.system(size: 12, weight: .semibold)).foregroundStyle(waiting > 0 ? .orange : .white).lineLimit(1)
         }
     }
 
@@ -244,6 +256,20 @@ struct NotchView: View {
                     .padding(.horizontal, 14).padding(.vertical, 5).background(Capsule().fill(Color.white.opacity(0.18)))
             }
             .buttonStyle(.plain).padding(.bottom, 8)
+        case .agents(_, let waiting) where waiting > 0:
+            // Quem espera, com um botão que traz o terminal dele para a frente
+            if let s = AgentHub.shared.sessions.first(where: { $0.state == .waiting }) {
+                HStack(spacing: 10) {
+                    Text("\(s.agent.short) · \(s.project)").font(.system(size: 12, weight: .medium)).lineLimit(1).foregroundStyle(.white.opacity(0.85))
+                    Spacer(minLength: 6)
+                    Button { AgentHub.shared.focus(s) } label: {
+                        Label(L("Abrir"), systemImage: "terminal.fill").font(.system(size: 12, weight: .semibold))
+                            .padding(.horizontal, 14).padding(.vertical, 5).background(Capsule().fill(Color.orange.opacity(0.85)))
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.horizontal, 14).padding(.bottom, 8)
+            }
         default:
             EmptyView()
         }
@@ -265,6 +291,7 @@ extension NotchCenter.Kind {
         case .focus: "scope"
         case .timer: "hourglass"
         case .mic: "mic.slash.fill"
+        case .agents: "sparkles"
         }
     }
 
@@ -276,6 +303,7 @@ extension NotchCenter.Kind {
         case .focus: L("Foco e pausa")
         case .timer: L("Timers")
         case .mic: L("Mic mudo numa chamada")
+        case .agents: L("Agentes de IA")
         }
     }
 
@@ -287,6 +315,7 @@ extension NotchCenter.Kind {
         case .focus: L("O tempo que falta da sessão de foco.")
         case .timer: L("A contagem do timer mais próximo.")
         case .mic: L("Só aparece quando algum app está usando o microfone.")
+        case .agents: L("Quantos agentes trabalham e quem espera você, com um botão para abrir o terminal. Precisa dos avisos ligados em Agentes de IA.")
         }
     }
 
@@ -299,6 +328,7 @@ extension NotchCenter.Kind {
         case .focus: .focus(end: Date().addingTimeInterval(18 * 60), rest: false)
         case .timer: .timer(label: L("Chá"), end: Date().addingTimeInterval(4 * 60 + 12))
         case .mic: .micMuted
+        case .agents: .agents(working: 2, waiting: 1)
         }
     }
 }

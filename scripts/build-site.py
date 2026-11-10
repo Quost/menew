@@ -30,6 +30,7 @@ FACTS = [
     ("Meetings and recordings", "Next meeting with a Join button for Zoom, Meet, Teams and Webex; notch alerts that skip calendar blocks; record Mac audio and the microphone as separate tracks; on-device transcription; minutes with the main topic, a summary, each topic discussed, decisions, a task table with owner and deadline, and next steps; tasks to Reminders."),
     ("Memory", "⌃⌥⌘K saves what is on screen with its text, app and link; ask in plain words and get an answer with sources; a knowledge graph of topics; items appear in Spotlight."),
     ("Files and cleanup", "A drag-and-drop shelf with image and PDF tools (convert, compress, split, OCR, password-protect); organize a folder by file content with review and undo; disk cleaner for caches, logs, large and duplicate files (files go to the Trash); app uninstaller with leftovers; login and background items."),
+    ("AI coding agents", "Claude Code, Codex and Gemini CLI sessions with their state (working, done, waiting for a permission or answer) through each tool's hooks, shown in the notch with a button that opens the right terminal; plan limits (5-hour and weekly windows) with reset times, a forecast at the current pace and alerts at 75% and 90%; tokens per day, estimated cost at Anthropic API prices, cache savings, top models and projects, read from the tools' local logs; Ollama and LM Studio models loaded in memory; a local MCP server (Menew --mcp) for Claude Code, Codex, Gemini CLI, Claude Desktop and Cursor to search Memory, notes and meeting minutes, check the Mac and save notes."),
     ("Made for macOS", "Live notch alerts and a hover panel with call controls; desktop widgets; Siri, Shortcuts and Spotlight actions; Focus filters; Live Text in images; Continuity Camera; live translated captions; Liquid Glass design on macOS 26; English, Portuguese, German, Spanish and Chinese."),
 ]
 NOT_INCLUDED = ("Menew does not hide or rearrange other apps' menu bar icons (use Ice or Thaw), has no extension store "
@@ -137,7 +138,7 @@ def jsonld(lang, texts):
                         "capture", "popover-notes")],
         "softwareVersion": VERSION,
         "dateModified": UPDATED,
-        "featureList": [plain(texts[f"b{i}_t"]) + ": " + plain(texts[f"b{i}_d"]) for i in range(1, 5)]
+        "featureList": [plain(texts[f"b{i}_t"]) + ": " + plain(texts[f"b{i}_d"]) for i in range(1, 6)]
                        + [plain(texts[f"f{i}_t"]) + ": " + plain(texts[f"f{i}_d"]) for i in range(1, 7)]
                        + [plain(texts[f"act_l{i}"]) for i in range(1, 11)]
                        + [plain(texts[f"nat{i}_t"]) + ": " + plain(texts[f"nat{i}_d"]) for i in range(1, 8)]
@@ -300,7 +301,7 @@ lines = [
     f"Menew {VERSION} (updated {UPDATED}). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. "
     "Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
     "## Highlights", "",
-    *[f"- {plain(e[f'b{i}_t'])}: {plain(e[f'b{i}_d'])}" for i in range(1, 5)], "",
+    *[f"- {plain(e[f'b{i}_t'])}: {plain(e[f'b{i}_d'])}" for i in range(1, 6)], "",
     "## Capabilities in detail", "",
     *[f"- {name}: {text}" for name, text in FACTS], "",
     "## Not included", "",

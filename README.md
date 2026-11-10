@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>Your Mac's menu bar, supercharged.</b><br>
-  Memory · Recordings with minutes · Command palette · Clipboard history · Windows · Screenshots · System monitor · On-device AI<br>
+  Memory · Recordings with minutes · Command palette · Clipboard history · Windows · Screenshots · System monitor · On-device AI · AI agents<br>
   Free, open source, native. No account, no telemetry.
 </p>
 
@@ -70,6 +70,19 @@ Press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>Space</kbd> anywhere to find and run any 
 ### ✨ On-device AI
 
 Settings › AI lists every AI feature with how to use it and a switch to turn it off (it then disappears from the palette, shortcuts and buttons), and shows whether Apple Intelligence is on for this Mac. Natural-language commands, Ask AI, summarize and rewrite copied text, ask about the screen, rewrite anywhere (⌃⌥⌘R), the slow-Mac explanation and note summaries use Apple’s on-device model; smart clipboard search, translation and transcription work without Apple Intelligence. Nothing is sent to the internet.
+
+### 🤖 AI agents: Claude Code, Codex and Gemini CLI
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/assets/hub-agents-dark.png">
+    <img src="docs/assets/hub-agents-light.png" width="720" alt="AI agents in the Menew window: who is working, plan limits and usage">
+  </picture>
+</p>
+
+The **AI agents** section of the Menew window shows what your coding agents are doing. **Now**: every Claude Code, Codex and Gemini CLI session, with its project and whether it is working, done or **waiting for you** (a permission or a question); the notch shows “2 working” or “1 waiting for you” with an **Open** button that brings its terminal to the front, and you get a notification when a request that took more than 20 seconds finishes. Turn it on per tool under Set up: Menew adds one command to that tool’s hooks (`~/.claude/settings.json`, `~/.codex/hooks.json`, `~/.gemini/settings.json`), keeps a `.menew-backup` copy and touches nothing else. **Plan limits**: the 5-hour and weekly windows with a bar, when each resets and, at the current pace, when you would run out, with alerts at 75% and 90%; Codex limits come from its own logs, and Claude’s are optional (see Privacy). **Usage**: tokens per day for each tool, the estimated cost at Anthropic API prices, what the prompt cache saved, and the top models and projects, read from the logs each tool already keeps on your Mac. Models loaded in **Ollama** or **LM Studio** show up with the memory they use.
+
+**MCP server**: let your agents ask Menew. One switch adds Menew to Claude Code, Codex, Gemini CLI, Claude Desktop or Cursor (or copy the config for any other app); it runs on your Mac as `Menew --mcp`, with no network. Agents can search your Memory and notes (never protected or password notes), list recordings and read the minutes with tasks, check how the Mac is doing, see agent usage, and, with Menew open, save something to Memory, create a note or send you a notice in the notch. Each source has its own switch; the clipboard history is off unless you turn it on.
 
 ### ✂️ Selected text, anywhere — <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>R</kbd>
 
@@ -225,14 +238,14 @@ You review everything, and your files go to the Trash. **Uninstall apps**: drop 
 ### Made for macOS
 
 <details>
-<summary>🟣 <b>Live notch</b> — What matters right now appears on both sides of the camera, one thing at a time: a meeting about to start with a Join button, screen recording with the time and a Stop button, a timer or focus countdown, a muted mic during a call, and Menew’s confirmations like “Copied”.</summary>
+<summary>🟣 <b>Live notch</b> — What matters right now appears on both sides of the camera, one thing at a time: a meeting about to start with a Join button, screen recording with the time and a Stop button, a timer or focus countdown, a muted mic during a call, AI agents working or waiting for you, and Menew’s confirmations like “Copied”.</summary>
 
 It disappears when there is nothing to show. Rest the pointer on the notch and it opens a panel with your next meeting (and Join), the focus or timer countdown and shortcuts (mute the mic, capture, clipboard, shelf, palette); drag files to the notch and drop them to keep them on the shelf. Settings › Notch has a live preview, a switch and a Test button for each alert, and how early meetings appear (1, 2 or 5 minutes). On Macs without a notch it can show as a pill at the top of the screen. **In a call** (any app using the microphone), the hover panel shows the time in the call and puts mute, **Record minutes** (Mac audio and microphone) and live captions first; otherwise its shortcuts are Capture, Memory, Clipboard and Shelf. Below the next meeting, a line shows the one after it. By default it only alerts you about meetings with a call link or other guests, so calendar blocks (lunch, a workout) stay quiet; the ✕ in the hover panel dismisses an alert once or silences that title for good.
 
 </details>
 
 <details>
-<summary>🪟 <b>Menew window</b> — The menu bar shows what matters now; the <b>Menew window</b> has the depth, with a sidebar like System Settings: Overview (today’s agenda, Mac health, screen time and what you saved), Memory, Recordings, Clipboard, Notes, Performance, History and screen time, Battery, Tools, Apps, profiles and automations, and Settings, with one search box that finds both sections and settings.</summary>
+<summary>🪟 <b>Menew window</b> — The menu bar shows what matters now; the <b>Menew window</b> has the depth, with a sidebar like System Settings: Overview (today’s agenda, Mac health, screen time and what you saved), Memory, Recordings, AI agents, Clipboard, Notes, Performance, History and screen time, Battery, Tools, Apps, profiles and automations, and Settings, with one search box that finds both sections and settings.</summary>
 
 Open it from the window button in the menu or “Menew window” in the palette.
 
@@ -360,6 +373,7 @@ Menew covers the everyday features of these popular Mac utilities in one free, n
 | Amphetamine · Caffeine | Keep the Mac awake for a while, until a time or while an app is open. |
 | CleanMyMac | Disk cleaner for caches, logs, big files and duplicates, plus an app uninstaller with leftovers; files go to the Trash. |
 | Dropover · Yoink | A shelf for dragging files between apps, plus image and PDF tools. |
+| ccusage · usage widgets | Claude Code, Codex and Gemini CLI usage, plan limits and who is waiting for you, plus an MCP server for your notes and minutes. |
 | Granola · Otter | Meeting recordings with transcript, minutes and tasks, made on your Mac (⌃⌥⌘G). |
 | TextSniper | Copy text from anywhere on screen, even from videos and images (⌃⌥⌘T). |
 | PopClip | Actions on selected text in any app: rewrite, explain, reply, or turn it into a reminder or event (⌃⌥⌘R). |
@@ -398,7 +412,7 @@ Menew only reads what it shows. With the menu closed it uses about **0.5% CPU, 1
 
 ## Privacy
 
-The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. Values copied from password notes are marked the same way and cleared from the clipboard after 30 seconds. Backups are files you save yourself; protected notes are never included in them. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off). Text recognition (copy text from screen or images) uses Apple's Vision framework on your Mac; nothing is uploaded, and the screen capture is deleted right after. AI text actions use only Apple's on-device model (never Private Cloud Compute), so the text stays on your Mac. The next meeting is read from the Calendar app through EventKit, only if you turn it on, and stays on your Mac. Notes you can search in Spotlight are indexed by macOS on your Mac (never protected or password notes, never the clipboard history). Live captions listen only while they are on and never record; speech is recognized and translated on your Mac. Recordings only happen when you start them; the audio, transcript and minutes are kept in `~/Library/Application Support/Menew/recordings`. Memory captures are only taken when you press the shortcut and are kept in `~/Library/Application Support/Menew/memory`. Widgets read a small file Menew rewrites every minute in its own shared container (`~/Library/Group Containers/9527N6XKKW.com.matheusquost.menew`); they run sandboxed and have no network access.
+The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. Values copied from password notes are marked the same way and cleared from the clipboard after 30 seconds. Backups are files you save yourself; protected notes are never included in them. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off). Text recognition (copy text from screen or images) uses Apple's Vision framework on your Mac; nothing is uploaded, and the screen capture is deleted right after. AI text actions use only Apple's on-device model (never Private Cloud Compute), so the text stays on your Mac. The next meeting is read from the Calendar app through EventKit, only if you turn it on, and stays on your Mac. Notes you can search in Spotlight are indexed by macOS on your Mac (never protected or password notes, never the clipboard history). Live captions listen only while they are on and never record; speech is recognized and translated on your Mac. Recordings only happen when you start them; the audio, transcript and minutes are kept in `~/Library/Application Support/Menew/recordings`. Memory captures are only taken when you press the shortcut and are kept in `~/Library/Application Support/Menew/memory`. Widgets read a small file Menew rewrites every minute in its own shared container (`~/Library/Group Containers/9527N6XKKW.com.matheusquost.menew`); they run sandboxed and have no network access. AI agents: usage is read from the logs Claude Code, Codex and Gemini CLI already keep on your Mac (`~/.claude`, `~/.codex`, `~/.gemini`); agent hooks and the MCP server talk to Menew through local macOS notifications, and loaded Ollama and LM Studio models are read from their local ports (`127.0.0.1`). The one optional network call here is **Claude limits**, off by default: when you turn it on, Menew reads your Claude Code login from the Keychain (macOS asks first) and checks `api.anthropic.com` every 5 minutes for the 5-hour and weekly usage; nothing else is sent.
 
 The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits and button clicks with [GoatCounter](https://www.goatcounter.com), which uses no cookies and stores no personal data. The app itself never does this.
 
@@ -408,7 +422,7 @@ The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits a
 Yes. Menew is free and open source under the GPL-3.0 license: no ads, no subscription, no paid tier. Anyone can read, change and share the code, and any version they distribute must stay open source too. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.
 
 **Does Menew collect my data?**  
-No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.
+No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start, a currency rate you ask for and, only if you turn it on, your Claude plan limits. AI features use Apple's on-device model only.
 
 **Which Macs does it run on?**  
 macOS 14 Sonoma or later, on Apple Silicon and Intel. The AI features need macOS 26 or later with Apple Intelligence turned on.
@@ -435,6 +449,7 @@ When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, r
 
 Recently shipped:
 
+- [x] AI agents: Claude Code, Codex and Gemini CLI usage, limits, notch alerts and an MCP server
 - [x] Knowledge graph of memory and notes
 - [x] Recordings with transcript, AI minutes, tasks to Reminders and About you
 - [x] Actions on selected text: explain, document, tests, reminder, event, note, memory

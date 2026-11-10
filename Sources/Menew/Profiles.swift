@@ -368,7 +368,7 @@ struct ProfileEditor: View {
                         Picker("", selection: $profile.mic) {
                             Text(L("Não mexer")).tag(WorkProfile.Mic.keep)
                             Text(L("Mutar")).tag(WorkProfile.Mic.mute)
-                            Text(L("Ligar")).tag(WorkProfile.Mic.unmute)
+                            Text(L("Desmutar")).tag(WorkProfile.Mic.unmute)
                         }
                         .labelsHidden().fixedSize()
                     }

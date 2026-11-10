@@ -96,6 +96,12 @@ enum Snapshot {
                 rs.section = .recordings
                 render(HubView(state: rs, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
                        size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-recordings-\(suffix).png"))
+                AgentUsageStore.shared.showDemo()
+                AgentHub.shared.showDemo()
+                let ags = HubState()
+                ags.section = .agents
+                render(HubView(state: ags, monitor: monitor, clipboard: clipboard, notes: notes, internet: internet, toolbox: toolbox, updater: UpdaterModel(enabled: false)),
+                       size: NSSize(width: 1040, height: 680), dark: dark, to: dir.appendingPathComponent("hub-agents-\(suffix).png"))
                 // Grafo do conhecimento com os dados de exemplo
                 let kg = KnowledgeGraph.build(memory: MemoryStore.shared.items, notes: [])
                 let gsize = CGSize(width: 760, height: 460)
@@ -105,6 +111,10 @@ enum Snapshot {
                 // Uma página de grupo da aba Ações
                 render(ActionsView(tb: toolbox, clipboard: clipboard, group: .windows) {}.frame(width: 400, height: 600).background(Theme.popoverFill),
                        size: NSSize(width: 400, height: 600), dark: dark, to: dir.appendingPathComponent("actions-group-\(suffix).png"))
+                if CommandLine.arguments.contains("--full-agents") { // Agentes de IA inteiros, para revisar o layout
+                    render(AgentsView().frame(width: 760).padding(.top, 10).background(Theme.windowFill),
+                           size: NSSize(width: 760, height: 1900), dark: dark, to: dir.appendingPathComponent("agents-full-\(suffix).png"))
+                }
                 if CommandLine.arguments.contains("--full-settings") { // Ajustes inteiros, para revisar o layout
                     render(SettingsView(clipboard: clipboard, monitor: monitor, updater: UpdaterModel(enabled: false)).background(Theme.windowFill),
                            size: NSSize(width: 400, height: 1900), dark: dark, to: dir.appendingPathComponent("settings-full-\(suffix).png"))

@@ -108,7 +108,7 @@
   "faq1_q": "Is Menew really free?",
   "faq1_a": "Yes. Menew is free and open source under the GPL-3.0 license: no ads, no subscription, no paid tier. If it helps you, you can buy the author a coffee, but nothing in the app asks for it.",
   "faq2_q": "Does Menew collect my data?",
-  "faq2_a": "No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only.",
+  "faq2_a": "No. There is no telemetry, no analytics and no account. Clipboard history and notes stay on your Mac. The only network calls are the update check, your public IP, a speed test you start and a currency rate you ask for. AI features use Apple's on-device model only. Only if you turn it on, Menew also checks your Claude plan limits with Anthropic.",
   "faq3_q": "Which Macs does it run on?",
   "faq3_a": "macOS 14 Sonoma or later, on Apple Silicon and Intel. The AI features need macOS 26 or later with Apple Intelligence turned on.",
   "faq4_q": "How do I install it?",
@@ -224,5 +224,10 @@
   "faq16_a": "No. Menew is a free, open source app for the Mac menu bar, made by Quost and published at github.com/Quost/menew. Linx Menew is an unrelated point-of-sale system for restaurants in Brazil; the names are just alike.",
   "faq17_q": "What doesn't Menew do?",
   "faq17_a": "Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or Thaw), has no extension store like Raycast's (it runs your own scripts instead), doesn't sync between Macs or to a cloud, and doesn't put a web browser in the menu bar. For deep hardware sensors per core, Stats and iStat Menus go further, though Menew shows chip, SSD and battery temperatures, fan speed and performance and efficiency cores.",
-  "compare_label": "Detailed comparisons:"
+  "compare_label": "Detailed comparisons:",
+  "b5_t": "Your AI agents, at a glance",
+  "b5_d": "Claude Code, Codex and Gemini CLI: who is working and who is <b>waiting for you</b> (in the notch, with a button to open the terminal), your 5-hour and weekly limits with when you’d run out, and tokens and cost per day, model and project. Plus an <b>MCP server</b> so your agents can search your Memory, notes and meeting minutes. Read from your Mac, no account.",
+  "priv_c5": "Your Claude plan limits, only if you turn them on",
+  "faq18_q": "Can Menew show my Claude Code, Codex and Gemini usage and limits?",
+  "faq18_a": "Yes. The AI agents section reads the logs Claude Code, Codex and Gemini CLI already keep on your Mac and shows tokens per day, the estimated cost at API prices, cache savings and the top models and projects. Codex limits come from its own logs; Claude’s 5-hour and weekly limits are optional, since they come from Anthropic. Turn on the agent hooks and the notch tells you when an agent finishes or is waiting for your permission. An MCP server lets the agents search your Memory, notes and meeting minutes."
 }

@@ -108,7 +108,7 @@
   "faq1_q": "Ist Menew wirklich kostenlos?",
   "faq1_a": "Ja. Menew ist kostenlos und Open Source unter der GPL-3.0-Lizenz: keine Werbung, kein Abo, keine Bezahlversion. Wenn es dir hilft, kannst du dem Entwickler einen Kaffee spendieren, aber die App fragt nie danach.",
   "faq2_q": "Sammelt Menew meine Daten?",
-  "faq2_a": "Nein. Keine Telemetrie, keine Analyse, kein Konto. Zwischenablage-Verlauf und Notizen bleiben auf deinem Mac. Die einzigen Verbindungen sind die Update-Prüfung, deine öffentliche IP, ein von dir gestarteter Geschwindigkeitstest und ein von dir angefragter Wechselkurs. KI-Funktionen nutzen nur Apples Modell auf dem Gerät.",
+  "faq2_a": "Nein. Keine Telemetrie, keine Analyse, kein Konto. Zwischenablage-Verlauf und Notizen bleiben auf deinem Mac. Die einzigen Verbindungen sind die Update-Prüfung, deine öffentliche IP, ein von dir gestarteter Geschwindigkeitstest und ein von dir angefragter Wechselkurs. KI-Funktionen nutzen nur Apples Modell auf dem Gerät. Nur wenn du es einschaltest, fragt Menew außerdem deine Claude-Tariflimits bei Anthropic ab.",
   "faq3_q": "Auf welchen Macs läuft es?",
   "faq3_a": "macOS 14 Sonoma oder neuer, auf Apple Silicon und Intel. Die KI-Funktionen brauchen macOS 26 oder neuer mit aktivierter Apple Intelligence.",
   "faq4_q": "Wie installiere ich es?",
@@ -224,5 +224,10 @@
   "faq16_a": "Nein. Menew ist eine kostenlose Open-Source-App für die Mac-Menüleiste, entwickelt von Quost und veröffentlicht auf github.com/Quost/menew. Linx Menew ist ein davon unabhängiges Kassensystem für Restaurants in Brasilien; nur die Namen ähneln sich.",
   "faq17_q": "Was kann Menew nicht?",
   "faq17_a": "Menew blendet keine Menüleistensymbole anderer Apps aus und ordnet sie nicht neu (dafür gibt es Ice oder Thaw), hat keinen Erweiterungs-Store wie Raycast (stattdessen führt es deine eigenen Skripte aus), synchronisiert nicht zwischen Macs oder mit einer Cloud und bringt keinen Webbrowser in die Menüleiste. Für detaillierte Hardware-Sensoren pro Kern gehen Stats und iStat Menus weiter, auch wenn Menew Temperaturen von Chip, SSD und Akku, die Lüfterdrehzahl sowie Leistungs- und Effizienzkerne anzeigt.",
-  "compare_label": "Ausführliche Vergleiche (auf Englisch):"
+  "compare_label": "Ausführliche Vergleiche (auf Englisch):",
+  "b5_t": "Deine KI-Agenten auf einen Blick",
+  "b5_d": "Claude Code, Codex und Gemini CLI: wer arbeitet und wer <b>auf dich wartet</b> (in der Notch, mit einer Taste zum Terminal), deine 5-Stunden- und Wochenlimits samt Prognose, wann sie aufgebraucht sind, und Tokens und Kosten pro Tag, Modell und Projekt. Dazu ein <b>MCP-Server</b>, damit deine Agenten in Erinnerungen, Notizen und Protokollen suchen können. Vom Mac gelesen, ohne Konto.",
+  "priv_c5": "Deine Claude-Tariflimits, nur wenn du sie einschaltest",
+  "faq18_q": "Zeigt Menew Nutzung und Limits von Claude Code, Codex und Gemini?",
+  "faq18_a": "Ja. Der Bereich KI-Agenten liest die Protokolle, die Claude Code, Codex und Gemini CLI ohnehin auf deinem Mac speichern, und zeigt Tokens pro Tag, geschätzte Kosten zu API-Preisen, Cache-Ersparnis und die meistgenutzten Modelle und Projekte. Die Codex-Limits stammen aus seinen Protokollen; die 5-Stunden- und Wochenlimits von Claude sind optional, da sie von Anthropic kommen. Schalte die Hooks ein, und die Notch meldet, wenn ein Agent fertig ist oder auf deine Freigabe wartet. Ein MCP-Server lässt die Agenten in Erinnerungen, Notizen und Protokollen suchen."
 }
