@@ -153,6 +153,7 @@ final class NotchHoverModel: ObservableObject {
     var agentsHeight: CGFloat {
         guard !agents.isEmpty || !limitRows.isEmpty else { return 0 }
         return CGFloat(agents.count) * 42 + (moreAgents > 0 ? 18 : 0) + (limitRows.isEmpty ? 0 : CGFloat(limitRows.count) * 42 + 18) + 10
+            + CGFloat(limitRows.filter { $0.forecast != nil }.count) * 18
     }
 
     func refresh() {
@@ -311,6 +312,12 @@ struct NotchHoverView: View {
                 }
                 .padding(.leading, 15)
             }
+            // No ritmo de agora: quando acaba, ou até onde chega no reset
+            if let f = r.forecast {
+                Label(f.text, systemImage: f.warn ? "exclamationmark.triangle.fill" : "speedometer")
+                    .font(.system(size: 10.5, weight: f.warn ? .semibold : .regular))
+                    .foregroundStyle(f.warn ? Color.orange : .white.opacity(0.45)).lineLimit(1).padding(.leading, 15)
+            }
         }
     }
 
@@ -433,12 +440,18 @@ struct NotchHoverView: View {
     }
 }
 
+private func reach(_ p: LimitProjection) -> Double { if case .reaches(let v) = p.kind { return v }; return 100 }
+
 /// Uma linha do painel: as janelas do plano de uma ferramenta e quanto ela usou hoje
 struct AgentLimitRow: Identifiable, Equatable {
     var id: String { agent.rawValue }
     let agent: AgentKind
     let windows: [RateWindow]
     let today: String
+    /// A janela mais apertada no ritmo de agora: "5 h: acaba às 14:10" (aviso) ou "5 h: chega a ~48% até zerar"
+    var forecast: (text: String, warn: Bool)?
+
+    static func == (a: AgentLimitRow, b: AgentLimitRow) -> Bool { a.agent == b.agent && a.windows == b.windows && a.today == b.today && a.forecast?.text == b.forecast?.text }
 
     @MainActor static func current() -> [AgentLimitRow] {
         let u = AgentUsageStore.shared
@@ -449,7 +462,15 @@ struct AgentLimitRow: Identifiable, Equatable {
             guard !windows.isEmpty || t.tokens > 0 else { return nil }
             var today = L("%@ hoje", AgentsView.tokens(t.tokens))
             if t.cost >= 0.01 { today += " · " + AgentsView.money(t.cost) }
-            return AgentLimitRow(agent: a, windows: windows, today: today)
+            // A que acaba primeiro; sem nenhuma acabando, a que mais se aproxima de 100% no reset
+            let projections = windows.compactMap { w in u.projection(a, w).map { (w, $0) } }
+            var forecast: (String, Bool)?
+            if let (w, p) = projections.filter({ $0.1.runsOut != nil }).min(by: { $0.1.runsOut! < $1.1.runsOut! }) {
+                forecast = ("\(w.short): \(p.text)", true)
+            } else if let (w, p) = projections.max(by: { reach($0.1) < reach($1.1) }), reach(p) >= 50 {
+                forecast = ("\(w.short): \(p.text)", false)
+            }
+            return AgentLimitRow(agent: a, windows: windows, today: today, forecast: forecast)
         }
     }
 }
