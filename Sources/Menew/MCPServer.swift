@@ -242,7 +242,8 @@ enum MCPServer {
 
     static func loadMemory() -> [MemoryItem] {
         guard let data = try? Data(contentsOf: base.appendingPathComponent("memory/memory.json")) else { return [] }
-        return ((try? decoder(iso: true).decode([MemoryItem].self, from: data)) ?? []).sorted { $0.date > $1.date }
+        // Notas espelhadas ficam de fora: as notas só saem pela fonte delas (que tem o seu próprio interruptor)
+        return ((try? decoder(iso: true).decode([MemoryItem].self, from: data)) ?? []).filter { $0.kind != .note }.sorted { $0.date > $1.date }
     }
 
     /// Nunca as protegidas (o texto fica nas Chaves) nem as de senhas

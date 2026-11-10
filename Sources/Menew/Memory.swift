@@ -9,7 +9,7 @@ import FoundationModels
 /// anota de onde veio (app, janela, link da aba) e, com a IA do Mac, dá um título e etiquetas. Captura sempre explícita,
 /// nunca a tela o tempo todo. Tudo fica numa pasta no Mac.
 struct MemoryItem: Codable, Identifiable, Equatable {
-    enum Kind: String, Codable { case capture, text, link, session }
+    enum Kind: String, Codable { case capture, text, link, session, recording, note }
 
     var id = UUID()
     var date = Date()
@@ -187,6 +187,29 @@ final class MemoryStore: ObservableObject {
         insertByDate(item)
         save()
         queueEnrich(item.id)
+    }
+
+    /// Espelha uma fonte (gravações, notas): cria e atualiza os itens dela e tira os que sumiram da origem
+    /// (nota apagada ou protegida, gravação apagada). `prefix` é o começo do `sourceKey` dessa fonte.
+    func sync(prefix: String, _ entries: [MirrorEntry]) {
+        var changed = false
+        let keep = Set(entries.map(\.sourceKey))
+        let gone = items.filter { ($0.sourceKey?.hasPrefix(prefix) ?? false) && !keep.contains($0.sourceKey!) }
+        for g in gone { items.removeAll { $0.id == g.id }; changed = true }
+        for e in entries {
+            if let i = items.firstIndex(where: { $0.sourceKey == e.sourceKey }) {
+                guard items[i].text != e.text || items[i].title != e.title else { continue }
+                var item = items.remove(at: i)
+                e.apply(to: &item)
+                insertByDate(item)
+            } else {
+                var item = MemoryItem(kind: e.kind, title: e.title)
+                e.apply(to: &item)
+                insertByDate(item)
+            }
+            changed = true
+        }
+        if changed { save() }
     }
 
     /// A IA do Mac passa por um item de cada vez: muitas sessões de uma vez não travam nada

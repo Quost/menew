@@ -164,3 +164,57 @@ final class AgentSessionDigestTests: XCTestCase {
         XCTAssertTrue(d.isWorthKeeping)
     }
 }
+
+final class MirrorEntryTests: XCTestCase {
+    func testReadyRecordingBecomesMinutes() throws {
+        var r = Recording(title: "Lançamento do site", locale: "pt-BR")
+        r.status = .ready
+        r.summary = "Site sai na quinta."
+        r.decisions = ["Lançar na quinta"]
+        r.tasks = [Recording.Task(text: "Revisar os textos", owner: "Ana", due: "quarta")]
+        r.nextSteps = ["Avisar a lista"]
+        r.people = ["Ana", "Bruno"]
+        r.transcript = "fala inteira que não deve entrar com token=abcdef123456"
+        let e = try XCTUnwrap(MirrorEntry.recording(r))
+        XCTAssertEqual(e.sourceKey, "recording:\(r.id.uuidString)")
+        XCTAssertEqual(e.kind, .recording)
+        XCTAssertTrue(e.text.contains("Lançar na quinta"))
+        XCTAssertTrue(e.text.contains("Revisar os textos (Ana) · quarta"))
+        XCTAssertTrue(e.text.contains("Avisar a lista"))
+        XCTAssertFalse(e.text.contains("fala inteira"))
+        XCTAssertEqual(e.entities, ["Ana", "Bruno"])
+
+        r.status = .summarizing
+        XCTAssertNil(MirrorEntry.recording(r), "só quando a ata está pronta")
+        var silent = Recording(title: "x", locale: "pt-BR")
+        silent.status = .ready
+        silent.summary = L("Nenhuma fala reconhecida.")
+        XCTAssertNil(MirrorEntry.recording(silent))
+    }
+
+    func testNotesSkipProtectedPasswordsAndRecordingMinutes() throws {
+        let plain = Note(text: "# Ideias\nApp com grafo #menew\napi_key=supersecretvalue1")
+        let e = try XCTUnwrap(MirrorEntry.note(plain))
+        XCTAssertEqual(e.title, "Ideias")
+        XCTAssertEqual(e.kind, .note)
+        XCTAssertTrue(e.tags.contains("menew"))
+        XCTAssertFalse(e.text.contains("supersecretvalue1"))
+
+        var secure = plain; secure.secure = true
+        XCTAssertNil(MirrorEntry.note(secure))
+        var pw = plain; pw.kind = .passwords
+        XCTAssertNil(MirrorEntry.note(pw))
+        XCTAssertNil(MirrorEntry.note(plain, skip: [plain.id]))
+        XCTAssertNil(MirrorEntry.note(Note(text: "oi")), "curta demais")
+    }
+
+    func testNoteItemsStayOutOfTheGraph() {
+        var m = MemoryItem(kind: .note, title: "Nota")
+        m.tags = ["menew"]
+        var c = MemoryItem(kind: .capture, title: "Print")
+        c.tags = ["menew"]
+        let g = KnowledgeGraph.build(memory: [m, c], notes: [])
+        XCTAssertFalse(g.nodes.contains { $0.label == "Nota" })
+        XCTAssertTrue(g.nodes.contains { $0.label == "Print" })
+    }
+}

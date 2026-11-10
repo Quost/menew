@@ -89,7 +89,7 @@ final class MemoryAsk: ObservableObject {
             let toks = Set(SmartClipSearch.tokens(text))
             return Double(terms.filter { t in toks.contains(t) || toks.contains { SmartClipSearch.sameRoot($0, t) } }.count)
         }
-        for m in MemoryStore.shared.items {
+        for m in MemoryStore.shared.items where m.kind != .note {
             let s = score(m.haystack)
             if s > 0 {
                 scored.append((s + 1.5, Source(kind: .memory(m.id), title: m.title, detail: [m.app, m.url.flatMap { URL(string: $0)?.host }]
@@ -231,7 +231,8 @@ enum SpotlightMemory {
     static func index(_ items: [MemoryItem]) {
         let index = CSSearchableIndex.default()
         guard SpotlightNotes.shared.isOn else { index.deleteSearchableItems(withDomainIdentifiers: [domain]); return }
-        let list = items.map { m -> CSSearchableItem in
+        // Notas no Spotlight seguem o ajuste das notas (e já entram por lá)
+        let list = items.filter { $0.kind != .note }.map { m -> CSSearchableItem in
             let a = CSSearchableItemAttributeSet(contentType: .text)
             a.title = m.title
             a.contentDescription = m.summary.isEmpty ? m.app : m.summary

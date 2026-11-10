@@ -1,4 +1,5 @@
 import AppKit
+import Combine
 import CryptoKit
 import SwiftUI
 
@@ -7,7 +8,7 @@ import SwiftUI
 /// Tudo lido no Mac, sem internet; segredos (itens ocultos, apps de senhas, chaves e tokens) ficam de fora.
 enum MemoryFeed {
     enum Source: String, CaseIterable, Identifiable {
-        case screenshots, claude, codex, gemini
+        case screenshots, recordings, notes, claude, codex, gemini
         var id: String { rawValue }
 
         var key: String { "memory.auto.\(rawValue)" }
@@ -16,6 +17,8 @@ enum MemoryFeed {
         var title: String {
             switch self {
             case .screenshots: L("Todos os prints")
+            case .recordings: L("Atas das gravações")
+            case .notes: L("Notas")
             case .claude: L("Sessões do Claude Code")
             case .codex: L("Sessões do Codex")
             case .gemini: L("Sessões do Gemini CLI")
@@ -25,6 +28,8 @@ enum MemoryFeed {
         var detail: String {
             switch self {
             case .screenshots: L("Prints copiados ou salvos de qualquer app (⌘⇧4, ⌘⇧5, CleanShot…), com o texto lido no Mac.")
+            case .recordings: L("Cada reunião gravada: assunto, resumo, decisões, tarefas e próximos passos. A transcrição inteira fica de fora.")
+            case .notes: L("Suas notas, atualizadas quando você edita. Notas protegidas e de senhas nunca entram; protegeu ou apagou, sai da Memória.")
             case .claude, .codex, .gemini: L("Um resumo por sessão: projeto, pedido, o que foi feito e os arquivos mexidos. Chaves e tokens ficam de fora.")
             }
         }
@@ -32,6 +37,8 @@ enum MemoryFeed {
         var icon: String {
             switch self {
             case .screenshots: "camera.viewfinder"
+            case .recordings: "waveform"
+            case .notes: "note.text"
             case .claude: AgentKind.claude.icon
             case .codex: AgentKind.codex.icon
             case .gemini: AgentKind.gemini.icon
@@ -40,7 +47,7 @@ enum MemoryFeed {
 
         var agent: AgentKind? {
             switch self {
-            case .screenshots: nil
+            case .screenshots, .recordings, .notes: nil
             case .claude: .claude
             case .codex: .codex
             case .gemini: .gemini
@@ -60,11 +67,16 @@ enum MemoryFeed {
     @MainActor static func start() {
         ScreenshotFeed.shared.refresh()
         AgentSessionFeed.shared.refresh()
+        MirrorFeed.shared.refresh()
     }
 
     @MainActor static func set(_ source: Source, _ on: Bool) {
         UserDefaults.standard.set(on, forKey: source.key)
-        if source == .screenshots { ScreenshotFeed.shared.refresh() } else { AgentSessionFeed.shared.refresh() }
+        switch source {
+        case .screenshots: ScreenshotFeed.shared.refresh()
+        case .recordings, .notes: MirrorFeed.shared.refresh()
+        case .claude, .codex, .gemini: AgentSessionFeed.shared.refresh()
+        }
     }
 
     static func binding(_ source: Source) -> Binding<Bool> {
@@ -223,6 +235,99 @@ final class ScreenshotFeed: NSObject {
         if origin.window == nil { origin.window = url.deletingPathExtension().lastPathComponent }
         MemoryStore.shared.add(imageData: data, origin: origin, sourceKey: key, auto: true, date: date)
         return true
+    }
+}
+
+// MARK: Atas e notas
+
+/// Um item espelhado de outra parte do Menew (gravação, nota): o que vai para a Memória, já sem segredos
+struct MirrorEntry: Equatable {
+    var sourceKey: String
+    var kind: MemoryItem.Kind
+    var title: String
+    var summary = ""
+    var text: String
+    var app: String
+    var date: Date
+    var tags: [String] = []
+    var entities: [String] = []
+
+    func apply(to item: inout MemoryItem) {
+        item.kind = kind
+        item.title = title
+        item.summary = summary
+        item.text = text
+        item.app = app
+        item.date = date
+        item.tags = tags
+        item.entities = entities
+        item.sourceKey = sourceKey
+        // Já vem organizado (a ata pela IA, a nota por você): a IA não renomeia
+        item.enriched = true
+    }
+
+    /// Uma gravação pronta vira a ata em texto: assunto, resumo, tópicos, decisões, tarefas e próximos passos
+    static func recording(_ r: Recording) -> MirrorEntry? {
+        guard r.status == .ready else { return nil }
+        let empty = L("Nenhuma fala reconhecida.")
+        guard !(r.summary.isEmpty || r.summary == empty) || !r.decisions.isEmpty || !r.tasks.isEmpty else { return nil }
+        var lines: [String] = []
+        if let t = r.theme, !t.isEmpty { lines.append(t) }
+        if !r.summary.isEmpty { lines.append(r.summary) }
+        for t in r.topics ?? [] { lines.append("## \(t.title)\n" + t.points.map { "- \($0)" }.joined(separator: "\n")) }
+        if !r.decisions.isEmpty { lines.append("\(L("Decisões")):\n" + r.decisions.map { "- \($0)" }.joined(separator: "\n")) }
+        if !r.tasks.isEmpty {
+            lines.append("\(L("Tarefas")):\n" + r.tasks.map { t in
+                "- \(t.text)" + (t.owner.map { " (\($0))" } ?? "") + (t.due.map { " · \($0)" } ?? "")
+            }.joined(separator: "\n"))
+        }
+        if let n = r.nextSteps, !n.isEmpty { lines.append("\(L("Próximos passos")):\n" + n.map { "- \($0)" }.joined(separator: "\n")) }
+        if !r.people.isEmpty { lines.append("\(L("Pessoas")): " + r.people.joined(separator: ", ")) }
+        return MirrorEntry(sourceKey: "recording:\(r.id.uuidString)", kind: .recording, title: SecretScrubber.scrub(r.title),
+                           summary: SecretScrubber.scrub(AgentSessionDigest.clip(r.summary, 200)),
+                           text: SecretScrubber.scrub(lines.joined(separator: "\n\n")), app: L("Gravações"), date: r.date,
+                           tags: r.tags, entities: r.people)
+    }
+
+    /// Uma nota de texto com conteúdo. Protegidas e de senhas nunca; a ata de uma gravação já entra como gravação.
+    static func note(_ n: Note, skip: Set<UUID> = []) -> MirrorEntry? {
+        guard !n.secure, !n.isPasswords, !skip.contains(n.id) else { return nil }
+        let body = n.text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard body.count >= 12 else { return nil }
+        let text = SecretScrubber.scrub(String(body.prefix(6000)))
+        return MirrorEntry(sourceKey: "note:\(n.id.uuidString)", kind: .note, title: SecretScrubber.scrub(n.title),
+                           summary: SecretScrubber.scrub(n.preview), text: text, app: L("Notas"), date: n.updated, tags: n.tags)
+    }
+}
+
+/// Atas das gravações e notas na Memória: acompanha as duas listas e espelha (com uma pausa, para não regravar a cada tecla)
+@MainActor
+final class MirrorFeed {
+    static let shared = MirrorFeed()
+    private var subs: [AnyCancellable] = []
+
+    func refresh() {
+        subs = []
+        let recOn = MemoryFeed.Source.recordings.isOn, notesOn = MemoryFeed.Source.notes.isOn
+        guard recOn || notesOn else { return }
+        let recordings = RecordingStore.shared
+        if recOn {
+            recordings.$items
+                .debounce(for: .seconds(2), scheduler: RunLoop.main)
+                .sink { list in MainActor.assumeIsolated { MemoryStore.shared.sync(prefix: "recording:", list.compactMap(MirrorEntry.recording)) } }
+                .store(in: &subs)
+        }
+        if notesOn, let store = (NSApp.delegate as? AppDelegate)?.notes {
+            store.$notes
+                .debounce(for: .seconds(5), scheduler: RunLoop.main)
+                .sink { list in
+                    MainActor.assumeIsolated {
+                        let fromRecordings = Set(RecordingStore.shared.items.compactMap(\.noteID))
+                        MemoryStore.shared.sync(prefix: "note:", list.compactMap { MirrorEntry.note($0, skip: fromRecordings) })
+                    }
+                }
+                .store(in: &subs)
+        }
     }
 }
 
@@ -552,6 +657,8 @@ final class AgentSessionFeed: @unchecked Sendable {
 /// Os interruptores das fontes automáticas (nos Ajustes do clipboard e no menu da Memória)
 struct MemoryFeedToggles: View {
     @AppStorage(MemoryFeed.Source.screenshots.key) private var screenshots = false
+    @AppStorage(MemoryFeed.Source.recordings.key) private var recordings = false
+    @AppStorage(MemoryFeed.Source.notes.key) private var notes = false
     @AppStorage(MemoryFeed.Source.claude.key) private var claude = false
     @AppStorage(MemoryFeed.Source.codex.key) private var codex = false
     @AppStorage(MemoryFeed.Source.gemini.key) private var gemini = false
@@ -559,6 +666,8 @@ struct MemoryFeedToggles: View {
     private func binding(_ s: MemoryFeed.Source) -> Binding<Bool> {
         switch s {
         case .screenshots: $screenshots
+        case .recordings: $recordings
+        case .notes: $notes
         case .claude: $claude
         case .codex: $codex
         case .gemini: $gemini

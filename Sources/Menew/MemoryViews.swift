@@ -134,6 +134,8 @@ extension MemoryItem {
         switch kind {
         case .link: "link"
         case .session: AgentKind.allCases.first { $0.name == app }?.icon ?? "terminal"
+        case .recording: "waveform"
+        case .note: "note.text"
         case .capture, .text: "text.alignleft"
         }
     }
