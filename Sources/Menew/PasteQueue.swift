@@ -22,7 +22,7 @@ final class PasteQueue: ObservableObject {
 
     func start() {
         guard !isOn else { return }
-        guard AXIsProcessTrusted() else { ClipboardManager.requestAccessibility(); return }
+        guard AccessibilityGrant.isTrusted else { ClipboardManager.requestAccessibility(); return }
         isOn = true
         items = []
         monitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] e in

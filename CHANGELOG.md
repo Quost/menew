@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.102.1
+
+### Fixed
+- **Images from Teams and Claude saved as unreadable text.** Some apps put the image's bytes in a text type on the clipboard, so the history showed an "âPNG" item with thousands of garbled characters. These copies are now saved as images, and the ones already in your history turn into images when Menew opens.
+- **Paste asking for Accessibility over and over.** When Menew is already on the Accessibility list but macOS no longer accepts that permission (it happens when the app's signature changes), Menew now explains how to fix it, by removing Menew from the list and adding it again, instead of showing the system prompt that changes nothing.
+
 ## 1.102.0
 
 ### New
