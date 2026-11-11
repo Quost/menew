@@ -106,6 +106,21 @@ struct RateWindow: Equatable, Identifiable {
         }
     }
 
+    /// A janela como está agora: se o reset já passou (a última leitura é de antes dele, como no Codex fechado),
+    /// ela zerou; o próximo reset vem somando a duração da janela
+    func rolled(now: Date = Date()) -> RateWindow {
+        guard let r = resetsAt, r <= now else { return self }
+        var w = self
+        w.usedPercent = 0
+        if let m = windowMinutes, m > 0 {
+            let span = Double(m) * 60
+            w.resetsAt = r.addingTimeInterval((floor(now.timeIntervalSince(r) / span) + 1) * span)
+        } else {
+            w.resetsAt = nil
+        }
+        return w
+    }
+
     /// Previsão pelo ritmo desde o início da janela: quando chega a 100%, se chegar antes de zerar.
     /// nil quando ainda é cedo para dizer, ou quando dá folga até o reset.
     func forecast(now: Date = Date()) -> Date? {
@@ -740,6 +755,9 @@ final class AgentUsageStore: ObservableObject {
         if isVisible { Task { localModels = await LocalModels.fetch() } }
     }
 
+    /// As janelas de uma ferramenta como estão agora (as que já zeraram, zeradas)
+    func current(_ a: AgentKind, now: Date = Date()) -> [RateWindow] { (limits[a] ?? []).map { $0.rolled(now: now) } }
+
     func setClaudePlan(_ on: Bool) {
         UserDefaults.standard.set(on, forKey: ClaudePlanLimits.key)
         lastClaudeFetch = .distantPast
@@ -831,8 +849,8 @@ final class AgentUsageStore: ObservableObject {
     private func checkAlerts() {
         guard UserDefaults.standard.object(forKey: Self.alertsKey) as? Bool ?? true else { return }
         var fired = Set(UserDefaults.standard.stringArray(forKey: "agents.alertsFired") ?? [])
-        for (agent, windows) in limits {
-            for w in windows {
+        for agent in limits.keys {
+            for w in current(agent) {
                 for threshold in [90.0, 75.0] where w.usedPercent >= threshold {
                     let id = "\(agent.rawValue).\(w.label).\(Int(w.resetsAt?.timeIntervalSince1970 ?? 0)).\(Int(threshold))"
                     guard !fired.contains(id) else { break }
@@ -844,8 +862,8 @@ final class AgentUsageStore: ObservableObject {
             }
         }
         // No ritmo de agora, acaba antes de zerar (em menos de 1 hora): avisa uma vez por janela
-        for (agent, windows) in limits {
-            for w in windows {
+        for agent in limits.keys {
+            for w in current(agent) {
                 guard let p = projection(agent, w), p.recent, let d = p.runsOut, d.timeIntervalSinceNow < 3600, d.timeIntervalSinceNow > 120 else { continue }
                 let id = "\(agent.rawValue).\(w.label).\(Int(w.resetsAt?.timeIntervalSince1970 ?? 0)).pace"
                 guard !fired.contains(id) else { continue }

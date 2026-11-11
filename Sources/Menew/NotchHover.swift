@@ -170,7 +170,8 @@ final class NotchHoverModel: ObservableObject {
         let active = AgentHub.shared.active(now: now)
         agents = Array(active.prefix(3))
         moreAgents = max(0, active.count - 3)
-        limitRows = agents.isEmpty ? [] : AgentLimitRow.current()
+        // Os limites e o uso de hoje ficam sempre, com ou sem sessão aberta
+        limitRows = AgentLimitRow.current()
     }
 }
 
@@ -333,7 +334,7 @@ struct NotchHoverView: View {
     // Passando o mouse: o que vem agora e atalhos
     private var hover: some View {
         VStack(alignment: .leading, spacing: 10) {
-            if !model.agents.isEmpty { agentsBlock }
+            if !model.agents.isEmpty || !model.limitRows.isEmpty { agentsBlock }
             HStack(spacing: 12) {
                 if let m = model.meeting {
                     HStack(spacing: 8) {
@@ -458,7 +459,7 @@ struct AgentLimitRow: Identifiable, Equatable {
         let start = Calendar.current.startOfDay(for: Date())
         return AgentKind.allCases.compactMap { a in
             let t = u.totals(since: start, agent: a)
-            let windows = Array((u.limits[a] ?? []).prefix(3))
+            let windows = Array(u.current(a).prefix(3))
             guard !windows.isEmpty || t.tokens > 0 else { return nil }
             var today = L("%@ hoje", AgentsView.tokens(t.tokens))
             if t.cost >= 0.01 { today += " · " + AgentsView.money(t.cost) }
