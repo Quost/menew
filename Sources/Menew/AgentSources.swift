@@ -545,3 +545,27 @@ enum PiLog {
         return r.total > 0 ? r : nil
     }
 }
+
+// MARK: Limite do Kiro
+
+/// O editor do Kiro guarda o uso do plano no próprio estado (`globalStorage/state.vscdb`, chave `kiro.kiroAgent`):
+/// créditos usados, o limite do mês e quando zera. É o que ele mostra na tela de uso; o Menew só lê.
+enum KiroLimits {
+    static let db = AgentFiles.home.appendingPathComponent("Library/Application Support/Kiro/User/globalStorage/state.vscdb")
+
+    static func read() -> RateWindow? {
+        guard FileManager.default.fileExists(atPath: db.path),
+              let raw = SQLiteReader.query(db, "SELECT value FROM ItemTable WHERE key = 'kiro.kiroAgent'").first?.first as? String else { return nil }
+        return parse(AgentFiles.dict(raw))
+    }
+
+    static func parse(_ obj: [String: Any]) -> RateWindow? {
+        guard let state = obj["kiro.resourceNotifications.usageState"] as? [String: Any],
+              let list = state["usageBreakdowns"] as? [[String: Any]],
+              let credit = list.first(where: { ($0["type"] as? String ?? "CREDIT") == "CREDIT" }) ?? list.first,
+              let used = AgentFiles.double(credit["currentUsage"]), let limit = AgentFiles.double(credit["usageLimit"]), limit > 0 else { return nil }
+        let percent = AgentFiles.double(credit["percentageUsed"]) ?? used / limit * 100
+        return RateWindow(label: L("Mês"), usedPercent: min(100, percent), resetsAt: AgentFiles.date(credit["resetDate"]),
+                          windowMinutes: 30 * 24 * 60, asOf: AgentFiles.date(state["timestamp"]) ?? Date())
+    }
+}

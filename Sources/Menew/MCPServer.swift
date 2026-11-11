@@ -294,6 +294,11 @@ enum MCPServer {
             for x in recs where x.date >= week { byModel[x.model, default: 0] += weight(x); byProject[x.project, default: 0] += weight(x) }
             if !byModel.isEmpty { out += "\nBy model (7 days): " + byModel.sorted { $0.value > $1.value }.prefix(4).map { "\($0.key) \(show($0.value))" }.joined(separator: ", ") }
             if !byProject.isEmpty { out += "\nBy project (7 days): " + byProject.sorted { $0.value > $1.value }.prefix(5).map { "\($0.key) \(show($0.value))" }.joined(separator: ", ") }
+            if let windows = r.otherLimits[agent], !windows.isEmpty {
+                out += "\nPlan limits: " + windows.map { w in
+                    "\(w.label) \(Int(w.usedPercent))% used" + (w.resetsAt.map { ", resets \(iso($0))" } ?? "")
+                }.joined(separator: "; ")
+            }
             if agent == .codex, !r.codexLimits.isEmpty {
                 out += "\nPlan limits" + (r.codexPlan.map { " (\($0))" } ?? "") + ": " + r.codexLimits.map { w in
                     "\(w.windowMinutes.map { "\($0 / 60)h window" } ?? "window") \(Int(w.usedPercent))% used" + (w.resetsAt.map { ", resets \(iso($0))" } ?? "")
@@ -390,6 +395,7 @@ enum MacStatus {
 /// (o Menew usa o comando, para não brigar com o arquivo que eles reescrevem); os outros são um JSON simples.
 enum MCPClient: String, CaseIterable, Identifiable {
     case claudeCode, codex, gemini, claudeDesktop, cursor
+    case kiro, copilot, opencode, qwen, droid, amp, kimi
     var id: String { rawValue }
 
     var name: String {
@@ -399,6 +405,50 @@ enum MCPClient: String, CaseIterable, Identifiable {
         case .gemini: "Gemini CLI"
         case .claudeDesktop: "Claude Desktop"
         case .cursor: "Cursor"
+        case .kiro: "Kiro"
+        case .copilot: "Copilot CLI"
+        case .opencode: "OpenCode"
+        case .qwen: "Qwen Code"
+        case .droid: "Droid"
+        case .amp: "Amp"
+        case .kimi: "Kimi"
+        }
+    }
+
+    /// A ferramenta de IA por trás deste app (para saber se está no Mac)
+    var agent: AgentKind? {
+        switch self {
+        case .claudeCode: .claude
+        case .codex: .codex
+        case .gemini: .gemini
+        case .kiro: .kiro
+        case .copilot: .copilot
+        case .opencode: .opencode
+        case .qwen: .qwen
+        case .droid: .droid
+        case .amp: .amp
+        case .kimi: .kimi
+        case .claudeDesktop, .cursor: nil
+        }
+    }
+
+    /// Onde fica a lista de servidores no JSON (o OpenCode chama de "mcp"; o Amp, de "amp.mcpServers")
+    private var containerKey: String {
+        switch self {
+        case .opencode: "mcp"
+        case .amp: "amp.mcpServers"
+        default: "mcpServers"
+        }
+    }
+
+    /// A entrada do Menew no formato de cada app
+    private var entry: [String: Any] {
+        let exe = AgentHooks.executable
+        switch self {
+        case .opencode: return ["type": "local", "command": [exe, MCPServer.flag], "enabled": true]
+        case .copilot: return ["type": "local", "command": exe, "args": [MCPServer.flag], "tools": ["*"]]
+        case .droid: return ["type": "stdio", "command": exe, "args": [MCPServer.flag]]
+        default: return Self.serverJSON
         }
     }
 
@@ -409,6 +459,13 @@ enum MCPClient: String, CaseIterable, Identifiable {
         case .gemini: Self.home.appendingPathComponent(".gemini/settings.json")
         case .claudeDesktop: Self.home.appendingPathComponent("Library/Application Support/Claude/claude_desktop_config.json")
         case .cursor: Self.home.appendingPathComponent(".cursor/mcp.json")
+        case .kiro: Self.home.appendingPathComponent(".kiro/settings/mcp.json")
+        case .copilot: Self.home.appendingPathComponent(".copilot/mcp-config.json")
+        case .opencode: Self.home.appendingPathComponent(".config/opencode/opencode.json")
+        case .qwen: Self.home.appendingPathComponent(".qwen/settings.json")
+        case .droid: Self.home.appendingPathComponent(".factory/mcp.json")
+        case .amp: Self.home.appendingPathComponent(".config/amp/settings.json")
+        case .kimi: Self.home.appendingPathComponent(".kimi/mcp.json")
         default: nil
         }
     }
@@ -421,6 +478,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
         case .gemini: return fm.fileExists(atPath: Self.home.appendingPathComponent(".gemini").path)
         case .claudeDesktop: return fm.fileExists(atPath: "/Applications/Claude.app") || fm.fileExists(atPath: jsonConfig!.deletingLastPathComponent().path)
         case .cursor: return fm.fileExists(atPath: "/Applications/Cursor.app") || fm.fileExists(atPath: Self.home.appendingPathComponent(".cursor").path)
+        default: return agent?.isInstalled ?? false
         }
     }
 
@@ -436,7 +494,7 @@ enum MCPClient: String, CaseIterable, Identifiable {
         default:
             guard let url = jsonConfig, let data = try? Data(contentsOf: url),
                   let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any] else { return false }
-            return (obj["mcpServers"] as? [String: Any])?["menew"] != nil
+            return (obj[containerKey] as? [String: Any])?["menew"] != nil
         }
     }
 
@@ -483,9 +541,9 @@ enum MCPClient: String, CaseIterable, Identifiable {
                 let backup = url.appendingPathExtension("menew-backup")
                 if !fm.fileExists(atPath: backup.path) { try? fm.copyItem(at: url, to: backup) }
             }
-            var servers = obj["mcpServers"] as? [String: Any] ?? [:]
-            servers["menew"] = on ? Self.serverJSON : nil
-            obj["mcpServers"] = servers
+            var servers = obj[containerKey] as? [String: Any] ?? [:]
+            servers["menew"] = on ? entry : nil
+            obj[containerKey] = servers
             try? fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
             guard let data = try? JSONSerialization.data(withJSONObject: obj, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]),
                   (try? data.write(to: url, options: .atomic)) != nil else { return L("Não consegui gravar o arquivo") }
