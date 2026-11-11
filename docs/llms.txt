@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.102.0 (updated 2026-11-11). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.103.0 (updated 2026-11-11). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## Highlights
 
@@ -155,7 +155,7 @@ Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or
 
 ### Can Menew show my Claude Code, Codex, Gemini and other coding agents' usage and limits?
 
-Yes. The AI agents section reads the logs Claude Code, Codex, Gemini CLI, Cursor, Copilot CLI, Kiro, OpenCode, Droid, Qwen Code, Amp, OpenClaw, Kimi, Goose and Pi already keep on your Mac and shows tokens by day, week or month for up to 12 months or all time (it keeps a small daily summary, since Claude Code deletes its logs after 30 days), split by tool and by app (terminal, desktop app or IDE), the estimated cost at API prices, cache savings and the top models and projects. Codex limits come from its own logs; Claude’s 5-hour and weekly limits are optional, since they come from Anthropic. Turn on the agent hooks and the notch tells you when an agent finishes or is waiting for your permission. An MCP server lets the agents search your Memory, notes and meeting minutes.
+Yes. The AI agents section reads the logs Claude Code, Codex, Gemini CLI, Cursor, Copilot CLI, Kiro, OpenCode, Droid, Qwen Code, Amp, OpenClaw, Kimi, Goose and Pi already keep on your Mac and shows tokens by day, week or month for up to 12 months or all time (it keeps a small daily summary, since Claude Code deletes its logs after 30 days), split by tool and by app (terminal, desktop app or IDE), the estimated cost at API prices, cache savings and the top models and projects. Codex limits come from its own logs; Claude’s 5-hour and weekly limits are optional, since they come from Anthropic. Turn on the agent hooks and the notch tells you when an agent finishes or is waiting for your permission. An MCP server lets the agents search your Memory, notes and meeting minutes. Agents in Docker can reach it too, over HTTP on your Mac only, with a key.
 
 ## Install
 

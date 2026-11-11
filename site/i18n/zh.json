@@ -229,5 +229,5 @@
   "b5_d": "Claude Code、Codex、Gemini CLI、Cursor、Copilot CLI、Kiro、OpenCode 等：谁在工作、谁在<b>等你</b>（显示在刘海处，可一键打开终端），5 小时和每周限额及按当前速度何时用完，以及按天、周或月统计的 token 与费用，最长可看全部历史，并按工具、模型、项目和应用细分。还有 <b>MCP 服务器</b>，让智能体搜索你的记忆、笔记和会议纪要。数据读取自你的 Mac，无需账号。",
   "priv_c5": "你的 Claude 套餐限额，仅在你开启时",
   "faq18_q": "Menew 能显示 Claude Code、Codex、Gemini 等编程智能体的用量和限额吗？",
-  "faq18_a": "可以。“AI 智能体”部分读取 Claude Code、Codex、Gemini CLI、Cursor、Copilot CLI、Kiro、OpenCode、Droid、Qwen Code、Amp、OpenClaw、Kimi、Goose 和 Pi 本来就保存在 Mac 上的日志，按天、周或月显示最长 12 个月或全部历史的 token（由于 Claude Code 会在 30 天后删除日志，Menew 会保留一份很小的每日汇总），并按工具和应用（终端、桌面应用或 IDE）细分，还显示按 API 价格估算的费用、缓存节省以及用得最多的模型和项目。Codex 限额来自它自己的日志；Claude 的 5 小时和每周限额来自 Anthropic，因此是可选的。开启 hooks 后，智能体完成或等待你授权时，刘海处会提醒你。MCP 服务器让智能体可以搜索你的记忆、笔记和会议纪要。"
+  "faq18_a": "可以。“AI 智能体”部分读取 Claude Code、Codex、Gemini CLI、Cursor、Copilot CLI、Kiro、OpenCode、Droid、Qwen Code、Amp、OpenClaw、Kimi、Goose 和 Pi 本来就保存在 Mac 上的日志，按天、周或月显示最长 12 个月或全部历史的 token（由于 Claude Code 会在 30 天后删除日志，Menew 会保留一份很小的每日汇总），并按工具和应用（终端、桌面应用或 IDE）细分，还显示按 API 价格估算的费用、缓存节省以及用得最多的模型和项目。Codex 限额来自它自己的日志；Claude 的 5 小时和每周限额来自 Anthropic，因此是可选的。开启 hooks 后，智能体完成或等待你授权时，刘海处会提醒你。MCP 服务器让智能体可以搜索你的记忆、笔记和会议纪要。 Docker 中的智能体也能通过 HTTP 使用（仅限本机，需要密钥）。"
 }
