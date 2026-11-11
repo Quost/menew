@@ -14,11 +14,14 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
+# Onde roda: a variável CI_RUNNER do repositório (ex.: ["self-hosted","macOS","menew-release"]) leva os jobs para o
+# Mac do autor; vazia, ficam nas máquinas do GitHub. PR vindo de fork nunca roda no Mac, e com SELF_HOSTED_AUTHORS
+# (ex.: "Quost" ou "Quost,outra-pessoa") só quem disparou e o autor do PR que estão na lista.
 jobs:
   app:
     name: Build and tests
     # macOS 26 traz o Xcode 26, o mesmo da Release
-    runs-on: macos-26
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"macos-26"') }}
     timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +32,7 @@ jobs:
 
   translations:
     name: Translations and changelog
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -41,7 +44,7 @@ jobs:
 
   site:
     name: Website pages
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
         with:

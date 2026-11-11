@@ -2,7 +2,7 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## 1.99.0
+## 1.99.1
 
 ### New
 - **External monitors follow the Mac display.** Turn on "Follow the Mac display" right below the brightness sliders (Actions › Windows and displays, also in Settings › Windows and displays) and, as the Mac's display gets brighter or dimmer with the room's light, external monitors follow, over the cable (DDC/CI) or by software dimming. Move a monitor's slider to keep it brighter or dimmer than the Mac display; it then follows with that difference. In low light, when a monitor's backlight is already at its minimum and still brighter than the Mac display, Menew also darkens its picture so it gets close to the Mac display's near-black. Off by default.

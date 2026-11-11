@@ -15,7 +15,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 # Saíram no mesmo dia, antes do CHANGELOG ter uma seção por versão; as notas delas estão na 1.2.4
-WITHOUT_SECTION = {"1.2.0", "1.2.1", "1.2.2", "1.2.3"}
+WITHOUT_SECTION = {"1.2.0", "1.2.1", "1.2.2", "1.2.3",
+                   # Tag criada, mas a Release falhou (sem Xcode 27 no GitHub) e nada saiu; as notas estão na 1.99.1
+                   "1.99.0"}
 
 def version(v):
     return tuple(int(x) for x in v.split("."))

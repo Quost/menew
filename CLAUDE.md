@@ -29,6 +29,21 @@ Whenever a change is visible to users (new feature, renamed screen, new setting,
 2. `git tag -a vX.Y.Z -m "Menew X.Y.Z" && git push origin vX.Y.Z`
 3. The `Release` workflow builds, signs, notarizes, publishes the `.dmg`/`.zip`/`appcast.xml` and bumps `Casks/menew.rb`. Check it finished green.
 
+### Where workflows run
+
+Two repo variables (Settings › Secrets and variables › Actions › Variables) pick the runner; empty means GitHub's machines:
+
+- `RELEASE_RUNNER`: the `Release` workflow. Releases need Xcode 27, which the `macos-26` image lacks, so it is set to `["self-hosted","macOS","menew-release"]`, the maintainer's Mac.
+- `CI_RUNNER`: every other workflow (CI, Commits, CodeQL, Site). Set it to the same value to move them all to the Mac (for example, when GitHub Actions minutes are blocked). PRs from forks always stay on GitHub's machines.
+- `SELF_HOSTED_AUTHORS`: comma-separated GitHub logins allowed on the Mac, set to `Quost`. A job goes to the Mac only if whoever triggered it (and, on a PR, the PR's author) is in the list; anyone else runs on GitHub's machines. Empty allows anyone in the repo (forks never).
+
+```bash
+gh variable set CI_RUNNER --body '["self-hosted","macOS","menew-release"]'   # to the Mac
+gh variable delete CI_RUNNER                                                # back to GitHub
+```
+
+The runner lives in `~/actions-runner-menew` and is not a service: start it with `~/actions-runner-menew/run.sh` when a job should run on the Mac. The other `~/actions-runner*` folders belong to other projects; don't touch them.
+
 ## Don'ts
 
 - No telemetry or analytics in the app, ever (the README and site promise this). The website only uses GoatCounter (cookieless; `GOATCOUNTER` in `scripts/build-site.py`, clicks tagged with `data-goatcounter-click`); never add cookies or another tracker. Network calls are limited to the update check, the public-IP lookup, the user-started speed test, the currency rate fetched when the user presses ↩ on a conversion in the command palette, and the opt-in Claude plan limits (`api.anthropic.com/api/oauth/usage`, off by default). Ollama/LM Studio are read on `127.0.0.1` only.
