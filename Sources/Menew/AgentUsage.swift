@@ -108,11 +108,11 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
     /// O Pi também vale quando só um agente feito a partir dele está no Mac (com outra pasta)
     var isInstalled: Bool { homes.contains { FileManager.default.fileExists(atPath: $0.path) } || (self == .pi && !PiLog.roots().isEmpty) }
 
-    /// As que avisam o Menew a cada evento por um comando (as outras só por plugin, que o Menew não instala:
-    /// delas o Menew vê o processo rodando e o uso nos registros)
+    /// As que avisam o Menew a cada evento: por um comando (hooks) ou por um plugin do Menew (Pi, OpenCode, Amp).
+    /// Das outras o Menew vê o processo rodando e o uso nos registros.
     var hasHooks: Bool {
         switch self {
-        case .opencode, .amp, .openclaw, .kimi, .goose, .pi: false
+        case .openclaw, .kimi, .goose: false
         default: true
         }
     }
@@ -593,6 +593,8 @@ final class AgentUsageScanner: @unchecked Sendable {
     struct Result {
         var records: [UsageRecord]
         var codexLimits: [RateWindow]
+        /// Limites que outras ferramentas guardam no Mac (o Kiro: créditos do mês)
+        var otherLimits: [AgentKind: [RateWindow]] = [:]
         var codexPlan: String?
         var codexHistory: [RateWindow] = []
         /// Desde quando os registros foram lidos: os dias inteiros depois disso estão completos
@@ -638,7 +640,9 @@ final class AgentUsageScanner: @unchecked Sendable {
         let records = files.values.flatMap { $0.records.filter { $0.date >= cutoff } }
             .filter { r in r.key.map { keys.insert($0).inserted } ?? true }
             .sorted { $0.date < $1.date }
-        return Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory, since: cutoff)
+        var result = Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory, since: cutoff)
+        if let kiro = KiroLimits.read() { result.otherLimits[.kiro] = [kiro] }
+        return result
     }
 
     private func update(_ url: URL, agent: AgentKind) {
@@ -934,6 +938,10 @@ final class AgentUsageStore: ObservableObject {
                     for w in result.codexHistory { s.record(.codex, w) }
                     if !result.codexLimits.isEmpty { s.limits[.codex] = result.codexLimits }
                     if let p = result.codexPlan { s.plans[.codex] = p }
+                    for (a, windows) in result.otherLimits {
+                        s.limits[a] = windows
+                        windows.forEach { s.record(a, $0) }
+                    }
                     s.lastScan = Date()
                     s.scanning = false
                     s.checkAlerts()
@@ -1131,6 +1139,7 @@ final class AgentUsageStore: ObservableObject {
         // Leituras da última meia hora: no ritmo de agora, a janela de 5 h do Claude acaba antes de zerar
         record(.claude, RateWindow(label: L("5 horas"), usedPercent: 50, resetsAt: now.addingTimeInterval(5400), windowMinutes: 300, asOf: now.addingTimeInterval(-1500)))
         limits[.claude]?.forEach { record(.claude, $0) }
+        limits[.kiro] = [RateWindow(label: L("Mês"), usedPercent: 39, resetsAt: now.addingTimeInterval(20 * 86400), windowMinutes: 43200, asOf: now)]
         plans = [.claude: "Max", .codex: "Plus"]
         localModels = [LocalModel(app: "Ollama", name: "qwen3-coder:30b", bytes: 19_400_000_000)]
         lastScan = now

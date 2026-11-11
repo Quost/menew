@@ -33,7 +33,9 @@ struct AgentsView: View {
         .alert(item: Binding(get: { confirm.map { ConfirmBox(agent: $0.0, install: $0.1) } }, set: { _ in confirm = nil })) { c in
             Alert(title: Text(c.install ? L("Ligar os avisos do %@?", c.agent.name) : L("Desligar os avisos do %@?", c.agent.name)),
                   message: Text(c.install
-                                ? L("O Menew acrescenta um comando dele nos hooks de %@ (uma cópia do arquivo fica em .menew-backup). O resto do arquivo não muda.", AgentHooks.configURL(c.agent).path)
+                                ? (AgentPlugins.supports(c.agent)
+                                    ? L("O Menew põe um plugin dele em %@. Ele só escreve cada evento num arquivo ao lado; nada sai do computador. Reabra a ferramenta para carregar.", AgentHooks.configURL(c.agent).deletingLastPathComponent().path)
+                                    : L("O Menew acrescenta um comando dele nos hooks de %@ (uma cópia do arquivo fica em .menew-backup). O resto do arquivo não muda.", AgentHooks.configURL(c.agent).path))
                                     + (c.agent == .codex ? "\n\n" + L("O Codex pede para você aprovar hooks novos: abra o Codex e confirme.") : "")
                                 : L("O Menew tira só as entradas dele de %@.", AgentHooks.configURL(c.agent).path)),
                   primaryButton: .default(Text(c.install ? L("Ligar") : L("Desligar"))) {
@@ -182,13 +184,13 @@ struct AgentsView: View {
         )) {
             if h.rows.isEmpty && usage.records.isEmpty {
                 Text(usage.installed.isEmpty
-                     ? L("Nenhum Claude Code, Codex ou Gemini CLI neste Mac.")
+                     ? L("Nenhum agente de IA neste Mac.")
                      : (usage.scanning ? L("Lendo os registros…") : L("Nenhum uso registrado.")))
                     .font(.system(size: 12.5)).foregroundStyle(.secondary)
             } else {
                 HStack(alignment: .bottom, spacing: 24) {
                     stat(L("Tokens"), Self.tokens(t.tokens))
-                    stat(L("Custo estimado"), Self.money(t.cost), help: L("Pelos preços da API da Anthropic, só do Claude. No plano Pro ou Max você não paga isso."))
+                    stat(L("Custo estimado"), Self.money(t.cost), help: L("O Claude pelos preços da API da Anthropic (no plano Pro ou Max você não paga isso); as outras pelo custo que elas mesmas gravam, e o Kiro pelos créditos."))
                     stat(L("Economia do cache"), Self.money(t.savings), help: L("Quanto as leituras do cache custariam como entrada normal"))
                     stat(L("Respostas"), t.replies.formatted(.number.locale(L10n.locale)))
                     Spacer(minLength: 0)
@@ -215,6 +217,11 @@ struct AgentsView: View {
         }
     }
 
+    private func present(_ bars: [AgentUsageBar]) -> [AgentKind] {
+        let used = Set(bars.filter { $0.tokens > 0 }.compactMap(\.agent))
+        return AgentKind.allCases.filter(used.contains)
+    }
+
     private func chart(_ h: AgentUsageHistory, _ w: UsageWindow) -> some View {
         let bars = h.bars(w, byAgent: byTool)
         let unit = w.bucket.component
@@ -228,7 +235,8 @@ struct AgentsView: View {
                         .foregroundStyle(Color.accentColor.gradient)
                 }
             }
-            .chartForegroundStyleScale(domain: AgentKind.allCases.map(\.name), range: AgentKind.allCases.map(\.color))
+            // Na legenda, só as ferramentas que aparecem no gráfico
+            .chartForegroundStyleScale(domain: present(bars).map(\.name), range: present(bars).map(\.color))
             .chartLegend(byTool ? .visible : .hidden)
             .chartYAxis { AxisMarks { v in AxisGridLine(); AxisValueLabel { Text(Self.tokens(v.as(Int.self) ?? 0)) } } }
             .chartXAxis {

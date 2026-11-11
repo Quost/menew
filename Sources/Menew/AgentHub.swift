@@ -304,6 +304,8 @@ final class AgentHub: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 15, repeats: true) { _ in
             MainActor.assumeIsolated { AgentHub.shared.prune() }
         }
+        // Pi, OpenCode e Amp avisam por um arquivo que o plugin do Menew escreve
+        AgentEventFiles.shared.start()
         timer?.tolerance = 3
     }
 
@@ -469,6 +471,7 @@ enum AgentHooks {
         case .kiro: return h.appendingPathComponent(".kiro/hooks/menew.json")
         case .droid: return style(a) == .rootGroups ? droidHooksFile : h.appendingPathComponent(".factory/settings.json")
         case .qwen: return h.appendingPathComponent(".qwen/settings.json")
+        case .pi, .opencode, .amp: return AgentPlugins.targets(a).first ?? a.home
         default: return a.home
         }
     }
@@ -519,6 +522,7 @@ enum AgentHooks {
     }
 
     static func status(_ a: AgentKind) -> Status {
+        if AgentPlugins.supports(a) { return AgentPlugins.status(a) }
         guard a.hasHooks, let config = load(a) else { return .notInstalled }
         let cmds = ourCommands(config)
         if cmds.isEmpty { return .notInstalled }
@@ -592,6 +596,7 @@ enum AgentHooks {
     enum Failure: Error { case unreadable, write }
 
     static func apply(_ a: AgentKind, install: Bool) throws {
+        if AgentPlugins.supports(a) { return try AgentPlugins.apply(a, install: install) }
         guard let current = load(a) else { throw Failure.unreadable }
         let url = configURL(a)
         let fm = FileManager.default

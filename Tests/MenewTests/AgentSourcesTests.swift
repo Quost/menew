@@ -188,7 +188,8 @@ final class AgentHookStylesTests: XCTestCase {
     }
 
     func testAgentsWithoutHooks() {
-        for a in [AgentKind.opencode, .amp, .openclaw, .kimi, .goose] {
+        // Pi, OpenCode e Amp agora avisam por plugin; estas seguem só pelo processo e pelo uso
+        for a in [AgentKind.openclaw, .kimi, .goose] {
             XCTAssertFalse(a.hasHooks)
             XCTAssertTrue(AgentHooks.events(a).isEmpty)
             XCTAssertEqual(AgentHooks.status(a), .notInstalled)
@@ -322,5 +323,65 @@ final class PiLogTests: XCTestCase {
     func testPiProcess() {
         let found = AgentProcesses.parse("  20 pi\n  21 node /opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js\n  22 node /usr/local/bin/pip")
         XCTAssertEqual(found.filter { $0.0 == .pi }.map(\.1), [20, 21])
+    }
+}
+
+@MainActor
+final class AgentPluginEventsTests: XCTestCase {
+    func testPluginLineBecomesAHookEvent() {
+        let line: [String: Any] = ["agent": "pi", "event": "PreToolUse", "session": "123-456", "cwd": "/Users/ana/apps/api",
+                                   "tool_name": "bash", "tool_input": ["command": "npm test"], "pid": 1, "platform": "linux"]
+        let info = AgentEventFiles.info(line, agent: .pi)
+        XCTAssertEqual(info["agent"], "pi")
+        XCTAssertEqual(info["event"], "PreToolUse")
+        XCTAssertEqual(info["detail"], "npm test")
+        // Um pid de dentro de um container Linux não é deste Mac
+        XCTAssertNil(info["pid"])
+    }
+
+    func testPluginSessionStates() {
+        let hub = AgentHub.shared
+        let t0 = Date()
+        hub.handle(AgentEventFiles.info(["event": "UserPromptSubmit", "session": "T-9", "prompt": "Add tests", "platform": "linux"], agent: .amp), now: t0)
+        XCTAssertEqual(hub.sessions.first { $0.id == "amp.T-9" }?.state, .working)
+        XCTAssertEqual(hub.sessions.first { $0.id == "amp.T-9" }?.task, "Add tests")
+        hub.handle(AgentEventFiles.info(["event": "Notification", "session": "T-9", "message": "Needs your permission"], agent: .amp), now: t0)
+        XCTAssertEqual(hub.sessions.first { $0.id == "amp.T-9" }?.state, .waiting)
+        hub.handle(AgentEventFiles.info(["event": "Stop", "session": "T-9"], agent: .amp), now: t0)
+        XCTAssertEqual(hub.sessions.first { $0.id == "amp.T-9" }?.state, .done)
+        hub.handle(["agent": "amp", "event": "SessionEnd", "session": "T-9"], now: t0)
+    }
+
+    func testPluginSourcesNameTheirAgentAndFile() {
+        for a in [AgentKind.pi, .opencode, .amp] {
+            XCTAssertTrue(AgentPlugins.supports(a))
+            XCTAssertTrue(a.hasHooks)
+            let src = AgentPlugins.source(a)
+            XCTAssertTrue(src.contains(#"agent: "\#(a.rawValue)""#))
+            XCTAssertTrue(src.contains(AgentPlugins.eventsName))
+        }
+        XCTAssertFalse(AgentPlugins.supports(.claude))
+    }
+}
+
+final class KiroLimitsTests: XCTestCase {
+    func testCreditsOfTheMonth() {
+        let obj: [String: Any] = ["kiro.resourceNotifications.usageState": [
+            "timestamp": 1794400308307,
+            "usageBreakdowns": [["type": "CREDIT", "currentUsage": 394.11, "usageLimit": 1000, "percentageUsed": 39.411,
+                                 "resetDate": "2026-12-01T00:00:00.000Z"]],
+        ]]
+        let w = KiroLimits.parse(obj)
+        XCTAssertEqual(w?.usedPercent ?? 0, 39.411, accuracy: 0.001)
+        XCTAssertEqual(w?.resetsAt, AgentDates.parse("2026-12-01T00:00:00.000Z"))
+        XCTAssertNil(KiroLimits.parse([:]))
+    }
+}
+
+final class MCPClientsTests: XCTestCase {
+    func testEveryAgentClientMapsToItsTool() {
+        XCTAssertEqual(MCPClient.kiro.agent, .kiro)
+        XCTAssertEqual(MCPClient.opencode.agent, .opencode)
+        XCTAssertNil(MCPClient.claudeDesktop.agent)
     }
 }

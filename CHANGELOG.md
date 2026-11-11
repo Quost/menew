@@ -2,6 +2,16 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.102.0
+
+### New
+- **Kiro plan limit.** Kiro now shows in Plan limits and in the notch with the credits used this month, when they reset and the forecast at the current pace, read from what the Kiro editor keeps on your Mac.
+- **Working, waiting and done for Pi, OpenCode and Amp.** These tools only load plugins, so turning them on in AI agents › Set up adds a small Menew plugin that writes each event to a file next to it. Menew reads that file, so it works even when the tool runs in a container with that folder mounted from your Mac. Reopen the tool after turning it on.
+- **MCP server in more apps.** One switch now adds Menew's MCP server to Kiro, Copilot CLI, OpenCode, Qwen Code, Droid, Amp and Kimi too.
+
+### Improved
+- **Only what you use.** The usage chart's legend lists only the tools with usage in the period, instead of every supported tool.
+
 ## 1.101.0
 
 ### New
