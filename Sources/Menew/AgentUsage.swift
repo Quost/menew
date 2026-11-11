@@ -56,12 +56,60 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
     var isInstalled: Bool { FileManager.default.fileExists(atPath: home.path) }
 }
 
+/// Por onde a ferramenta foi usada. O Claude Code (terminal, app Claude e extensões) grava `entrypoint` em cada linha;
+/// o Codex (terminal e app) grava `originator` no começo da sessão.
+enum AgentClient: String, CaseIterable, Codable {
+    case cli, desktop, ide, sdk, other
+
+    func name(_ agent: AgentKind) -> String {
+        switch self {
+        case .cli: "CLI"
+        case .desktop: agent == .claude ? "Desktop" : L("App")
+        case .ide: "IDE"
+        case .sdk: "SDK"
+        case .other: L("Outro")
+        }
+    }
+
+    /// "Claude Desktop", "Codex CLI"
+    func title(_ agent: AgentKind) -> String { agent.short + " " + name(agent) }
+
+    /// `cli`, `claude-desktop`, `claude-vscode`, `sdk-ts`…
+    static func claude(entrypoint: String?) -> AgentClient {
+        guard let e = entrypoint?.lowercased(), !e.isEmpty else { return .cli }
+        if e == "cli" { return .cli }
+        if e.contains("desktop") { return .desktop }
+        if e.hasPrefix("sdk") { return .sdk }
+        if ["vscode", "jetbrains", "ide", "cursor", "zed"].contains(where: e.contains) { return .ide }
+        return .other
+    }
+
+    /// `codex-tui`, `codex_cli_rs`, `codex_exec` (terminal); `codex_work_desktop`, `Codex Desktop` (app); `codex_vscode` (extensão).
+    /// O `source` vem como "vscode" até em sessões do terminal, por isso só vale sem `originator`.
+    static func codex(originator: String?, source: String?) -> AgentClient {
+        let o = (originator ?? "").lowercased()
+        if o.isEmpty {
+            switch (source ?? "").lowercased() {
+            case "vscode": return .ide
+            case "", "cli", "exec": return .cli
+            default: return .other
+            }
+        }
+        if o.contains("desktop") || o.hasSuffix("_app") { return .desktop }
+        if ["vscode", "jetbrains", "ide", "cursor"].contains(where: o.contains) { return .ide }
+        if o.contains("sdk") { return .sdk }
+        if ["tui", "cli", "exec"].contains(where: o.contains) { return .cli }
+        return .other
+    }
+}
+
 /// Uma resposta do modelo: os tokens gastos nela
 struct UsageRecord: Equatable {
     var date: Date
     var agent: AgentKind
     var model: String
     var project: String
+    var client: AgentClient = .cli
     /// Entrada que não veio do cache
     var input = 0
     var output = 0
@@ -245,6 +293,7 @@ enum ClaudeLog {
     private static let requestKey = Array(#""requestId":""#.utf8)
     private static let timeKey = Array(#""timestamp":""#.utf8)
     private static let cwdKey = Array(#""cwd":""#.utf8)
+    private static let entryKey = Array(#""entrypoint":""#.utf8)
 
     static func parse(_ line: Substring, seen: inout Set<String>) -> UsageRecord? {
         var data = Data(line.utf8)
@@ -262,7 +311,8 @@ enum ClaudeLog {
         let key = "\(Bytes.string(after: idKey, in: line) ?? UUID().uuidString):\(Bytes.string(after: requestKey, in: line) ?? "")"
         guard seen.insert(key).inserted else { return nil }
         guard let date = Bytes.string(after: timeKey, in: line).flatMap(AgentDates.parse) else { return nil }
-        var r = UsageRecord(date: date, agent: .claude, model: model, project: AgentDates.project(Bytes.string(after: cwdKey, in: line)))
+        var r = UsageRecord(date: date, agent: .claude, model: model, project: AgentDates.project(Bytes.string(after: cwdKey, in: line)),
+                            client: AgentClient.claude(entrypoint: Bytes.string(after: entryKey, in: line)))
         r.input = int(usage["input_tokens"])
         r.output = int(usage["output_tokens"])
         r.cacheRead = int(usage["cache_read_input_tokens"])
@@ -284,6 +334,7 @@ enum ClaudeLog {
 struct CodexLog {
     var project = "Codex"
     var model = ""
+    var client = AgentClient.cli
     private var lastTotal = (input: 0, cached: 0, output: 0)
     private(set) var limits: [RateWindow] = []
     private(set) var plan: String?
@@ -304,6 +355,7 @@ struct CodexLog {
         switch obj["type"] as? String {
         case "session_meta":
             project = AgentDates.project(payload["cwd"] as? String)
+            client = AgentClient.codex(originator: payload["originator"] as? String, source: payload["source"] as? String)
             return nil
         case "turn_context":
             if let m = payload["model"] as? String { model = m }
@@ -318,7 +370,7 @@ struct CodexLog {
             lastTotal = now
             let dIn = now.input - base.input, dCached = now.cached - base.cached, dOut = now.output - base.output
             guard dIn + dOut > 0 else { return nil }
-            var r = UsageRecord(date: date, agent: .codex, model: model.isEmpty ? "codex" : model, project: project)
+            var r = UsageRecord(date: date, agent: .codex, model: model.isEmpty ? "codex" : model, project: project, client: client)
             // Na OpenAI, a entrada inclui a parte que veio do cache
             r.cacheRead = max(0, dCached)
             r.input = max(0, dIn - dCached)
@@ -452,6 +504,10 @@ enum AgentPricing {
 /// Os registros dos últimos 31 dias ficam na memória (um registro por resposta, coisa de poucos MB).
 final class AgentUsageScanner: @unchecked Sendable {
     static let days = 31
+    /// nil = tudo o que os registros ainda têm (a primeira leitura do histórico)
+    let days: Int?
+
+    init(days: Int? = AgentUsageScanner.days) { self.days = days }
 
     private struct FileState {
         var offset: UInt64 = 0
@@ -470,6 +526,8 @@ final class AgentUsageScanner: @unchecked Sendable {
         var codexLimits: [RateWindow]
         var codexPlan: String?
         var codexHistory: [RateWindow] = []
+        /// Desde quando os registros foram lidos: os dias inteiros depois disso estão completos
+        var since: Date = .distantPast
     }
 
     func scan(_ done: @escaping @Sendable (Result) -> Void) {
@@ -478,7 +536,7 @@ final class AgentUsageScanner: @unchecked Sendable {
 
     /// Síncrono (o servidor MCP usa direto)
     func scanNow() -> Result {
-        let cutoff = Date().addingTimeInterval(-Double(Self.days) * 86400)
+        let cutoff = days.map { Date().addingTimeInterval(-Double($0) * 86400) } ?? .distantPast
         var alive = Set<String>()
         var codexLatest: (Date, [RateWindow], String?)?
 
@@ -501,7 +559,7 @@ final class AgentUsageScanner: @unchecked Sendable {
         files = files.filter { alive.contains($0.key) }
         let codexHistory = files.values.flatMap(\.codex.history).sorted { $0.asOf < $1.asOf }
         let records = files.values.flatMap { $0.records.filter { $0.date >= cutoff } }.sorted { $0.date < $1.date }
-        return Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory)
+        return Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory, since: cutoff)
     }
 
     private func update(_ url: URL, agent: AgentKind) {
@@ -690,6 +748,8 @@ final class AgentUsageStore: ObservableObject {
     static let alertsKey = "agents.limitAlerts"
 
     @Published private(set) var records: [UsageRecord] = []
+    /// Somas por dia guardadas no Mac: os gráficos de 90 dias, 12 meses e tudo
+    @Published private(set) var history = AgentUsageHistory()
     @Published private(set) var limits: [AgentKind: [RateWindow]] = [:]
     @Published private(set) var plans: [AgentKind: String] = [:]
     @Published private(set) var claudeLimitError: ClaudePlanLimits.Failure?
@@ -701,6 +761,9 @@ final class AgentUsageStore: ObservableObject {
     private var timer: Timer?
     private var lastClaudeFetch = Date.distantPast
     private var demo = false
+    var isDemo: Bool { demo }
+    private var backfilling = false
+    private let saveQueue = DispatchQueue(label: "menew.agent-history", qos: .utility)
     /// A seção está aberta: os modelos locais são consultados só enquanto isso
     var isVisible = false { didSet { if isVisible { refresh() } } }
 
@@ -708,6 +771,7 @@ final class AgentUsageStore: ObservableObject {
 
     func start() {
         guard timer == nil else { return }
+        if !demo { history = AgentUsageHistory.load() }
         refresh()
         // A cada 2 minutos: barato (só lê o que foi acrescentado) e deixa os avisos de limite em dia
         timer = Timer.scheduledTimer(withTimeInterval: 120, repeats: true) { _ in
@@ -725,6 +789,11 @@ final class AgentUsageStore: ObservableObject {
                 MainActor.assumeIsolated {
                     let s = AgentUsageStore.shared
                     s.records = result.records
+                    // Os dias inteiros da leitura (o primeiro pode ter vindo pela metade)
+                    let cal = Calendar.current
+                    let covered = cal.date(byAdding: .day, value: 1, to: cal.startOfDay(for: result.since)) ?? result.since
+                    s.mergeHistory(result.records, coveredFrom: covered)
+                    s.backfillIfNeeded()
                     for w in result.codexHistory { s.record(.codex, w) }
                     if !result.codexLimits.isEmpty { s.limits[.codex] = result.codexLimits }
                     if let p = result.codexPlan { s.plans[.codex] = p }
@@ -757,6 +826,34 @@ final class AgentUsageStore: ObservableObject {
 
     /// As janelas de uma ferramenta como estão agora (as que já zeraram, zeradas)
     func current(_ a: AgentKind, now: Date = Date()) -> [RateWindow] { (limits[a] ?? []).map { $0.rolled(now: now) } }
+
+    // MARK: Histórico
+
+    private func mergeHistory(_ records: [UsageRecord], coveredFrom: Date, backfilled: Bool = false) {
+        guard !demo else { return }
+        var h = history
+        let changed = h.merge(records, coveredFrom: coveredFrom)
+        if backfilled { h.backfilled = true }
+        guard changed || backfilled else { return }
+        history = h
+        saveQueue.async { h.save() }
+    }
+
+    /// Uma vez: lê tudo o que os registros ainda têm (pode ser bem mais que um mês) para começar o histórico
+    private func backfillIfNeeded() {
+        guard !history.backfilled, !backfilling, !demo else { return }
+        backfilling = true
+        DispatchQueue.global(qos: .utility).async {
+            let result = AgentUsageScanner(days: nil).scanNow()
+            DispatchQueue.main.async {
+                MainActor.assumeIsolated {
+                    let s = AgentUsageStore.shared
+                    s.mergeHistory(result.records, coveredFrom: .distantPast, backfilled: true)
+                    s.backfilling = false
+                }
+            }
+        }
+    }
 
     func setClaudePlan(_ on: Bool) {
         UserDefaults.standard.set(on, forKey: ClaudePlanLimits.key)
@@ -813,31 +910,6 @@ final class AgentUsageStore: ObservableObject {
         return t
     }
 
-    /// Tokens por dia nos últimos `days` dias, de cada ferramenta (para o gráfico)
-    func daily(days: Int) -> [(day: Date, agent: AgentKind, tokens: Int)] {
-        let cal = Calendar.current
-        let start = cal.date(byAdding: .day, value: -(days - 1), to: cal.startOfDay(for: Date()))!
-        var buckets: [Date: [AgentKind: Int]] = [:]
-        for r in records where r.date >= start {
-            buckets[cal.startOfDay(for: r.date), default: [:]][r.agent, default: 0] += r.total
-        }
-        return (0..<days).flatMap { i -> [(Date, AgentKind, Int)] in
-            let d = cal.date(byAdding: .day, value: i, to: start)!
-            return AgentKind.allCases.map { (d, $0, buckets[d]?[$0] ?? 0) }
-        }
-    }
-
-    /// Os maiores (por tokens) numa dimensão: modelo ou projeto
-    func top(since: Date, by key: (UsageRecord) -> String, limit: Int = 5) -> [(name: String, agent: AgentKind, tokens: Int, cost: Double)] {
-        var acc: [String: (AgentKind, Int, Double)] = [:]
-        for r in records where r.date >= since {
-            let k = key(r)
-            let cur = acc[k] ?? (r.agent, 0, 0)
-            acc[k] = (cur.0, cur.1 + r.total, cur.2 + (AgentPricing.cost(r) ?? 0))
-        }
-        return acc.sorted { $0.value.1 > $1.value.1 }.prefix(limit).map { ($0.key, $0.value.0, $0.value.1, $0.value.2) }
-    }
-
     /// Tokens por minuto nos últimos 5 minutos: dá a ideia de quem está trabalhando agora
     func burnRate(_ agent: AgentKind, now: Date = Date()) -> Int {
         records.filter { $0.agent == agent && $0.date > now.addingTimeInterval(-300) }.reduce(0) { $0 + $1.output } / 5
@@ -888,7 +960,7 @@ final class AgentUsageStore: ObservableObject {
             for i in 0..<n {
                 let date = now.addingTimeInterval(-Double(d) * 86400 - Double(i) * 900)
                 var r = UsageRecord(date: date, agent: i % 4 == 3 ? .codex : .claude, model: i % 4 == 3 ? "gpt-5.5-codex" : (i % 3 == 0 ? "claude-sonnet-5-5" : "claude-opus-5-5"),
-                                    project: projects[(i + d) % projects.count])
+                                    project: projects[(i + d) % projects.count], client: i % 3 == 1 ? .desktop : .cli)
                 r.input = Int.random(in: 20...600, using: &rng)
                 r.output = Int.random(in: 300...4000, using: &rng)
                 r.cacheRead = Int.random(in: 20_000...90_000, using: &rng)
@@ -902,6 +974,7 @@ final class AgentUsageStore: ObservableObject {
             }
         }
         records = out.sorted { $0.date < $1.date }
+        history = Self.demoHistory(recent: records, now: now)
         limits = [
             .claude: [RateWindow(label: L("5 horas"), usedPercent: 62, resetsAt: now.addingTimeInterval(5400), windowMinutes: 300, asOf: now),
                       RateWindow(label: L("Semana"), usedPercent: 38, resetsAt: now.addingTimeInterval(3 * 86400), windowMinutes: 10080, asOf: now)],
@@ -914,5 +987,38 @@ final class AgentUsageStore: ObservableObject {
         plans = [.claude: "Max", .codex: "Plus"]
         localModels = [LocalModel(app: "Ollama", name: "qwen3-coder:30b", bytes: 19_400_000_000)]
         lastScan = now
+    }
+
+    /// 14 meses de uso de exemplo: o mês recente vem dos registros acima, o resto cresce aos poucos até hoje
+    static func demoHistory(recent: [UsageRecord], now: Date) -> AgentUsageHistory {
+        let cal = Calendar.current
+        var h = AgentUsageHistory(backfilled: true)
+        var older: [UsageRecord] = []
+        let projects = ["menew", "api", "site", "mobile"]
+        for d in 30..<425 {
+            guard let day = cal.date(byAdding: .day, value: -d, to: cal.startOfDay(for: now)) else { continue }
+            let weekday = cal.component(.weekday, from: day)
+            // Menos nos fins de semana; mais perto de hoje
+            let scale = (weekday == 1 || weekday == 7 ? 0.25 : 1) * (1 - Double(d) / 520)
+            let n = Int(22 * scale + Double(d % 5))
+            for i in 0..<n {
+                let codex = i % 4 == 3 && d < 300
+                var r = UsageRecord(date: day.addingTimeInterval(9 * 3600 + Double(i) * 1500), agent: codex ? .codex : .claude,
+                                    model: codex ? "gpt-5.5-codex" : (d > 200 ? "claude-opus-5" : (i % 3 == 0 ? "claude-sonnet-5-5" : "claude-opus-5-5")),
+                                    project: projects[(i + d) % projects.count], client: codex ? (i % 8 == 3 ? .desktop : .cli) : (i % 3 == 1 ? .desktop : .cli))
+                r.input = 300 + (i * 37 + d * 11) % 500
+                r.output = 800 + (i * 211 + d * 17) % 3000
+                r.cacheRead = 25_000 + (i * 977 + d * 131) % 60_000
+                r.cacheWrite1h = (i * 389 + d) % 5_000
+                older.append(r)
+            }
+            if d % 9 == 0 {
+                var g = UsageRecord(date: day.addingTimeInterval(15 * 3600), agent: .gemini, model: "gemini-3-pro", project: "Gemini")
+                g.input = 40_000; g.output = 3_000
+                older.append(g)
+            }
+        }
+        h.rows = AgentUsageHistory.aggregate(older + recent, calendar: cal)
+        return h
     }
 }

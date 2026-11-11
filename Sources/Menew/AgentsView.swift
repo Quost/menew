@@ -7,7 +7,9 @@ struct AgentsView: View {
     @ObservedObject var usage = AgentUsageStore.shared
     @ObservedObject var hub = AgentHub.shared
     @ObservedObject var mcpStatus = MCPStatus.shared
-    @State private var days = 7
+    @State private var range = AgentsView.savedRange
+    /// Barras empilhadas por ferramenta (true) ou o total somado
+    @AppStorage("agents.usageByTool") private var byTool = true
     @State private var confirm: (AgentKind, Bool)?
     @State private var error: String?
     /// Muda a cada instalação, para os status (lidos dos arquivos) serem lidos de novo
@@ -161,41 +163,47 @@ struct AgentsView: View {
 
     // MARK: Uso
 
+    private static let rangeKey = "agents.usageRange"
+
+    /// O período escolhido da última vez (nas capturas de tela, 12 meses)
+    static var savedRange: UsageRange {
+        if AgentUsageStore.shared.isDemo { return .year }
+        return UserDefaults.standard.string(forKey: rangeKey).flatMap(UsageRange.init) ?? .week
+    }
+
     private var usageCard: some View {
-        let since = Calendar.current.date(byAdding: .day, value: -(days - 1), to: Calendar.current.startOfDay(for: Date()))!
-        let t = usage.totals(since: since)
+        let h = usage.history
+        let w = h.window(range)
+        let t = h.totals(since: w.start)
         return section(L("Uso"), trailing: AnyView(
-            Picker("", selection: $days) {
-                Text(L("Hoje")).tag(1)
-                Text(L("7 dias")).tag(7)
-                Text(L("30 dias")).tag(30)
-            }.pickerStyle(.segmented).labelsHidden().frame(width: 220)
+            Picker("", selection: Binding(get: { range }, set: { range = $0; if !usage.isDemo { UserDefaults.standard.set($0.rawValue, forKey: Self.rangeKey) } })) {
+                ForEach(UsageRange.allCases) { Text($0.title).tag($0) }
+            }.pickerStyle(.segmented).labelsHidden().controlSize(.small).fixedSize()
         )) {
-            if usage.records.isEmpty {
+            if h.rows.isEmpty && usage.records.isEmpty {
                 Text(usage.installed.isEmpty
                      ? L("Nenhum Claude Code, Codex ou Gemini CLI neste Mac.")
-                     : (usage.scanning ? L("Lendo os registros…") : L("Nada usado nos últimos 30 dias.")))
+                     : (usage.scanning ? L("Lendo os registros…") : L("Nenhum uso registrado.")))
                     .font(.system(size: 12.5)).foregroundStyle(.secondary)
             } else {
-                HStack(spacing: 24) {
+                HStack(alignment: .bottom, spacing: 24) {
                     stat(L("Tokens"), Self.tokens(t.tokens))
                     stat(L("Custo estimado"), Self.money(t.cost), help: L("Pelos preços da API da Anthropic, só do Claude. No plano Pro ou Max você não paga isso."))
                     stat(L("Economia do cache"), Self.money(t.savings), help: L("Quanto as leituras do cache custariam como entrada normal"))
-                    stat(L("Respostas"), t.replies.formatted())
-                }
-                if days > 1 {
-                    Chart(Array(usage.daily(days: days).enumerated()), id: \.offset) { _, row in
-                        BarMark(x: .value("day", row.day, unit: .day), y: .value("tokens", row.tokens))
-                            .foregroundStyle(by: .value("agent", row.agent.name))
+                    stat(L("Respostas"), t.replies.formatted(.number.locale(L10n.locale)))
+                    Spacer(minLength: 0)
+                    if range != .today {
+                        Picker("", selection: $byTool) {
+                            Text(L("Por ferramenta")).tag(true)
+                            Text(L("Somado")).tag(false)
+                        }.pickerStyle(.segmented).labelsHidden().controlSize(.small).fixedSize()
                     }
-                    .chartForegroundStyleScale(domain: AgentKind.allCases.map(\.name), range: AgentKind.allCases.map(\.color))
-                    .chartYAxis { AxisMarks { v in AxisGridLine(); AxisValueLabel { Text(Self.tokens(v.as(Int.self) ?? 0)) } } }
-                    .environment(\.locale, L10n.locale)
-                    .frame(height: 140)
                 }
+                if range != .today { chart(h, w) }
                 HStack(alignment: .top, spacing: 24) {
-                    ranking(L("Modelos"), usage.top(since: since, by: { AgentPricing.displayName($0.model) }))
-                    ranking(L("Projetos"), usage.top(since: since, by: \.project))
+                    ranking(L("Modelos"), h.top(since: w.start, by: { AgentPricing.displayName($0.model) }))
+                    ranking(L("Projetos"), h.top(since: w.start, by: \.project))
+                    ranking(L("Apps"), h.top(since: w.start, by: { $0.client.title($0.agent) }))
                 }
                 HStack(spacing: 14) {
                     ForEach(AgentKind.allCases.filter { usage.burnRate($0) > 0 }) { a in
@@ -204,6 +212,39 @@ struct AgentsView: View {
                     }
                 }
             }
+        }
+    }
+
+    private func chart(_ h: AgentUsageHistory, _ w: UsageWindow) -> some View {
+        let bars = h.bars(w, byAgent: byTool)
+        let unit = w.bucket.component
+        return VStack(alignment: .leading, spacing: 4) {
+            Chart(Array(bars.enumerated()), id: \.offset) { _, b in
+                if let a = b.agent {
+                    BarMark(x: .value("date", b.start, unit: unit), y: .value("tokens", b.tokens))
+                        .foregroundStyle(by: .value("agent", a.name))
+                } else {
+                    BarMark(x: .value("date", b.start, unit: unit), y: .value("tokens", b.tokens))
+                        .foregroundStyle(Color.accentColor.gradient)
+                }
+            }
+            .chartForegroundStyleScale(domain: AgentKind.allCases.map(\.name), range: AgentKind.allCases.map(\.color))
+            .chartLegend(byTool ? .visible : .hidden)
+            .chartYAxis { AxisMarks { v in AxisGridLine(); AxisValueLabel { Text(Self.tokens(v.as(Int.self) ?? 0)) } } }
+            .chartXAxis {
+                AxisMarks(values: .automatic(desiredCount: w.bucket == .day ? 7 : 8)) { v in
+                    AxisGridLine()
+                    AxisValueLabel {
+                        if let d = v.as(Date.self) {
+                            Text(w.bucket == .day ? d.formatted(.dateTime.day().month(.abbreviated).locale(L10n.locale))
+                                                  : d.formatted(.dateTime.month(.abbreviated).year(.twoDigits).locale(L10n.locale)))
+                        }
+                    }
+                }
+            }
+            .environment(\.locale, L10n.locale)
+            .frame(height: 150)
+            Text(w.bucket.title).font(.system(size: 11)).foregroundStyle(.tertiary)
         }
     }
 

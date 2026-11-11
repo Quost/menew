@@ -261,3 +261,179 @@ final class MCPServerTests: XCTestCase {
         XCTAssertNotNil(unknown?["error"])
     }
 }
+
+final class AgentClientTests: XCTestCase {
+    func testClaudeEntrypoint() {
+        XCTAssertEqual(AgentClient.claude(entrypoint: "cli"), .cli)
+        XCTAssertEqual(AgentClient.claude(entrypoint: "claude-desktop"), .desktop)
+        XCTAssertEqual(AgentClient.claude(entrypoint: "claude-vscode"), .ide)
+        XCTAssertEqual(AgentClient.claude(entrypoint: "sdk-ts"), .sdk)
+        XCTAssertEqual(AgentClient.claude(entrypoint: nil), .cli)
+    }
+
+    func testCodexOriginator() {
+        XCTAssertEqual(AgentClient.codex(originator: "codex-tui", source: "vscode"), .cli)
+        XCTAssertEqual(AgentClient.codex(originator: "codex_cli_rs", source: nil), .cli)
+        XCTAssertEqual(AgentClient.codex(originator: "codex_work_desktop", source: "vscode"), .desktop)
+        XCTAssertEqual(AgentClient.codex(originator: "Codex Desktop", source: nil), .desktop)
+        XCTAssertEqual(AgentClient.codex(originator: "codex_vscode", source: "vscode"), .ide)
+        XCTAssertEqual(AgentClient.codex(originator: nil, source: "cli"), .cli)
+    }
+
+    func testParsersReadClient() {
+        var seen = Set<String>()
+        let line = Substring(#"{"type":"assistant","entrypoint":"claude-desktop","cwd":"/a/menew","requestId":"r","timestamp":"2026-11-10T12:00:00Z","message":{"id":"msg_9","model":"claude-opus-5-5","usage":{"input_tokens":10,"output_tokens":5}}}"#)
+        XCTAssertEqual(ClaudeLog.parse(line, seen: &seen)?.client, .desktop)
+        var log = CodexLog()
+        _ = log.parse(#"{"type":"session_meta","payload":{"cwd":"/a/api","originator":"codex_work_desktop","source":"vscode"}}"#)
+        let r = log.parse(#"{"timestamp":"2026-11-10T12:00:00Z","type":"event_msg","payload":{"type":"token_count","info":{"total_token_usage":{"input_tokens":100,"cached_input_tokens":0,"output_tokens":10}}}}"#)
+        XCTAssertEqual(r?.client, .desktop)
+    }
+}
+
+final class AgentHistoryTests: XCTestCase {
+    private var cal: Calendar = {
+        var c = Calendar(identifier: .gregorian)
+        c.timeZone = TimeZone(identifier: "America/Sao_Paulo")!
+        c.firstWeekday = 2   // semana começa na segunda
+        return c
+    }()
+
+    private func date(_ s: String, hour: Int = 12) -> Date {
+        let p = s.split(separator: "-").map { Int($0)! }
+        return cal.date(from: DateComponents(year: p[0], month: p[1], day: p[2], hour: hour))!
+    }
+
+    private func rec(_ day: String, hour: Int = 12, agent: AgentKind = .claude, client: AgentClient = .cli, model: String = "claude-opus-5-5",
+                     project: String = "menew", output: Int = 100) -> UsageRecord {
+        var r = UsageRecord(date: date(day, hour: hour), agent: agent, model: model, project: project, client: client)
+        r.input = 10
+        r.output = output
+        r.cacheRead = 1000
+        r.cacheWrite1h = 50
+        return r
+    }
+
+    func testAggregateSumsPerDayToolClientModelProject() {
+        let rows = AgentUsageHistory.aggregate([
+            rec("2026-11-10", hour: 9), rec("2026-11-10", hour: 18), rec("2026-11-10", client: .desktop),
+            rec("2026-11-11"), rec("2026-11-10", agent: .codex, model: "gpt-5.5-codex"),
+        ], calendar: cal)
+        XCTAssertEqual(rows.count, 4)
+        let cli = rows.first { $0.day == "2026-11-10" && $0.agent == .claude && $0.client == .cli }!
+        XCTAssertEqual(cli.replies, 2)
+        XCTAssertEqual(cli.output, 200)
+        XCTAssertEqual(cli.cacheWrite, 100)
+        XCTAssertEqual(cli.total, 2 * (10 + 100 + 1000 + 50))
+        // Custo da Opus 5.5: (10×4 + 100×20 + 1000×0,2 + 50×8) / 1 M, por resposta
+        XCTAssertEqual(cli.cost, 2 * 0.00264, accuracy: 1e-9)
+        XCTAssertEqual(rows.first { $0.agent == .codex }?.cost, 0)
+    }
+
+    func testDaysFollowTheLocalTimeZone() {
+        // 23:30 em São Paulo já é o dia seguinte em UTC; conta no dia local
+        let rows = AgentUsageHistory.aggregate([rec("2026-11-10", hour: 23)], calendar: cal)
+        XCTAssertEqual(rows.map(\.day), ["2026-11-10"])
+    }
+
+    func testRescanDoesNotDoubleCount() {
+        var h = AgentUsageHistory()
+        let scan = [rec("2026-11-09"), rec("2026-11-10"), rec("2026-11-11")]
+        XCTAssertTrue(h.merge(scan, coveredFrom: date("2026-11-09", hour: 0), calendar: cal))
+        let once = h.rows
+        // A mesma leitura de novo (o timer de 2 minutos) não muda nada
+        XCTAssertFalse(h.merge(scan, coveredFrom: date("2026-11-09", hour: 0), calendar: cal))
+        XCTAssertEqual(h.rows, once)
+        // Mais respostas hoje: o dia é trocado, não somado
+        XCTAssertTrue(h.merge(scan + [rec("2026-11-11", hour: 15)], coveredFrom: date("2026-11-09", hour: 0), calendar: cal))
+        XCTAssertEqual(h.rows.first { $0.day == "2026-11-11" }?.replies, 2)
+        XCTAssertEqual(h.rows.reduce(0) { $0 + $1.replies }, 4)
+    }
+
+    func testDaysBeforeTheScanWindowAreKept() {
+        var h = AgentUsageHistory()
+        h.merge([rec("2026-08-01"), rec("2026-11-01")], coveredFrom: .distantPast, calendar: cal)
+        // A leitura seguinte só cobre novembro em diante: agosto fica como estava
+        h.merge([rec("2026-11-01"), rec("2026-11-10")], coveredFrom: date("2026-11-01", hour: 0), calendar: cal)
+        XCTAssertEqual(h.rows.map(\.day), ["2026-08-01", "2026-11-01", "2026-11-10"])
+        // Um registro de antes da janela que ainda veio na leitura não conta (pode estar pela metade)
+        h.merge([rec("2026-10-31"), rec("2026-11-10")], coveredFrom: date("2026-11-01", hour: 0), calendar: cal)
+        XCTAssertNil(h.rows.first { $0.day == "2026-10-31" })
+    }
+
+    func testDeletedLogsDoNotShrinkADay() {
+        var h = AgentUsageHistory()
+        h.merge([rec("2026-11-05"), rec("2026-11-05", hour: 14), rec("2026-11-05", agent: .codex, model: "gpt-5.5-codex")],
+                coveredFrom: date("2026-11-01", hour: 0), calendar: cal)
+        // O Claude Code apagou uma conversa antiga: o dia do Claude encolheria, então fica o guardado
+        h.merge([rec("2026-11-05"), rec("2026-11-05", agent: .codex, model: "gpt-5.5-codex", output: 400)],
+                coveredFrom: date("2026-11-01", hour: 0), calendar: cal)
+        XCTAssertEqual(h.rows.first { $0.agent == .claude }?.replies, 2)
+        // O do Codex cresceu: troca
+        XCTAssertEqual(h.rows.first { $0.agent == .codex }?.output, 400)
+    }
+
+    func testSaveAndLoad() throws {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("menew-test-\(UUID().uuidString)/agent-usage.json")
+        defer { try? FileManager.default.removeItem(at: url.deletingLastPathComponent()) }
+        var h = AgentUsageHistory(backfilled: true)
+        h.merge([rec("2026-11-10", client: .desktop)], coveredFrom: .distantPast, calendar: cal)
+        h.save(to: url)
+        XCTAssertEqual(AgentUsageHistory.load(from: url), h)
+        XCTAssertEqual(AgentUsageHistory.load(from: url.appendingPathExtension("missing")), AgentUsageHistory())
+    }
+
+    func testBucketsByRange() {
+        XCTAssertEqual(UsageBucket.forSpan(days: 7), .day)
+        XCTAssertEqual(UsageBucket.forSpan(days: 90), .day)
+        XCTAssertEqual(UsageBucket.forSpan(days: 365), .week)
+        XCTAssertEqual(UsageBucket.forSpan(days: 800), .month)
+        // Quarta, 11 de novembro de 2026: a semana começa na segunda (9), o mês no dia 1
+        XCTAssertEqual(UsageBucket.week.start(of: date("2026-11-11"), cal), date("2026-11-09", hour: 0))
+        XCTAssertEqual(UsageBucket.month.start(of: date("2026-11-11"), cal), date("2026-11-01", hour: 0))
+        XCTAssertEqual(UsageBucket.day.start(of: date("2026-11-11"), cal), date("2026-11-11", hour: 0))
+    }
+
+    func testWindowsAndBars() {
+        var h = AgentUsageHistory()
+        h.merge([rec("2025-06-15"), rec("2026-11-02"), rec("2026-11-03", agent: .codex, model: "gpt-5.5-codex"), rec("2026-11-11")],
+                coveredFrom: .distantPast, calendar: cal)
+        let now = date("2026-11-11", hour: 15)
+
+        let week = h.window(.week, now: now, calendar: cal)
+        XCTAssertEqual(week, UsageWindow(start: date("2026-11-05", hour: 0), bucket: .day))
+        XCTAssertEqual(h.bars(week, byAgent: false, now: now, calendar: cal).count, 7)
+
+        // 12 meses: uma barra por semana, começando numa segunda
+        let year = h.window(.year, now: now, calendar: cal)
+        XCTAssertEqual(year.bucket, .week)
+        XCTAssertEqual(cal.component(.weekday, from: year.start), 2)
+        let weekly = h.bars(year, byAgent: false, now: now, calendar: cal)
+        XCTAssertEqual(weekly.count, 53)
+        // 2 e 3 de novembro caem na mesma semana; o 11 na seguinte
+        XCTAssertEqual(weekly.first { $0.start == date("2026-11-02", hour: 0) }?.tokens, 2 * 1160)
+        XCTAssertEqual(weekly.last?.tokens, 1160)
+        // Por ferramenta: uma barra de cada uma por semana, e a soma bate
+        let stacked = h.bars(year, byAgent: true, now: now, calendar: cal)
+        XCTAssertEqual(stacked.count, 53 * AgentKind.allCases.count)
+        XCTAssertEqual(stacked.reduce(0) { $0 + $1.tokens }, weekly.reduce(0) { $0 + $1.tokens })
+        XCTAssertEqual(stacked.first { $0.start == date("2026-11-02", hour: 0) && $0.agent == .codex }?.tokens, 1160)
+
+        // Tudo: desde junho de 2025, por mês
+        let all = h.window(.all, now: now, calendar: cal)
+        XCTAssertEqual(all, UsageWindow(start: date("2025-06-01", hour: 0), bucket: .month))
+        let monthly = h.bars(all, byAgent: false, now: now, calendar: cal)
+        XCTAssertEqual(monthly.count, 18)
+        XCTAssertEqual(monthly.reduce(0) { $0 + $1.tokens }, 4 * 1160)
+        XCTAssertEqual(h.totals(since: all.start, calendar: cal).replies, 4)
+        XCTAssertEqual(h.totals(since: year.start, calendar: cal).replies, 3)
+    }
+
+    func testTopByClient() {
+        var h = AgentUsageHistory()
+        h.merge([rec("2026-11-10", client: .desktop), rec("2026-11-10", hour: 13, client: .desktop), rec("2026-11-10", agent: .codex, model: "gpt-5.5-codex")],
+                coveredFrom: .distantPast, calendar: cal)
+        let top = h.top(since: date("2026-11-01", hour: 0), by: { $0.client.title($0.agent) }, calendar: cal)
+        XCTAssertEqual(top.map(\.name), ["Claude Desktop", "Codex CLI"])
+    }
+}
