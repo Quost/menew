@@ -293,16 +293,19 @@ struct AgentsView: View {
             let _ = tick
             Text(L("Avisos no notch e notificações quando um agente termina ou precisa de você. Cada ferramenta roda o Menew a cada evento; nada sai do Mac."))
                 .font(.system(size: 12)).foregroundStyle(.secondary)
-            ForEach(AgentKind.allCases) { a in
+            // Só as que estão neste Mac
+            ForEach(AgentKind.allCases.filter(\.isInstalled)) { a in
                 HStack(spacing: 10) {
                     agentBadge(a)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(a.name).font(.system(size: 12.5, weight: .medium))
-                        Text(AgentHooks.configURL(a).path.replacingOccurrences(of: NSHomeDirectory(), with: "~")).font(.system(size: 11)).foregroundStyle(.tertiary)
+                        Text(a.hasHooks ? AgentHooks.configURL(a).path.replacingOccurrences(of: NSHomeDirectory(), with: "~")
+                                        : L("Sem hooks: o Menew vê o processo e o uso"))
+                            .font(.system(size: 11)).foregroundStyle(.tertiary)
                     }
                     Spacer()
-                    if !a.isInstalled {
-                        Text(L("Não instalado")).font(.system(size: 11.5)).foregroundStyle(.tertiary)
+                    if !a.hasHooks {
+                        EmptyView()
                     } else {
                         switch AgentHooks.status(a) {
                         case .installed:

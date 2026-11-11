@@ -460,8 +460,10 @@ struct AgentLimitRow: Identifiable, Equatable {
         return AgentKind.allCases.compactMap { a in
             let t = u.totals(since: start, agent: a)
             let windows = Array(u.current(a).prefix(3))
-            guard !windows.isEmpty || t.tokens > 0 else { return nil }
-            var today = L("%@ hoje", AgentsView.tokens(t.tokens))
+            guard !windows.isEmpty || t.tokens > 0 || t.credits > 0 else { return nil }
+            // O Kiro conta em créditos (e alguns pedidos dele nem têm tokens)
+            var today = t.tokens > 0 ? L("%@ hoje", AgentsView.tokens(t.tokens)) : L("%@ créditos hoje", String(format: "%.1f", t.credits))
+            if t.tokens > 0, t.credits > 0 { today += " · " + L("%@ créditos", String(format: "%.1f", t.credits)) }
             if t.cost >= 0.01 { today += " · " + AgentsView.money(t.cost) }
             // A que acaba primeiro; sem nenhuma acabando, a que mais se aproxima de 100% no reset
             let projections = windows.compactMap { w in u.projection(a, w).map { (w, $0) } }

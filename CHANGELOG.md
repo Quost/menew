@@ -2,6 +2,13 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.100.0
+
+### New
+- **More AI agents.** Besides Claude Code, Codex and Gemini CLI, the AI agents section, the notch and the MCP server now cover Cursor, Copilot CLI, Kiro, OpenCode, Droid, Qwen Code, Amp, OpenClaw, Kimi and Goose. Each one shows up only when it is on your Mac.
+- **Usage from their own logs.** Tokens, cost and models are read from the files each tool already keeps on your Mac (OpenCode, Copilot CLI, Kiro, Droid, Qwen Code, Amp, OpenClaw, Kimi and Goose). When the tool records its own cost (OpenCode, Copilot, Amp, OpenClaw), Menew shows it. Kiro counts credits, so its usage shows in credits. Cursor keeps usage only on its website, so it shows sessions but not usage.
+- **Working, waiting and done for more tools.** Turn on hooks for Cursor, Copilot CLI, Kiro, Droid or Qwen Code in AI agents › Set up, and they report when they start, run a tool, wait for you and finish, like Claude Code. For Copilot CLI and Kiro, Menew writes its own `menew.json` in their hooks folder and removes it when you turn hooks off. OpenCode, Amp, OpenClaw, Kimi and Goose have no shell hooks: Menew shows them while their process runs, as working when their log grew in the last few minutes.
+
 ## 1.99.4
 
 ### New

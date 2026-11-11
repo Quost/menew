@@ -3,11 +3,12 @@ import Foundation
 import Security
 import SwiftUI
 
-/// Agentes de IA no terminal (Claude Code, Codex, Gemini CLI): quanto você usou e quanto falta dos limites.
+/// Agentes de IA no terminal (Claude Code, Codex, Gemini CLI e os de `AgentSources.swift`): quanto você usou e quanto falta dos limites.
 /// Tudo vem dos registros que cada ferramenta já grava no Mac; nada sai do Mac, com uma exceção opcional
 /// (a % do plano do Claude, que só a Anthropic sabe e vem desligada).
 enum AgentKind: String, CaseIterable, Identifiable, Codable {
     case claude, codex, gemini
+    case opencode, cursor, copilot, kiro, droid, qwen, amp, openclaw, kimi, goose
     var id: String { rawValue }
 
     var name: String {
@@ -15,6 +16,16 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .claude: "Claude Code"
         case .codex: "Codex"
         case .gemini: "Gemini CLI"
+        case .opencode: "OpenCode"
+        case .cursor: "Cursor"
+        case .copilot: "Copilot CLI"
+        case .kiro: "Kiro"
+        case .droid: "Droid"
+        case .qwen: "Qwen Code"
+        case .amp: "Amp"
+        case .openclaw: "OpenClaw"
+        case .kimi: "Kimi"
+        case .goose: "Goose"
         }
     }
 
@@ -24,6 +35,9 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .claude: "Claude"
         case .codex: "Codex"
         case .gemini: "Gemini"
+        case .copilot: "Copilot"
+        case .qwen: "Qwen"
+        default: name
         }
     }
 
@@ -32,6 +46,16 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .claude: "asterisk"
         case .codex: "chevron.left.forwardslash.chevron.right"
         case .gemini: "sparkle"
+        case .opencode: "curlybraces"
+        case .cursor: "cursorarrow.rays"
+        case .copilot: "airplane"
+        case .kiro: "bolt.horizontal.fill"
+        case .droid: "cpu"
+        case .qwen: "q.circle"
+        case .amp: "dial.high.fill"
+        case .openclaw: "pawprint.fill"
+        case .kimi: "moon.stars.fill"
+        case .goose: "bird.fill"
         }
     }
 
@@ -40,20 +64,53 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .claude: Color(red: 0.85, green: 0.47, blue: 0.34)
         case .codex: Color(red: 0.25, green: 0.55, blue: 0.95)
         case .gemini: Color(red: 0.55, green: 0.42, blue: 0.95)
+        case .opencode: Color(red: 0.42, green: 0.45, blue: 0.52)
+        case .cursor: Color(red: 0.30, green: 0.33, blue: 0.40)
+        case .copilot: Color(red: 0.12, green: 0.62, blue: 0.58)
+        case .kiro: Color(red: 0.72, green: 0.36, blue: 0.92)
+        case .droid: Color(red: 0.92, green: 0.70, blue: 0.18)
+        case .qwen: Color(red: 0.38, green: 0.40, blue: 0.95)
+        case .amp: Color(red: 0.92, green: 0.30, blue: 0.32)
+        case .openclaw: Color(red: 0.98, green: 0.45, blue: 0.55)
+        case .kimi: Color(red: 0.20, green: 0.70, blue: 0.92)
+        case .goose: Color(red: 0.30, green: 0.72, blue: 0.40)
         }
     }
 
     /// A pasta onde a ferramenta guarda as coisas (existir = está instalada neste Mac)
-    var home: URL {
+    var home: URL { homes.first { FileManager.default.fileExists(atPath: $0.path) } ?? homes[0] }
+
+    /// Onde cada ferramenta pode guardar as coisas (algumas mudaram de lugar entre versões)
+    var homes: [URL] {
         let h = FileManager.default.homeDirectoryForCurrentUser
-        switch self {
-        case .claude: return h.appendingPathComponent(".claude", isDirectory: true)
-        case .codex: return h.appendingPathComponent(".codex", isDirectory: true)
-        case .gemini: return h.appendingPathComponent(".gemini", isDirectory: true)
+        let paths: [String] = switch self {
+        case .claude: [".claude"]
+        case .codex: [".codex"]
+        case .gemini: [".gemini"]
+        case .opencode: [".local/share/opencode", ".config/opencode"]
+        case .cursor: [".cursor"]
+        case .copilot: [".copilot"]
+        case .kiro: [".kiro", "Library/Application Support/kiro-cli"]
+        case .droid: [".factory"]
+        case .qwen: [".qwen"]
+        case .amp: [".local/share/amp", ".config/amp"]
+        case .openclaw: [".openclaw"]
+        case .kimi: [".kimi", ".kimi-code"]
+        case .goose: [".local/share/goose", "Library/Application Support/goose", ".config/goose"]
         }
+        return paths.map { h.appendingPathComponent($0, isDirectory: true) }
     }
 
-    var isInstalled: Bool { FileManager.default.fileExists(atPath: home.path) }
+    var isInstalled: Bool { homes.contains { FileManager.default.fileExists(atPath: $0.path) } }
+
+    /// As que avisam o Menew a cada evento por um comando (as outras só por plugin, que o Menew não instala:
+    /// delas o Menew vê o processo rodando e o uso nos registros)
+    var hasHooks: Bool {
+        switch self {
+        case .opencode, .amp, .openclaw, .kimi, .goose: false
+        default: true
+        }
+    }
 }
 
 /// Por onde a ferramenta foi usada. O Claude Code (terminal, app Claude e extensões) grava `entrypoint` em cada linha;
@@ -116,6 +173,12 @@ struct UsageRecord: Equatable {
     var cacheRead = 0
     var cacheWrite5m = 0
     var cacheWrite1h = 0
+    /// Custo em US$ que a própria ferramenta gravou (OpenCode, Copilot, Amp, OpenClaw) ou que vem dos créditos (Kiro)
+    var reportedCost: Double?
+    /// Créditos do plano (Kiro e Amp contam assim; alguns pedidos do Kiro só têm isso, sem tokens)
+    var credits = 0.0
+    /// Identidade da resposta, quando a mesma aparece em dois lugares (o OpenCode no formato antigo e no novo)
+    var key: String?
 
     var total: Int { input + output + cacheRead + cacheWrite5m + cacheWrite1h }
 }
@@ -474,6 +537,7 @@ enum AgentPricing {
 
     /// nil para modelos sem preço conhecido (Codex e Gemini: o plano é por assinatura)
     static func cost(_ r: UsageRecord) -> Double? {
+        if let c = r.reportedCost { return c }
         guard r.agent == .claude, let p = price(r.model) else { return nil }
         let perM = 1_000_000.0
         return (Double(r.input) * p.input + Double(r.output) * p.output + Double(r.cacheRead) * p.cacheRead
@@ -556,9 +620,19 @@ final class AgentUsageScanner: @unchecked Sendable {
             alive.insert(url.path)
             updateWhole(url)
         }
+        // As outras ferramentas: cada arquivo (ou banco) é lido de novo, inteiro, quando muda
+        for source in AgentSource.all {
+            for url in source.files(cutoff) {
+                alive.insert(url.path)
+                updateWhole(url, mtime: AgentSource.mtime(url), parse: source.parse)
+            }
+        }
         files = files.filter { alive.contains($0.key) }
         let codexHistory = files.values.flatMap(\.codex.history).sorted { $0.asOf < $1.asOf }
-        let records = files.values.flatMap { $0.records.filter { $0.date >= cutoff } }.sorted { $0.date < $1.date }
+        var keys = Set<String>()
+        let records = files.values.flatMap { $0.records.filter { $0.date >= cutoff } }
+            .filter { r in r.key.map { keys.insert($0).inserted } ?? true }
+            .sorted { $0.date < $1.date }
         return Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory, since: cutoff)
     }
 
@@ -585,13 +659,22 @@ final class AgentUsageScanner: @unchecked Sendable {
                         switch agent {
                         case .claude: if let r = ClaudeLog.parse(line, seen: &st.seen) { st.records.append(r) }
                         case .codex: if let r = st.codex.parse(line) { st.records.append(r) }
-                        case .gemini: break
+                        default: break
                         }
                     }
                 }
                 return true
             }
         }
+        files[url.path] = st
+    }
+
+    /// Lê o arquivo inteiro de novo quando ele muda
+    private func updateWhole(_ url: URL, mtime: Date, parse: (URL) -> [UsageRecord]) {
+        if let st = files[url.path], st.mtime >= mtime { return }
+        var st = FileState()
+        st.mtime = mtime
+        st.records = autoreleasepool { parse(url) }
         files[url.path] = st
     }
 
@@ -946,7 +1029,7 @@ final class AgentUsageStore: ObservableObject {
 
     // MARK: Contas
 
-    struct Totals { var tokens = 0; var cost = 0.0; var savings = 0.0; var replies = 0 }
+    struct Totals { var tokens = 0; var cost = 0.0; var savings = 0.0; var replies = 0; var credits = 0.0 }
 
     func totals(since: Date, agent: AgentKind? = nil) -> Totals {
         var t = Totals()
@@ -954,6 +1037,7 @@ final class AgentUsageStore: ObservableObject {
             t.tokens += r.total
             t.cost += AgentPricing.cost(r) ?? 0
             t.savings += AgentPricing.cacheSavings(r)
+            t.credits += r.credits
             t.replies += 1
         }
         return t
@@ -1020,6 +1104,15 @@ final class AgentUsageStore: ObservableObject {
                 var g = UsageRecord(date: now.addingTimeInterval(-Double(d) * 86400 - 5000), agent: .gemini, model: "gemini-3-pro", project: "Gemini")
                 g.input = 40_000; g.output = 3_000
                 out.append(g)
+            }
+            // As outras ferramentas também aparecem quando têm uso
+            if d % 2 == 0 {
+                var o = UsageRecord(date: now.addingTimeInterval(-Double(d) * 86400 - 7000), agent: .opencode, model: "claude-sonnet-5-5", project: "api")
+                o.input = 2_000; o.output = 6_000; o.cacheRead = 60_000; o.reportedCost = 0.12
+                out.append(o)
+                var k = UsageRecord(date: now.addingTimeInterval(-Double(d) * 86400 - 9000), agent: .kiro, model: "Kiro Auto", project: "mobile", client: .ide)
+                k.credits = 4.5; k.reportedCost = 4.5 * KiroLog.creditPrice
+                out.append(k)
             }
         }
         records = out.sorted { $0.date < $1.date }
