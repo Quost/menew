@@ -7,6 +7,12 @@ Each version's section is shown in the in-app update window and on the GitHub re
 ### New
 - **MCP server for agents in Docker.** Agents that run in a container can't start Menew's MCP server on your Mac, so AI agents › MCP server has a new **Access for agents in Docker** option. Menew then also answers MCP over HTTP, only on your Mac and only to requests with a key, and agents built on Pi that run in a container get their own switch that adds Menew to their `mcp.json`. Off by default; **Copy config** gives the entry for any other app.
 
+## 1.102.1
+
+### Fixed
+- **Images from Teams and Claude saved as unreadable text.** Some apps put the image's bytes in a text type on the clipboard, so the history showed an "âPNG" item with thousands of garbled characters. These copies are now saved as images, and the ones already in your history turn into images when Menew opens.
+- **Paste asking for Accessibility over and over.** When Menew is already on the Accessibility list but macOS no longer accepts that permission (it happens when the app's signature changes), Menew now explains how to fix it, by removing Menew from the list and adding it again, instead of showing the system prompt that changes nothing.
+
 ## 1.102.0
 
 ### New
