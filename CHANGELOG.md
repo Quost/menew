@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Fixed
+- **Update window with long release notes.** The notes now scroll inside the window instead of stretching it past the bottom of the screen, and clicking the update icon again brings the open window to the front instead of opening another one on top.
+
 ## 1.99.1
 
 ### New

@@ -38,20 +38,53 @@ final class UpdaterModel: NSObject, ObservableObject, SPUUpdaterDelegate, SPUSta
 
     /// Clique no ícone com o pontinho. A versão já baixada fica presa à sessão do Sparkle,
     /// então a janela de instalar é nossa; a só encontrada abre a janela do Sparkle.
+    /// A janela de instalar aberta agora: outro clique no ícone só a traz para a frente (não abre outra por cima)
+    private var installAlert: NSAlert?
+
     func showPendingUpdate() {
         guard let version = downloadedVersion, let install = installNow else { return checkForUpdates() }
         NSApp.activate(ignoringOtherApps: true)
+        if let open = installAlert { open.window.makeKeyAndOrderFront(nil); return }
         let alert = NSAlert()
         alert.messageText = L("Menew %@ está pronto para instalar", version)
-        alert.informativeText = downloadedNotes ?? ""
+        if let notes = downloadedNotes, !notes.isEmpty { alert.accessoryView = Self.notesView(notes) }
         alert.addButton(withTitle: L("Instalar e reabrir"))
         alert.addButton(withTitle: L("Depois"))
-        if alert.runModal() == .alertFirstButtonReturn {
+        installAlert = alert
+        let answer = alert.runModal()
+        installAlert = nil
+        if answer == .alertFirstButtonReturn {
             install()
         } else { // instala sozinha quando o Menew fechar
             downloadedVersion = nil
             updatePending()
         }
+    }
+
+    /// As notas numa caixa com rolagem: versões grandes não esticam a janela além da tela
+    static func notesView(_ notes: String, width: CGFloat = 420, maxHeight: CGFloat = 320) -> NSView {
+        let text = NSTextView(frame: NSRect(x: 0, y: 0, width: width, height: 10))
+        text.isEditable = false
+        text.isSelectable = true
+        text.drawsBackground = false
+        text.textContainerInset = NSSize(width: 4, height: 6)
+        text.font = .systemFont(ofSize: NSFont.smallSystemFontSize)
+        text.textColor = .labelColor
+        text.string = notes
+        text.isVerticallyResizable = true
+        text.autoresizingMask = [.width]
+        text.textContainer?.widthTracksTextView = true
+        text.layoutManager?.ensureLayout(for: text.textContainer!)
+        let used = text.layoutManager?.usedRect(for: text.textContainer!).height ?? maxHeight
+        let height = min(maxHeight, ceil(used) + 14)
+        let scroll = NSScrollView(frame: NSRect(x: 0, y: 0, width: width, height: height))
+        scroll.hasVerticalScroller = true
+        scroll.autohidesScrollers = true
+        scroll.borderType = .noBorder
+        scroll.drawsBackground = false
+        scroll.documentView = text
+        text.frame.size.width = scroll.contentSize.width
+        return scroll
     }
 
     /// Notas da versão (HTML do appcast) em texto simples
