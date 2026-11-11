@@ -255,6 +255,14 @@ enum Snapshot {
                         .padding(.bottom, 18).frame(width: 600)
                         .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
                        size: NSSize(width: 600, height: 168 + am.agentsHeight), dark: dark, to: dir.appendingPathComponent("notch-agents-\(suffix).png"))
+                // Sem sessão aberta: os limites e o uso de hoje continuam no painel
+                let lm = NotchHoverModel()
+                lm.shown = true
+                lm.limitRows = AgentLimitRow.current()
+                render(NotchHoverView(model: lm, notch: CGSize(width: 200, height: 37)).frame(width: 540, height: 150 + lm.agentsHeight)
+                        .padding(.bottom, 18).frame(width: 600)
+                        .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
+                       size: NSSize(width: 600, height: 168 + lm.agentsHeight), dark: dark, to: dir.appendingPathComponent("notch-limits-\(suffix).png"))
                 // O notch fechado e os avisos de agente
                 for (name, act) in [("agents-working", NotchCenter.Activity.agents(working: 2, waiting: 0)),
                                     ("agents-waiting", .agents(working: 1, waiting: 1)),

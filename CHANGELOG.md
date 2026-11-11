@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Fixed
+- **Agent limits in the notch with no session open.** Resting the pointer on the notch now always shows each tool's plan limits and today's usage; before, they disappeared as soon as you closed the last Claude Code, Codex or Gemini CLI session. A limit window that has already reset (for example, Codex read hours ago) now shows 0% and its next reset instead of the old percentage, in the notch, in AI agents and in the limit alerts.
+
 ## 1.99.2
 
 ### Fixed

@@ -97,6 +97,22 @@ final class AgentPricingTests: XCTestCase {
 }
 
 final class RateWindowTests: XCTestCase {
+    func testWindowThatAlreadyResetShowsZeroAndTheNextReset() {
+        let now = Date(timeIntervalSince1970: 1_800_000_000)
+        // Lida às 9h com 80%, zerava às 10h; agora são 17h30: já passaram uma janela e meia de 5 h
+        let old = RateWindow(label: "5h", usedPercent: 80, resetsAt: now.addingTimeInterval(-7.5 * 3600), windowMinutes: 300, asOf: now.addingTimeInterval(-8.5 * 3600))
+        let w = old.rolled(now: now)
+        XCTAssertEqual(w.usedPercent, 0)
+        XCTAssertEqual(w.resetsAt, now.addingTimeInterval(2.5 * 3600))
+        // Sem saber a duração, zera e não inventa o próximo reset
+        var unknown = old; unknown.windowMinutes = nil
+        XCTAssertEqual(unknown.rolled(now: now).usedPercent, 0)
+        XCTAssertNil(unknown.rolled(now: now).resetsAt)
+        // Ainda dentro da janela: igual
+        let live = RateWindow(label: "5h", usedPercent: 40, resetsAt: now.addingTimeInterval(3600), windowMinutes: 300, asOf: now)
+        XCTAssertEqual(live.rolled(now: now), live)
+    }
+
     func testForecastOnlyWhenItRunsOutBeforeReset() {
         let now = Date()
         // Janela de 5 h, 2 h passadas, 60% usado: no ritmo, acaba em 1h20, antes de zerar (3 h)

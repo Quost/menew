@@ -109,7 +109,7 @@ struct AgentsView: View {
                             Text(L("lido %@", asOf.formatted(.relative(presentation: .named).locale(L10n.locale)))).font(.system(size: 11)).foregroundStyle(.tertiary)
                         }
                     }
-                    ForEach(usage.limits[a] ?? []) { w in windowBar(w, agent: a, color: a.color) }
+                    ForEach(usage.current(a)) { w in windowBar(w, agent: a, color: a.color) }
                 }
                 .padding(.vertical, 4)
             }
