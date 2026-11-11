@@ -323,7 +323,7 @@ struct AgentsView: View {
             Toggle(L("Avisar com 75% e 90% de um limite"), isOn: defaultsBinding(AgentUsageStore.alertsKey, true))
             VStack(alignment: .leading, spacing: 2) {
                 Toggle(L("Limites do Claude (5 horas e semana)"), isOn: Binding(get: { ClaudePlanLimits.isOn }, set: { usage.setClaudePlan($0) }))
-                Text(L("Opcional e desligado: usa o login do Claude Code (o macOS pergunta antes) para consultar a Anthropic a cada 5 minutos. É a única coisa aqui que usa a internet."))
+                Text(L("Opcional e desligado: usa o login que o Claude Code guarda nas Chaves para consultar a Anthropic a cada 5 minutos. É a única coisa aqui que usa a internet."))
                     .font(.system(size: 11.5)).foregroundStyle(.secondary).padding(.leading, 20)
             }
         }

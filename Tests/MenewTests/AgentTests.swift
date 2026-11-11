@@ -437,3 +437,24 @@ final class AgentHistoryTests: XCTestCase {
         XCTAssertEqual(top.map(\.name), ["Claude Desktop", "Codex CLI"])
     }
 }
+
+final class ClaudeCredentialsTests: XCTestCase {
+    private let json = #"{"claudeAiOauth":{"accessToken":"tok","expiresAt":1800000000000,"subscriptionType":"max"}}"#
+
+    func testParsesLogin() {
+        let c = ClaudePlanLimits.parse(credentials: Data(json.utf8))
+        XCTAssertEqual(c?.token, "tok")
+        XCTAssertEqual(c?.plan, "Max")
+        XCTAssertEqual(c?.expires, Date(timeIntervalSince1970: 1_800_000_000))
+        XCTAssertNil(ClaudePlanLimits.parse(credentials: Data("{}".utf8)))
+    }
+
+    func testDecodesSecurityToolOutput() {
+        // Texto com a quebra de linha do `security -w`
+        XCTAssertEqual(ClaudePlanLimits.decode(securityOutput: Data((json + "\n").utf8)), Data(json.utf8))
+        // Em hexadecimal, quando o conteúdo não é texto simples
+        let hex = Data(json.utf8).map { String(format: "%02x", $0) }.joined()
+        XCTAssertEqual(ClaudePlanLimits.decode(securityOutput: Data((hex + "\n").utf8)), Data(json.utf8))
+        XCTAssertNil(ClaudePlanLimits.decode(securityOutput: Data("\n".utf8)))
+    }
+}
