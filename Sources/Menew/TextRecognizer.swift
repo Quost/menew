@@ -6,10 +6,12 @@ enum TextRecognizer {
     /// Linhas reconhecidas, de cima para baixo (vazio se não achou texto)
     static func recognize(_ image: CGImage) async -> String {
         await withCheckedContinuation { cont in
+            // Quando falha, o Vision chama o bloco com o erro E ainda lança a exceção: responder duas vezes derruba o app
+            let once = ResumeOnce(cont)
             let request = VNRecognizeTextRequest { req, _ in
                 let lines = (req.results as? [VNRecognizedTextObservation] ?? [])
                     .compactMap { $0.topCandidates(1).first?.string }
-                cont.resume(returning: lines.joined(separator: "\n"))
+                once.resume(lines.joined(separator: "\n"))
             }
             request.recognitionLevel = .accurate
             request.usesLanguageCorrection = true
@@ -17,8 +19,10 @@ enum TextRecognizer {
             do {
                 try VNImageRequestHandler(cgImage: image).perform([request])
             } catch {
-                cont.resume(returning: "")
+                once.resume("")
             }
+            // Sem erro e sem chamar o bloco (não deveria acontecer): não deixa quem espera parado para sempre
+            once.resume("")
         }
     }
 
@@ -75,5 +79,21 @@ enum TextRecognizer {
         let lines = clean.split(separator: "\n").count
         HUD.show(icon: "text.viewfinder", color: .green,
                  text: lines == 1 ? L("Texto copiado") : L("Texto copiado (%d linhas)", lines))
+    }
+}
+
+/// Responde uma continuação uma vez só; as outras chamadas não fazem nada
+final class ResumeOnce<T: Sendable>: @unchecked Sendable {
+    private var cont: CheckedContinuation<T, Never>?
+    private let lock = NSLock()
+
+    init(_ cont: CheckedContinuation<T, Never>) { self.cont = cont }
+
+    func resume(_ value: T) {
+        lock.lock()
+        let c = cont
+        cont = nil
+        lock.unlock()
+        c?.resume(returning: value)
     }
 }

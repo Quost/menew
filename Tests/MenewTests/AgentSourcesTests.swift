@@ -252,3 +252,22 @@ final class OtherAgentEventsTests: XCTestCase {
         hub.handle(["agent": "cursor", "event": "sessionEnd", "session": "c1"], now: t0)
     }
 }
+
+final class ResumeOnceTests: XCTestCase {
+    func testOnlyTheFirstResumeCounts() async {
+        let v: String = await withCheckedContinuation { c in
+            let once = ResumeOnce(c)
+            once.resume("primeiro")
+            once.resume("segundo")   // antes, isto derrubava o app
+        }
+        XCTAssertEqual(v, "primeiro")
+    }
+
+    func testRecognizeSurvivesAnImageVisionRejects() async {
+        // Imagem de 1×1: o Vision recusa, e a leitura devolve vazio em vez de derrubar o app
+        let ctx = CGContext(data: nil, width: 1, height: 1, bitsPerComponent: 8, bytesPerRow: 4,
+                            space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+        let text = await TextRecognizer.recognize(ctx.makeImage()!)
+        XCTAssertEqual(text, "")
+    }
+}
