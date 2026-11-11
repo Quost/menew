@@ -7,6 +7,9 @@ Each version's section is shown in the in-app update window and on the GitHub re
 ### New
 - **Longer AI agent usage history.** The Usage card in AI agents now goes back 90 days, 12 months or all time, with a bar per day up to 90 days, per week for 12 months and per month beyond that. Switch between bars stacked by tool and one combined total; the tokens, estimated cost and cache savings follow the range. A new Apps list splits usage by where you ran each tool: Claude Code in the terminal, the Claude desktop app or an IDE, and the Codex CLI or the Codex app. Claude Code deletes its logs after 30 days, so Menew now keeps a small daily summary on your Mac (no prompts or transcripts); the first time, it reads everything the logs still have.
 
+### Fixed
+- **Keychain password prompt for Claude limits.** With Claude limits on, macOS kept asking for your login keychain password, even after "Always Allow", because Claude Code saves its login again each time it renews it. Menew now reads that login the same way Claude Code saves it, so macOS no longer asks, and it reads it only when the old one expires.
+
 ## 1.99.3
 
 ### Fixed

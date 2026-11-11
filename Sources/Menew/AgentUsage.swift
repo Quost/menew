@@ -636,7 +636,7 @@ final class AgentUsageScanner: @unchecked Sendable {
 // MARK: Limites do plano do Claude (opcional, pela internet)
 
 /// A % das janelas de 5 horas e da semana só a Anthropic sabe. Quando você liga, o Menew lê o login do Claude Code
-/// (o macOS pergunta antes de liberar as Chaves) e consulta o mesmo endereço que a tela de uso do Claude usa.
+/// (pelo mesmo `security` que o Claude Code usa para guardá-lo, sem pedir senha) e consulta o mesmo endereço que a tela de uso do Claude usa.
 /// Não é uma API documentada: se mudar, o Menew mostra só o que lê no Mac.
 enum ClaudePlanLimits {
     static let key = "agents.claudePlan"
@@ -646,29 +646,78 @@ enum ClaudePlanLimits {
 
     struct Credentials { let token: String; let expires: Date?; let plan: String? }
 
+    /// O token lido da última vez, guardado na memória até vencer: as Chaves só são lidas de novo quando ele vence
+    /// ou a Anthropic recusa (o Claude Code renovou o login)
+    nonisolated(unsafe) private static var cached: Credentials?
+    private static let lock = NSLock()
+
     static func credentials() -> Credentials? {
-        var data: Data?
-        let q: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: "Claude Code-credentials",
-                                kSecReturnData as String: true, kSecMatchLimit as String: kSecMatchLimitOne]
-        var out: CFTypeRef?
-        if SecItemCopyMatching(q as CFDictionary, &out) == errSecSuccess { data = out as? Data }
-        if data == nil { data = try? Data(contentsOf: AgentKind.claude.home.appendingPathComponent(".credentials.json")) }
-        guard let data, let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+        lock.lock(); defer { lock.unlock() }
+        if let c = cached, (c.expires ?? .distantFuture) > Date().addingTimeInterval(60) { return c }
+        let data = keychainItem() ?? (try? Data(contentsOf: AgentKind.claude.home.appendingPathComponent(".credentials.json")))
+        cached = data.flatMap(parse(credentials:))
+        return cached
+    }
+
+    static func forgetCredentials() {
+        lock.lock(); cached = nil; lock.unlock()
+    }
+
+    static func parse(credentials data: Data) -> Credentials? {
+        guard let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
               let oauth = obj["claudeAiOauth"] as? [String: Any], let token = oauth["accessToken"] as? String else { return nil }
         let exp = (oauth["expiresAt"] as? NSNumber).map { Date(timeIntervalSince1970: $0.doubleValue / 1000) }
         return Credentials(token: token, expires: exp, plan: (oauth["subscriptionType"] as? String)?.capitalized)
     }
 
+    /// O Claude Code grava o login nas Chaves pelo `/usr/bin/security`, e o macOS libera o item para quem o gravou.
+    /// Lendo pela mesma ferramenta, o macOS não pergunta. Lendo direto (SecItemCopyMatching), perguntava sempre:
+    /// cada renovação do login regrava o item e apaga o "Permitir Sempre" que o Menew tinha recebido.
+    private static func keychainItem() -> Data? {
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/bin/security")
+        p.arguments = ["find-generic-password", "-s", "Claude Code-credentials", "-w"]
+        let out = Pipe()
+        p.standardOutput = out
+        p.standardError = FileHandle.nullDevice
+        guard (try? p.run()) != nil else { return nil }
+        let data = out.fileHandleForReading.readDataToEndOfFile()
+        p.waitUntilExit()
+        guard p.terminationStatus == 0 else { return nil }
+        return decode(securityOutput: data)
+    }
+
+    /// A saída do `security -w`: o texto e uma quebra de linha, ou o conteúdo em hexadecimal quando não é texto simples
+    static func decode(securityOutput data: Data) -> Data? {
+        let s = String(decoding: data, as: UTF8.self).trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !s.isEmpty else { return nil }
+        if s.first == "{" { return Data(s.utf8) }
+        guard s.count % 2 == 0, s.allSatisfy(\.isHexDigit) else { return Data(s.utf8) }
+        var bytes = [UInt8]()
+        var i = s.startIndex
+        while i < s.endIndex {
+            let j = s.index(i, offsetBy: 2)
+            guard let b = UInt8(s[i..<j], radix: 16) else { return nil }
+            bytes.append(b)
+            i = j
+        }
+        return Data(bytes)
+    }
+
     static func fetch() async -> Swift.Result<(plan: String?, windows: [RateWindow]), Failure> {
         guard let c = await Task.detached(operation: { credentials() }).value else { return .failure(.noLogin) }
         // O token não é renovado aqui (isso é com o Claude Code): vencido, é só abrir o Claude Code de novo
-        if let exp = c.expires, exp < Date() { return .failure(.expired) }
+        if let exp = c.expires, exp < Date() { forgetCredentials(); return .failure(.expired) }
         var req = URLRequest(url: URL(string: "https://api.anthropic.com/api/oauth/usage")!, timeoutInterval: 15)
         req.setValue("Bearer \(c.token)", forHTTPHeaderField: "Authorization")
         req.setValue("oauth-2025-04-20", forHTTPHeaderField: "anthropic-beta")
         req.setValue("Menew", forHTTPHeaderField: "User-Agent")
         guard let (data, resp) = try? await URLSession.shared.data(for: req) else { return .failure(.network) }
-        if (resp as? HTTPURLResponse)?.statusCode == 401 { return .failure(.expired) }
+        if (resp as? HTTPURLResponse)?.statusCode == 401 {
+            // O Claude Code pode ter renovado o login: na próxima vez, lê de novo
+            forgetCredentials()
+            return .failure(.expired)
+        }
         guard let windows = parse(data) else { return .failure(.format) }
         return .success((c.plan, windows))
     }
