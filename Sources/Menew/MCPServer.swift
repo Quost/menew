@@ -32,7 +32,7 @@ enum MCPSource: String, CaseIterable, Identifiable {
         case .recordings: L("Listar reuniões e ler as atas com as tarefas")
         case .clipboard: L("Buscar no que você copiou (nunca senhas)")
         case .system: L("CPU, memória, disco, bateria e os processos que mais gastam")
-        case .usage: L("Tokens e limites do Claude Code, Codex e Gemini")
+        case .usage: L("Tokens e limites dos agentes de IA")
         case .write: L("Só com o Menew aberto; aparece um aviso a cada vez")
         }
     }
@@ -204,7 +204,7 @@ enum MCPServer {
              description: "How the user's Mac is doing right now: CPU load, memory in use, free disk, battery, temperature state, uptime and the processes using the most CPU and memory.",
              properties: [:], required: [], readOnly: true) { _ in text(MacStatus.report()) },
         Tool(name: "agent_usage", source: .usage,
-             description: "Token usage of Claude Code, Codex and Gemini CLI on this Mac (today, last 7 days, by model and project), estimated API cost for Claude, and Codex plan limits with reset times. Read from local logs.",
+             description: "Token usage of Claude Code, Codex, Gemini CLI, OpenCode, Kiro, Copilot CLI and other coding agents on this Mac (today, last 7 days, by model and project), estimated API cost for Claude, and Codex plan limits with reset times. Read from local logs.",
              properties: [:], required: [], readOnly: true) { _ in text(usageReport()) },
         Tool(name: "save_to_memory", source: .write,
              description: "Save a text or link to the user's Menew memory so they can find it later. Needs Menew to be open.",
@@ -272,17 +272,28 @@ enum MCPServer {
         for agent in AgentKind.allCases {
             let recs = r.records.filter { $0.agent == agent }
             guard !recs.isEmpty || agent.isInstalled else { continue }
-            func sum(_ since: Date) -> (Int, Double) {
-                recs.filter { $0.date >= since }.reduce((0, 0.0)) { ($0.0 + $1.total, $0.1 + (AgentPricing.cost($1) ?? 0)) }
+            func sum(_ since: Date) -> (Int, Double, Double) {
+                recs.filter { $0.date >= since }.reduce((0, 0.0, 0.0)) { ($0.0 + $1.total, $0.1 + (AgentPricing.cost($1) ?? 0), $0.2 + $1.credits) }
             }
-            let (t, c) = sum(today), (w, cw) = sum(week)
-            out += "\n## \(agent.name)\nToday: \(t.formatted()) tokens" + (agent == .claude ? String(format: " (~$%.2f at API prices)", c) : "")
-            out += "\nLast 7 days: \(w.formatted()) tokens" + (agent == .claude ? String(format: " (~$%.2f)", cw) : "")
-            var byModel: [String: Int] = [:]
-            var byProject: [String: Int] = [:]
-            for x in recs where x.date >= week { byModel[x.model, default: 0] += x.total; byProject[x.project, default: 0] += x.total }
-            if !byModel.isEmpty { out += "\nBy model (7 days): " + byModel.sorted { $0.value > $1.value }.prefix(4).map { "\($0.key) \($0.value.formatted())" }.joined(separator: ", ") }
-            if !byProject.isEmpty { out += "\nBy project (7 days): " + byProject.sorted { $0.value > $1.value }.prefix(5).map { "\($0.key) \($0.value.formatted())" }.joined(separator: ", ") }
+            let (t, c, k) = sum(today), (w, cw, kw) = sum(week)
+            // Custo: pelos preços da API (Claude) ou o que a própria ferramenta gravou; créditos no Kiro e no Amp
+            func extra(_ cost: Double, _ credits: Double, api: Bool) -> String {
+                var parts: [String] = []
+                if credits > 0 { parts.append(String(format: "%.1f credits", credits)) }
+                if cost >= 0.01 { parts.append(String(format: api ? "~$%.2f at API prices" : "~$%.2f", cost)) }
+                return parts.isEmpty ? "" : " (" + parts.joined(separator: ", ") + ")"
+            }
+            out += "\n## \(agent.name)\nToday: \(t.formatted()) tokens" + extra(c, k, api: agent == .claude)
+            out += "\nLast 7 days: \(w.formatted()) tokens" + extra(cw, kw, api: agent == .claude)
+            var byModel: [String: Double] = [:]
+            var byProject: [String: Double] = [:]
+            // Sem tokens (o Kiro só grava créditos), conta os créditos
+            let inCredits = w == 0 && kw > 0
+            let weight: (UsageRecord) -> Double = { inCredits ? $0.credits : Double($0.total) }
+            let show: (Double) -> String = { inCredits ? String(format: "%.1f credits", $0) : Int($0).formatted() }
+            for x in recs where x.date >= week { byModel[x.model, default: 0] += weight(x); byProject[x.project, default: 0] += weight(x) }
+            if !byModel.isEmpty { out += "\nBy model (7 days): " + byModel.sorted { $0.value > $1.value }.prefix(4).map { "\($0.key) \(show($0.value))" }.joined(separator: ", ") }
+            if !byProject.isEmpty { out += "\nBy project (7 days): " + byProject.sorted { $0.value > $1.value }.prefix(5).map { "\($0.key) \(show($0.value))" }.joined(separator: ", ") }
             if agent == .codex, !r.codexLimits.isEmpty {
                 out += "\nPlan limits" + (r.codexPlan.map { " (\($0))" } ?? "") + ": " + r.codexLimits.map { w in
                     "\(w.windowMinutes.map { "\($0 / 60)h window" } ?? "window") \(Int(w.usedPercent))% used" + (w.resetsAt.map { ", resets \(iso($0))" } ?? "")

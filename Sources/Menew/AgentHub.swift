@@ -2,7 +2,7 @@ import AppKit
 import Darwin
 import SwiftUI
 
-/// Central de agentes: quais Claude Code, Codex e Gemini estão rodando, quais estão trabalhando, quais terminaram e
+/// Central de agentes: quais agentes de IA (Claude Code, Codex, Gemini, Cursor, Copilot, Kiro…) estão rodando, quais estão trabalhando, quais terminaram e
 /// quais esperam por você (uma permissão, uma pergunta). Os próprios CLIs avisam o Menew por hooks: um comando que eles
 /// rodam a cada evento (`Menew --agent-hook claude`), que passa o recado ao Menew aberto por uma notificação local do
 /// macOS e sai. Nada sai do Mac.
@@ -19,16 +19,22 @@ enum AgentHookCommand {
         let data = FileHandle.standardInput.readDataToEndOfFile()
         let obj = (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? [:]
         var info: [String: String] = ["agent": agent]
-        info["event"] = obj["hook_event_name"] as? String ?? CommandLine.arguments.last
-        info["session"] = obj["session_id"] as? String
-        info["cwd"] = obj["cwd"] as? String ?? FileManager.default.currentDirectoryPath
+        // O Copilot e o Kiro passam o evento no comando (`--agent-hook copilot agentStop`)
+        let args = CommandLine.arguments
+        let argEvent = args.firstIndex(of: flag).flatMap { args.count > $0 + 2 ? args[$0 + 2] : nil }
+        info["event"] = obj["hook_event_name"] as? String ?? obj["hookEventName"] as? String ?? argEvent ?? args.last
+        // Cada ferramenta chama a sessão de um jeito: session_id, sessionId (Copilot), conversation_id (Cursor)
+        info["session"] = ["session_id", "sessionId", "conversation_id"].lazy.compactMap { obj[$0] as? String }.first
+        info["cwd"] = obj["cwd"] as? String ?? (obj["workspace_roots"] as? [String])?.first ?? FileManager.default.currentDirectoryPath
         info["message"] = (obj["message"] as? String).map { String($0.prefix(200)) }
-        info["kind"] = obj["notification_type"] as? String
+        info["kind"] = obj["notification_type"] as? String ?? obj["notificationType"] as? String
         if let (tool, detail) = step(obj) {
             info["tool"] = tool
             info["detail"] = detail
         }
-        info["prompt"] = (obj["prompt"] as? String).flatMap(AgentStep.task)
+        // O Kiro CLI passa o pedido numa variável de ambiente
+        let prompt = obj["prompt"] as? String ?? ProcessInfo.processInfo.environment["USER_PROMPT"]
+        info["prompt"] = prompt.flatMap(AgentStep.task)
         let chain = ProcessTree.ancestors(of: getppid())
         if let agentPID = chain.first(where: { AgentProcesses.matches(ProcessTree.name($0), agent: agent) }) {
             info["pid"] = String(agentPID)
@@ -39,6 +45,10 @@ enum AgentHookCommand {
             info["appPID"] = String(app.processIdentifier)
         }
         DistributedNotificationCenter.default().postNotificationName(notification, object: nil, userInfo: info, deliverImmediately: true)
+        // O Cursor lê a resposta em JSON (no envio do pedido, se pode seguir); os outros, nada
+        if agent == AgentKind.cursor.rawValue {
+            print(info["event"]?.lowercased() == "beforesubmitprompt" ? #"{"continue":true}"# : "{}")
+        }
         exit(0)
     }
 }
@@ -46,8 +56,14 @@ enum AgentHookCommand {
 extension AgentHookCommand {
     /// A ferramenta e o detalhe que importa: o arquivo, a descrição do comando, o comando, a busca
     static func step(_ obj: [String: Any]) -> (tool: String, detail: String?)? {
-        guard let tool = obj["tool_name"] as? String, !tool.isEmpty else { return nil }
-        let input = obj["tool_input"] as? [String: Any] ?? [:]
+        // O Cursor manda o comando e o arquivo direto, em eventos próprios
+        if obj["tool_name"] == nil, obj["toolName"] == nil {
+            if let c = obj["command"] as? String, !c.isEmpty { return ("Bash", oneLine(c, 160)) }
+            if let f = obj["file_path"] as? String, !f.isEmpty { return ("Edit", URL(fileURLWithPath: f).lastPathComponent) }
+        }
+        guard let tool = obj["tool_name"] as? String ?? obj["toolName"] as? String, !tool.isEmpty else { return nil }
+        // O Copilot manda os argumentos como texto JSON
+        let input = AgentFiles.dict(obj["tool_input"] ?? obj["toolArgs"])
         var detail: String?
         if let f = (input["file_path"] ?? input["path"] ?? input["notebook_path"] ?? input["absolute_path"]) as? String, !f.isEmpty {
             detail = URL(fileURLWithPath: f).lastPathComponent
@@ -108,12 +124,17 @@ enum ProcessTree {
 
 /// Os agentes rodando agora, pela lista de processos (para quem ainda não ligou os hooks)
 enum AgentProcesses {
+    /// O nome do processo do agente, ao subir a árvore de processos a partir do hook
     static func matches(_ name: String, agent: String) -> Bool {
         let n = name.lowercased()
         switch agent {
         case "claude": return n == "claude"
         case "codex": return n == "codex" || n.hasPrefix("codex-")
-        case "gemini": return n == "gemini" || n == "node"
+        // Os feitos em Node aparecem como "node"
+        case "gemini", "qwen", "copilot", "amp", "openclaw": return n == agent || n == "node"
+        case "cursor": return n == "cursor-agent" || n == "node" || n.hasPrefix("cursor")
+        case "kiro": return n.hasPrefix("kiro")
+        case "opencode", "droid", "kimi", "goose": return n == agent || n.hasPrefix(agent + "-")
         default: return false
         }
     }
@@ -135,14 +156,35 @@ enum AgentProcesses {
             guard let exe = parts.first.map({ String($0.split(separator: "/").last ?? "") }) else { return nil }
             let rest = parts.dropFirst().map(String.init)
             if rest.contains(where: { ["app-server", "mcp", "mcp-server", AgentHookCommand.flag, "--mcp"].contains($0) }) { return nil }
+            // Servidores e serviços de fundo não são uma sessão sua (opencode serve, gateway do OpenClaw, goosed)
+            if rest.contains(where: { ["serve", "server", "gateway", "daemon", "acp"].contains($0) }) { return nil }
             switch exe {
             case "claude": return (.claude, pid)
             case "codex": return (.codex, pid)
             case "gemini": return (.gemini, pid)
-            case "node":
-                // node /opt/homebrew/bin/gemini …
-                if let script = rest.first, script.hasSuffix("/gemini") || script.hasSuffix("gemini-cli/dist/index.js") { return (.gemini, pid) }
-                return nil
+            case "opencode": return (.opencode, pid)
+            case "cursor-agent": return (.cursor, pid)
+            case "copilot": return (.copilot, pid)
+            case "kiro-cli", "kiro-cli-chat": return (.kiro, pid)
+            case "droid": return (.droid, pid)
+            case "qwen": return (.qwen, pid)
+            case "amp": return (.amp, pid)
+            case "openclaw": return (.openclaw, pid)
+            case "kimi": return (.kimi, pid)
+            case "goose": return (.goose, pid)
+            case "node", "bun":
+                // node /opt/homebrew/bin/gemini …, node …/@github/copilot/index.js …
+                guard let script = rest.first?.lowercased() else { return nil }
+                let scripts: [(AgentKind, [String])] = [
+                    (.gemini, ["/gemini", "gemini-cli/dist/index.js"]),
+                    (.copilot, ["/copilot", "@github/copilot/"]),
+                    (.qwen, ["/qwen", "qwen-code/"]),
+                    (.amp, ["/amp", "@sourcegraph/amp/"]),
+                    (.cursor, ["/cursor-agent", "cursor-agent/"]),
+                    (.openclaw, ["/openclaw", "openclaw/"]),
+                    (.opencode, ["/opencode", "opencode-ai/"]),
+                ]
+                return scripts.first { _, marks in marks.contains { script.hasSuffix($0) || ($0.hasSuffix("/") && script.contains($0)) } }.map { ($0.0, pid) }
             default: return nil
             }
         }
@@ -237,8 +279,12 @@ final class AgentHub: ObservableObject {
     /// Tudo o que aparece na lista: as sessões dos hooks e, das ferramentas sem hooks, os processos rodando
     var visible: [AgentSession] {
         let known = Set(sessions.compactMap(\.pid))
-        let extra = processes.filter { !known.contains($0.pid) && AgentHooks.status($0.agent) != .installed }.map {
-            AgentSession(id: "pid.\($0.pid)", agent: $0.agent, cwd: $0.cwd, state: .running, since: Date(), pid: $0.pid, updated: Date(), fromHooks: false)
+        // Das que não têm hooks, o uso gravado há pouco naquela pasta diz que está trabalhando
+        let recent = AgentUsageStore.shared.records.filter { $0.date > Date().addingTimeInterval(-180) }
+        let extra = processes.filter { !known.contains($0.pid) && AgentHooks.status($0.agent) != .installed }.map { p in
+            let busy = recent.contains { $0.agent == p.agent && ($0.project == AgentDates.project(p.cwd) || p.cwd == nil) }
+            return AgentSession(id: "pid.\(p.pid)", agent: p.agent, cwd: p.cwd, state: busy ? .working : .running, since: Date(), pid: p.pid,
+                                updated: Date(), fromHooks: false)
         }
         let order: [AgentSession.State] = [.waiting, .working, .done, .running, .idle]
         return (sessions + extra).sorted {
@@ -278,26 +324,27 @@ final class AgentHub: ObservableObject {
         if let p = info["pid"].flatMap({ pid_t($0) }) { s.pid = p }
 
         switch e {
-        case "sessionstart":
+        case "sessionstart", "agentspawn":
             if s.state != .working { s.state = .idle }
-        case "userpromptsubmit", "beforeagent":
+        case "userpromptsubmit", "beforeagent", "beforesubmitprompt", "userpromptsubmitted":
             s.state = .working
             s.turnStart = now
             s.message = nil
             s.tool = nil
             s.detail = nil
             if let p = info["prompt"].flatMap(AgentStep.task) { s.task = p }
-        case "pretooluse", "posttooluse", "beforetool", "aftertool", "subagentstart", "subagentstop":
+        case "pretooluse", "posttooluse", "beforetool", "aftertool", "subagentstart", "subagentstop",
+             "aftershellexecution", "afterfileedit", "posttoolusefailure":
             if s.state != .working { s.state = .working; if s.turnStart == nil { s.turnStart = now } }
             s.message = nil
             if let t = info["tool"] { s.tool = t; s.detail = info["detail"] }
         case "notification", "permissionrequest":
             // "Esperando sua resposta" depois de um tempo parado não é um pedido novo
-            if info["kind"] == "idle_prompt" || (s.state == .done && e == "notification") { break }
+            if ["idle_prompt", "agent_idle", "agent_complete"].contains(info["kind"] ?? "") || (s.state == .done && e == "notification") { break }
             s.state = .waiting
             s.message = info["message"]
             if let t = info["tool"] { s.tool = t; s.detail = info["detail"] }
-        case "stop", "afteragent":
+        case "stop", "afteragent", "agentstop":
             s.state = .done
             s.lastDuration = s.turnStart.map { now.timeIntervalSince($0) }
         default:
@@ -372,6 +419,8 @@ final class AgentHub: ObservableObject {
                          task: "Fix the login timeout", tool: "Edit", detail: "session.ts", updated: now.addingTimeInterval(-5)),
             AgentSession(id: "3", agent: .claude, cwd: "/Users/ana/apps/site", state: .done, since: now.addingTimeInterval(-5400), turnStart: now.addingTimeInterval(-700),
                          task: "Update the pricing page", lastDuration: 252, updated: now.addingTimeInterval(-120)),
+            AgentSession(id: "4", agent: .cursor, cwd: "/Users/ana/apps/mobile", state: .working, since: now.addingTimeInterval(-600), turnStart: now.addingTimeInterval(-90),
+                         task: "Add dark mode to settings", tool: "Bash", detail: "npm test", updated: now.addingTimeInterval(-8)),
         ]
     }
 }
@@ -383,27 +432,68 @@ final class AgentHub: ObservableObject {
 enum AgentHooks {
     enum Status: Equatable { case notInstalled, installed, outdated }
 
-    static func configURL(_ a: AgentKind) -> URL {
+    /// Como cada ferramenta guarda os hooks
+    enum Style {
+        /// `{"hooks": {"Evento": [{"matcher": …, "hooks": [{"type": "command", "command": …}]}]}}` (Claude, Codex, Gemini, Droid, Qwen)
+        case groups
+        /// O mesmo, mas o arquivo inteiro é o `hooks` (o `~/.factory/hooks.json` do Droid)
+        case rootGroups
+        /// `{"version": 1, "hooks": {"evento": [{"command": …}]}}` (Cursor)
+        case flat
+        /// Um arquivo só do Menew numa pasta de hooks, que ele cria e apaga inteiro (Copilot CLI e Kiro CLI)
+        case ownFile
+    }
+
+    static func style(_ a: AgentKind) -> Style {
         switch a {
-        case .claude: a.home.appendingPathComponent("settings.json")
-        case .codex: a.home.appendingPathComponent("hooks.json")
-        case .gemini: a.home.appendingPathComponent("settings.json")
+        case .cursor: .flat
+        case .copilot, .kiro: .ownFile
+        case .droid: FileManager.default.fileExists(atPath: droidHooksFile.path) ? .rootGroups : .groups
+        default: .groups
+        }
+    }
+
+    private static var droidHooksFile: URL { AgentFiles.home.appendingPathComponent(".factory/hooks.json") }
+
+    static func configURL(_ a: AgentKind) -> URL {
+        let h = AgentFiles.home
+        switch a {
+        case .claude: return h.appendingPathComponent(".claude/settings.json")
+        case .codex: return h.appendingPathComponent(".codex/hooks.json")
+        case .gemini: return h.appendingPathComponent(".gemini/settings.json")
+        case .cursor: return h.appendingPathComponent(".cursor/hooks.json")
+        case .copilot: return h.appendingPathComponent(".copilot/hooks/menew.json")
+        case .kiro: return h.appendingPathComponent(".kiro/hooks/menew.json")
+        case .droid: return style(a) == .rootGroups ? droidHooksFile : h.appendingPathComponent(".factory/settings.json")
+        case .qwen: return h.appendingPathComponent(".qwen/settings.json")
+        default: return a.home
         }
     }
 
     /// Só o que o Menew precisa: começo e fim de cada pedido, antes e depois de cada ferramenta (o passo de agora, e
-    /// saber que voltou a trabalhar depois de uma permissão) e os pedidos de atenção
+    /// saber que voltou a trabalhar depois de uma permissão) e os pedidos de atenção. No Cursor e no Copilot, só eventos
+    /// que não decidem nada (um hook "antes" de ferramenta precisa responder se deixa rodar).
     static func events(_ a: AgentKind) -> [String] {
         switch a {
-        case .claude: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Notification", "Stop", "SessionEnd"]
+        case .claude, .droid: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Notification", "Stop", "SessionEnd"]
         case .codex: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "PermissionRequest", "Stop", "SessionEnd"]
         case .gemini: ["SessionStart", "BeforeAgent", "BeforeTool", "AfterTool", "Notification", "AfterAgent", "SessionEnd"]
+        case .qwen: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Notification", "PermissionRequest", "Stop", "SessionEnd"]
+        case .cursor: ["sessionStart", "beforeSubmitPrompt", "postToolUse", "afterShellExecution", "afterFileEdit", "stop", "sessionEnd"]
+        case .copilot: ["sessionStart", "userPromptSubmitted", "postToolUse", "notification", "agentStop", "sessionEnd"]
+        case .kiro: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop", "SessionEnd"]
+        default: []
         }
     }
 
     static var executable: String { Bundle.main.executablePath ?? "/Applications/Menew.app/Contents/MacOS/Menew" }
 
     static func command(_ a: AgentKind) -> String { "\"\(executable)\" \(AgentHookCommand.flag) \(a.rawValue)" }
+
+    /// O Copilot e o Kiro não dizem o nome do evento na entrada: vai junto no comando
+    static func command(_ a: AgentKind, event: String) -> String {
+        [.copilot, .kiro, .cursor].contains(a) ? command(a) + " " + event : command(a)
+    }
 
     private static func isOurs(_ cmd: String) -> Bool { cmd.contains(" \(AgentHookCommand.flag) ") }
 
@@ -413,45 +503,87 @@ enum AgentHooks {
         return try? JSONSerialization.jsonObject(with: data) as? [String: Any]
     }
 
+    /// Todos os comandos do Menew no arquivo, onde quer que estejam
+    static func ourCommands(_ obj: Any) -> [String] {
+        if let d = obj as? [String: Any] {
+            return d.flatMap { k, v -> [String] in
+                if ["command", "bash"].contains(k), let c = v as? String { return isOurs(c) ? [c] : [] }
+                return ourCommands(v)
+            }
+        }
+        if let l = obj as? [Any] { return l.flatMap(ourCommands) }
+        return []
+    }
+
     static func status(_ a: AgentKind) -> Status {
-        guard let hooks = load(a)?["hooks"] as? [String: Any] else { return .notInstalled }
-        let cmds = hooks.values.compactMap { $0 as? [[String: Any]] }.flatMap { $0 }
-            .compactMap { $0["hooks"] as? [[String: Any]] }.flatMap { $0 }.compactMap { $0["command"] as? String }.filter(isOurs)
+        guard a.hasHooks, let config = load(a) else { return .notInstalled }
+        let cmds = ourCommands(config)
         if cmds.isEmpty { return .notInstalled }
-        return cmds.allSatisfy { $0 == command(a) } && events(a).count <= cmds.count ? .installed : .outdated
+        let wanted = Set(events(a).map { command(a, event: $0) })
+        return Set(cmds) == wanted || (Set(cmds).isSuperset(of: wanted) && cmds.allSatisfy { $0.hasPrefix(command(a)) }) ? .installed : .outdated
     }
 
     /// O arquivo como fica depois (para mostrar antes de gravar)
     static func updated(_ config: [String: Any], agent a: AgentKind, install: Bool) -> [String: Any] {
-        var config = config
-        var hooks = config["hooks"] as? [String: Any] ?? [:]
-        for (event, value) in hooks {
-            guard let groups = value as? [[String: Any]] else { continue }
-            let cleaned = groups.compactMap { g -> [String: Any]? in
-                guard let inner = g["hooks"] as? [[String: Any]] else { return g }
-                let kept = inner.filter { !isOurs($0["command"] as? String ?? "") }
-                if kept.isEmpty { return nil }
-                var g = g
-                g["hooks"] = kept
-                return g
+        switch style(a) {
+        case .ownFile:
+            guard install else { return [:] }
+            if a == .kiro {
+                return ["version": "v1", "hooks": events(a).map { e -> [String: Any] in
+                    ["name": "menew-\(e)", "trigger": e, "action": ["type": "command", "command": command(a, event: e)], "timeout": 5, "enabled": true]
+                }]
             }
-            hooks[event] = cleaned.isEmpty ? nil : cleaned
-        }
-        if install {
-            for event in events(a) {
-                var entry: [String: Any] = ["type": "command", "command": command(a)]
-                var group: [String: Any] = [:]
-                switch a {
-                case .claude: entry["timeout"] = 5
-                case .codex: break
-                case .gemini: entry["timeout"] = 5000; group["matcher"] = "*"
+            var hooks: [String: Any] = [:]
+            for e in events(a) { hooks[e] = [["type": "command", "bash": command(a, event: e), "timeoutSec": 5]] }
+            return ["version": 1, "hooks": hooks]
+        case .flat:
+            var config = config
+            var hooks = config["hooks"] as? [String: Any] ?? [:]
+            for (event, value) in hooks {
+                guard let list = value as? [[String: Any]] else { continue }
+                let kept = list.filter { !isOurs($0["command"] as? String ?? "") }
+                hooks[event] = kept.isEmpty ? nil : kept
+            }
+            if install {
+                for e in events(a) { hooks[e] = (hooks[e] as? [[String: Any]] ?? []) + [["command": command(a, event: e), "timeout": 5]] }
+                if config["version"] == nil { config["version"] = 1 }
+            }
+            config["hooks"] = hooks.isEmpty ? nil : hooks
+            return config
+        case .groups, .rootGroups:
+            let root = style(a) == .rootGroups
+            var config = config
+            var hooks = root ? config : config["hooks"] as? [String: Any] ?? [:]
+            for (event, value) in hooks {
+                guard let groups = value as? [[String: Any]] else { continue }
+                let cleaned = groups.compactMap { g -> [String: Any]? in
+                    guard let inner = g["hooks"] as? [[String: Any]] else { return g }
+                    let kept = inner.filter { !isOurs($0["command"] as? String ?? "") }
+                    if kept.isEmpty { return nil }
+                    var g = g
+                    g["hooks"] = kept
+                    return g
                 }
-                group["hooks"] = [entry]
-                hooks[event] = (hooks[event] as? [[String: Any]] ?? []) + [group]
+                hooks[event] = cleaned.isEmpty ? nil : cleaned
             }
+            if install {
+                for event in events(a) {
+                    var entry: [String: Any] = ["type": "command", "command": command(a, event: event)]
+                    var group: [String: Any] = [:]
+                    switch a {
+                    case .codex: break
+                    case .gemini: entry["timeout"] = 5000; group["matcher"] = "*"
+                    case .qwen: entry["timeout"] = 5; group["matcher"] = "*"
+                    default: entry["timeout"] = 5
+                    }
+                    group["hooks"] = [entry]
+                    hooks[event] = (hooks[event] as? [[String: Any]] ?? []) + [group]
+                }
+            }
+            if root { return hooks }
+            config["hooks"] = hooks.isEmpty ? nil : hooks
+            return config
         }
-        config["hooks"] = hooks.isEmpty ? nil : hooks
-        return config
     }
 
     enum Failure: Error { case unreadable, write }
@@ -462,8 +594,13 @@ enum AgentHooks {
         let fm = FileManager.default
         try? fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         let backup = url.appendingPathExtension("menew-backup")
-        if fm.fileExists(atPath: url.path), !fm.fileExists(atPath: backup.path) { try? fm.copyItem(at: url, to: backup) }
+        if style(a) != .ownFile, fm.fileExists(atPath: url.path), !fm.fileExists(atPath: backup.path) { try? fm.copyItem(at: url, to: backup) }
         let next = updated(current, agent: a, install: install)
+        // O arquivo só do Menew sai inteiro ao desligar
+        if style(a) == .ownFile, !install {
+            try? fm.removeItem(at: url)
+            return
+        }
         guard let data = try? JSONSerialization.data(withJSONObject: next, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]) else { throw Failure.write }
         do { try data.write(to: url, options: .atomic) } catch { throw Failure.write }
     }

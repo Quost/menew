@@ -552,7 +552,7 @@ final class AgentSessionFeed: @unchecked Sendable {
     private static let doneKey = "memory.auto.sessions.done"
 
     @MainActor func refresh() {
-        let on = AgentKind.allCases.filter { Self.source($0).isOn }
+        let on = AgentKind.allCases.filter { Self.source($0)?.isOn ?? false }
         timer?.invalidate()
         timer = nil
         guard !on.isEmpty else { return }
@@ -561,8 +561,9 @@ final class AgentSessionFeed: @unchecked Sendable {
         scan(on)
     }
 
-    static func source(_ a: AgentKind) -> MemoryFeed.Source {
-        switch a { case .claude: .claude; case .codex: .codex; case .gemini: .gemini }
+    /// Só estas viram resumo de sessão na Memória
+    static func source(_ a: AgentKind) -> MemoryFeed.Source? {
+        switch a { case .claude: .claude; case .codex: .codex; case .gemini: .gemini; default: nil }
     }
 
     private func scan(_ agents: [AgentKind]) {
@@ -587,6 +588,7 @@ final class AgentSessionFeed: @unchecked Sendable {
                 .filter { !$0.path.contains("/subagents/") }
             case .codex: AgentUsageScanner.jsonl(under: agent.home.appendingPathComponent("sessions"), cutoff: cutoff)
             case .gemini: AgentUsageScanner.geminiChats(cutoff: cutoff)
+            default: []
             }
             for url in urls {
                 let mtime = (try? url.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate ?? now
@@ -647,7 +649,7 @@ final class AgentSessionFeed: @unchecked Sendable {
         switch d.agent {
         case .claude: d.feedClaude(o)
         case .codex: d.feedCodex(o)
-        case .gemini: break
+        default: break
         }
     }
 }
