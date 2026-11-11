@@ -14,9 +14,11 @@ concurrency:
   group: site
   cancel-in-progress: true
 
+# Onde roda: a variável CI_RUNNER do repositório (ex.: ["self-hosted","macOS","menew-release"]) leva os jobs para o
+# Mac do autor; vazia, ficam nas máquinas do GitHub. PR vindo de fork nunca roda no Mac.
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && vars.CI_RUNNER || '"ubuntu-latest"') }}
     # Só roda depois que a credencial do Firebase for cadastrada
     if: ${{ vars.FIREBASE_READY == 'true' }}
     steps:

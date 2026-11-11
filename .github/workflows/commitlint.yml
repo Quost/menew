@@ -11,18 +11,33 @@ on:
 permissions:
   contents: read
 
+# Onde roda: a variável CI_RUNNER do repositório (ex.: ["self-hosted","macOS","menew-release"]) leva os jobs para o
+# Mac do autor; vazia, ficam nas máquinas do GitHub. PR vindo de fork nunca roda no Mac.
 jobs:
   commitlint:
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v6
+      # Pelo npm (e não por uma action em Docker) para rodar também num Mac
+      - name: Mensagens dos commits
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_SHA: ${{ github.sha }}
+        run: |
+          npm install --no-save --silent @commitlint/cli@19 @commitlint/config-conventional@19
+          if [ "$EVENT" = pull_request ]; then FROM="$PR_BASE"; TO="$PR_HEAD"; else FROM="$PUSH_BEFORE"; TO="$PUSH_SHA"; fi
+          # Primeiro push de um branch: não há "antes", confere só o último commit
+          if [ -z "$FROM" ] || [ "$FROM" = 0000000000000000000000000000000000000000 ]; then FROM="$TO~1"; fi
+          npx --no-install commitlint --from "$FROM" --to "$TO" --verbose
 
   pr-title:
     if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
       - name: Título do PR
