@@ -11,8 +11,10 @@ permissions:
 
 jobs:
   release:
-    # macOS 26 com o Xcode 27 escolhido abaixo (SDK do macOS 27)
-    runs-on: macos-26
+    # macOS 26 com o Xcode 27 escolhido abaixo (SDK do macOS 27). Enquanto a imagem do GitHub não tem o Xcode 27, a
+    # variável RELEASE_RUNNER do repositório aponta para o Mac do autor (["self-hosted","macOS","menew-release"]).
+    # Esse rótulo só aparece aqui: nenhum workflow de pull request roda no Mac.
+    runs-on: ${{ fromJSON(vars.RELEASE_RUNNER || '"macos-26"') }}
     env:
       HAS_CERT: ${{ secrets.DEVELOPER_ID_P12 != '' }}
       HAS_NOTARY: ${{ secrets.APPLE_ID != '' }}
@@ -32,6 +34,9 @@ jobs:
           P12_PASSWORD: ${{ secrets.DEVELOPER_ID_P12_PASSWORD }}
         run: |
           KC="$RUNNER_TEMP/build.keychain-db"
+          # A lista de chaves de antes, para o passo final devolver (num Mac de verdade ela não some com a máquina)
+          echo "KC_FILE=$KC" >> "$GITHUB_ENV"
+          echo "KC_BEFORE=$(security list-keychains -d user | tr -d '"' | xargs)" >> "$GITHUB_ENV"
           KC_PASS=$(openssl rand -hex 16)
           security create-keychain -p "$KC_PASS" "$KC"
           security set-keychain-settings -lut 21600 "$KC"
@@ -46,11 +51,16 @@ jobs:
 
       # O SDK do macOS 27 é obrigatório: compilada com o Xcode 26, a extensão de widgets cai ao abrir no macOS 27
       # (fica fora da galeria de widgets). Sem o Xcode 27 na imagem, para aqui em vez de publicar widgets quebrados.
+      # Só neste job (DEVELOPER_DIR), sem sudo e sem trocar o Xcode padrão de um Mac de verdade
       - name: Xcode 27
         run: |
-          X=$(ls -d /Applications/Xcode_27*.app 2>/dev/null | sort -V | tail -1)
-          [ -n "$X" ] || { echo "::error::Xcode 27 não está nesta imagem do runner"; ls -d /Applications/Xcode*.app; exit 1; }
-          sudo xcode-select -s "$X"
+          X=""
+          for c in $(ls -d /Applications/Xcode_27*.app /Applications/Xcode*.app 2>/dev/null | sort -Vr); do
+            if "$c/Contents/Developer/usr/bin/xcodebuild" -version 2>/dev/null | head -1 | grep -q '^Xcode 27'; then X="$c"; break; fi
+          done
+          [ -n "$X" ] || { echo "::error::Xcode 27 não está nesta máquina"; ls -d /Applications/Xcode*.app; exit 1; }
+          echo "DEVELOPER_DIR=$X/Contents/Developer" >> "$GITHUB_ENV"
+          export DEVELOPER_DIR="$X/Contents/Developer"
           xcodebuild -version
           xcrun --sdk macosx --show-sdk-version
 
@@ -140,3 +150,10 @@ jobs:
             [ "$i" = 4 ] && exit 1
             echo "Nova tentativa em $((i * 10))s…"; sleep $((i * 10))
           done
+
+      # Sempre, mesmo se algo falhou: apaga o keychain temporário e devolve a lista de chaves de antes
+      - name: Limpar keychain
+        if: always() && env.KC_FILE != ''
+        run: |
+          security list-keychains -d user -s $KC_BEFORE
+          security delete-keychain "$KC_FILE" 2>/dev/null || true
