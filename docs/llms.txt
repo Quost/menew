@@ -10,7 +10,7 @@ Menew 1.99.3 (updated 2026-11-11). Native Swift/SwiftUI app for macOS 14 or late
 - Recordings with minutes: Press ⌃⌥⌘G in a meeting. Your Mac transcribes it, tells who spoke, and writes the minutes with the tasks.
 - Command palette: ⌃⌥Space opens apps, actions, math, conversions, timers, reminders and your own scripts. Type what you want.
 - AI on your Mac: Summarizes, rewrites, translates and explains with Apple’s model, running on your Mac. No key, no account, no cloud.
-- Your AI agents, at a glance: Claude Code, Codex and Gemini CLI: who is working and who is waiting for you (in the notch, with a button to open the terminal), your 5-hour and weekly limits with when you’d run out, and tokens and cost per day, model and project. Plus an MCP server so your agents can search your Memory, notes and meeting minutes. Read from your Mac, no account.
+- Your AI agents, at a glance: Claude Code, Codex and Gemini CLI: who is working and who is waiting for you (in the notch, with a button to open the terminal), your 5-hour and weekly limits with when you’d run out, and tokens and cost by day, week or month, up to all time, per tool, model, project and app. Plus an MCP server so your agents can search your Memory, notes and meeting minutes. Read from your Mac, no account.
 
 ## Capabilities in detail
 
@@ -155,7 +155,7 @@ Menew doesn't hide or rearrange other apps' menu bar icons (for that, use Ice or
 
 ### Can Menew show my Claude Code, Codex and Gemini usage and limits?
 
-Yes. The AI agents section reads the logs Claude Code, Codex and Gemini CLI already keep on your Mac and shows tokens per day, the estimated cost at API prices, cache savings and the top models and projects. Codex limits come from its own logs; Claude’s 5-hour and weekly limits are optional, since they come from Anthropic. Turn on the agent hooks and the notch tells you when an agent finishes or is waiting for your permission. An MCP server lets the agents search your Memory, notes and meeting minutes.
+Yes. The AI agents section reads the logs Claude Code, Codex and Gemini CLI already keep on your Mac and shows tokens by day, week or month for up to 12 months or all time (it keeps a small daily summary, since Claude Code deletes its logs after 30 days), split by tool and by app (terminal, desktop app or IDE), the estimated cost at API prices, cache savings and the top models and projects. Codex limits come from its own logs; Claude’s 5-hour and weekly limits are optional, since they come from Anthropic. Turn on the agent hooks and the notch tells you when an agent finishes or is waiting for your permission. An MCP server lets the agents search your Memory, notes and meeting minutes.
 
 ## Install
 
