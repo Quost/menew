@@ -8,7 +8,7 @@ import SwiftUI
 /// (a % do plano do Claude, que só a Anthropic sabe e vem desligada).
 enum AgentKind: String, CaseIterable, Identifiable, Codable {
     case claude, codex, gemini
-    case opencode, cursor, copilot, kiro, droid, qwen, amp, openclaw, kimi, goose
+    case opencode, cursor, copilot, kiro, droid, qwen, amp, openclaw, kimi, goose, pi
     var id: String { rawValue }
 
     var name: String {
@@ -26,6 +26,7 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .openclaw: "OpenClaw"
         case .kimi: "Kimi"
         case .goose: "Goose"
+        case .pi: "Pi"
         }
     }
 
@@ -56,6 +57,7 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .openclaw: "pawprint.fill"
         case .kimi: "moon.stars.fill"
         case .goose: "bird.fill"
+        case .pi: "p.circle.fill"
         }
     }
 
@@ -74,6 +76,7 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .openclaw: Color(red: 0.98, green: 0.45, blue: 0.55)
         case .kimi: Color(red: 0.20, green: 0.70, blue: 0.92)
         case .goose: Color(red: 0.30, green: 0.72, blue: 0.40)
+        case .pi: Color(red: 0.85, green: 0.35, blue: 0.65)
         }
     }
 
@@ -97,17 +100,19 @@ enum AgentKind: String, CaseIterable, Identifiable, Codable {
         case .openclaw: [".openclaw"]
         case .kimi: [".kimi", ".kimi-code"]
         case .goose: [".local/share/goose", "Library/Application Support/goose", ".config/goose"]
+        case .pi: [".pi"]
         }
         return paths.map { h.appendingPathComponent($0, isDirectory: true) }
     }
 
-    var isInstalled: Bool { homes.contains { FileManager.default.fileExists(atPath: $0.path) } }
+    /// O Pi também vale quando só um agente feito a partir dele está no Mac (com outra pasta)
+    var isInstalled: Bool { homes.contains { FileManager.default.fileExists(atPath: $0.path) } || (self == .pi && !PiLog.roots().isEmpty) }
 
     /// As que avisam o Menew a cada evento por um comando (as outras só por plugin, que o Menew não instala:
     /// delas o Menew vê o processo rodando e o uso nos registros)
     var hasHooks: Bool {
         switch self {
-        case .opencode, .amp, .openclaw, .kimi, .goose: false
+        case .opencode, .amp, .openclaw, .kimi, .goose, .pi: false
         default: true
         }
     }

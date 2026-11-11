@@ -1,7 +1,7 @@
 import Foundation
 import SQLite3
 
-/// O uso das outras ferramentas de IA (OpenCode, Kiro, Copilot CLI, Droid, Qwen Code, Amp, OpenClaw, Kimi, Goose),
+/// O uso das outras ferramentas de IA (OpenCode, Kiro, Copilot CLI, Droid, Qwen Code, Amp, OpenClaw, Kimi, Goose, Pi),
 /// lido dos arquivos que elas mesmas gravam no Mac. Cada fonte diz quais arquivos olhar e como ler um arquivo inteiro;
 /// o scanner relê um arquivo só quando ele muda. Nada sai do Mac. O Cursor não guarda o uso no Mac (só no site dele).
 struct AgentSource {
@@ -20,6 +20,7 @@ struct AgentSource {
         AgentSource(agent: .openclaw, files: OpenClawLog.files, parse: OpenClawLog.parse),
         AgentSource(agent: .kimi, files: KimiLog.files, parse: KimiLog.parse),
         AgentSource(agent: .goose, files: GooseLog.files, parse: GooseLog.parse),
+        AgentSource(agent: .pi, files: PiLog.files, parse: PiLog.parse),
     ]
 
     /// Quando o arquivo mudou; num banco SQLite, o `-wal` do lado muda antes do arquivo principal
@@ -477,5 +478,70 @@ enum GooseLog {
             r.key = "goose:\(row[0].map { "\($0)" } ?? "")"
             return r.total > 0 ? r : nil
         }
+    }
+}
+
+// MARK: Pi (e agentes feitos a partir dele)
+
+/// O Pi grava cada sessão em `~/.pi/agent/sessions/--<pasta>--/<data>_<id>.jsonl`: a primeira linha (`session`) tem o
+/// `cwd`; as linhas `message` do assistente têm `usage` {input, output, cacheRead, cacheWrite, cost.total} e `timestamp`
+/// em ms. Agentes feitos a partir do Pi trocam o nome da pasta (`~/.<nome>/agent`) e alguns guardam as mesmas linhas num
+/// `sessions.db` (tabela `session_entries`): o Menew procura os dois formatos nas pastas ocultas da sua pasta pessoal.
+enum PiLog {
+    /// As pastas `agent` com sessões no formato do Pi
+    static func roots() -> [URL] {
+        let fm = FileManager.default
+        let hidden = ((try? fm.contentsOfDirectory(atPath: AgentFiles.home.path)) ?? []).filter { $0.hasPrefix(".") && $0.count > 1 }
+        return hidden.map { AgentFiles.home.appendingPathComponent($0).appendingPathComponent("agent") }.filter {
+            fm.fileExists(atPath: $0.appendingPathComponent("sessions.db").path)
+                || fm.fileExists(atPath: $0.appendingPathComponent("sessions").path)
+        }
+    }
+
+    static func files(_ cutoff: Date) -> [URL] {
+        roots().flatMap { root -> [URL] in
+            let db = root.appendingPathComponent("sessions.db")
+            let dbs = FileManager.default.fileExists(atPath: db.path) && AgentSource.mtime(db) >= cutoff ? [db] : []
+            return dbs + AgentFiles.find(root.appendingPathComponent("sessions"), ext: ["jsonl"], cutoff: cutoff, depth: 2)
+        }
+    }
+
+    static func parse(_ url: URL) -> [UsageRecord] {
+        if url.pathExtension == "db" {
+            guard SQLiteReader.columns(url, "session_entries").contains("payload_json") else { return [] }
+            let join = SQLiteReader.columns(url, "sessions").contains("cwd") ? " LEFT JOIN sessions s ON s.id = e.session_id" : ""
+            let sql = "SELECT e.session_id, e.payload_json, \(join.isEmpty ? "NULL" : "s.cwd") FROM session_entries e\(join) WHERE e.kind = 'message' AND e.payload_json LIKE '%\"usage\"%'"
+            return SQLiteReader.query(url, sql).compactMap { row in
+                guard row.count == 3 else { return nil }
+                return record(AgentFiles.dict(row[1]), session: row[0] as? String ?? "", cwd: row[2] as? String)
+            }
+        }
+        var cwd: String?, session = url.deletingPathExtension().lastPathComponent
+        var out: [UsageRecord] = []
+        for line in AgentFiles.lines(url) {
+            if line["type"] as? String == "session" {
+                cwd = line["cwd"] as? String
+                if let id = line["id"] as? String { session = id }
+            } else if let r = record(line, session: session, cwd: cwd) {
+                out.append(r)
+            }
+        }
+        return out
+    }
+
+    static func record(_ e: [String: Any], session: String, cwd: String?) -> UsageRecord? {
+        guard e["type"] as? String ?? "message" == "message", let m = e["message"] as? [String: Any], m["role"] as? String == "assistant",
+              let u = m["usage"] as? [String: Any], let date = AgentFiles.date(m["timestamp"]) ?? AgentFiles.date(e["timestamp"]) else { return nil }
+        let model = m["responseModel"] as? String ?? m["model"] as? String ?? "pi"
+        var r = UsageRecord(date: date, agent: .pi, model: model, project: AgentDates.project(cwd))
+        r.input = AgentFiles.int(u["input"])
+        r.output = AgentFiles.int(u["output"])
+        r.cacheRead = AgentFiles.int(u["cacheRead"])
+        let write1h = AgentFiles.int(u["cacheWrite1h"])
+        r.cacheWrite5m = max(0, AgentFiles.int(u["cacheWrite"]) - write1h)
+        r.cacheWrite1h = write1h
+        if let c = AgentFiles.double((u["cost"] as? [String: Any])?["total"]), c > 0 { r.reportedCost = c }
+        r.key = (e["id"] as? String).map { "pi:\(session):\($0)" }
+        return r.total > 0 ? r : nil
     }
 }
