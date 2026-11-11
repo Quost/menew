@@ -20,6 +20,15 @@ cd "$(dirname "$0")"
 if [ -z "${SIGN_IDENTITY:-}" ] && [ -f .signing-identity ]; then
   SIGN_IDENTITY=$(head -1 .signing-identity)
 fi
+# Num git worktree o .signing-identity (fora do git) fica só no checkout principal
+if [ -z "${SIGN_IDENTITY:-}" ]; then
+  MAIN_CHECKOUT=$(dirname "$(git rev-parse --path-format=absolute --git-common-dir 2>/dev/null || echo .)")
+  [ -f "$MAIN_CHECKOUT/.signing-identity" ] && SIGN_IDENTITY=$(head -1 "$MAIN_CHECKOUT/.signing-identity")
+fi
+if [ -z "${SIGN_IDENTITY:-}" ]; then
+  echo "⚠️  Assinatura ad-hoc: a permissão de Acessibilidade (colar) não vale para o próximo build." >&2
+  echo "    Crie .signing-identity com o seu certificado para o macOS lembrar a permissão." >&2
+fi
 
 ARCH_FLAGS=()
 [ "${UNIVERSAL:-0}" = 1 ] && ARCH_FLAGS=(--arch arm64 --arch x86_64)

@@ -187,18 +187,17 @@ final class ClipboardManager: ObservableObject {
 
         if let urls = pb.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty {
             item = ClipItem(kind: .file, text: urls.map(\.path).joined(separator: "\n"))
-        } else if let s = pb.string(forType: .string), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        } else if let s = pb.string(forType: .string), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                  !BinaryClip.looksBinary(s), !(pb.data(forType: .string).map(BinaryClip.isBinary) ?? false) {
             item = ClipItem(kind: .text, text: s)
-        } else if let img = NSImage(pasteboard: pb), let tiff = img.tiffRepresentation,
-                  let rep = NSBitmapImageRep(data: tiff), let png = rep.representation(using: .png, properties: [:]) {
-            let hash = SHA256.hash(data: png).prefix(10).map { String(format: "%02x", $0) }.joined()
-            let name = "\(hash).png"
-            let file = imagesDir.appendingPathComponent(name)
-            try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
-            if !FileManager.default.fileExists(atPath: file.path) {
-                guard (try? png.write(to: file)) != nil else { return }
-            }
-            item = ClipItem(kind: .image, text: "Imagem \(rep.pixelsWide)×\(rep.pixelsHigh)", imageFile: name)
+        } else if let img = NSImage(pasteboard: pb), let tiff = img.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) {
+            item = storeImage(rep)
+            if item == nil { return }
+        } else if let bytes = pb.data(forType: .string).flatMap({ BinaryClip.isBinary($0) ? $0 : nil })
+                    ?? pb.string(forType: .string).flatMap(BinaryClip.bytes(fromText:)) {
+            // Teams, Claude e outros põem os bytes da imagem num tipo de texto: vira imagem, não texto ilegível
+            guard let rep = BinaryClip.bitmap(from: bytes) else { return }
+            item = storeImage(rep)
         }
 
         guard var new = item else { return }
@@ -212,6 +211,44 @@ final class ClipboardManager: ObservableObject {
                 MemoryFeed.clipboardImage(imagesDir.appendingPathComponent(f), types: types, concealed: concealed, app: new.sourceApp, bundle: new.sourceBundle)
             }
         }
+    }
+
+    /// Grava a imagem em PNG (nome pelo hash, então a mesma imagem não duplica) e devolve o item
+    private func storeImage(_ rep: NSBitmapImageRep) -> ClipItem? {
+        guard let png = rep.representation(using: .png, properties: [:]) else { return nil }
+        let hash = SHA256.hash(data: png).prefix(10).map { String(format: "%02x", $0) }.joined()
+        let name = "\(hash).png"
+        let file = imagesDir.appendingPathComponent(name)
+        try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
+        if !FileManager.default.fileExists(atPath: file.path) {
+            guard (try? png.write(to: file)) != nil else { return nil }
+        }
+        return ClipItem(kind: .image, text: "Imagem \(rep.pixelsWide)×\(rep.pixelsHigh)", imageFile: name)
+    }
+
+    /// Itens de texto que na verdade eram bytes de imagem ("âPNG…", de versões anteriores):
+    /// viram imagem quando dá para recuperar os bytes, senão saem do histórico
+    private func repairBinaryText() -> Bool {
+        var changed = false
+        items = items.compactMap { item in
+            guard item.kind == .text, item.secretNoteID == nil, let t = item.text, BinaryClip.looksBinary(t) else { return item }
+            changed = true
+            guard let bytes = BinaryClip.bytes(fromText: t), let rep = BinaryClip.bitmap(from: bytes),
+                  var fixed = storeImage(rep) else { return nil }
+            fixed.id = item.id
+            fixed.date = item.date
+            fixed.sourceApp = item.sourceApp
+            fixed.sourceBundle = item.sourceBundle
+            fixed.pinned = item.pinned
+            return fixed
+        }
+        // A mesma imagem pode ter entrado várias vezes como texto: fica a mais recente
+        var seen = Set<String>()
+        items.removeAll { item in
+            guard item.kind == .image, let f = item.imageFile else { return false }
+            return !seen.insert(f).inserted
+        }
+        return changed
     }
 
     // MARK: Texto das imagens
@@ -372,7 +409,7 @@ final class ClipboardManager: ObservableObject {
             }
             SecretCopy.copy(value)
             lastChange = NSPasteboard.general.changeCount
-            guard paste, defaults.bool(forKey: "autoPaste"), AXIsProcessTrusted() else {
+            guard paste, defaults.bool(forKey: "autoPaste"), AccessibilityGrant.isTrusted else {
                 HUD.show(icon: "key.fill", color: .green, text: L("Copiado · some em 30 s"))
                 return
             }
@@ -407,7 +444,7 @@ final class ClipboardManager: ObservableObject {
             pb.setString(text, forType: .string)
             lastChange = pb.changeCount
             guard defaults.bool(forKey: "autoPaste") else { return }
-            guard AXIsProcessTrusted() else { Self.requestAccessibility(); return }
+            guard AccessibilityGrant.isTrusted else { Self.requestAccessibility(); return }
             if asked { target?.activate() }
             DispatchQueue.main.asyncAfter(deadline: .now() + (asked ? 0.35 : 0.12)) {
                 Self.postCommandV()
@@ -422,7 +459,7 @@ final class ClipboardManager: ObservableObject {
             copy(item)
         }
         guard defaults.bool(forKey: "autoPaste") else { return }
-        guard AXIsProcessTrusted() else {
+        guard AccessibilityGrant.isTrusted else {
             Self.requestAccessibility()
             return
         }
@@ -464,10 +501,9 @@ final class ClipboardManager: ObservableObject {
         UserDefaults.standard.removeObject(forKey: "pausedUntil")
     }
 
-    static func requestAccessibility() {
-        let opts = ["AXTrustedCheckOptionPrompt": true] as CFDictionary
-        _ = AXIsProcessTrustedWithOptions(opts)
-    }
+    /// Pede a permissão de Acessibilidade só quando ela falta de verdade. Se o Menew já foi permitido antes
+    /// (ou o pedido já apareceu nesta sessão), a permissão na lista é de outro build: explica como renová-la.
+    static func requestAccessibility() { AccessibilityGrant.request() }
 
     func togglePin(_ item: ClipItem) {
         guard let idx = items.firstIndex(where: { $0.id == item.id }) else { return }
@@ -510,7 +546,8 @@ final class ClipboardManager: ObservableObject {
             guard let f = item.imageFile else { return true }
             return FileManager.default.fileExists(atPath: imagesDir.appendingPathComponent(f).path)
         }
-        if items.count != decoded.count { save() }
+        let repaired = repairBinaryText()
+        if repaired || items.count != decoded.count { save() }
         // Imagens de antes desta versão também ficam buscáveis
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in self?.queueOCR() }
     }
@@ -519,5 +556,52 @@ final class ClipboardManager: ObservableObject {
         guard !isDemo else { return }
         guard let data = try? JSONEncoder().encode(items) else { return }
         try? data.write(to: historyURL, options: .atomic)
+    }
+}
+
+/// Conteúdo binário (imagem, PDF) que chegou ao clipboard num tipo de texto.
+/// Lido como texto, um PNG vira "âPNG…" (o byte 0x89 em MacRoman) com 70 mil caracteres ilegíveis.
+enum BinaryClip {
+    static let signatures: [[UInt8]] = [
+        [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A], // PNG
+        [0xFF, 0xD8, 0xFF],                               // JPEG
+        Array("GIF87a".utf8), Array("GIF89a".utf8),
+        [0x49, 0x49, 0x2A, 0x00], [0x4D, 0x4D, 0x00, 0x2A], // TIFF
+        Array("%PDF-".utf8),
+    ]
+
+    static func isBinary(_ data: Data) -> Bool {
+        signatures.contains { data.starts(with: $0) }
+    }
+
+    /// Os bytes originais de um texto que é um arquivo decodificado byte a byte (MacRoman, Latin-1, Windows-1252).
+    /// O PNG tem uma assinatura de 8 bytes que texto de verdade não tem; as curtas ("GIF89a", "%PDF-")
+    /// só contam se o começo também tiver caracteres de controle, para não confundir um texto que fala do formato.
+    static func bytes(fromText s: String) -> Data? {
+        let head = String(s.unicodeScalars.prefix(16).map(Character.init))
+        for enc in [String.Encoding.macOSRoman, .isoLatin1, .windowsCP1252] {
+            guard let h = head.data(using: enc), isBinary(h) else { continue }
+            guard h.starts(with: signatures[0]) || hasControlCharacters(s) else { return nil }
+            if let d = s.data(using: enc) { return d }
+        }
+        return nil
+    }
+
+    /// Texto que não é texto: assinatura de imagem (inclusive já estragada pelo UTF-8) ou caracteres NUL no começo
+    static func looksBinary(_ s: String) -> Bool {
+        if bytes(fromText: s) != nil { return true }
+        let head = s.unicodeScalars.prefix(1024)
+        if head.starts(with: "\u{FFFD}PNG".unicodeScalars) { return true }
+        return head.contains { $0.value == 0 }
+    }
+
+    private static func hasControlCharacters(_ s: String) -> Bool {
+        s.unicodeScalars.prefix(1024).contains { $0.value < 0x20 && !["\t", "\n", "\r"].contains($0) }
+    }
+
+    static func bitmap(from data: Data) -> NSBitmapImageRep? {
+        if let rep = NSBitmapImageRep(data: data) { return rep }
+        guard let img = NSImage(data: data), let tiff = img.tiffRepresentation else { return nil }
+        return NSBitmapImageRep(data: tiff)
     }
 }
