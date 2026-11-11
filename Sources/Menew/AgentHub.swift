@@ -135,6 +135,7 @@ enum AgentProcesses {
         case "cursor": return n == "cursor-agent" || n == "node" || n.hasPrefix("cursor")
         case "kiro": return n.hasPrefix("kiro")
         case "opencode", "droid", "kimi", "goose": return n == agent || n.hasPrefix(agent + "-")
+        case "pi": return n == "pi" || n == "node" || n == "bun"
         default: return false
         }
     }
@@ -172,6 +173,7 @@ enum AgentProcesses {
             case "openclaw": return (.openclaw, pid)
             case "kimi": return (.kimi, pid)
             case "goose": return (.goose, pid)
+            case "pi": return (.pi, pid)
             case "node", "bun":
                 // node /opt/homebrew/bin/gemini …, node …/@github/copilot/index.js …
                 guard let script = rest.first?.lowercased() else { return nil }
@@ -183,6 +185,7 @@ enum AgentProcesses {
                     (.cursor, ["/cursor-agent", "cursor-agent/"]),
                     (.openclaw, ["/openclaw", "openclaw/"]),
                     (.opencode, ["/opencode", "opencode-ai/"]),
+                    (.pi, ["/pi", "pi-coding-agent/"]),
                 ]
                 return scripts.first { _, marks in marks.contains { script.hasSuffix($0) || ($0.hasSuffix("/") && script.contains($0)) } }.map { ($0.0, pid) }
             default: return nil

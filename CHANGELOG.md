@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.101.0
+
+### New
+- **Pi.** The AI agents section, the notch and the MCP server now show Pi's usage (tokens, the cost Pi records, models and projects) and its sessions while it runs. Menew finds `~/.pi` and also agents built on Pi that keep the same sessions under another folder, in Pi's files or in a `sessions.db`. Like OpenCode, Pi has no shell hooks, so it shows as working when its log grew in the last few minutes.
+
 ## 1.100.1
 
 ### Fixed

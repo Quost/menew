@@ -271,3 +271,56 @@ final class ResumeOnceTests: XCTestCase {
         XCTAssertEqual(text, "")
     }
 }
+
+final class PiLogTests: XCTestCase {
+    func testPiSessionFile() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("menew-pi-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let url = dir.appendingPathComponent("2026-11-11T12-00-00-000Z_s1.jsonl")
+        try """
+        {"type":"session","version":3,"id":"s1","timestamp":"2026-11-11T12:00:00.000Z","cwd":"/Users/ana/apps/menew"}
+        {"type":"message","id":"a1","parentId":null,"timestamp":"2026-11-11T12:00:01.000Z","message":{"role":"user","content":"oi","timestamp":1794400801000}}
+        {"type":"message","id":"a2","parentId":"a1","timestamp":"2026-11-11T12:00:05.000Z","message":{"role":"assistant","model":"claude-sonnet-5-5","provider":"anthropic","timestamp":1794400802000,"usage":{"input":100,"output":40,"cacheRead":900,"cacheWrite":300,"cacheWrite1h":100,"totalTokens":1340,"cost":{"input":0,"output":0,"cacheRead":0,"cacheWrite":0,"total":0.0042}}}}
+        """.write(to: url, atomically: true, encoding: .utf8)
+        let r = PiLog.parse(url)
+        XCTAssertEqual(r.count, 1)
+        XCTAssertEqual(r[0].agent, .pi)
+        XCTAssertEqual(r[0].project, "menew")
+        XCTAssertEqual(r[0].total, 1340)
+        XCTAssertEqual(r[0].cacheWrite5m, 200)
+        XCTAssertEqual(r[0].cacheWrite1h, 100)
+        XCTAssertEqual(r[0].reportedCost ?? 0, 0.0042, accuracy: 0.00001)
+        XCTAssertEqual(r[0].key, "pi:s1:a2")
+    }
+
+    func testPiEntriesInSQLite() throws {
+        // Agentes feitos a partir do Pi que guardam as mesmas linhas num banco
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("menew-pidb-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: dir) }
+        let db = dir.appendingPathComponent("sessions.db")
+        let payload = #"{"type":"message","id":"m2","parentId":"m1","timestamp":"2026-11-11T12:52:18.254Z","message":{"role":"assistant","model":"x-01","provider":"x","timestamp":1794401875496,"usage":{"input":15790,"output":347,"cacheRead":0,"cacheWrite":0,"totalTokens":16137,"cost":{"total":0.002542}}}}"#
+        let sql = """
+        CREATE TABLE sessions (id TEXT, header_json TEXT, cwd TEXT, created TEXT, modified_ms INTEGER, leaf_id TEXT, revision INTEGER);
+        CREATE TABLE session_entries (session_id TEXT, id TEXT, sequence INTEGER, parent_id TEXT, kind TEXT, timestamp TEXT, payload_json TEXT);
+        INSERT INTO sessions VALUES ('s1', '{}', '/Users/ana/apps/api', '2026-11-11', 0, 'm2', 1);
+        INSERT INTO session_entries VALUES ('s1', 'm2', 2, 'm1', 'message', '2026-11-11T12:52:18.254Z', '\(payload.replacingOccurrences(of: "'", with: "''"))');
+        INSERT INTO session_entries VALUES ('s1', 'm0', 0, NULL, 'model_change', '2026-11-11T12:50:00.000Z', '{}');
+        """
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/bin/sqlite3")
+        p.arguments = [db.path, sql]
+        try p.run(); p.waitUntilExit()
+        let r = PiLog.parse(db)
+        XCTAssertEqual(r.count, 1)
+        XCTAssertEqual(r[0].project, "api")
+        XCTAssertEqual(r[0].total, 16137)
+        XCTAssertEqual(r[0].model, "x-01")
+    }
+
+    func testPiProcess() {
+        let found = AgentProcesses.parse("  20 pi\n  21 node /opt/homebrew/lib/node_modules/@earendil-works/pi-coding-agent/dist/bundle/cli.js\n  22 node /usr/local/bin/pip")
+        XCTAssertEqual(found.filter { $0.0 == .pi }.map(\.1), [20, 21])
+    }
+}
