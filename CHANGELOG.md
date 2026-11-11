@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.100.1
+
+### Fixed
+- **Menew quitting by itself every few minutes.** With automatic Memory on, reading the text of a screenshot that macOS's text recognition can't handle made Menew quit, and it tried the same image again after relaunching. Those images are now saved without text instead.
+
 ## 1.100.0
 
 ### New
