@@ -25,13 +25,14 @@ concurrency:
   cancel-in-progress: true
 
 # Onde roda: a variável CI_RUNNER do repositório (ex.: ["self-hosted","macOS","menew-release"]) leva os jobs para o
-# Mac do autor; vazia, ficam nas máquinas do GitHub. PR vindo de fork nunca roda no Mac.
+# Mac do autor; vazia, ficam nas máquinas do GitHub. PR vindo de fork nunca roda no Mac, e com SELF_HOSTED_AUTHORS
+# (ex.: "Quost" ou "Quost,outra-pessoa") só quem disparou e o autor do PR que estão na lista.
 jobs:
   light:
     name: Analyze (${{ matrix.language }})
     # As tags só disparam o Swift
     if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && vars.CI_RUNNER || '"ubuntu-latest"') }}
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"ubuntu-latest"') }}
     strategy:
       fail-fast: false
       matrix:
@@ -49,7 +50,7 @@ jobs:
   swift:
     name: Analyze (swift)
     if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/') }}
-    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && vars.CI_RUNNER || '"macos-latest"') }}
+    runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"macos-latest"') }}
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4

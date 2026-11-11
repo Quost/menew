@@ -35,6 +35,7 @@ Two repo variables (Settings › Secrets and variables › Actions › Variables
 
 - `RELEASE_RUNNER`: the `Release` workflow. Releases need Xcode 27, which the `macos-26` image lacks, so it is set to `["self-hosted","macOS","menew-release"]`, the maintainer's Mac.
 - `CI_RUNNER`: every other workflow (CI, Commits, CodeQL, Site). Set it to the same value to move them all to the Mac (for example, when GitHub Actions minutes are blocked). PRs from forks always stay on GitHub's machines.
+- `SELF_HOSTED_AUTHORS`: comma-separated GitHub logins allowed on the Mac, set to `Quost`. A job goes to the Mac only if whoever triggered it (and, on a PR, the PR's author) is in the list; anyone else runs on GitHub's machines. Empty allows anyone in the repo (forks never).
 
 ```bash
 gh variable set CI_RUNNER --body '["self-hosted","macOS","menew-release"]'   # to the Mac

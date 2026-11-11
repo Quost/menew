@@ -13,8 +13,8 @@ jobs:
   release:
     # macOS 26 com o Xcode 27 escolhido abaixo (SDK do macOS 27). Enquanto a imagem do GitHub não tem o Xcode 27, a
     # variável RELEASE_RUNNER do repositório aponta para o Mac do autor (["self-hosted","macOS","menew-release"]).
-    # Esse rótulo só aparece aqui: nenhum workflow de pull request roda no Mac.
-    runs-on: ${{ fromJSON(vars.RELEASE_RUNNER || '"macos-26"') }}
+    # Só vai para o Mac quem está em SELF_HOSTED_AUTHORS (ex.: "Quost"); os demais ficam no GitHub.
+    runs-on: ${{ fromJSON(vars.RELEASE_RUNNER != '' && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.RELEASE_RUNNER || '"macos-26"') }}
     env:
       HAS_CERT: ${{ secrets.DEVELOPER_ID_P12 != '' }}
       HAS_NOTARY: ${{ secrets.APPLE_ID != '' }}
