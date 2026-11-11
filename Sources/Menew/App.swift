@@ -127,6 +127,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         AgentHub.shared.start()
         AgentUsageStore.shared.start()
         MCPBridge.start()
+        MCPHTTP.shared.sync()
         WidgetBridge.shared.start(monitor: monitor)
         SpotlightNotes.shared.start(notes)
         AutomationStore.shared.start(toolbox: toolbox)

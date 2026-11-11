@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## 1.103.0
+
+### New
+- **MCP server for agents in Docker.** Agents that run in a container can't start Menew's MCP server on your Mac, so AI agents › MCP server has a new **Access for agents in Docker** option. Menew then also answers MCP over HTTP, only on your Mac and only to requests with a key, and agents built on Pi that run in a container get their own switch that adds Menew to their `mcp.json`. Off by default; **Copy config** gives the entry for any other app.
+
 ## 1.102.1
 
 ### Fixed

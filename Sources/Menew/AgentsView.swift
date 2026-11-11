@@ -366,6 +366,7 @@ struct AgentsView: View {
                 }
             }
             if let e = mcpStatus.error { Text(e).font(.system(size: 12)).foregroundStyle(.red) }
+            network
             Text(L("O que os agentes podem usar")).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(.secondary).padding(.top, 4)
             ForEach(MCPSource.allCases) { s in
                 Toggle(isOn: defaultsBinding(s.key, s != .clipboard)) {
@@ -380,6 +381,62 @@ struct AgentsView: View {
                 .toggleStyle(.checkbox)
             }
         }
+    }
+
+    /// Para agentes num contêiner (Docker), que não conseguem abrir o Menew do Mac
+    @ViewBuilder private var network: some View {
+        let on = UserDefaults.standard.bool(forKey: MCPHTTP.enabledKey)
+        Toggle(isOn: Binding(get: { on }, set: { setNetwork($0) })) {
+            VStack(alignment: .leading, spacing: 0) {
+                Text(L("Acesso para agentes no Docker")).font(.system(size: 12.5))
+                Text(L("Só neste Mac, com uma chave. O Menew precisa estar aberto.")).font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+        }
+        .toggleStyle(.checkbox).padding(.top, 4)
+        if on {
+            if let e = MCPHTTP.shared.error { Text(e).font(.system(size: 12)).foregroundStyle(.red) }
+            let docker = MCPDockerClient.all()
+            if !docker.isEmpty {
+                LazyVGrid(columns: [GridItem(.adaptive(minimum: 180), spacing: 10)], alignment: .leading, spacing: 8) {
+                    ForEach(docker) { c in
+                        HStack {
+                            Text(c.name).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
+                            Spacer()
+                            Toggle("", isOn: Binding(get: { c.isInstalled }, set: { v in
+                                mcpStatus.error = c.set(v); tick += 1
+                            })).toggleStyle(.switch).controlSize(.small).labelsHidden()
+                        }
+                        .padding(.horizontal, 10).padding(.vertical, 6)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(Color.primary.opacity(0.05)))
+                    }
+                }
+            }
+            HStack(spacing: 8) {
+                Text(MCPHTTP.dockerURL.replacingOccurrences(of: MCPHTTP.token, with: "••••"))
+                    .font(.system(size: 11, design: .monospaced)).foregroundStyle(.secondary).lineLimit(1).truncationMode(.middle)
+                Spacer()
+                Button(L("Copiar configuração")) {
+                    NSPasteboard.general.clearContents()
+                    NSPasteboard.general.setString(MCPDockerClient.snippet, forType: .string)
+                    HUD.show(icon: "doc.on.doc.fill", color: .green, text: L("Copiado"))
+                }.controlSize(.small)
+                Button(L("Trocar a chave")) {
+                    MCPHTTP.resetToken()
+                    // Quem o Menew configurou recebe a chave nova
+                    for c in MCPDockerClient.all() where c.isInstalled { _ = c.set(true) }
+                    tick += 1
+                }.controlSize(.small)
+                .help(L("Quem tinha a chave antiga perde o acesso"))
+            }
+        }
+    }
+
+    private func setNetwork(_ on: Bool) {
+        UserDefaults.standard.set(on, forKey: MCPHTTP.enabledKey)
+        if !on { for c in MCPDockerClient.all() where c.isInstalled { _ = c.set(false) } }
+        MCPHTTP.shared.sync()
+        tick += 1
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { tick += 1 }
     }
 
     private func defaultsBinding(_ key: String, _ def: Bool) -> Binding<Bool> {
