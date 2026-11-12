@@ -1,4 +1,5 @@
 import AppKit
+import CryptoKit
 import Darwin
 import SwiftUI
 
@@ -527,7 +528,12 @@ enum AgentHooks {
         let cmds = ourCommands(config)
         if cmds.isEmpty { return .notInstalled }
         let wanted = Set(events(a).map { command(a, event: $0) })
-        return Set(cmds) == wanted || (Set(cmds).isSuperset(of: wanted) && cmds.allSatisfy { $0.hasPrefix(command(a)) }) ? .installed : .outdated
+        let current = Set(cmds) == wanted || (Set(cmds).isSuperset(of: wanted) && cmds.allSatisfy { $0.hasPrefix(command(a)) })
+        // O Codex (também o de dentro do app ChatGPT) ignora em silêncio os hooks sem aprovação no config.toml
+        if a == .codex, current, !CodexHookTrust.isTrusted(CodexHookTrust.entries(config, hooksFile: configURL(a)), in: CodexHookTrust.configText()) {
+            return .outdated
+        }
+        return current ? .installed : .outdated
     }
 
     /// O arquivo como fica depois (para mostrar antes de gravar)
@@ -611,6 +617,104 @@ enum AgentHooks {
         }
         guard let data = try? JSONSerialization.data(withJSONObject: next, options: [.prettyPrinted, .withoutEscapingSlashes, .sortedKeys]) else { throw Failure.write }
         do { try data.write(to: url, options: .atomic) } catch { throw Failure.write }
+        if a == .codex { try CodexHookTrust.write(CodexHookTrust.entries(next, hooksFile: url)) }
+    }
+}
+
+/// O Codex só roda um hook do hooks.json se o config.toml tiver a aprovação dele: `[hooks.state."<arquivo>:<evento>:<grupo>:<hook>"]`
+/// com `trusted_hash`. O terminal pergunta ao abrir; o app ChatGPT (que roda o Codex por dentro) só pula o hook, sem avisar.
+/// Ligar os avisos já é a sua aprovação, então o Menew grava a dos comandos dele num bloco próprio do config.toml.
+enum CodexHookTrust {
+    struct Entry: Equatable { let key: String; let hash: String }
+
+    static let begin = "# >>> menew hooks"
+    static let end = "# <<< menew hooks"
+    static var configURL: URL { AgentFiles.home.appendingPathComponent(".codex/config.toml") }
+
+    static func configText() -> String { (try? String(contentsOf: configURL, encoding: .utf8)) ?? "" }
+
+    /// "UserPromptSubmit" → "user_prompt_submit", como o Codex chama o evento na chave
+    static func eventKey(_ event: String) -> String {
+        event.reduce(into: "") { out, c in
+            if c.isUppercase, !out.isEmpty { out += "_" }
+            out += c.lowercased()
+        }
+    }
+
+    /// O hash que o Codex calcula: SHA-256 do JSON compacto, com chaves em ordem, do evento e do hook normalizado
+    /// (timeout padrão de 600 s; 1 s no SessionEnd). Sem matcher, ele não entra.
+    static func hash(event: String, handler: [String: Any]) -> String? {
+        guard let command = handler["command"] as? String else { return nil }
+        let key = eventKey(event)
+        var h: [String: Any] = ["type": "command", "command": command,
+                                "timeout": handler["timeout"] as? Int ?? (key == "session_end" ? 1 : 600),
+                                "async": handler["async"] as? Bool ?? false]
+        if let s = handler["statusMessage"] as? String { h["statusMessage"] = s }
+        let identity: [String: Any] = ["event_name": key, "hooks": [h]]
+        guard let data = try? JSONSerialization.data(withJSONObject: identity, options: [.sortedKeys, .withoutEscapingSlashes]) else { return nil }
+        return "sha256:" + SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+    }
+
+    /// As aprovações dos comandos do Menew no hooks.json, pela posição de cada um (o Codex aprova por posição)
+    static func entries(_ hooksConfig: [String: Any], hooksFile: URL) -> [Entry] {
+        let hooks = hooksConfig["hooks"] as? [String: Any] ?? [:]
+        return hooks.keys.sorted().flatMap { event -> [Entry] in
+            let groups = hooks[event] as? [[String: Any]] ?? []
+            return groups.enumerated().flatMap { gi, group -> [Entry] in
+                guard group["matcher"] == nil else { return [] }
+                let handlers = group["hooks"] as? [[String: Any]] ?? []
+                return handlers.enumerated().compactMap { hi, handler in
+                    guard let cmd = handler["command"] as? String, cmd.contains(" \(AgentHookCommand.flag) "),
+                          let hash = hash(event: event, handler: handler) else { return nil }
+                    return Entry(key: "\(hooksFile.path):\(eventKey(event)):\(gi):\(hi)", hash: hash)
+                }
+            }
+        }
+    }
+
+    static func header(_ key: String) -> String {
+        "[hooks.state.\"" + key.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"") + "\"]"
+    }
+
+    /// Cada aprovação está no arquivo (no bloco do Menew ou gravada pelo próprio Codex), com o hash certo e ligada
+    static func isTrusted(_ entries: [Entry], in toml: String) -> Bool {
+        entries.allSatisfy { e in
+            guard let r = toml.range(of: header(e.key)) else { return false }
+            let rest = toml[r.upperBound...]
+            let table = rest.range(of: "\n[").map { rest[..<$0.lowerBound] } ?? rest
+            return table.contains("trusted_hash = \"\(e.hash)\"") && !table.contains("enabled = false")
+        }
+    }
+
+    /// O config.toml sem o bloco antigo do Menew e com o novo no fim. Uma chave que o Codex já gravou fora do bloco
+    /// fica como está: repetir a tabela quebraria o arquivo.
+    static func updated(_ toml: String, entries: [Entry]) -> String {
+        var text = toml
+        if let b = text.range(of: begin), let e = text.range(of: end, range: b.upperBound..<text.endIndex) {
+            var upper = e.upperBound
+            if upper < text.endIndex, text[upper] == "\n" { upper = text.index(after: upper) }
+            text.removeSubrange(b.lowerBound..<upper)
+            // A linha em branco que separava o bloco
+            if b.lowerBound == text.endIndex { while text.hasSuffix("\n\n") { text.removeLast() } }
+        }
+        let fresh = entries.filter { !text.contains(header($0.key)) }
+        guard !fresh.isEmpty else { return text }
+        while text.hasSuffix("\n\n") { text.removeLast() }
+        if !text.isEmpty, !text.hasSuffix("\n") { text += "\n" }
+        var block = (text.isEmpty ? "" : "\n") + begin + "\n# Aprovação dos hooks do Menew (Menew --agent-hook codex). O Menew regrava este bloco.\n"
+        for e in fresh { block += "\n\(header(e.key))\nenabled = true\ntrusted_hash = \"\(e.hash)\"\n" }
+        return text + block + end + "\n"
+    }
+
+    static func write(_ entries: [Entry]) throws {
+        let current = configText()
+        let next = updated(current, entries: entries)
+        guard next != current else { return }
+        let fm = FileManager.default
+        let backup = configURL.appendingPathExtension("menew-backup")
+        if fm.fileExists(atPath: configURL.path), !fm.fileExists(atPath: backup.path) { try? fm.copyItem(at: configURL, to: backup) }
+        try? fm.createDirectory(at: configURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        do { try next.write(to: configURL, atomically: true, encoding: .utf8) } catch { throw AgentHooks.Failure.write }
     }
 }
 

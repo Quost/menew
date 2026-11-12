@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Fixed
+- **Codex and the ChatGPT app in the notch.** Codex only runs hooks you approved, and the ChatGPT app (which runs Codex inside) skips unapproved ones without asking, so its sessions never reached the notch. Turning on Codex in AI agents › Set up now also records the approval for Menew's own commands in `~/.codex/config.toml`. If Codex shows as Outdated, press Update once.
+
 ## 1.103.0
 
 ### New
