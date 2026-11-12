@@ -36,7 +36,7 @@ struct AgentsView: View {
                                 ? (AgentPlugins.supports(c.agent)
                                     ? L("O Menew põe um plugin dele em %@. Ele só escreve cada evento num arquivo ao lado; nada sai do computador. Reabra a ferramenta para carregar.", AgentHooks.configURL(c.agent).deletingLastPathComponent().path)
                                     : L("O Menew acrescenta um comando dele nos hooks de %@ (uma cópia do arquivo fica em .menew-backup). O resto do arquivo não muda.", AgentHooks.configURL(c.agent).path))
-                                    + (c.agent == .codex ? "\n\n" + L("O Codex pede para você aprovar hooks novos: abra o Codex e confirme.") : "")
+                                    + (c.agent == .codex ? "\n\n" + L("O Codex (também o de dentro do app ChatGPT) só roda hooks aprovados: o Menew grava a aprovação dos comandos dele em %@.", CodexHookTrust.configURL.path) : "")
                                 : L("O Menew tira só as entradas dele de %@.", AgentHooks.configURL(c.agent).path)),
                   primaryButton: .default(Text(c.install ? L("Ligar") : L("Desligar"))) {
                       do { try AgentHooks.apply(c.agent, install: c.install) } catch { self.error = L("Não consegui alterar %@.", AgentHooks.configURL(c.agent).lastPathComponent) }

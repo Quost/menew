@@ -187,6 +187,42 @@ final class AgentHookStylesTests: XCTestCase {
         XCTAssertNotNil((AgentHooks.updated([:], agent: .qwen, install: true)["hooks"] as! [String: Any])["PermissionRequest"])
     }
 
+    func testCodexHookTrustMatchesCodex() {
+        // Hashes que o próprio Codex gravou para um hook sem timeout (o padrão vira 600 s; 1 s no SessionEnd)
+        let handler: [String: Any] = ["type": "command", "command": "/Users/ana/.cockpit/bin/cockpit hook --harness codex"]
+        XCTAssertEqual(CodexHookTrust.eventKey("UserPromptSubmit"), "user_prompt_submit")
+        XCTAssertEqual(CodexHookTrust.eventKey("PreToolUse"), "pre_tool_use")
+        let cmd = AgentHooks.command(.codex)
+        let on = AgentHooks.updated(["hooks": ["Stop": [["hooks": [handler]]]]], agent: .codex, install: true)
+        let file = URL(fileURLWithPath: "/Users/ana/.codex/hooks.json")
+        let entries = CodexHookTrust.entries(on, hooksFile: file)
+        XCTAssertEqual(entries.count, AgentHooks.events(.codex).count)
+        // O do Menew vem depois do que já estava: grupo 1 no Stop, grupo 0 nos outros
+        XCTAssertTrue(entries.contains { $0.key == "/Users/ana/.codex/hooks.json:stop:1:0" })
+        XCTAssertTrue(entries.contains { $0.key == "/Users/ana/.codex/hooks.json:session_end:0:0" })
+        XCTAssertEqual(CodexHookTrust.hash(event: "SessionEnd", handler: ["command": cmd]),
+                       CodexHookTrust.hash(event: "SessionEnd", handler: ["command": cmd, "timeout": 1]))
+
+        let toml = "model = \"x\"\n\n[hooks.state.\"/Users/ana/.codex/hooks.json:stop:1:0\"]\nenabled = true\ntrusted_hash = \"sha256:old\"\n"
+        let next = CodexHookTrust.updated(toml, entries: entries)
+        XCTAssertTrue(next.hasPrefix("model = \"x\""))
+        // A chave que o Codex já tinha não se repete (quebraria o TOML)
+        XCTAssertEqual(next.components(separatedBy: "hooks.json:stop:1:0").count, 2)
+        XCTAssertFalse(CodexHookTrust.isTrusted(entries, in: next))
+        let clean = CodexHookTrust.updated("model = \"x\"\n", entries: entries)
+        XCTAssertTrue(CodexHookTrust.isTrusted(entries, in: clean))
+        XCTAssertEqual(CodexHookTrust.updated(clean, entries: entries), clean)
+        XCTAssertEqual(CodexHookTrust.updated(clean, entries: []), "model = \"x\"\n")
+    }
+
+    func testCodexHookHashIsCodexs() {
+        // Conferido com um config.toml gravado pelo Codex 0.x: sha256 do JSON {"event_name", "hooks": [hook normalizado]}
+        let h = CodexHookTrust.hash(event: "UserPromptSubmit", handler: ["command": "/Users/matheusquost/.cockpit/bin/cockpit hook --harness codex"])
+        XCTAssertEqual(h, "sha256:22748b72a192b8fa85596f4eda9ca5f106a300598116782d703f8d74dcbfbfe4")
+        let end = CodexHookTrust.hash(event: "SessionEnd", handler: ["command": "/Users/matheusquost/.cockpit/bin/cockpit hook --harness codex"])
+        XCTAssertEqual(end, "sha256:b0037bf187825fcc9ccb897382717457415e1bc1db5f6368e957887682c8d7cf")
+    }
+
     func testAgentsWithoutHooks() {
         // Pi, OpenCode e Amp agora avisam por plugin; estas seguem só pelo processo e pelo uso
         for a in [AgentKind.openclaw, .kimi, .goose] {
