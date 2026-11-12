@@ -19,8 +19,7 @@ enum ScriptCommands {
     enum Mode: String { case silent, compact, fullOutput, inline }
 
     static var folder: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Menew/Scripts", isDirectory: true)
+        AppData.dir.appendingPathComponent("Scripts", isDirectory: true)
     }
 
     private static var cache: (date: Date, list: [Script]) = (.distantPast, [])

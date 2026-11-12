@@ -9,8 +9,7 @@ enum Backup {
     static let fileType = UTType(filenameExtension: "menew", conformingTo: .propertyList) ?? .propertyList
 
     private static var dir: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Menew", isDirectory: true)
+        AppData.dir
     }
 
     private static let baseFiles = ["snippets.json", "profiles.json", "automations.json"]

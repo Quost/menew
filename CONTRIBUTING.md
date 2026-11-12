@@ -59,6 +59,17 @@ build/Menew.app/Contents/MacOS/Menew --snapshot /tmp/menew-shots -language en
 
 This renders every screen in light and dark mode using fake data, never your real clipboard. Copy the ones you need into `docs/assets/`.
 
+### Recording a demo
+
+To record a video of the real, running app (menu bar, popover, command palette, notch, Menew window) without your own data, quit Menew and start it in demo mode:
+
+```bash
+./build.sh
+build/Menew.app/Contents/MacOS/Menew --demo
+```
+
+Every store shows the same fake data as `--snapshot` (clipboard, notes, memory, recordings, meetings, AI agents, profiles…). Nothing real is read or written: files go to a temporary folder that is deleted on quit, settings go to their own domain (`com.matheusquost.menew.demo`, reset with `defaults delete com.matheusquost.menew.demo`), and clipboard capture, Automatic Memory, Spotlight, widgets, automations, agent hooks and the update check stay off. The app is in English; pass `-language pt|de|es|zh` for another language. If you add a store with personal data, give it a `demo()` and load it in `DemoMode.populate`.
+
 ## Good first contributions
 
 No Swift needed for these:

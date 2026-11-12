@@ -141,8 +141,7 @@ final class ClipboardManager: ObservableObject {
     }
 
     init() {
-        let base = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        dir = base.appendingPathComponent("Menew", isDirectory: true)
+        dir = AppData.dir
         imagesDir = dir.appendingPathComponent("images", isDirectory: true)
         try? FileManager.default.createDirectory(at: imagesDir, withIntermediateDirectories: true)
     }

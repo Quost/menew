@@ -74,7 +74,7 @@ enum StartupItems {
             w.title = L("Itens de login e em segundo plano")
             w.titlebarAppearsTransparent = true
             w.isReleasedWhenClosed = false
-            w.contentView = NSHostingView(rootView: StartupItemsView())
+            w.contentView = NSHostingView(rootView: DemoMode.isOn ? StartupItemsView(demo: StartupItems.demo) : StartupItemsView())
             w.center()
             return w
         }()

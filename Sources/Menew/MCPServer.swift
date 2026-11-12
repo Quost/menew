@@ -516,6 +516,8 @@ enum MCPClient: String, CaseIterable, Identifiable {
 
     /// Liga ou desliga; devolve a mensagem de erro, se houver
     func set(_ on: Bool) -> String? {
+        // Modo demo: os arquivos de configuração dos clientes ficam como estão
+        if DemoMode.isOn { return L("Não consegui gravar o arquivo") }
         switch self {
         case .claudeCode:
             guard let c = Self.cli("claude") else { return L("Não achei o comando claude") }

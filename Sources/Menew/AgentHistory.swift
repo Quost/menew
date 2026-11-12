@@ -109,8 +109,7 @@ struct AgentUsageHistory: Codable, Equatable {
     // MARK: Arquivo
 
     static var url: URL {
-        FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("Menew", isDirectory: true).appendingPathComponent("agent-usage.json")
+        AppData.dir.appendingPathComponent("agent-usage.json")
     }
 
     static func load(from url: URL = Self.url) -> AgentUsageHistory {

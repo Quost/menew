@@ -19,18 +19,9 @@ enum Snapshot {
         Sensors.shared.showDemo()
         let toolbox = Toolbox()
         toolbox.keepAwake = true
-        toolbox.displays.isDemo = true
-        toolbox.displays.screens = [
-            ScreenInfo(id: 1, name: L("Tela do Mac"), builtin: true, kind: .apple, brightness: 0.72),
-            ScreenInfo(id: 2, name: "DELL P2419H", builtin: false, kind: .ddc, brightness: 0.5),
-        ]
+        DemoMode.fakeDisplays(toolbox)
         let internet = InternetInfo()
-        internet.speed = .done(SpeedResult(down: 224, up: 146, latency: 21, rpm: 425))
-        internet.publicIP = "189.0.113.42"
-        internet.devices = [
-            BTDevice(name: "AirPods Pro", kind: .airpods, levels: [(L("E"), 90), (L("D"), 88), (L("Estojo"), 54)]),
-            BTDevice(name: "Magic Mouse", kind: .mouse, levels: [("", 17)]),
-        ]
+        DemoMode.fakeInternet(internet)
         let notes = NotesStore.demo()
         WorldClock.shared.demo()
         ProfileStore.shared.demo()
@@ -43,24 +34,8 @@ enum Snapshot {
         // Espera alguns ciclos para CPU/rede terem dados
         DispatchQueue.main.asyncAfter(deadline: .now() + 6.5) {
             // Dados fictícios onde a máquina real apareceria (rede, processos)
-            monitor.isDemo = true
-            monitor.localIP = "192.168.0.12"
-            monitor.battery = BatteryInfo(percent: 80, charging: false, onAC: true, minutesLeft: nil)
-            monitor.batteryHealth = BatteryHealth(cycles: 112, healthPercent: 96, temperature: nil, adapterWatts: 70, systemWatts: 8.4)
+            DemoMode.fakeMachine(monitor)
             BatteryLog.shared.set(BatteryLog.demo)
-            monitor.coreLoads = [0.12, 0.08, 0.15, 0.05, 0.09, 0.11, 0.42, 0.31, 0.18, 0.25]
-            monitor.memPressure = .normal
-            monitor.memTotal = 16 << 30
-            monitor.memBreakdown = MemoryBreakdown(app: 6_400 << 20, wired: 2_100 << 20, compressed: 1_300 << 20)
-            monitor.memUsed = monitor.memBreakdown.app + monitor.memBreakdown.wired + monitor.memBreakdown.compressed
-            monitor.swapUsed = 0
-            monitor.topProcesses = [
-                ProcInfo(name: "Safari", cpu: 18.4, memKB: 1_450_000),
-                ProcInfo(name: "WindowServer", cpu: 9.2, memKB: 420_000),
-                ProcInfo(name: "Xcode", cpu: 6.1, memKB: 2_100_000),
-                ProcInfo(name: "Music", cpu: 2.3, memKB: 310_000),
-                ProcInfo(name: "Finder", cpu: 0.8, memKB: 160_000),
-            ]
             for dark in [false, true] {
                 let suffix = dark ? "dark" : "light"
                 for tab in Tab.allCases {

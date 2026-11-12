@@ -28,6 +28,8 @@ final class SpotlightNotes {
     }
 
     func index(_ notes: [Note]) {
+        // Modo demo: nem indexa as notas fictícias, nem apaga o índice real
+        guard !DemoMode.isOn else { return }
         let index = CSSearchableIndex.default()
         guard isOn else { index.deleteSearchableItems(withDomainIdentifiers: [Self.domain]); return }
         let items = notes.filter { !$0.secure && !$0.isPasswords }.map { n -> CSSearchableItem in
