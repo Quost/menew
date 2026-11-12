@@ -189,6 +189,7 @@
   .sub { color: var(--muted); font-size: 18px; max-width: 640px; }
   .center { text-align: center; }
   .center .sub { margin: 0 auto; }
+  .demo video { display: block; width: min(900px, 100%); aspect-ratio: 4 / 3; height: auto; margin: 34px auto 0; border-radius: 20px; box-shadow: var(--shadow); border: 1px solid var(--line); background: #2a1d5c; }
 
   /* Destaques: grade em blocos */
   .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
@@ -444,6 +445,19 @@
   </div>
   <div class="desk-foot"></div>
 </header>
+
+<section id="demo" class="demo">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{demo_eyebrow}}</div>
+      <h2>{{demo_h2}}</h2>
+    </div>
+    <video autoplay muted loop playsinline preload="metadata" poster="/assets/menew-demo-poster.jpg" aria-label="{{demo_alt}}">
+      <source src="/assets/menew-demo.webm" type="video/webm">
+      <source src="/assets/menew-demo.mp4" type="video/mp4">
+    </video>
+  </div>
+</section>
 
 <section id="highlights">
   <div class="wrap">

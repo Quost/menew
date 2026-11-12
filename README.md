@@ -32,6 +32,8 @@
   </picture>
 </p>
 
+<p align="center"><a href="https://menew.web.app/?ref=github#demo"><b>▶ Watch the 30-second demo</b></a></p>
+
 ## Highlights
 
 ### 🧠 Memory — <kbd>⌃</kbd><kbd>⌥</kbd><kbd>⌘</kbd><kbd>K</kbd>

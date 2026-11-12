@@ -164,3 +164,16 @@ Downloads per version, update checks and repo traffic, all from GitHub's public 
 ## Reporting bugs
 
 Use **Report a problem…** in Menew's right-click menu: it opens a GitHub issue with your versions filled in. Or open an [issue](https://github.com/Quost/menew/issues/new/choose) directly.
+
+## Promo video
+
+The promo video is rendered off-screen from demo data, so it never shows your real screen and needs no screen recording permission:
+
+```bash
+./build.sh
+build/Menew.app/Contents/MacOS/Menew --video-frames /tmp/frames -language en
+swift scripts/make-video.swift /tmp/frames /tmp/video-out
+ffmpeg -framerate 30 -i /tmp/video-out/%04d.jpg -c:v libx264 -crf 26 -pix_fmt yuv420p -movflags +faststart menew.mp4
+```
+
+The video has no burned-in text besides shortcuts and the address, so one file serves every language.
