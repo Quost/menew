@@ -22,7 +22,7 @@ final class TextExpander {
 
     /// Liga ou desliga a escuta conforme o ajuste e as abreviações existentes
     func refresh() {
-        let wanted = UserDefaults.standard.bool(forKey: Self.key) && Module.clipboard.isOn
+        let wanted = !DemoMode.isOn && UserDefaults.standard.bool(forKey: Self.key) && Module.clipboard.isOn
             && !abbreviations().isEmpty && AXIsProcessTrusted()
         if wanted, monitor == nil {
             monitor = NSEvent.addGlobalMonitorForEvents(matching: .keyDown) { [weak self] e in

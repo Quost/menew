@@ -15,7 +15,7 @@ final class WidgetBridge {
     private weak var monitor: SystemMonitor?
 
     func start(monitor: SystemMonitor) {
-        guard WidgetSnapshot.url != nil else { return }
+        guard WidgetSnapshot.url != nil, !DemoMode.isOn else { return }
         self.monitor = monitor
         write()
         timer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in

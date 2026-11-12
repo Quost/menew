@@ -229,6 +229,7 @@ enum SpotlightMemory {
     static let domain = "com.matheusquost.menew.memory"
 
     static func index(_ items: [MemoryItem]) {
+        guard !DemoMode.isOn else { return }
         let index = CSSearchableIndex.default()
         guard SpotlightNotes.shared.isOn else { index.deleteSearchableItems(withDomainIdentifiers: [domain]); return }
         // Notas no Spotlight seguem o ajuste das notas (e já entram por lá)

@@ -110,13 +110,17 @@ final class InternetInfo: ObservableObject {
 
     private var ipFetchedAt: Date?
     private var devicesFetchedAt: Date?
+    /// Modo demo: IP e aparelhos fictícios ficam na tela
+    var isDemo = false
 
     func refreshIfNeeded() {
+        guard !isDemo else { return }
         if ipFetchedAt.map({ Date().timeIntervalSince($0) > 600 }) ?? true { fetchPublicIP() }
         if devicesFetchedAt.map({ Date().timeIntervalSince($0) > 60 }) ?? true { refreshDevices() }
     }
 
     func fetchPublicIP() {
+        guard !isDemo else { return }
         ipFetchedAt = Date()
         Task {
             guard let url = URL(string: "https://api.ipify.org"),
@@ -126,6 +130,7 @@ final class InternetInfo: ObservableObject {
     }
 
     func refreshDevices() {
+        guard !isDemo else { return }
         devicesFetchedAt = Date()
         Task {
             devices = await Task.detached { Bluetooth.devices() }.value

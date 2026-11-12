@@ -602,6 +602,8 @@ enum AgentHooks {
     enum Failure: Error { case unreadable, write }
 
     static func apply(_ a: AgentKind, install: Bool) throws {
+        // Modo demo: não mexe nos arquivos de configuração dos agentes
+        guard !DemoMode.isOn else { throw Failure.write }
         if AgentPlugins.supports(a) { return try AgentPlugins.apply(a, install: install) }
         guard let current = load(a) else { throw Failure.unreadable }
         let url = configURL(a)

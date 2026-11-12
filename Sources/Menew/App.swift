@@ -11,9 +11,10 @@ enum MenewMain {
         let args = CommandLine.arguments
         if let i = args.firstIndex(of: AgentHookCommand.flag) { AgentHookCommand.run(agent: args.count > i + 1 ? args[i + 1] : "") }
         if args.contains(MCPServer.flag) { MCPServer.run() }
+        DemoMode.prepare()
         let app = NSApplication.shared
         app.setActivationPolicy(.accessory)
-        Migration.run()
+        if !DemoMode.isOn { Migration.run() }
         if let i = CommandLine.arguments.firstIndex(of: "--snapshot"), CommandLine.arguments.count > i + 1 {
             Snapshot.run(into: URL(fileURLWithPath: CommandLine.arguments[i + 1]))
         } else if let i = CommandLine.arguments.firstIndex(of: "--preview"), CommandLine.arguments.count > i + 1 {
@@ -30,12 +31,13 @@ enum MenewMain {
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let monitor = SystemMonitor()
-    let clipboard = ClipboardManager()
+    // `--demo`: histórico, notas e o resto com dados fictícios (ver DemoMode)
+    let clipboard = DemoMode.isOn ? ClipboardManager.demo() : ClipboardManager()
     let toolbox = Toolbox()
     let internet = InternetInfo()
     let cleaner = Cleaner()
-    let updater = UpdaterModel(enabled: true)
-    lazy var notes = NotesStore(dir: clipboard.dir)  // migra notas.md na primeira vez
+    let updater = UpdaterModel(enabled: !DemoMode.isOn)
+    lazy var notes = DemoMode.isOn ? NotesStore.demo() : NotesStore(dir: clipboard.dir)  // migra notas.md na primeira vez
     let nav = PopoverState()
     let popoverClipState = ClipListState()
     lazy var clipPanel = ClipboardPanelController(manager: clipboard)
@@ -43,6 +45,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
     let shelf = ShelfController()
     lazy var palette: PaletteController = {
         let model = PaletteModel(toolbox: toolbox, clipboard: clipboard, notes: notes)
+        model.isDemo = DemoMode.isOn
         model.openTab = { [weak self] tab in
             guard let self else { return }
             nav.tab = tab
@@ -108,31 +111,38 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         monitor.onTick = { [weak self] in
             guard let self else { return }
             updateStatusItem()
-            AutomationStore.shared.tick(monitor)
+            if !DemoMode.isOn { AutomationStore.shared.tick(monitor) }
         }
         updater.onPendingChange = { [weak self] in self?.updateStatusItem() }
         monitor.start()
-        clipboard.start()
-        ProfileStore.shared.load(dir: clipboard.dir)
+        if DemoMode.isOn {
+            // Nada é lido do Mac: nem clipboard, nem agenda, nem agentes; também não grava widgets nem o Spotlight
+            DemoMode.populate(monitor: monitor, toolbox: toolbox, internet: internet)
+        } else {
+            clipboard.start()
+            ProfileStore.shared.load(dir: clipboard.dir)
+            AutomationStore.shared.load(dir: clipboard.dir)
+            SystemHistory.shared.load(dir: clipboard.dir)
+            BatteryLog.shared.load(dir: clipboard.dir)
+            BatteryWear.shared.load(dir: clipboard.dir)
+            MemoryStore.shared.load(base: clipboard.dir)
+            MemoryFeed.start()
+            RecordingStore.shared.load(base: clipboard.dir)
+            ScreenTime.shared.load(dir: clipboard.dir)
+        }
         shelf.startShakeDetection()
-        AutomationStore.shared.load(dir: clipboard.dir)
-        SystemHistory.shared.load(dir: clipboard.dir)
-        BatteryLog.shared.load(dir: clipboard.dir)
-        BatteryWear.shared.load(dir: clipboard.dir)
-        MemoryStore.shared.load(base: clipboard.dir)
-        MemoryFeed.start()
-        RecordingStore.shared.load(base: clipboard.dir)
-        ScreenTime.shared.load(dir: clipboard.dir)
         NotchCenter.shared.refresh()
-        AgentHub.shared.start()
-        AgentUsageStore.shared.start()
-        MCPBridge.start()
-        MCPHTTP.shared.sync()
-        WidgetBridge.shared.start(monitor: monitor)
-        SpotlightNotes.shared.start(notes)
-        AutomationStore.shared.start(toolbox: toolbox)
-        TextExpander.shared.start(clipboard: clipboard)
-        MeetingStore.shared.refreshEnabled()
+        if !DemoMode.isOn {
+            AgentHub.shared.start()
+            AgentUsageStore.shared.start()
+            MCPBridge.start()
+            MCPHTTP.shared.sync()
+            WidgetBridge.shared.start(monitor: monitor)
+            SpotlightNotes.shared.start(notes)
+            AutomationStore.shared.start(toolbox: toolbox)
+            TextExpander.shared.start(clipboard: clipboard)
+            MeetingStore.shared.refreshEnabled()
+        }
         FocusTimer.shared.attach(toolbox)
         PasteQueue.shared.attach(clipboard)
         PasteQueue.shared.onChange = { [weak self] in self?.updateStatusItem() }
@@ -176,9 +186,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         RunawayWatch.shared.refresh()
         DragSnap.shared.refresh()
         // Bateria dos acessórios: lida a cada 10 min para avisar quando estiver acabando
-        DispatchQueue.main.asyncAfter(deadline: .now() + 20) { AccessoryMonitor.shared.start() }
-        // Perfis aparecem nas frases da Siri ("Ativar Trabalho no Menew")
-        MenewShortcuts.updateAppShortcutParameters()
+        if !DemoMode.isOn {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 20) { AccessoryMonitor.shared.start() }
+            // Perfis aparecem nas frases da Siri ("Ativar Trabalho no Menew")
+            MenewShortcuts.updateAppShortcutParameters()
+        }
 
         welcome.onOpenMenu = { [weak self] in self?.showPopover() }
         NotificationCenter.default.addObserver(forName: .closeMenu, object: nil, queue: .main) { [weak self] _ in
@@ -195,7 +207,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         let existing = ["history.json", "notes.json", "notas.md"].contains {
             FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path)
         }
-        welcome.showIfNeeded(existingUser: existing)
+        if !DemoMode.isOn { welcome.showIfNeeded(existingUser: existing) }
 
         installEditMenu()
         // Notas protegidas pedem Touch ID de novo depois que o Mac trava ou dorme

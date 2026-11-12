@@ -21,7 +21,7 @@ final class Uninstaller: ObservableObject {
     @Published var problem: String?
 
     private static var window: NSWindow?
-    private static let shared = Uninstaller()
+    private static let shared = DemoMode.isOn ? Uninstaller.demo() : Uninstaller()
 
     /// Para as capturas de tela: um app inventado com sobras
     static func demo() -> Uninstaller {

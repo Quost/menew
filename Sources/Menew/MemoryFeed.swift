@@ -72,6 +72,8 @@ enum MemoryFeed {
 
     @MainActor static func set(_ source: Source, _ on: Bool) {
         UserDefaults.standard.set(on, forKey: source.key)
+        // Modo demo: a Memória automática não lê prints, gravações nem sessões dos agentes
+        guard !DemoMode.isOn else { return }
         switch source {
         case .screenshots: ScreenshotFeed.shared.refresh()
         case .recordings, .notes: MirrorFeed.shared.refresh()

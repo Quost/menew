@@ -45,7 +45,7 @@ final class MCPHTTP: @unchecked Sendable {
 
     /// Liga ou desliga conforme a preferência (chamar ao abrir o app e quando ela muda)
     func sync() {
-        let on = Self.isEnabled
+        let on = Self.isEnabled && !DemoMode.isOn
         queue.async { [self] in
             if on, listener == nil { start() } else if !on, listener != nil { stop() }
         }
@@ -287,6 +287,7 @@ struct MCPDockerClient: Identifiable, Hashable {
 
     /// Liga ou desliga; devolve a mensagem de erro, se houver
     func set(_ on: Bool) -> String? {
+        if DemoMode.isOn { return L("Não consegui gravar o arquivo") }
         let fm = FileManager.default
         var obj: [String: Any] = [:]
         if let data = try? Data(contentsOf: config) {
