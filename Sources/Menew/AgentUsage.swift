@@ -291,6 +291,58 @@ struct LimitProjection: Equatable {
     var paceText: String { L("%@%%/h", perHour < 10 ? String(format: "%.1f", locale: L10n.locale, perHour) : String(Int(perHour.rounded()))) }
 }
 
+/// O limite acabou: uma janela chegou a 100%, ou a última resposta da ferramenta foi barrada pelo limite (o 429)
+/// e nenhuma deu certo depois. O limite é da conta, então vale para todas as sessões daquela ferramenta.
+struct LimitBlock: Equatable {
+    /// "5 h", "Sem.", "Cota"; nil quando o erro não diz qual
+    var window: String?
+    var since: Date
+    var resetsAt: Date?
+    /// O gasto e a cota, quando o erro diz (o Pi da WEG: US$ 30,01 de US$ 30)
+    var spent: Double?
+    var quota: Double?
+
+    /// Sem a hora de voltar, o aviso fica por uma semana desde o último erro
+    func isActive(_ now: Date = Date()) -> Bool {
+        if let r = resetsAt { return r > now }
+        return now.timeIntervalSince(since) < 7 * 86400
+    }
+
+    /// "Sem.: acabou · volta dom., 03:00" / "Cota: acabou às 10:58 · US$ 30,01 de US$ 30,00"
+    var text: String {
+        var s = window.map { "\($0): " } ?? ""
+        if let r = resetsAt {
+            s += L("acabou · volta %@", Self.when(r))
+        } else {
+            s += Calendar.current.isDateInToday(since) ? L("acabou às %@", Self.when(since)) : L("acabou %@", Self.when(since))
+        }
+        if let spent, let quota, quota > 0 { s += " · " + L("%@ de %@", AgentsView.money(spent), AgentsView.money(quota)) }
+        return s
+    }
+
+    /// Hoje: "18:20"; outro dia: "dom., 03:00"
+    static func when(_ d: Date) -> String {
+        Calendar.current.isDateInToday(d) ? d.formatted(.dateTime.hour().minute().locale(L10n.locale))
+            : d.formatted(.dateTime.weekday(.abbreviated).hour().minute().locale(L10n.locale))
+    }
+
+    /// O erro parece de limite ou cota (429, "quota", "rate limit", "usage limit")
+    static func isLimitError(_ message: String) -> Bool {
+        let m = message.lowercased()
+        return m.contains("http 429") || m.contains("too many requests") || m.contains("quota") || m.contains("rate limit") || m.contains("rate_limit")
+            || m.contains("usage limit") || m.contains("usage_limit")
+    }
+
+    /// O corpo JSON do erro, quando ele traz o gasto e a cota (`accumulatedCost` e `quota`)
+    static func spentAndQuota(_ message: String) -> (Double, Double)? {
+        guard let open = message.firstIndex(of: "{"), let close = message.lastIndex(of: "}"), open < close,
+              let d = try? JSONSerialization.jsonObject(with: Data(message[open...close].utf8)) as? [String: Any],
+              let quota = AgentFiles.double(d["quota"]), quota > 0,
+              let spent = AgentFiles.double(d["accumulatedCost"]) ?? AgentFiles.double(d["usage"]) else { return nil }
+        return (spent, quota)
+    }
+}
+
 // MARK: Leitura dos registros
 
 /// Busca em bytes, sem montar String: os registros do Claude Code passam de centenas de MB num mês
@@ -394,6 +446,26 @@ enum ClaudeLog {
     }
 
     static func int(_ v: Any?) -> Int { (v as? NSNumber)?.intValue ?? 0 }
+
+    private static let rateLimitKey = Array(#""error":"rate_limit""#.utf8)
+
+    /// A resposta que o Claude Code grava quando o limite acaba ("You've hit your 5-hour limit"): `error: rate_limit`,
+    /// com a janela e a hora de voltar em `quotaLimits` (ou `apiErrorParams.rate_limit_info`)
+    static func limitHit(_ line: UnsafeRawBufferPointer) -> LimitBlock? {
+        guard line.count > 40, Bytes.find(rateLimitKey, in: line) != nil,
+              let d = try? JSONSerialization.jsonObject(with: Data(line)) as? [String: Any],
+              let date = AgentFiles.date(d["timestamp"]) else { return nil }
+        let info = d["quotaLimits"] as? [String: Any]
+            ?? ((d["apiErrorParams"] as? [String: Any])?["rate_limit_info"] as? [String: Any]) ?? [:]
+        let window: String? = switch info["rateLimitType"] as? String ?? "" {
+        case "five_hour": "5 h"
+        case "seven_day", "seven_day_opus", "seven_day_sonnet": L("Sem.")
+        default: nil
+        }
+        // Sem a hora de voltar (versões antigas), vale pela janela de 5 horas
+        let resets = AgentFiles.double(info["resetsAt"]).map { Date(timeIntervalSince1970: $0) } ?? date.addingTimeInterval(5 * 3600)
+        return LimitBlock(window: window, since: date, resetsAt: resets)
+    }
 }
 
 /// As sessões do Codex (~/.codex/sessions/AAAA/MM/DD/*.jsonl). Os eventos `token_count` trazem o total da sessão
@@ -585,6 +657,8 @@ final class AgentUsageScanner: @unchecked Sendable {
         var codex = CodexLog()
         var records: [UsageRecord] = []
         var mtime = Date.distantPast
+        /// A última vez que o limite barrou uma resposta nesta sessão (Claude)
+        var limitHit: LimitBlock?
     }
 
     private var files: [String: FileState] = [:]
@@ -596,6 +670,10 @@ final class AgentUsageScanner: @unchecked Sendable {
         /// Limites que outras ferramentas guardam no Mac (o Kiro: créditos do mês)
         var otherLimits: [AgentKind: [RateWindow]] = [:]
         var codexPlan: String?
+        /// Planos que outras ferramentas guardam no Mac (o Kiro: "Pro")
+        var otherPlans: [AgentKind: String] = [:]
+        /// Ferramentas paradas no limite: a última resposta foi barrada e nenhuma deu certo depois
+        var blocks: [AgentKind: LimitBlock] = [:]
         var codexHistory: [RateWindow] = []
         /// Desde quando os registros foram lidos: os dias inteiros depois disso estão completos
         var since: Date = .distantPast
@@ -641,7 +719,21 @@ final class AgentUsageScanner: @unchecked Sendable {
             .filter { r in r.key.map { keys.insert($0).inserted } ?? true }
             .sorted { $0.date < $1.date }
         var result = Result(records: records, codexLimits: codexLatest?.1 ?? [], codexPlan: codexLatest?.2, codexHistory: codexHistory, since: cutoff)
-        if let kiro = KiroLimits.read() { result.otherLimits[.kiro] = [kiro] }
+        if let kiro = KiroLimits.read() {
+            result.otherLimits[.kiro] = [kiro.window]
+            if let p = kiro.plan { result.otherPlans[.kiro] = p }
+        }
+        // O Claude: o último "limite atingido", se nenhuma resposta deu certo depois
+        if let hit = files.values.compactMap(\.limitHit).max(by: { $0.since < $1.since }), hit.isActive(),
+           !records.contains(where: { $0.agent == .claude && $0.date > hit.since }) {
+            result.blocks[.claude] = hit
+        }
+        // O Pi: a cota que o servidor recusou (lida de novo só quando o banco muda)
+        if let pi = piQuota() {
+            result.blocks[.pi] = pi
+            result.otherLimits[.pi] = [RateWindow(label: L("Cota"), usedPercent: pi.spent.flatMap { s in pi.quota.map { min(100, s / $0 * 100) } } ?? 100,
+                                                  resetsAt: nil, windowMinutes: nil, asOf: pi.since)]
+        }
         return result
     }
 
@@ -666,7 +758,9 @@ final class AgentUsageScanner: @unchecked Sendable {
                 buf.withUnsafeBytes { raw in
                     Bytes.lines(raw) { line in
                         switch agent {
-                        case .claude: if let r = ClaudeLog.parse(line, seen: &st.seen) { st.records.append(r) }
+                        case .claude:
+                            if let r = ClaudeLog.parse(line, seen: &st.seen) { st.records.append(r) }
+                            else if let hit = ClaudeLog.limitHit(line) { st.limitHit = hit }
                         case .codex: if let r = st.codex.parse(line) { st.records.append(r) }
                         default: break
                         }
@@ -676,6 +770,16 @@ final class AgentUsageScanner: @unchecked Sendable {
             }
         }
         files[url.path] = st
+    }
+
+    private var piCache: (stamp: Date, block: LimitBlock?)?
+
+    private func piQuota() -> LimitBlock? {
+        let stamp = PiQuota.stamp()
+        if let c = piCache, c.stamp == stamp { return c.block?.isActive() == true ? c.block : nil }
+        let b = PiQuota.read()
+        piCache = (stamp, b)
+        return b?.isActive() == true ? b : nil
     }
 
     /// Lê o arquivo inteiro de novo quando ele muda
@@ -893,6 +997,8 @@ final class AgentUsageStore: ObservableObject {
     @Published private(set) var history = AgentUsageHistory()
     @Published private(set) var limits: [AgentKind: [RateWindow]] = [:]
     @Published private(set) var plans: [AgentKind: String] = [:]
+    /// Ferramentas paradas no limite (a última resposta foi barrada)
+    @Published private(set) var blocks: [AgentKind: LimitBlock] = [:]
     @Published private(set) var claudeLimitError: ClaudePlanLimits.Failure?
     @Published private(set) var localModels: [LocalModel] = []
     @Published private(set) var lastScan: Date?
@@ -942,6 +1048,10 @@ final class AgentUsageStore: ObservableObject {
                         s.limits[a] = windows
                         windows.forEach { s.record(a, $0) }
                     }
+                    for (a, p) in result.otherPlans { s.plans[a] = p }
+                    // A cota do Pi só existe enquanto ele está barrado: quando uma resposta dá certo, sai
+                    if result.otherLimits[.pi] == nil { s.limits[.pi] = nil }
+                    s.blocks = result.blocks
                     s.lastScan = Date()
                     s.scanning = false
                     s.checkAlerts()
@@ -967,6 +1077,26 @@ final class AgentUsageStore: ObservableObject {
             claudeLimitError = nil
         }
         if isVisible { Task { localModels = await LocalModels.fetch() } }
+    }
+
+    /// O que impede de usar agora: a janela em 100% que volta por último ou, sem ela, a resposta barrada pelo limite
+    func blocked(_ a: AgentKind, now: Date = Date()) -> LimitBlock? {
+        if let w = current(a, now: now).filter({ $0.usedPercent >= 99.5 && ($0.resetsAt ?? .distantPast) > now })
+            .max(by: { $0.resetsAt! < $1.resetsAt! }) {
+            return LimitBlock(window: w.short, since: w.asOf, resetsAt: w.resetsAt)
+        }
+        return blocks[a].flatMap { $0.isActive(now) ? $0 : nil }
+    }
+
+    /// A sessão parou no limite: trabalhando enquanto a ferramenta está barrada, ou terminou por causa disso.
+    /// Só pelo erro gravado: com uma janela em 100% o plano ainda pode estar usando créditos extras.
+    func blocked(_ s: AgentSession, now: Date = Date()) -> LimitBlock? {
+        guard let b = blocks[s.agent], b.isActive(now) else { return nil }
+        switch s.state {
+        case .working, .running: return b
+        case .done: return s.updated >= b.since.addingTimeInterval(-120) ? b : nil
+        default: return nil
+        }
     }
 
     /// As janelas de uma ferramenta como estão agora (as que já zeraram, zeradas)
@@ -1068,7 +1198,7 @@ final class AgentUsageStore: ObservableObject {
         guard UserDefaults.standard.object(forKey: Self.alertsKey) as? Bool ?? true else { return }
         var fired = Set(UserDefaults.standard.stringArray(forKey: "agents.alertsFired") ?? [])
         for agent in limits.keys {
-            for w in current(agent) {
+            for w in current(agent) where w.resetsAt != nil {
                 for threshold in [90.0, 75.0] where w.usedPercent >= threshold {
                     let id = "\(agent.rawValue).\(w.label).\(Int(w.resetsAt?.timeIntervalSince1970 ?? 0)).\(Int(threshold))"
                     guard !fired.contains(id) else { break }
@@ -1140,7 +1270,10 @@ final class AgentUsageStore: ObservableObject {
         record(.claude, RateWindow(label: L("5 horas"), usedPercent: 50, resetsAt: now.addingTimeInterval(5400), windowMinutes: 300, asOf: now.addingTimeInterval(-1500)))
         limits[.claude]?.forEach { record(.claude, $0) }
         limits[.kiro] = [RateWindow(label: L("Mês"), usedPercent: 39, resetsAt: now.addingTimeInterval(20 * 86400), windowMinutes: 43200, asOf: now)]
-        plans = [.claude: "Max", .codex: "Plus"]
+        plans = [.claude: "Max", .codex: "Plus", .kiro: "Pro"]
+        // O Pi barrado pela cota da empresa
+        blocks[.pi] = LimitBlock(window: L("Cota"), since: now.addingTimeInterval(-1500), spent: 30.01, quota: 30)
+        limits[.pi] = [RateWindow(label: L("Cota"), usedPercent: 100, resetsAt: nil, windowMinutes: nil, asOf: now.addingTimeInterval(-1500))]
         localModels = [LocalModel(app: "Ollama", name: "qwen3-coder:30b", bytes: 19_400_000_000)]
         lastScan = now
     }

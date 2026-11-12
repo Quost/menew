@@ -546,6 +546,61 @@ enum PiLog {
     }
 }
 
+// MARK: Cota do Pi
+
+/// Quando o servidor recusa por limite, o Pi grava a resposta com `stopReason: "error"` e o erro em `errorMessage`
+/// (no Pi da WEG: `HTTP 429: {"accumulatedCost": 30.01, "quota": 30.0, …}`). Se nenhuma resposta deu certo depois
+/// do último erro desses, o Pi está barrado. O erro não diz quando a cota volta.
+enum PiQuota {
+    /// Muda quando algum banco ou sessão recente do Pi muda
+    static func stamp() -> Date {
+        PiLog.roots().flatMap { root in
+            [root.appendingPathComponent("sessions.db"), root.appendingPathComponent("sessions.db-wal")].map(AgentSource.mtime)
+                + AgentFiles.find(root.appendingPathComponent("sessions"), ext: ["jsonl"], cutoff: Date().addingTimeInterval(-86400), depth: 2).map(AgentSource.mtime)
+        }.max() ?? .distantPast
+    }
+
+    static func read(now: Date = Date()) -> LimitBlock? {
+        var lastError: (date: Date, message: String)?
+        var lastOK = Date.distantPast
+        func consider(_ e: [String: Any], timestamp: Any? = nil) {
+            guard let m = e["message"] as? [String: Any], m["role"] as? String == "assistant",
+                  let date = AgentFiles.date(m["timestamp"]) ?? AgentFiles.date(e["timestamp"] ?? timestamp) else { return }
+            if m["stopReason"] as? String == "error" {
+                guard let msg = m["errorMessage"] as? String, LimitBlock.isLimitError(msg), date > (lastError?.date ?? .distantPast) else { return }
+                lastError = (date, msg)
+            } else if date > lastOK {
+                lastOK = date
+            }
+        }
+        let iso = ISO8601DateFormatter()
+        let cut = iso.string(from: now.addingTimeInterval(-7 * 86400))
+        for root in PiLog.roots() {
+            let db = root.appendingPathComponent("sessions.db")
+            let cols = SQLiteReader.columns(db, "session_entries")
+            if cols.contains("payload_json") {
+                let since = cols.contains("timestamp") ? " AND timestamp > '\(cut)'" : ""
+                // Os erros inteiros; das que deram certo, só a mais recente
+                for row in SQLiteReader.query(db, "SELECT payload_json FROM session_entries WHERE kind = 'message'\(since) AND payload_json LIKE '%\"stopReason\":\"error\"%'") {
+                    consider(AgentFiles.dict(row.first ?? nil))
+                }
+                if cols.contains("timestamp"), let t = SQLiteReader.query(db, """
+                    SELECT MAX(timestamp) FROM session_entries WHERE kind = 'message'\(since) AND payload_json LIKE '%"role":"assistant"%'
+                    AND payload_json NOT LIKE '%"stopReason":"error"%'
+                    """).first?.first.flatMap({ AgentFiles.date($0) }), t > lastOK {
+                    lastOK = t
+                }
+            }
+            for url in AgentFiles.find(root.appendingPathComponent("sessions"), ext: ["jsonl"], cutoff: now.addingTimeInterval(-86400), depth: 2) {
+                AgentFiles.lines(url, contains: "stopReason").forEach { consider($0) }
+            }
+        }
+        guard let e = lastError, e.date > lastOK else { return nil }
+        let sq = LimitBlock.spentAndQuota(e.message)
+        return LimitBlock(window: L("Cota"), since: e.date, spent: sq?.0, quota: sq?.1)
+    }
+}
+
 // MARK: Limite do Kiro
 
 /// O editor do Kiro guarda o uso do plano no próprio estado (`globalStorage/state.vscdb`, chave `kiro.kiroAgent`):
@@ -553,10 +608,56 @@ enum PiLog {
 enum KiroLimits {
     static let db = AgentFiles.home.appendingPathComponent("Library/Application Support/Kiro/User/globalStorage/state.vscdb")
 
-    static func read() -> RateWindow? {
+    static let logs = AgentFiles.home.appendingPathComponent("Library/Application Support/Kiro/logs")
+
+    static func read() -> (window: RateWindow, plan: String?)? {
         guard FileManager.default.fileExists(atPath: db.path),
               let raw = SQLiteReader.query(db, "SELECT value FROM ItemTable WHERE key = 'kiro.kiroAgent'").first?.first as? String else { return nil }
-        return parse(AgentFiles.dict(raw))
+        let obj = AgentFiles.dict(raw)
+        guard let w = parse(obj) else { return nil }
+        return (w, plan() ?? plan(limit: limit(obj)))
+    }
+
+    /// O plano que o Kiro recebeu ao abrir ("subscriptionTitle":"KIRO PRO" no log do agente), do log mais novo que tiver
+    static func plan() -> String? {
+        let fm = FileManager.default
+        let marker = #""subscriptionTitle":""#
+        for dir in ((try? fm.contentsOfDirectory(atPath: logs.path)) ?? []).sorted(by: >).prefix(10) {
+            let base = logs.appendingPathComponent(dir)
+            let windows = ((try? fm.contentsOfDirectory(atPath: base.path)) ?? []).filter { $0.hasPrefix("window") }
+            for w in windows {
+                let log = base.appendingPathComponent(w).appendingPathComponent("exthost/kiro.kiroAgent/q-client.log")
+                guard let text = try? String(contentsOf: log, encoding: .utf8), let r = text.range(of: marker, options: .backwards),
+                      let end = text[r.upperBound...].firstIndex(of: "\"") else { continue }
+                let title = String(text[r.upperBound..<end]).trimmingCharacters(in: .whitespaces)
+                guard !title.isEmpty else { continue }
+                return planName(title)
+            }
+        }
+        return nil
+    }
+
+    /// "KIRO PRO+" → "Pro+", "KIRO POWER" → "Power"
+    static func planName(_ title: String) -> String {
+        var t = title
+        if t.uppercased().hasPrefix("KIRO ") { t = String(t.dropFirst(5)) }
+        return t.lowercased().capitalized
+    }
+
+    /// Sem o log, o tamanho do limite do mês diz o plano
+    static func plan(limit: Double?) -> String? {
+        switch limit.map({ Int($0.rounded()) }) {
+        case 50: "Free"
+        case 1000: "Pro"
+        case 2000: "Pro+"
+        case 10000: "Power"
+        default: nil
+        }
+    }
+
+    static func limit(_ obj: [String: Any]) -> Double? {
+        let list = (obj["kiro.resourceNotifications.usageState"] as? [String: Any])?["usageBreakdowns"] as? [[String: Any]] ?? []
+        return AgentFiles.double((list.first { ($0["type"] as? String ?? "CREDIT") == "CREDIT" } ?? list.first)?["usageLimit"])
     }
 
     static func parse(_ obj: [String: Any]) -> RateWindow? {
