@@ -10,6 +10,9 @@ struct NotesView: View {
     @ObservedObject private var recordings = RecordingStore.shared
     @State private var query = ""
     @State private var tag: String?
+    @State private var sharingID: UUID?
+    @State private var showingShareCenter = false
+    @ObservedObject private var keys = ShareKeys.shared
 
     init(store: NotesStore, nav: PopoverState? = nil, openID: UUID? = nil) {
         self.store = store
@@ -19,9 +22,19 @@ struct NotesView: View {
 
     var body: some View {
         Group {
+            if let url = keys.pendingImport {
+                // Segredo recebido (dois cliques, notch, Importar): salvo, a nota nova já abre
+                ImportSecretView(url: url, store: store) { id in
+                    keys.pendingImport = nil
+                    if let id { showingShareCenter = false; sharingID = nil; openID = id }
+                }
+            } else if let id = sharingID, store.note(id) != nil, !store.isLocked(id) {
+                ShareSecretView(store: store, id: id) { sharingID = nil }
+            } else if showingShareCenter {
+                ShareCenterView { showingShareCenter = false }
             // Uma nota protegida que foi trancada (menu fechado, Mac travado) volta para a lista
-            if let id = openID, store.note(id) != nil, !store.isLocked(id) {
-                NoteEditor(store: store, id: id, onTag: { t in tag = t; openID = nil }) { store.lock(id); openID = nil }
+            } else if let id = openID, store.note(id) != nil, !store.isLocked(id) {
+                NoteEditor(store: store, id: id, onTag: { t in tag = t; openID = nil }, onShare: { sharingID = id }) { store.lock(id); openID = nil }
             } else if showingRecordings {
                 RecordingsInNotes { showingRecordings = false }
             } else {
@@ -61,6 +74,7 @@ struct NotesView: View {
                 }
                 .font(.system(size: 13))
                 .glassField()
+                IconButton(icon: "person.badge.key.fill", help: L("Compartilhar senhas")) { showingShareCenter = true }
                 IconButton(icon: "key.fill", help: L("Nova nota de senhas")) { openID = store.createPasswords() }
                 PillButton(title: L("Nova"), icon: "square.and.pencil", primary: true) {
                     openID = store.create(text: tag.map { "\n\n#\($0)" } ?? "")
@@ -160,6 +174,11 @@ struct NotesView: View {
         .buttonStyle(.plain)
         .contextMenu {
             Button(L("Copiar")) { copy(n) }
+            if n.secure {
+                Button(L("Compartilhar com segurança…")) {
+                    Task { if await store.unlock(n.id) { sharingID = n.id } }
+                }
+            }
             if !n.isPasswords {
             Button(n.secure ? L("Remover proteção") : L("Proteger com Touch ID")) {
                 Task {
@@ -192,6 +211,7 @@ private struct NoteEditor: View {
     @ObservedObject var store: NotesStore
     let id: UUID
     var onTag: (String) -> Void
+    var onShare: () -> Void
     var onClose: () -> Void
 
     @AppStorage("notesReading") private var reading = false
@@ -212,6 +232,9 @@ private struct NoteEditor: View {
                 }
                 Text(note?.title ?? "").font(.system(size: 13, weight: .semibold)).lineLimit(1)
                 Spacer()
+                if note?.secure == true {
+                    IconButton(icon: "square.and.arrow.up", help: L("Compartilhar com segurança…"), action: onShare)
+                }
                 if note?.isPasswords != true {
                     GlassSegmented(selection: $reading, options: [
                         .init(value: false, icon: "pencil", help: L("Editar")),
@@ -223,6 +246,9 @@ private struct NoteEditor: View {
                         if note?.isPasswords == true { SecretCopy.copy(store.text(of: id)); return }
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(store.text(of: id), forType: .string)
+                    }
+                    if note?.secure == true {
+                        Button(L("Compartilhar com segurança…"), action: onShare)
                     }
                     Picker(L("Tipo"), selection: Binding(get: { note?.kind ?? .text }, set: { store.setKind($0, for: id) })) {
                         ForEach(Note.Kind.allCases, id: \.self) { k in Label(k.title, systemImage: k.icon).tag(k) }
