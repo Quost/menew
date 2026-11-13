@@ -2,7 +2,7 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
-## Unreleased
+## 1.104.0
 
 ### New
 - **Share passwords safely.** A protected note now has a share button: pick which fields go and Menew makes an encrypted `.menewsecret` file to drag into Teams, Slack or an email, instead of pasting the password in the chat. Send it to a contact (add their Menew code once, from Notes › Share passwords) and only their Mac can open it, with the sender verified; or protect it with a password Menew generates and pass that on another way. To receive, drop the file on the notch, double-click it or use Import file; it becomes a protected note. Everything is encrypted on your Mac.
