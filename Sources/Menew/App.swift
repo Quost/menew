@@ -224,7 +224,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
     }
 
-    func popoverShouldClose(_ popover: NSPopover) -> Bool { !notes.authenticating }
+    func popoverShouldClose(_ popover: NSPopover) -> Bool { !notes.authenticating && !ShareKeys.shared.picking }
 
     /// Fechar o menu tranca de novo as notas protegidas
     func popoverDidClose(_ notification: Notification) {
@@ -377,6 +377,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         showPopover()
     }
 
+    /// Abre a tela de importar um segredo compartilhado na aba Notas
+    func importSecret(_ url: URL) {
+        ShareKeys.shared.pendingImport = url
+        nav.tab = .notes
+        showPopover()
+    }
+
     /// Resultado do Spotlight: abre a nota escolhida
     func application(_ application: NSApplication, continue userActivity: NSUserActivity,
                      restorationHandler: @escaping ([any NSUserActivityRestoring]) -> Void) -> Bool {
@@ -393,6 +400,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
 
     /// Toque num widget (menew://system, menew://meetings…): abre o Menew na aba Sistema
     func application(_ application: NSApplication, open urls: [URL]) {
+        // Segredo compartilhado (.menewsecret): dois cliques no Finder ou "Abrir com"
+        if let file = urls.first(where: { $0.isFileURL && $0.pathExtension.lowercased() == SecretShare.fileExtension }) {
+            importSecret(file)
+            return
+        }
         guard urls.contains(where: { $0.scheme == "menew" }) else { return }
         nav.tab = .system
         showPopover()

@@ -134,6 +134,34 @@ enum Snapshot {
                         .padding(.top, 14).frame(width: 400, height: 600).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 600), dark: dark,
                        to: dir.appendingPathComponent("note-passwords-\(suffix).png"))
+                // Compartilhar senhas: mandar a nota de senhas para um contato, e o código e os contatos
+                ShareKeys.shared.showDemo()
+                if let wifi = notes.notes.first(where: \.isPasswords) {
+                    render(ShareSecretView(store: notes, id: wifi.id, recipient: ShareKeys.shared.contacts.first?.id, onClose: {})
+                            .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 14)
+                            .frame(width: 400, height: 600).background(Theme.windowFill),
+                           size: NSSize(width: 400, height: 600), dark: dark,
+                           to: dir.appendingPathComponent("share-secret-\(suffix).png"))
+                }
+                if let wifi = notes.notes.first(where: \.isPasswords) {
+                    render(ShareSecretView(store: notes, id: wifi.id, mode: .passphrase, onClose: {})
+                            .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 14)
+                            .frame(width: 400, height: 600).background(Theme.windowFill),
+                           size: NSSize(width: 400, height: 600), dark: dark,
+                           to: dir.appendingPathComponent("share-passphrase-\(suffix).png"))
+                }
+                if let file = ShareKeys.shared.demoFile() {
+                    render(ImportSecretView(url: file, store: NotesStore.demo(), onDone: { _ in })
+                            .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 14)
+                            .frame(width: 400, height: 600).background(Theme.windowFill),
+                           size: NSSize(width: 400, height: 600), dark: dark,
+                           to: dir.appendingPathComponent("share-import-\(suffix).png"))
+                }
+                render(ShareCenterView(onClose: {})
+                        .padding(.top, 14).padding(.horizontal, 14).padding(.bottom, 14)
+                        .frame(width: 400, height: 600).background(Theme.windowFill),
+                       size: NSSize(width: 400, height: 600), dark: dark,
+                       to: dir.appendingPathComponent("share-center-\(suffix).png"))
                 render(ScreenTimeCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),
                        size: NSSize(width: 400, height: 640), dark: dark, to: dir.appendingPathComponent("screentime-\(suffix).png"))
                 render(SystemHistoryCard().padding(14).frame(width: 400, alignment: .top).background(Theme.windowFill),

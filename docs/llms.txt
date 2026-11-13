@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.103.0 (updated 2026-11-12). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.103.0 (updated 2026-11-13). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## Highlights
 
@@ -55,7 +55,7 @@ Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost
 - Quick actions: Brightness for every screen, external monitors included. Mute the mic or the sound, hide the Dock, dark mode, keep awake with a timer, hidden files and desktop icons. Plus color picker, screenshots you can annotate, blur and pin on screen (⌃⌥⌘S), eject disks and more. Keep Awake also works until a set time or while an app is open. Switch the sound output and microphone (AirPods, headphones, speakers) in one click, and turn on presentation mode before sharing your screen. Record the screen as video or GIF, or take a scrolling capture of a whole page. The notch comes alive too: a meeting about to start with a Join button, recording time, timers and a muted mic show up next to the camera. In clipboard images and pinned screenshots, select text or click links and phone numbers (Live Text). And remove the background from a photo in one click. Take a photo or scan a document with your iPhone and it lands right on the clipboard, on the shelf, or as text.
 - Free up space: Clear caches, logs and developer junk in seconds. A deep scan finds old downloads, large files and duplicate files for you to review. Removed files go to the Trash.
 - Internet: Live download and upload, local and public IP, and a real speed test powered by macOS itself. See which apps are using the network right now.
-- Notes, snippets & devices: Notes with #tags and Markdown checklists, protected notes that open with Touch ID, password notes with hidden fields you copy in one click, and reusable snippets in ⌘⇧V. Give a snippet an abbreviation like “;sig” and typing it anywhere turns it into the text. Snippets can fill in the date, ask for a name before pasting and place the cursor where you want.
+- Notes, snippets & devices: Notes with #tags and Markdown checklists, protected notes that open with Touch ID, password notes with hidden fields you copy in one click, and reusable snippets in ⌘⇧V. Share a password as an encrypted file that only your contact's Mac can open, instead of pasting it in a chat. Give a snippet an abbreviation like “;sig” and typing it anywhere turns it into the text. Snippets can fill in the date, ask for a name before pasting and place the cursor where you want.
 
 ## More features
 

@@ -237,6 +237,16 @@ final class NotesStore: ObservableObject {
         return id
     }
 
+    /// Nota que já nasce protegida (segredo recebido): o texto vai direto para as Chaves, nunca para o arquivo de notas
+    func createProtected(_ text: String, kind: Note.Kind) -> UUID {
+        let n = Note(text: Self.firstLine(text), secure: true, kind: kind == .text ? nil : kind)
+        NoteVault.write(text, id: n.id)
+        notes.insert(n, at: 0)
+        unlocked[n.id] = text
+        save()
+        return n.id
+    }
+
     /// Senhas ficam sempre protegidas; voltar para texto mantém a proteção
     func setKind(_ kind: Note.Kind, for id: UUID) {
         guard let i = notes.firstIndex(where: { $0.id == id }) else { return }

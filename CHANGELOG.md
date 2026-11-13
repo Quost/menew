@@ -4,6 +4,9 @@ Each version's section is shown in the in-app update window and on the GitHub re
 
 ## Unreleased
 
+### New
+- **Share passwords safely.** A protected note now has a share button: pick which fields go and Menew makes an encrypted `.menewsecret` file to drag into Teams, Slack or an email, instead of pasting the password in the chat. Send it to a contact (add their Menew code once, from Notes › Share passwords) and only their Mac can open it, with the sender verified; or protect it with a password Menew generates and pass that on another way. To receive, drop the file on the notch, double-click it or use Import file; it becomes a protected note. Everything is encrypted on your Mac.
+
 ### Fixed
 - **Codex and the ChatGPT app in the notch.** Codex only runs hooks you approved, and the ChatGPT app (which runs Codex inside) skips unapproved ones without asking, so its sessions never reached the notch. Turning on Codex in AI agents › Set up now also records the approval for Menew's own commands in `~/.codex/config.toml`. If Codex shows as Outdated, press Update once.
 
