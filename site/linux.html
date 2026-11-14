@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menew for Linux — Coming soon</title>
+<meta name="description" content="Menew is coming to Linux. A native system-tray app with a command palette, clipboard history, system monitor and on-device AI. Free and open source.">
+<meta property="og:title" content="Menew for Linux — Coming soon">
+<meta property="og:description" content="Menew is coming to Linux. A native system-tray app with a command palette, clipboard history, system monitor and on-device AI. Free and open source.">
+<meta property="og:image" content="https://menew.web.app/assets/og/en.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Menew">
+<meta property="og:url" content="https://menew.web.app/linux">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="canonical" href="https://menew.web.app/linux">
+<link rel="icon" type="image/png" href="/assets/icon.png">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Menew for Linux","url":"https://menew.web.app/linux","description":"Menew is coming to Linux. A native system-tray app built in Rust with GTK4.","about":{"@type":"SoftwareApplication","name":"Menew for Linux","operatingSystem":"Linux","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
+{{analytics}}
+<style>
+  :root {
+    --bg: #f6f6f9; --bg-elev: #fff; --text: #121218; --muted: #5a5a6b; --faint: #8b8b9c;
+    --line: rgba(20, 20, 40, .09); --card: rgba(255, 255, 255, .8);
+    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
+    --indigo: #5c6bff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  a { color: inherit; }
+  .wrap { width: min(820px, 100% - 32px); margin: 0 auto; }
+  nav { border-bottom: 1px solid var(--line); }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
+  .logo img { width: 28px; height: 28px; }
+  .crumbs { font-size: 14px; color: var(--muted); }
+  .crumbs a { color: var(--muted); text-decoration: none; }
+  .hero { padding: 64px 0 48px; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; margin-bottom: 12px; }
+  h1 { font-size: clamp(32px, 5.5vw, 54px); line-height: 1.07; letter-spacing: -.038em; font-weight: 800; margin-bottom: 20px; }
+  .lead { font-size: 19px; color: var(--muted); max-width: 640px; line-height: 1.55; }
+  .badge { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; background: rgba(92, 107, 255, .12); color: var(--indigo); padding: 4px 10px; border-radius: 20px; margin-top: 20px; }
+  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 12px 22px; border-radius: 12px; text-decoration: none; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text); }
+  .btn.primary { background: var(--brand); color: #fff; border: 0; }
+  .features { padding: 20px 0 60px; }
+  .features h2 { font-size: 26px; letter-spacing: -.022em; font-weight: 700; margin-bottom: 24px; }
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .card { padding: 22px 24px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .card .icon { font-size: 22px; margin-bottom: 8px; }
+  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: 14.5px; color: var(--muted); line-height: 1.5; }
+  .stack { margin-top: 48px; }
+  .stack h2 { font-size: 22px; font-weight: 700; letter-spacing: -.018em; margin-bottom: 16px; }
+  .tech-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+  .chip { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--line); background: var(--bg-elev); }
+  .stack p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 680px; }
+  .notify { margin-top: 56px; padding: 40px 32px; border-radius: 24px; text-align: center; border: 1px solid var(--line); background: var(--card); }
+  .notify h2 { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+  .notify p { color: var(--muted); margin-bottom: 24px; font-size: 16px; }
+  footer { margin-top: 56px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13.5px; }
+  footer a { color: var(--faint); }
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/"><img src="/assets/icon.png" alt="Menew" width="28" height="28"> Menew</a>
+    <span class="crumbs"><a href="/">menew.web.app</a> / linux</span>
+  </div>
+</nav>
+
+<div class="wrap">
+  <section class="hero">
+    <div class="eyebrow">Coming to Linux</div>
+    <h1>Menew for Linux</h1>
+    <p class="lead">The free, open source menu bar app you use every day on the Mac — command palette, clipboard history, system monitor and local AI — coming to Linux, native and lightweight.</p>
+    <div class="badge">🛠 In development</div>
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/Quost/menew-linux" data-goatcounter-click="linux-gh-star">⭐ Star on GitHub</a>
+      <a class="btn" href="/" data-goatcounter-click="linux-mac">Menew for Mac →</a>
+    </div>
+  </section>
+
+  <section class="features">
+    <h2>What's planned</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="icon">⌨️</div>
+        <h3>Command palette</h3>
+        <p>Open any app, action, snippet or note with a global shortcut. Math, conversions, timers and your own scripts — from the keyboard.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📋</div>
+        <h3>Clipboard history</h3>
+        <p>Every text, link and image you copy, searchable in one click. Password-safe by design; works on Wayland and X11.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📊</div>
+        <h3>System monitor</h3>
+        <p>CPU, memory, disk and network in the system tray. Reads <code>/proc</code> and <code>/sys</code> — no daemons, no root.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🤖</div>
+        <h3>Local AI</h3>
+        <p>Transcribe meetings offline with Whisper, summarize and rewrite text with a local model via Ollama or llama.cpp. No account, no cloud.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🎙️</div>
+        <h3>Meeting minutes</h3>
+        <p>Record your mic and system audio separately via PipeWire, transcribe offline and generate minutes with tasks — all on your machine.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📝</div>
+        <h3>Notes and snippets</h3>
+        <p>Quick notes with Markdown, reusable text snippets with abbreviations, and a search that understands what you mean.</p>
+      </div>
+    </div>
+
+    <div class="stack">
+      <h2>Built with</h2>
+      <div class="tech-row">
+        <span class="chip">🦀 Rust</span>
+        <span class="chip">🖼 GTK4 + Libadwaita</span>
+        <span class="chip">🔊 PipeWire</span>
+        <span class="chip">🗄 SQLite (FTS5)</span>
+        <span class="chip">🌊 Wayland + X11</span>
+        <span class="chip">🤫 whisper.cpp</span>
+      </div>
+      <p>Native Rust with GTK4 and Libadwaita: integrates with GNOME and KDE themes, respects dark/light mode, works on Wayland-first with an X11 fallback, and keeps memory usage around 25–40 MB. No Electron, no WebKitGTK, no web wrapper.</p>
+    </div>
+
+    <div class="notify">
+      <h2>Get notified when it's ready</h2>
+      <p>Star the repository on GitHub and watch for releases — that's the best way to know when the first build is out.</p>
+      <a class="btn primary" href="https://github.com/Quost/menew-linux" data-goatcounter-click="linux-notify-gh">⭐ Watch the repo on GitHub</a>
+    </div>
+  </section>
+</div>
+
+<footer>
+  <div class="wrap">
+    Menew · <a href="/">menew.web.app</a> · <a href="https://github.com/Quost/menew">GitHub</a> · Free and open source · Not related to Linx Menew.
+  </div>
+</footer>
+{{analytics_script}}
+</body>
+</html>
