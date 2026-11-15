@@ -43,6 +43,16 @@ final class SecretShareTests: XCTestCase {
         }
     }
 
+    func testPassphraseFileCarriesTheSenderCode() throws {
+        let ana = Curve25519.KeyAgreement.PrivateKey()
+        var env = try roundTrip(try SecretShare.seal(payload, passphrase: "abcd-efgh-jkmn-pqrs", from: ana.publicKey, rounds: 20_000))
+        XCTAssertEqual(SecretShare.senderKey(env)?.rawRepresentation, ana.publicKey.rawRepresentation)
+        XCTAssertEqual(try SecretShare.open(env, passphrase: "abcd-efgh-jkmn-pqrs").text, payload.text)
+        // Trocar o remetente invalida o arquivo: o cabeçalho é autenticado pela senha
+        env.from = SecretShare.base64url(Curve25519.KeyAgreement.PrivateKey().publicKey.rawRepresentation)
+        XCTAssertThrowsError(try SecretShare.open(env, passphrase: "abcd-efgh-jkmn-pqrs"))
+    }
+
     func testTamperedHeaderIsRefused() throws {
         var env = try SecretShare.seal(payload, passphrase: "abcd-efgh-jkmn-pqrs", rounds: 20_000)
         env.rounds = 30_000

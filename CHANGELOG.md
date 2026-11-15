@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Improved
+- **Simpler password sharing.** Pick who it's for in one list (anyone with a password, or a contact) and **Share…** opens AirDrop, Messages, Mail and your other apps right away. Your Menew code is now shown in full in Notes › Share passwords, with **Copy** and **Send…**, and the contact's code is pasted for you when you add them. A file received with a password offers to save the sender, so the next one needs no password.
+
 ## 1.104.0
 
 ### New

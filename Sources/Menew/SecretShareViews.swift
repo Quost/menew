@@ -4,37 +4,43 @@ import SwiftUI
 
 // Telas do compartilhamento de senhas, dentro da aba Notas: mandar, receber, e o código e os contatos.
 
-/// Mandar uma nota protegida: escolher os campos e para quem, e sai um arquivo `.menewsecret` para arrastar
+/// Mandar uma nota protegida: marcar os campos, escolher para quem e tocar em Compartilhar.
+/// "Qualquer pessoa" usa uma senha gerada (sem cadastro nenhum); um contato dispensa a senha.
+/// O botão abre o menu do macOS (AirDrop, Mensagens, Mail, Teams, Slack…); o arquivo também dá para arrastar.
 struct ShareSecretView: View {
     @ObservedObject var store: NotesStore
     let id: UUID
     var onClose: () -> Void
     @ObservedObject private var keys = ShareKeys.shared
 
-    enum Mode: Hashable { case contact, passphrase }
+    enum Target: Hashable { case anyone, contact(UUID) }
 
-    @State private var mode: Mode = .contact
+    @State private var target: Target?
     @State private var title = ""
     @State private var fields: [SecretField] = []
     @State private var included: Set<UUID> = []
-    @State private var recipient: UUID?
     @State private var passphrase = SecretShare.generatePassphrase()
     @State private var adding = false
     @State private var working = false
     @State private var file: URL?
     @State private var failed = false
+    @State private var anchor = ViewAnchor.Ref()
 
-    init(store: NotesStore, id: UUID, recipient: UUID? = nil, mode: Mode? = nil, onClose: @escaping () -> Void) {
+    init(store: NotesStore, id: UUID, target: Target? = nil, onClose: @escaping () -> Void) {
         self.store = store
         self.id = id
         self.onClose = onClose
-        _recipient = State(initialValue: recipient)
-        _forcedMode = State(initialValue: mode)
+        _target = State(initialValue: target)
     }
-    @State private var forcedMode: Mode?
 
     private var isPasswords: Bool { store.note(id)?.isPasswords == true }
-    private var chosen: ShareContact? { keys.contacts.first { $0.id == recipient } }
+    private var chosen: ShareContact? {
+        if case .contact(let cid) = target { return keys.contacts.first { $0.id == cid } }
+        return nil
+    }
+    private var ready: Bool {
+        (!isPasswords || !included.isEmpty) && (target == .anyone || chosen?.publicKey != nil)
+    }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -46,7 +52,10 @@ struct ShareSecretView: View {
             }
             ScrollView {
                 VStack(spacing: 10) {
-                    if let file { result(file) } else { what; who }
+                    if let file { result(file) } else {
+                        if isPasswords { what }
+                        who
+                    }
                 }
                 .padding(.bottom, 4)
             }
@@ -54,110 +63,113 @@ struct ShareSecretView: View {
             .scrollIndicators(.never)
             HStack(spacing: 6) {
                 Image(systemName: "lock.shield").foregroundStyle(.green)
-                Text(L("Criptografado no seu Mac. Nada passa pela internet.")).foregroundStyle(.secondary)
+                Text(L("Criptografado no seu Mac")).foregroundStyle(.secondary).lineLimit(1)
                 Spacer()
-                if file == nil {
-                    if working { ProgressView().controlSize(.small) }
-                    PillButton(title: L("Criar arquivo"), icon: "lock.doc.fill", primary: true, action: create)
-                        .disabled(!ready || working).opacity(ready ? 1 : 0.5)
-                } else {
-                    PillButton(title: L("Pronto"), primary: true, action: onClose)
+                if working { ProgressView().controlSize(.small) }
+                if file != nil {
+                    PillButton(title: L("Pronto"), action: onClose)
                 }
+                PillButton(title: file == nil ? L("Compartilhar…") : L("Compartilhar de novo…"), icon: "square.and.arrow.up", primary: true) {
+                    if let file { pick(file) } else { create() }
+                }
+                .background(ViewAnchor(ref: anchor))
+                .disabled(!ready || working).opacity(ready ? 1 : 0.5)
             }
             .font(.system(size: 11))
         }
         .onAppear(perform: load)
     }
 
-    private var ready: Bool {
-        (!isPasswords || !included.isEmpty) && (mode == .passphrase || chosen?.publicKey != nil)
-    }
-
     private func load() {
-        let text = store.text(of: id)
-        let parsed = SecretField.parse(text)
+        let parsed = SecretField.parse(store.text(of: id))
         title = parsed.title.isEmpty ? (store.note(id)?.title ?? "") : parsed.title
         if isPasswords {
             fields = parsed.fields.filter { !$0.value.isEmpty }
             included = Set(fields.map(\.id))
         }
-        if let forcedMode { mode = forcedMode } else if keys.contacts.isEmpty { mode = .passphrase }
-        if recipient == nil, keys.contacts.count == 1 { recipient = keys.contacts[0].id }
+        guard target == nil else { return }
+        // O último contato usado já vem marcado; sem contatos, "qualquer pessoa"
+        if let last = keys.lastContact, keys.contacts.contains(where: { $0.id == last }) {
+            target = .contact(last)
+        } else {
+            target = .anyone
+        }
     }
 
-    // O que vai
-    @ViewBuilder private var what: some View {
+    // O que vai: só nas notas de senhas, que têm campos
+    private var what: some View {
         VStack(alignment: .leading, spacing: 6) {
             section(L("O que vai"))
-            if isPasswords {
-                if fields.isEmpty {
-                    Text(L("Esta nota não tem campos preenchidos.")).font(.system(size: 12)).foregroundStyle(.secondary)
-                }
-                ForEach(fields) { f in
-                    Toggle(isOn: Binding(get: { included.contains(f.id) },
-                                         set: { if $0 { included.insert(f.id) } else { included.remove(f.id) } })) {
-                        HStack(spacing: 6) {
-                            Text(f.key.isEmpty ? L("Sem nome") : f.key).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
-                            Spacer(minLength: 6)
-                            Text(String(repeating: "•", count: min(max(f.value.count, 4), 10)))
-                                .font(.system(size: 11, design: .monospaced)).foregroundStyle(.tertiary)
-                        }
+            if fields.isEmpty {
+                Text(L("Esta nota não tem campos preenchidos.")).font(.system(size: 12)).foregroundStyle(.secondary)
+            }
+            ForEach(fields) { f in
+                Toggle(isOn: Binding(get: { included.contains(f.id) },
+                                     set: { if $0 { included.insert(f.id) } else { included.remove(f.id) } })) {
+                    HStack(spacing: 6) {
+                        Text(f.key.isEmpty ? L("Sem nome") : f.key).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
+                        Spacer(minLength: 6)
+                        Text(String(repeating: "•", count: min(max(f.value.count, 4), 10)))
+                            .font(.system(size: 11, design: .monospaced)).foregroundStyle(.tertiary)
                     }
-                    .toggleStyle(.checkbox)
                 }
-            } else {
-                Text(L("A nota inteira vai no arquivo.")).font(.system(size: 12)).foregroundStyle(.secondary)
+                .toggleStyle(.checkbox)
             }
         }
         .card(padding: 12)
     }
 
-    // Para quem
+    // Para quem: qualquer pessoa (com senha) ou um contato, numa lista só
     private var who: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            section(L("Para quem"))
-            GlassSegmented(selection: $mode, options: [
-                .init(value: .contact, title: L("Para um contato"), icon: "person.fill"),
-                .init(value: .passphrase, title: L("Com senha"), icon: "key.horizontal.fill"),
-            ])
-            if mode == .contact { contactPicker } else { passphraseBox }
+        VStack(alignment: .leading, spacing: 4) {
+            section(L("Para quem")).padding(.bottom, 2)
+            option(.anyone, icon: "key.horizontal.fill", title: L("Qualquer pessoa, com senha"),
+                   detail: L("Quem receber digita a senha que você passar"))
+            if target == .anyone { passphraseBox.padding(.leading, 28).padding(.bottom, 4) }
+            ForEach(keys.contacts) { c in
+                option(.contact(c.id), icon: "person.crop.circle.fill", title: c.name,
+                       detail: L("Só o Mac dessa pessoa abre, sem senha"), trailing: c.fingerprint)
+            }
+            if adding {
+                AddContactForm(onAdded: { c in target = .contact(c.id); adding = false }, onCancel: { adding = false })
+                    .padding(.top, 4)
+            } else {
+                Button { adding = true } label: {
+                    Label(L("Adicionar contato"), systemImage: "plus.circle.fill")
+                        .font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.violet)
+                }
+                .buttonStyle(.plain).padding(.top, 4)
+            }
         }
         .card(padding: 12)
     }
 
-    @ViewBuilder private var contactPicker: some View {
-        if keys.contacts.isEmpty && !adding {
-            Text(L("Peça o código Menew da pessoa e adicione aqui. Só o Mac dela vai conseguir abrir o arquivo."))
-                .font(.system(size: 11.5)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
-        }
-        ForEach(keys.contacts) { c in
-            Button { recipient = c.id } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: recipient == c.id ? "largecircle.fill.circle" : "circle")
-                        .foregroundStyle(recipient == c.id ? Theme.violet : .secondary)
-                    Text(c.name).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
-                    Spacer(minLength: 6)
-                    Text(c.fingerprint).font(.system(size: 10, design: .monospaced)).foregroundStyle(.tertiary)
+    private func option(_ t: Target, icon: String, title: String, detail: String, trailing: String? = nil) -> some View {
+        let on = target == t
+        return Button { withAnimation(.easeOut(duration: 0.15)) { target = t } } label: {
+            HStack(spacing: 8) {
+                Image(systemName: on ? "largecircle.fill.circle" : "circle")
+                    .foregroundStyle(on ? Theme.violet : .secondary)
+                Image(systemName: icon).font(.system(size: 13)).foregroundStyle(Theme.violet.opacity(0.85)).frame(width: 18)
+                VStack(alignment: .leading, spacing: 1) {
+                    Text(title).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
+                    Text(detail).font(.system(size: 10.5)).foregroundStyle(.secondary).lineLimit(1)
                 }
-                .contentShape(Rectangle())
+                Spacer(minLength: 6)
+                if let trailing {
+                    Text(trailing).font(.system(size: 10, design: .monospaced)).foregroundStyle(.tertiary)
+                }
             }
-            .buttonStyle(.plain)
+            .padding(.vertical, 4)
+            .contentShape(Rectangle())
         }
-        if adding {
-            AddContactForm(onAdded: { c in recipient = c.id; adding = false }, onCancel: { adding = false })
-        } else {
-            Button { adding = true } label: {
-                Label(L("Adicionar contato"), systemImage: "plus.circle.fill")
-                    .font(.system(size: 12, weight: .medium)).foregroundStyle(Theme.violet)
-            }
-            .buttonStyle(.plain)
-        }
+        .buttonStyle(.plain)
     }
 
     private var passphraseBox: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 4) {
-                Text(passphrase).font(.system(size: 16, weight: .semibold, design: .monospaced)).textSelection(.enabled)
+                Text(passphrase).font(.system(size: 15, weight: .semibold, design: .monospaced)).textSelection(.enabled)
                 Spacer(minLength: 4)
                 smallButton("arrow.clockwise", help: L("Gerar outra")) { passphrase = SecretShare.generatePassphrase() }
                 smallButton("doc.on.doc", help: L("Copiar")) { SecretCopy.copy(passphrase) }
@@ -168,31 +180,22 @@ struct ShareSecretView: View {
 
     private func result(_ file: URL) -> some View {
         VStack(spacing: 12) {
-            VStack(spacing: 8) {
-                Image(systemName: "lock.doc.fill").font(.system(size: 40)).foregroundStyle(Theme.violet.gradient)
+            VStack(spacing: 6) {
+                Image(systemName: "lock.doc.fill").font(.system(size: 34)).foregroundStyle(Theme.violet.gradient)
                 Text(file.lastPathComponent).font(.system(size: 12.5, weight: .semibold)).lineLimit(1).truncationMode(.middle)
-                Text(L("Arraste para o Teams, o Slack ou um e-mail")).font(.system(size: 11)).foregroundStyle(.secondary)
+                Text(L("Também dá para arrastar para um chat ou e-mail")).font(.system(size: 11)).foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 16)
+            .padding(.vertical, 14)
             .background(RoundedRectangle(cornerRadius: 12, style: .continuous)
                 .strokeBorder(style: StrokeStyle(lineWidth: 1.2, dash: [5, 4])).foregroundStyle(.secondary.opacity(0.5)))
             .contentShape(Rectangle())
             .onDrag { NSItemProvider(object: file as NSURL) }
-            .help(L("Arraste para o Teams, o Slack ou um e-mail"))
 
-            HStack(spacing: 8) {
-                ShareLink(item: file) {
-                    Label(L("Compartilhar…"), systemImage: "square.and.arrow.up").font(.system(size: 12, weight: .semibold))
-                }
-                PillButton(title: L("Mostrar no Finder"), icon: "folder") {
-                    NSWorkspace.shared.activateFileViewerSelecting([file])
-                }
-            }
-
-            if mode == .contact, let chosen {
+            if let chosen {
                 Label(L("Só %@ consegue abrir este arquivo.", chosen.name), systemImage: "person.badge.key.fill")
                     .font(.system(size: 12)).foregroundStyle(.secondary).frame(maxWidth: .infinity, alignment: .leading)
+                    .card(padding: 12)
             } else {
                 VStack(alignment: .leading, spacing: 6) {
                     Text(L("Quem receber vai precisar desta senha:")).font(.system(size: 12)).foregroundStyle(.secondary)
@@ -205,8 +208,17 @@ struct ShareSecretView: View {
                 }
                 .card(padding: 12)
             }
+            Button { NSWorkspace.shared.activateFileViewerSelecting([file]) } label: {
+                Label(L("Mostrar no Finder"), systemImage: "folder").font(.system(size: 12))
+            }
+            .buttonStyle(.plain).foregroundStyle(.secondary)
             if failed { warning(L("Não deu para criar o arquivo")) }
         }
+    }
+
+    private func pick(_ file: URL) {
+        guard let v = anchor.view else { return }
+        SharePicker.shared.show([file], from: v)
     }
 
     private func create() {
@@ -216,18 +228,20 @@ struct ShareSecretView: View {
         let payload = SecretPayload(text: text, kind: isPasswords ? .passwords : .text, sender: NSFullUserName())
         let me = keys.identity
         let to = chosen?.publicKey
-        let mode = mode, pass = passphrase, title = title
+        let pass = passphrase, title = title
+        keys.lastContact = chosen?.id
         working = true
         failed = false
         Task {
             // 600 mil rodadas de PBKDF2 levam um instante: fora da thread principal
             let env = await Task.detached { () -> SecretEnvelope? in
-                if mode == .contact, let to { return try? SecretShare.seal(payload, from: me, to: to) }
-                return try? SecretShare.seal(payload, passphrase: pass)
+                if let to { return try? SecretShare.seal(payload, from: me, to: to) }
+                return try? SecretShare.seal(payload, passphrase: pass, from: me.publicKey)
             }.value
             working = false
             guard let env, let url = try? keys.write(env, title: title) else { failed = true; return }
             withAnimation(.spring(duration: 0.3)) { file = url }
+            pick(url)
         }
     }
 }
@@ -239,6 +253,7 @@ struct ShareCenterView: View {
     @State private var adding = false
     @State private var copied = false
     @State private var hovering: UUID?
+    @State private var anchor = ViewAnchor.Ref()
 
     var body: some View {
         VStack(spacing: 8) {
@@ -260,23 +275,30 @@ struct ShareCenterView: View {
         }
     }
 
+    /// O código à vista, inteiro, com Copiar e Enviar (AirDrop, Mensagens, Mail, Teams…)
     private var myCode: some View {
         VStack(alignment: .leading, spacing: 8) {
             section(L("Meu código Menew"))
-            Text(L("Mande este código para quem vai te enviar senhas. Ele é público: pode ir pelo chat."))
+            Text(L("Quem tiver este código consegue te mandar senhas que só o seu Mac abre. Ele é público: pode mandar por qualquer app."))
                 .font(.system(size: 11.5)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
+            Text(keys.myCode)
+                .font(.system(size: 12, weight: .medium, design: .monospaced)).textSelection(.enabled)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(10).frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 8, style: .continuous).fill(Color.primary.opacity(0.05)))
             HStack(spacing: 8) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text(keys.myCode).font(.system(size: 11, design: .monospaced)).lineLimit(1).truncationMode(.middle)
-                    Text(L("Conferência: %@", keys.myFingerprint)).font(.system(size: 10.5, design: .monospaced)).foregroundStyle(.tertiary)
-                }
+                Text(L("Conferência: %@", keys.myFingerprint)).font(.system(size: 10.5, design: .monospaced)).foregroundStyle(.tertiary)
                 Spacer(minLength: 4)
-                PillButton(title: copied ? L("Copiado") : L("Copiar código"), icon: copied ? "checkmark" : "doc.on.doc", primary: true) {
+                PillButton(title: copied ? L("Copiado") : L("Copiar"), icon: copied ? "checkmark" : "doc.on.doc") {
                     NSPasteboard.general.clearContents()
                     NSPasteboard.general.setString(keys.myCodeToCopy, forType: .string)
                     copied = true
                     DispatchQueue.main.asyncAfter(deadline: .now() + 1.6) { copied = false }
                 }
+                PillButton(title: L("Enviar…"), icon: "square.and.arrow.up", primary: true) {
+                    if let v = anchor.view { SharePicker.shared.show([keys.myCodeMessage], from: v) }
+                }
+                .background(ViewAnchor(ref: anchor))
             }
         }
         .card(padding: 12)
@@ -286,7 +308,7 @@ struct ShareCenterView: View {
         VStack(alignment: .leading, spacing: 8) {
             section(L("Contatos"))
             if keys.contacts.isEmpty && !adding {
-                Text(L("Adicione o código de quem vai receber senhas suas. Só o Mac da pessoa abre o que você mandar."))
+                Text(L("Peça para a pessoa tocar em Enviar no código Menew dela e mandar para você. Depois, é só adicionar aqui."))
                     .font(.system(size: 11.5)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             }
             ForEach(keys.contacts) { c in
@@ -348,6 +370,8 @@ struct AddContactForm: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
+            Text(L("Cole o código ou a mensagem que a pessoa mandou."))
+                .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
             TextField(L("Cole o código Menew da pessoa"), text: $code)
                 .textFieldStyle(.plain).font(.system(size: 12, design: .monospaced)).glassField()
                 .focused($focused)
@@ -376,7 +400,8 @@ struct AddContactForm: View {
         .background(RoundedRectangle(cornerRadius: 10, style: .continuous).fill(Color.primary.opacity(0.045)))
         .onAppear {
             // Código copiado agora há pouco: já vem colado
-            if let s = NSPasteboard.general.string(forType: .string), SecretShare.parseCode(s) != nil { code = s }
+            if let s = NSPasteboard.general.string(forType: .string), let p = SecretShare.parseCode(s),
+               p.key.rawRepresentation != keys.identity.publicKey.rawRepresentation { code = s }
             focused = code.isEmpty
         }
         .onChange(of: code) {
@@ -495,9 +520,11 @@ struct ImportSecretView: View {
             }
             .card(padding: 12)
             // Remetente fora dos contatos: dá para guardar para responder depois
-            if env?.mode == .contact, known == nil, let sender {
+            if known == nil, let sender {
                 VStack(alignment: .leading, spacing: 6) {
                     Toggle(L("Salvar nos contatos"), isOn: $saveContact).toggleStyle(.checkbox).font(.system(size: 12))
+                    Text(L("Assim você manda coisas para essa pessoa sem precisar de senha."))
+                        .font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                     if saveContact {
                         TextField(L("Nome"), text: $contactName).textFieldStyle(.plain).font(.system(size: 12.5)).glassField()
                     }
@@ -519,6 +546,9 @@ struct ImportSecretView: View {
                       systemImage: "questionmark.circle.fill")
                     .font(.system(size: 11.5, weight: .medium)).foregroundStyle(.orange)
             }
+        } else if let known {
+            Label(L("De %@", known.name), systemImage: "person.crop.circle.fill")
+                .font(.system(size: 11.5, weight: .medium)).foregroundStyle(.secondary)
         } else if let name = s.sender, !name.isEmpty {
             Label(L("Enviado por %@", name), systemImage: "key.horizontal.fill")
                 .font(.system(size: 11.5, weight: .medium)).foregroundStyle(.secondary)
@@ -567,7 +597,13 @@ struct ImportSecretView: View {
             }.value
             opening = false
             switch r {
-            case .success(let s): withAnimation(.spring(duration: 0.3)) { secret = s }
+            case .success(let s):
+                // O arquivo traz o código de quem mandou: dá para salvar o contato e dispensar a senha da próxima vez
+                if let k = SecretShare.senderKey(env), k.rawRepresentation != keys.identity.publicKey.rawRepresentation {
+                    sender = k
+                    contactName = s.sender ?? ""
+                }
+                withAnimation(.spring(duration: 0.3)) { secret = s }
             case .failure(let e): problem = e
             }
         }
@@ -575,7 +611,7 @@ struct ImportSecretView: View {
 
     private func save() {
         guard let secret else { return }
-        if env?.mode == .contact, known == nil, saveContact, let sender { keys.add(name: contactName, key: sender) }
+        if known == nil, saveContact, let sender { keys.add(name: contactName, key: sender) }
         let id = store.createProtected(secret.text, kind: secret.kind)
         HUD.show(icon: "checkmark.circle.fill", color: .green, text: L("Segredo salvo nas notas"))
         onDone(id)
