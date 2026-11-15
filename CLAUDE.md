@@ -1,6 +1,6 @@
 # Menew: project rules for agents
 
-Native macOS menu bar app (Swift/SwiftUI, Swift Package). Public, MIT, distributed outside the App Store: signed with Developer ID, notarized, auto-updated with Sparkle, installable with Homebrew. Website: https://menew.web.app (Firebase Hosting, `docs/`).
+Native macOS menu bar app (Swift/SwiftUI, Swift Package). Public, GPL-3.0 (the name, icon and site are not covered: see `TRADEMARK.md`), distributed outside the App Store: signed with Developer ID, notarized, auto-updated with Sparkle, installable with Homebrew. Website: https://menew.web.app (Firebase Hosting, `docs/`).
 
 ## Always keep these in sync
 
