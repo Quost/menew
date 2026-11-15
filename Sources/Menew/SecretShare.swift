@@ -3,6 +3,7 @@ import CommonCrypto
 import CryptoKit
 import Foundation
 import Security
+import SwiftUI
 import UniformTypeIdentifiers
 
 // Compartilhar senhas sem mandar o texto cru pelo chat: o Menew gera um arquivo `.menewsecret` criptografado.
@@ -114,10 +115,13 @@ enum SecretShare {
         return env
     }
 
-    static func seal(_ secret: SecretPayload, passphrase: String, rounds: Int = defaultRounds) throws -> SecretEnvelope {
+    /// `from`: a chave pública de quem manda, para quem recebe poder salvar o contato e da próxima vez dispensar a senha
+    static func seal(_ secret: SecretPayload, passphrase: String, from: Curve25519.KeyAgreement.PublicKey? = nil,
+                     rounds: Int = defaultRounds) throws -> SecretEnvelope {
         var salt = Data(count: 16)
         _ = salt.withUnsafeMutableBytes { SecRandomCopyBytes(kSecRandomDefault, 16, $0.baseAddress!) }
-        var env = SecretEnvelope(mode: .passphrase, salt: base64url(salt), rounds: rounds, box: "")
+        var env = SecretEnvelope(mode: .passphrase, from: from.map { base64url($0.rawRepresentation) },
+                                 salt: base64url(salt), rounds: rounds, box: "")
         guard let key = pbkdf2(normalize(passphrase), salt: salt, rounds: rounds) else { throw SecretShareError.damaged }
         env.box = try box(secret, key: key, aad: env.aad)
         return env
@@ -143,6 +147,11 @@ enum SecretShare {
         guard toRaw == me.publicKey.rawRepresentation else { throw SecretShareError.notForMe }
         let key = try contactKey(me.sharedSecretFromKeyAgreement(with: eph), me.sharedSecretFromKeyAgreement(with: from), aad: env.aad)
         return (try unbox(env.box, key: key, aad: env.aad, failure: .damaged), from)
+    }
+
+    /// Chave de quem mandou, quando o arquivo traz (no modo senha ela vale porque o cabeçalho é autenticado pela senha)
+    static func senderKey(_ env: SecretEnvelope) -> Curve25519.KeyAgreement.PublicKey? {
+        env.from.flatMap(unbase64url).flatMap { try? Curve25519.KeyAgreement.PublicKey(rawRepresentation: $0) }
     }
 
     static func open(_ env: SecretEnvelope, passphrase: String) throws -> SecretPayload {
@@ -273,6 +282,16 @@ final class ShareKeys: ObservableObject {
     var myFingerprint: String { SecretShare.fingerprint(identity.publicKey.rawRepresentation) }
     /// O que vai para a área de transferência: com o nome, quem cola já vê de quem é
     var myCodeToCopy: String { "\(NSFullUserName()) · \(myCode)" }
+    /// Para mandar por AirDrop, Mensagens, Mail…: o código com o nome e como adicionar
+    var myCodeMessage: String {
+        myCodeToCopy + "\n\n" + L("Meu código Menew, para você me mandar senhas. No Menew: Notas › Compartilhar senhas › Adicionar contato (o código já vem colado).")
+    }
+
+    /// Último contato escolhido ao compartilhar: já vem marcado da próxima vez
+    var lastContact: UUID? {
+        get { UserDefaults.standard.string(forKey: "shareLastContact").flatMap(UUID.init) }
+        set { UserDefaults.standard.set(newValue?.uuidString, forKey: "shareLastContact") }
+    }
 
     func contact(for key: Curve25519.KeyAgreement.PublicKey) -> ShareContact? {
         let k = SecretShare.base64url(key.rawRepresentation)
@@ -357,7 +376,8 @@ final class ShareKeys: ObservableObject {
         defer { picking = false }
         return panel.runModal() == .OK ? panel.url : nil
     }
-    private(set) var picking = false
+    /// O menu não fecha enquanto um painel ou o menu de compartilhar está aberto
+    var picking = false
 
     /// Arquivos soltos no notch: os `.menewsecret` vão para a tela de importar, o resto para a estante.
     /// `rest` recebe os itens que não são segredos.
@@ -387,4 +407,57 @@ final class ShareKeys: ObservableObject {
         }
         return true
     }
+}
+
+// MARK: Menu de compartilhar do macOS
+
+/// AirDrop, Mensagens, Mail, Teams, Slack…: o menu de compartilhar do sistema, preso a um botão.
+/// Enquanto ele (ou a janela do AirDrop) está aberto, o menu do Menew não fecha.
+@MainActor
+final class SharePicker: NSObject, NSSharingServicePickerDelegate, NSSharingServiceDelegate {
+    static let shared = SharePicker()
+    private var safety: DispatchWorkItem?
+
+    func show(_ items: [Any], from view: NSView) {
+        let picker = NSSharingServicePicker(items: items)
+        picker.delegate = self
+        hold()
+        picker.show(relativeTo: view.bounds, of: view, preferredEdge: .minY)
+    }
+
+    private func hold() {
+        ShareKeys.shared.picking = true
+        safety?.cancel()
+        // Nem todo serviço avisa quando termina: depois de um tempo o menu volta a fechar normalmente
+        let w = DispatchWorkItem { ShareKeys.shared.picking = false }
+        safety = w
+        DispatchQueue.main.asyncAfter(deadline: .now() + 90, execute: w)
+    }
+
+    private func release() {
+        safety?.cancel()
+        ShareKeys.shared.picking = false
+    }
+
+    nonisolated func sharingServicePicker(_ picker: NSSharingServicePicker, didChoose service: NSSharingService?) {
+        MainActor.assumeIsolated {
+            if let service { service.delegate = self } else { release() }
+        }
+    }
+
+    nonisolated func sharingService(_ sharingService: NSSharingService, didShareItems items: [Any]) {
+        DispatchQueue.main.async { MainActor.assumeIsolated { self.release() } }
+    }
+
+    nonisolated func sharingService(_ sharingService: NSSharingService, didFailToShareItems items: [Any], error: any Error) {
+        DispatchQueue.main.async { MainActor.assumeIsolated { self.release() } }
+    }
+}
+
+/// A NSView por trás de um botão SwiftUI, para o menu de compartilhar abrir colado nele
+struct ViewAnchor: NSViewRepresentable {
+    final class Ref { weak var view: NSView? }
+    let ref: Ref
+    func makeNSView(context: Context) -> NSView { let v = NSView(); ref.view = v; return v }
+    func updateNSView(_ nsView: NSView, context: Context) { ref.view = nsView }
 }
