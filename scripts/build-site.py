@@ -286,12 +286,23 @@ alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}
 entries = "".join(f"\n  <url>\n    <loc>{url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{alternates}\n  </url>" for c in LANGS)
 entries += "".join(f"\n  <url>\n    <loc>{SITE}/vs{p}</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
                    for p in [""] + [f"/{slug}" for slug in COMPARE])
+entries += f"\n  <url>\n    <loc>{SITE}/linux</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
 (ROOT / "docs/sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
     + entries + "\n</urlset>\n")
 (ROOT / "docs/robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 print("docs/sitemap.xml, docs/robots.txt")
+
+# Página /linux (standalone, não usa o template multilíngue)
+linux_tpl = (ROOT / "site/linux.html").read_text()
+analytics_script = (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
+                    if GOATCOUNTER else "")
+linux_page = linux_tpl.replace("{{analytics}}", ANALYTICS).replace("{{analytics_script}}", analytics_script)
+linux_out = ROOT / "docs/linux/index.html"
+linux_out.parent.mkdir(parents=True, exist_ok=True)
+linux_out.write_text(linux_page)
+print("docs/linux/index.html")
 
 # llms.txt (llmstxt.org): resumo em texto para assistentes de IA (ChatGPT, Claude, Perplexity…) lerem e citarem
 e = english

@@ -8,6 +8,16 @@ Each version's section is shown in the in-app update window and on the GitHub re
 - **See when a limit has run out.** When an agent's limit is used up, the notch and Plan limits now say so in red, with when it comes back ("Wk: used up · back Sun 3:00 AM"). Before, they could show a forecast for a different window, like the 5-hour limit while the weekly one was already at 100%. Sessions stuck on a limit show it in place of "Thinking…". Menew spots this from the "You've hit your limit" reply Claude Code saves and from the quota error that Pi (and agents built on it) get from their server, with what was spent and the quota when the error includes them.
 - **Your plan in the notch.** The plan (Max, Plus, Pro) now shows next to each tool's name in the notch. Kiro shows its plan too (Pro, Pro+, Power), read from the Kiro editor's own log.
 
+## 1.104.1
+
+### Improved
+- **Simpler password sharing.** Pick who it's for in one list (anyone with a password, or a contact) and **Share…** opens AirDrop, Messages, Mail and your other apps right away. Your Menew code is now shown in full in Notes › Share passwords, with **Copy** and **Send…**, and the contact's code is pasted for you when you add them. A file received with a password offers to save the sender, so the next one needs no password.
+
+## 1.104.0
+
+### New
+- **Share passwords safely.** A protected note now has a share button: pick which fields go and Menew makes an encrypted `.menewsecret` file to drag into Teams, Slack or an email, instead of pasting the password in the chat. Send it to a contact (add their Menew code once, from Notes › Share passwords) and only their Mac can open it, with the sender verified; or protect it with a password Menew generates and pass that on another way. To receive, drop the file on the notch, double-click it or use Import file; it becomes a protected note. Everything is encrypted on your Mac.
+
 ### Fixed
 - **Codex and the ChatGPT app in the notch.** Codex only runs hooks you approved, and the ChatGPT app (which runs Codex inside) skips unapproved ones without asking, so its sessions never reached the notch. Turning on Codex in AI agents › Set up now also records the approval for Menew's own commands in `~/.codex/config.toml`. If Codex shows as Outdated, press Update once.
 

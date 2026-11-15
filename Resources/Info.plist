@@ -20,6 +20,27 @@
             <key>CFBundleURLSchemes</key><array><string>menew</string></array>
         </dict>
     </array>
+    <!-- .menewsecret: senha compartilhada, criptografada; dois cliques abrem a tela de importar -->
+    <key>UTExportedTypeDeclarations</key>
+    <array>
+        <dict>
+            <key>UTTypeIdentifier</key><string>com.matheusquost.menew.secret</string>
+            <key>UTTypeDescription</key><string>Menew Shared Secret</string>
+            <key>UTTypeConformsTo</key><array><string>public.data</string></array>
+            <key>UTTypeIconSystemGenerated</key><true/>
+            <key>UTTypeTagSpecification</key>
+            <dict><key>public.filename-extension</key><array><string>menewsecret</string></array></dict>
+        </dict>
+    </array>
+    <key>CFBundleDocumentTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeName</key><string>Menew Shared Secret</string>
+            <key>CFBundleTypeRole</key><string>Viewer</string>
+            <key>LSHandlerRank</key><string>Owner</string>
+            <key>LSItemContentTypes</key><array><string>com.matheusquost.menew.secret</string></array>
+        </dict>
+    </array>
     <key>NSHighResolutionCapable</key><true/>
     <key>CFBundleDevelopmentRegion</key><string>en</string>
     <key>CFBundleLocalizations</key>

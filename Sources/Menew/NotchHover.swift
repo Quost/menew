@@ -207,9 +207,10 @@ struct NotchHoverView: View {
         .background(RoundedRectangle(cornerRadius: 12).strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [5, 4]))
             .foregroundStyle(model.targeted ? .green : .white.opacity(0.35)))
         .onDrop(of: [.fileURL, .url, .image, .plainText], isTargeted: $model.targeted) { providers in
-            let ok = ShelfStore.shared.accept(providers)
-            if ok { NotchHover.run { app?.shelf.show(nearMouse: false) } }
-            return ok
+            // Um .menewsecret abre a tela de importar; o resto vai para a estante, como sempre
+            ShareKeys.acceptDrop(providers) { rest in
+                if ShelfStore.shared.accept(rest) { NotchHover.run { app?.shelf.show(nearMouse: false) } }
+            }
         }
     }
 
