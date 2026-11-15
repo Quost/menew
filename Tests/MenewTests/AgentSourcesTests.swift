@@ -412,6 +412,48 @@ final class KiroLimitsTests: XCTestCase {
         XCTAssertEqual(w?.resetsAt, AgentDates.parse("2026-12-01T00:00:00.000Z"))
         XCTAssertNil(KiroLimits.parse([:]))
     }
+
+    func testPlanFromTitleOrLimit() {
+        XCTAssertEqual(KiroLimits.planName("KIRO PRO"), "Pro")
+        XCTAssertEqual(KiroLimits.planName("KIRO PRO+"), "Pro+")
+        XCTAssertEqual(KiroLimits.planName("KIRO POWER"), "Power")
+        XCTAssertEqual(KiroLimits.plan(limit: 1000), "Pro")
+        XCTAssertEqual(KiroLimits.plan(limit: 50), "Free")
+        XCTAssertNil(KiroLimits.plan(limit: 1234))
+        XCTAssertEqual(KiroLimits.limit(["kiro.resourceNotifications.usageState": ["usageBreakdowns": [["type": "CREDIT", "usageLimit": 2000]]]]), 2000)
+    }
+}
+
+final class LimitBlockTests: XCTestCase {
+    func testPiQuotaErrorFromTheServer() {
+        let msg = #"APIM request failed with HTTP 429: {"counterKey":"x","accumulatedCost":30.014661753999974,"quota":30.0,"message":"Quota excedida para o período atual."}"#
+        XCTAssertTrue(LimitBlock.isLimitError(msg))
+        let sq = LimitBlock.spentAndQuota(msg)
+        XCTAssertEqual(sq?.0 ?? 0, 30.0147, accuracy: 0.001)
+        XCTAssertEqual(sq?.1, 30)
+        XCTAssertFalse(LimitBlock.isLimitError("Connection reset by peer"))
+        XCTAssertNil(LimitBlock.spentAndQuota("HTTP 429 Too Many Requests"))
+    }
+
+    func testClaudeRateLimitLine() {
+        let line = #"{"type":"assistant","timestamp":"2026-11-09T20:05:28.494Z","message":{"model":"<synthetic>","content":[{"type":"text","text":"You've hit your 5-hour limit"}]},"error":"rate_limit","isApiErrorMessage":true,"quotaLimits":{"status":"rejected","resetsAt":1794259200,"rateLimitType":"five_hour"}}"#
+        var data = Data(line.utf8)
+        let hit = data.withUnsafeMutableBytes { ClaudeLog.limitHit(UnsafeRawBufferPointer($0)) }
+        XCTAssertEqual(hit?.window, "5 h")
+        XCTAssertEqual(hit?.resetsAt, Date(timeIntervalSince1970: 1794259200))
+        XCTAssertEqual(hit?.since, AgentDates.parse("2026-11-09T20:05:28.494Z"))
+        var other = Data(#"{"type":"assistant","error":"server_error","timestamp":"2026-11-09T20:05:28.494Z","isApiErrorMessage":true}"#.utf8)
+        XCTAssertNil(other.withUnsafeMutableBytes { ClaudeLog.limitHit(UnsafeRawBufferPointer($0)) })
+    }
+
+    func testBlockIsActiveUntilItComesBack() {
+        let now = Date()
+        XCTAssertTrue(LimitBlock(since: now.addingTimeInterval(-60), resetsAt: now.addingTimeInterval(60)).isActive(now))
+        XCTAssertFalse(LimitBlock(since: now.addingTimeInterval(-120), resetsAt: now.addingTimeInterval(-60)).isActive(now))
+        // Sem a hora de voltar (a cota do Pi): uma semana
+        XCTAssertTrue(LimitBlock(since: now.addingTimeInterval(-3 * 86400)).isActive(now))
+        XCTAssertFalse(LimitBlock(since: now.addingTimeInterval(-8 * 86400)).isActive(now))
+    }
 }
 
 final class MCPClientsTests: XCTestCase {

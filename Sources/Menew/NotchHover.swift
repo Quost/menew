@@ -153,7 +153,7 @@ final class NotchHoverModel: ObservableObject {
     var agentsHeight: CGFloat {
         guard !agents.isEmpty || !limitRows.isEmpty else { return 0 }
         return CGFloat(agents.count) * 42 + (moreAgents > 0 ? 18 : 0) + (limitRows.isEmpty ? 0 : CGFloat(limitRows.count) * 42 + 18) + 10
-            + CGFloat(limitRows.filter { $0.forecast != nil }.count) * 18
+            + CGFloat(limitRows.filter(\.hasForecastLine).count) * 18
     }
 
     func refresh() {
@@ -250,6 +250,11 @@ struct NotchHoverView: View {
                         }
                     }
                     HStack(spacing: 5) {
+                        if let b = AgentUsageStore.shared.blocked(s) {
+                            // Parado no limite: a sessão não vai andar até ele voltar
+                            Image(systemName: "xmark.octagon.fill").font(.system(size: 9.5))
+                            Text(b.text).lineLimit(1).truncationMode(.middle)
+                        } else {
                         switch s.state {
                         case .waiting:
                             Image(systemName: "hand.raised.fill").font(.system(size: 9.5))
@@ -261,9 +266,11 @@ struct NotchHoverView: View {
                             Image(systemName: s.stepIcon).font(.system(size: 9.5))
                             Text(s.step ?? L("Pensando…")).lineLimit(1).truncationMode(.middle)
                         }
+                        }
                     }
                     .font(.system(size: 11.5))
-                    .foregroundStyle(s.state == .waiting ? Color.orange : s.state == .done ? Color.green.opacity(0.9) : .white.opacity(0.7))
+                    .foregroundStyle(AgentUsageStore.shared.blocked(s) != nil ? Color(red: 1, green: 0.38, blue: 0.35)
+                        : s.state == .waiting ? Color.orange : s.state == .done ? Color.green.opacity(0.9) : .white.opacity(0.7))
                 }
                 Spacer(minLength: 8)
                 if s.state == .working, let t = s.turnStart {
@@ -287,10 +294,16 @@ struct NotchHoverView: View {
             HStack(spacing: 6) {
                 Image(systemName: r.agent.icon).font(.system(size: 9, weight: .bold)).foregroundStyle(r.agent.color)
                 Text(r.agent.name).font(.system(size: 11.5, weight: .semibold))
+                if let p = r.plan {
+                    Text(p).font(.system(size: 9.5, weight: .semibold)).foregroundStyle(r.agent.color)
+                        .padding(.horizontal, 5).padding(.vertical, 1).background(Capsule().fill(r.agent.color.opacity(0.18))).fixedSize()
+                }
                 Spacer(minLength: 8)
                 Text(r.today).font(.system(size: 10.5, weight: .medium)).monospacedDigit().foregroundStyle(.white.opacity(0.55)).fixedSize()
             }
-            if r.windows.isEmpty {
+            if r.outInPlaceOfWindows, let f = r.forecast {
+                Self.outLabel(f.text).padding(.leading, 15)
+            } else if r.windows.isEmpty {
                 Text(L("sem limites lidos")).font(.system(size: 10.5)).foregroundStyle(.white.opacity(0.35)).padding(.leading, 15)
             } else {
                 HStack(spacing: 18) {
@@ -315,12 +328,22 @@ struct NotchHoverView: View {
                 .padding(.leading, 15)
             }
             // No ritmo de agora: quando acaba, ou até onde chega no reset
-            if let f = r.forecast {
-                Label(f.text, systemImage: f.warn ? "exclamationmark.triangle.fill" : "speedometer")
-                    .font(.system(size: 10.5, weight: f.warn ? .semibold : .regular))
-                    .foregroundStyle(f.warn ? Color.orange : .white.opacity(0.45)).lineLimit(1).padding(.leading, 15)
+            if r.hasForecastLine, let f = r.forecast {
+                if f.tone == .out {
+                    Self.outLabel(f.text).padding(.leading, 15)
+                } else {
+                    Label(f.text, systemImage: f.tone == .warn ? "exclamationmark.triangle.fill" : "speedometer")
+                        .font(.system(size: 10.5, weight: f.tone == .warn ? .semibold : .regular))
+                        .foregroundStyle(f.tone == .warn ? Color.orange : .white.opacity(0.45)).lineLimit(1).padding(.leading, 15)
+                }
             }
         }
+    }
+
+    /// Um limite que acabou, em vermelho
+    static func outLabel(_ text: String) -> some View {
+        Label(text, systemImage: "xmark.octagon.fill").font(.system(size: 10.5, weight: .semibold))
+            .foregroundStyle(Color(red: 1, green: 0.38, blue: 0.35)).lineLimit(1).truncationMode(.middle)
     }
 
     static func limitColor(_ p: Double, base: Color) -> Color { p >= 90 ? .red : p >= 75 ? .orange : base }
@@ -450,10 +473,21 @@ struct AgentLimitRow: Identifiable, Equatable {
     let agent: AgentKind
     let windows: [RateWindow]
     let today: String
-    /// A janela mais apertada no ritmo de agora: "5 h: acaba às 14:10" (aviso) ou "5 h: chega a ~48% até zerar"
-    var forecast: (text: String, warn: Bool)?
+    /// O plano ("Max", "Plus", "Pro"), quando a ferramenta diz
+    var plan: String?
+    enum Tone { case info, warn, out }
+    /// O limite que já acabou ("Sem.: acabou · volta dom., 03:00"), ou a janela mais apertada no ritmo de agora:
+    /// "5 h: acaba às 14:10" (aviso) ou "5 h: chega a ~48% até zerar"
+    var forecast: (text: String, tone: Tone)?
 
-    static func == (a: AgentLimitRow, b: AgentLimitRow) -> Bool { a.agent == b.agent && a.windows == b.windows && a.today == b.today && a.forecast?.text == b.forecast?.text }
+    /// Sem janelas lidas, o limite que acabou ocupa a linha do "sem limites lidos"
+    var outInPlaceOfWindows: Bool { windows.isEmpty && forecast?.tone == .out }
+    /// A linha a mais embaixo das janelas
+    var hasForecastLine: Bool { forecast != nil && !outInPlaceOfWindows }
+
+    static func == (a: AgentLimitRow, b: AgentLimitRow) -> Bool {
+        a.agent == b.agent && a.windows == b.windows && a.today == b.today && a.plan == b.plan && a.forecast?.text == b.forecast?.text
+    }
 
     @MainActor static func current() -> [AgentLimitRow] {
         let u = AgentUsageStore.shared
@@ -461,20 +495,25 @@ struct AgentLimitRow: Identifiable, Equatable {
         return AgentKind.allCases.compactMap { a in
             let t = u.totals(since: start, agent: a)
             let windows = Array(u.current(a).prefix(3))
-            guard !windows.isEmpty || t.tokens > 0 || t.credits > 0 else { return nil }
+            let block = u.blocked(a)
+            guard !windows.isEmpty || t.tokens > 0 || t.credits > 0 || block != nil else { return nil }
             // O Kiro conta em créditos (e alguns pedidos dele nem têm tokens)
-            var today = t.tokens > 0 ? L("%@ hoje", AgentsView.tokens(t.tokens)) : L("%@ créditos hoje", String(format: "%.1f", t.credits))
+            var today = t.tokens > 0 ? L("%@ hoje", AgentsView.tokens(t.tokens))
+                : t.credits > 0 ? L("%@ créditos hoje", String(format: "%.1f", t.credits)) : ""
             if t.tokens > 0, t.credits > 0 { today += " · " + L("%@ créditos", String(format: "%.1f", t.credits)) }
             if t.cost >= 0.01 { today += " · " + AgentsView.money(t.cost) }
             // A que acaba primeiro; sem nenhuma acabando, a que mais se aproxima de 100% no reset
             let projections = windows.compactMap { w in u.projection(a, w).map { (w, $0) } }
-            var forecast: (String, Bool)?
-            if let (w, p) = projections.filter({ $0.1.runsOut != nil }).min(by: { $0.1.runsOut! < $1.1.runsOut! }) {
-                forecast = ("\(w.short): \(p.text)", true)
+            var forecast: (String, Tone)?
+            // Um limite que já acabou vale mais que a previsão de outro (a semana em 100% e o aviso falando das 5 h)
+            if let b = block {
+                forecast = (b.text, .out)
+            } else if let (w, p) = projections.filter({ $0.1.runsOut != nil }).min(by: { $0.1.runsOut! < $1.1.runsOut! }) {
+                forecast = ("\(w.short): \(p.text)", .warn)
             } else if let (w, p) = projections.max(by: { reach($0.1) < reach($1.1) }), reach(p) >= 50 {
-                forecast = ("\(w.short): \(p.text)", false)
+                forecast = ("\(w.short): \(p.text)", .info)
             }
-            return AgentLimitRow(agent: a, windows: windows, today: today, forecast: forecast)
+            return AgentLimitRow(agent: a, windows: windows, today: today, plan: u.plans[a], forecast: forecast)
         }
     }
 }

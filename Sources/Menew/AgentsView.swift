@@ -76,7 +76,9 @@ struct AgentsView: View {
                     Text(s.project).font(.system(size: 13, weight: .semibold)).lineLimit(1)
                     Text(s.agent.name).font(.system(size: 11.5)).foregroundStyle(.secondary)
                 }
-                if let m = s.message, s.state == .waiting {
+                if let b = usage.blocked(s) {
+                    Label(b.text, systemImage: "xmark.octagon.fill").font(.system(size: 11.5, weight: .medium)).foregroundStyle(.red).lineLimit(1)
+                } else if let m = s.message, s.state == .waiting {
                     Text(m).font(.system(size: 11.5)).foregroundStyle(.secondary).lineLimit(1)
                 } else if let c = s.cwd {
                     Text(c.replacingOccurrences(of: NSHomeDirectory(), with: "~")).font(.system(size: 11)).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
@@ -86,7 +88,7 @@ struct AgentsView: View {
             if s.state == .working, let t = s.turnStart {
                 Text(NotchView.clock(now.timeIntervalSince(t))).font(.system(size: 12, weight: .medium)).monospacedDigit().foregroundStyle(.secondary)
             }
-            pill(s.stateTitle, s.stateColor)
+            if usage.blocked(s) != nil { pill(L("Sem limite"), .red) } else { pill(s.stateTitle, s.stateColor) }
             Button(L("Abrir")) { hub.focus(s) }.controlSize(.small)
         }
         .padding(.vertical, 4)
@@ -96,7 +98,7 @@ struct AgentsView: View {
 
     private var limits: some View {
         section(L("Limites do plano"), trailing: nil) {
-            let agents = AgentKind.allCases.filter { usage.limits[$0] != nil }
+            let agents = AgentKind.allCases.filter { usage.limits[$0] != nil || usage.blocks[$0] != nil }
             if agents.isEmpty && !ClaudePlanLimits.isOn {
                 Text(L("O Codex grava os limites enquanto você usa; eles aparecem aqui. Para os do Claude, ligue “Limites do Claude” em Configurar."))
                     .font(.system(size: 12.5)).foregroundStyle(.secondary)
@@ -114,6 +116,9 @@ struct AgentsView: View {
                         }
                     }
                     ForEach(usage.current(a)) { w in windowBar(w, agent: a, color: a.color) }
+                    if let b = usage.blocked(a) {
+                        Label(b.text, systemImage: "xmark.octagon.fill").font(.system(size: 12, weight: .medium)).foregroundStyle(.red)
+                    }
                 }
                 .padding(.vertical, 4)
             }

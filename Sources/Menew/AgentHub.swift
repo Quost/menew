@@ -427,6 +427,9 @@ final class AgentHub: ObservableObject {
                          task: "Update the pricing page", lastDuration: 252, updated: now.addingTimeInterval(-120)),
             AgentSession(id: "4", agent: .cursor, cwd: "/Users/ana/apps/mobile", state: .working, since: now.addingTimeInterval(-600), turnStart: now.addingTimeInterval(-90),
                          task: "Add dark mode to settings", tool: "Bash", detail: "npm test", updated: now.addingTimeInterval(-8)),
+            // Parado na cota (a demonstração do Pi barrado em AgentUsageStore.showDemo)
+            AgentSession(id: "5", agent: .pi, cwd: "/Users/ana/apps/review-bot", state: .working, since: now.addingTimeInterval(-2400), turnStart: now.addingTimeInterval(-1620),
+                         task: "Review the open merge requests", tool: "Bash", detail: "git diff", updated: now.addingTimeInterval(-3)),
         ]
     }
 }

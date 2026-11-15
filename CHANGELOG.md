@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### New
+- **See when a limit has run out.** When an agent's limit is used up, the notch and Plan limits now say so in red, with when it comes back ("Wk: used up · back Sun 3:00 AM"). Before, they could show a forecast for a different window, like the 5-hour limit while the weekly one was already at 100%. Sessions stuck on a limit show it in place of "Thinking…". Menew spots this from the "You've hit your limit" reply Claude Code saves and from the quota error that Pi (and agents built on it) get from their server, with what was spent and the quota when the error includes them.
+- **Your plan in the notch.** The plan (Max, Plus, Pro) now shows next to each tool's name in the notch. Kiro shows its plan too (Pro, Pro+, Power), read from the Kiro editor's own log.
+
 ## 1.104.1
 
 ### Improved
