@@ -243,6 +243,67 @@ final class AgentHubTests: XCTestCase {
         hub.handle(["agent": "gemini", "event": "SessionEnd", "session": "g1"], now: t0)
         XCTAssertNil(hub.sessions.first { $0.id == "claude.s1" })
     }
+
+    func testNotificationKinds() {
+        XCTAssertTrue(AgentHub.asksForYou(kind: nil))
+        XCTAssertTrue(AgentHub.asksForYou(kind: "permission_prompt"))
+        XCTAssertTrue(AgentHub.asksForYou(kind: "elicitation_dialog"))
+        XCTAssertTrue(AgentHub.asksForYou(kind: "ToolPermission"))
+        for k in ["idle_prompt", "agent_idle", "agent_completed", "shell_completed", "shell_detached_completed", "auth_success"] {
+            XCTAssertFalse(AgentHub.asksForYou(kind: k), k)
+        }
+        // O Copilot avisa que um comando terminou: não é pedido de atenção
+        let hub = AgentHub.shared
+        hub.handle(["agent": "copilot", "event": "userPromptSubmitted", "session": "c1"])
+        hub.handle(["agent": "copilot", "event": "Notification", "session": "c1", "kind": "shell_completed", "message": "Shell completed"])
+        XCTAssertEqual(hub.sessions.first { $0.id == "copilot.c1" }?.state, .working)
+        hub.handle(["agent": "copilot", "event": "Notification", "session": "c1", "kind": "permission_prompt", "message": "Permission needed"])
+        XCTAssertEqual(hub.sessions.first { $0.id == "copilot.c1" }?.state, .waiting)
+        hub.handle(["agent": "copilot", "event": "sessionEnd", "session": "c1"])
+    }
+
+    /// O Kiro não avisa quando pede permissão: a ferramenta começou, parou e nada roda por ela
+    func testKiroStalledToolMeansWaiting() {
+        let hub = AgentHub.shared
+        let t0 = Date()
+        let pid: pid_t = 900_001
+        func entry(_ p: pid_t, _ parent: pid_t, _ start: Date, _ name: String) -> ProcessTree.Entry {
+            ProcessTree.Entry(pid: p, parent: parent, start: start, name: name)
+        }
+        let old = t0.addingTimeInterval(-600)
+        let base = [entry(pid, 1, old, "kiro-cli"), entry(900_002, pid, old, "bun"), entry(900_003, 900_002, old, "node"),
+                    entry(900_004, 900_003, old, "npm")]
+        hub.handle(["agent": "kiro", "event": "UserPromptSubmit", "session": "k1", "pid": String(pid)], now: t0)
+        hub.handle(["agent": "kiro", "event": "PreToolUse", "session": "k1", "pid": String(pid), "tool": "@atlassian/getJiraIssue"], now: t0)
+        func state() -> AgentSession? { hub.sessions.first { $0.id == "kiro.k1" } }
+
+        // Cedo demais para dizer
+        hub.checkStalled(now: t0.addingTimeInterval(3), table: base)
+        XCTAssertEqual(state()?.state, .working)
+        // Só os ajudantes do próprio agente e o hook do Menew rodaram depois: espera você
+        let helpers = base + [entry(900_010, pid, t0.addingTimeInterval(2), "kiro-cli"), entry(900_011, 900_003, t0, "Menew")]
+        hub.checkStalled(now: t0.addingTimeInterval(12), table: helpers)
+        XCTAssertEqual(state()?.state, .waiting)
+        XCTAssertEqual(state()?.guessed, true)
+        // Você aprovou e o comando começou
+        hub.checkStalled(now: t0.addingTimeInterval(15), table: base + [entry(900_020, 900_003, t0.addingTimeInterval(14), "zsh")])
+        XCTAssertEqual(state()?.state, .working)
+        // A ferramenta terminou: não volta a "esperando" mesmo sem processo
+        hub.handle(["agent": "kiro", "event": "PostToolUse", "session": "k1", "pid": String(pid)], now: t0.addingTimeInterval(20))
+        hub.checkStalled(now: t0.addingTimeInterval(40), table: base)
+        XCTAssertEqual(state()?.state, .working)
+
+        // Um comando que roda há muito tempo não é uma permissão
+        hub.handle(["agent": "kiro", "event": "PreToolUse", "session": "k1", "pid": String(pid), "tool": "shell"], now: t0.addingTimeInterval(50))
+        hub.checkStalled(now: t0.addingTimeInterval(90), table: base + [entry(900_030, 900_003, t0.addingTimeInterval(50.5), "zsh")])
+        XCTAssertEqual(state()?.state, .working)
+        // O Claude avisa sozinho: nada de deduzir
+        hub.handle(["agent": "claude", "event": "PreToolUse", "session": "s9", "pid": String(pid), "tool": "Bash"], now: t0)
+        hub.checkStalled(now: t0.addingTimeInterval(60), table: base)
+        XCTAssertEqual(hub.sessions.first { $0.id == "claude.s9" }?.state, .working)
+        hub.handle(["agent": "kiro", "event": "SessionEnd", "session": "k1"])
+        hub.handle(["agent": "claude", "event": "SessionEnd", "session": "s9"])
+    }
 }
 
 @MainActor

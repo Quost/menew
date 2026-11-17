@@ -121,6 +121,41 @@ enum ProcessTree {
     }
 
     static func isAlive(_ pid: pid_t) -> Bool { kill(pid, 0) == 0 || errno == EPERM }
+
+    struct Entry { let pid: pid_t; let parent: pid_t; let start: Date; let name: String }
+
+    /// Todos os processos de uma vez: o pai, quando começou e o nome curto
+    static func table() -> [Entry] {
+        var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0]
+        var size = 0
+        guard sysctl(&mib, 4, nil, &size, nil, 0) == 0, size > 0 else { return [] }
+        // Folga para os processos que nascem entre as duas chamadas
+        size += size / 8
+        var procs = [kinfo_proc](repeating: kinfo_proc(), count: size / MemoryLayout<kinfo_proc>.stride)
+        guard sysctl(&mib, 4, &procs, &size, nil, 0) == 0 else { return [] }
+        return procs.prefix(size / MemoryLayout<kinfo_proc>.stride).map { p in
+            let tv = p.kp_proc.p_starttime
+            let name = withUnsafePointer(to: p.kp_proc.p_comm) {
+                $0.withMemoryRebound(to: CChar.self, capacity: Int(MAXCOMLEN) + 1) { String(cString: $0) }
+            }
+            return Entry(pid: p.kp_proc.p_pid, parent: p.kp_eproc.e_ppid,
+                         start: Date(timeIntervalSince1970: TimeInterval(tv.tv_sec) + TimeInterval(tv.tv_usec) / 1e6), name: name)
+        }
+    }
+
+    /// Os processos abaixo de `root`, em qualquer nível
+    static func descendants(of root: pid_t, in table: [Entry]) -> [Entry] {
+        let children = Dictionary(grouping: table, by: \.parent)
+        var out: [Entry] = []
+        var queue = [root]
+        while let p = queue.popLast(), out.count < 4096 {
+            for c in children[p] ?? [] where c.pid != root {
+                out.append(c)
+                queue.append(c.pid)
+            }
+        }
+        return out
+    }
 }
 
 /// Os agentes rodando agora, pela lista de processos (para quem ainda não ligou os hooks)
@@ -220,6 +255,10 @@ struct AgentSession: Identifiable, Equatable {
     var updated: Date
     /// Veio dos hooks (sabe o estado) ou só da lista de processos (sabe que está rodando)
     var fromHooks = true
+    /// Desde quando a ferramenta de agora espera terminar (um "antes da ferramenta" sem o "depois")
+    var toolSince: Date?
+    /// "Esperando você" deduzido (a ferramenta parada sem nada rodando), não avisado pelo agente
+    var guessed = false
 
     var project: String { AgentDates.project(cwd) }
 
@@ -229,6 +268,7 @@ struct AgentSession: Identifiable, Equatable {
 
     /// O que dizer quando espera você: o pedido de permissão com o passo, ou que espera uma resposta
     var waitingText: String {
+        if guessed { return step.map { L("Parece esperar sua aprovação: %@", $0) } ?? L("Parece esperar sua aprovação") }
         let m = (message ?? "").lowercased()
         if m.contains("permission") || m.contains("approv") || m.contains("permiss") {
             return step.map { L("Pede permissão: %@", $0) } ?? L("Pede sua permissão")
@@ -267,6 +307,7 @@ final class AgentHub: ObservableObject {
     @Published private(set) var processes: [AgentProcesses.Found] = []
     private var observer: NSObjectProtocol?
     private var timer: Timer?
+    private var stallTimer: Timer?
     private var demo = false
     var isVisible = false { didSet { if isVisible { scanProcesses() } } }
 
@@ -308,6 +349,61 @@ final class AgentHub: ObservableObject {
         // Pi, OpenCode e Amp avisam por um arquivo que o plugin do Menew escreve
         AgentEventFiles.shared.start()
         timer?.tolerance = 3
+        stallTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true) { _ in
+            MainActor.assumeIsolated { AgentHub.shared.checkStalled() }
+        }
+        stallTimer?.tolerance = 1
+    }
+
+    /// Uma ferramenta que não terminou depois disso, sem nenhum processo rodando por ela, está esperando sua aprovação
+    static let stallAfter: TimeInterval = 10
+
+    /// Quem não avisa quando pede permissão (o Kiro, o Pi com uma extensão que pergunta) começa a ferramenta e para,
+    /// esperando você. Sem um processo novo abaixo do agente desde que a ferramenta começou, está parado na pergunta.
+    func checkStalled(now: Date = Date(), table: [ProcessTree.Entry]? = nil) {
+        guard !demo else { return }
+        let candidates = sessions.indices.filter { i in
+            let s = sessions[i]
+            guard let since = s.toolSince, s.pid != nil, !AgentHooks.reportsPermission(s.agent) else { return false }
+            if s.state == .waiting { return s.guessed }
+            // Um subagente trabalha dentro do próprio agente, sem processo novo
+            return s.state == .working && now.timeIntervalSince(since) >= Self.stallAfter && AgentStep.kind(s.tool ?? "").icon != "person.2"
+                && !(s.tool ?? "").lowercased().contains("subagent")
+        }
+        guard !candidates.isEmpty else { return }
+        let table = table ?? ProcessTree.table()
+        var changed = false
+        for i in candidates {
+            var s = sessions[i]
+            guard let pid = s.pid, let since = s.toolSince else { continue }
+            let busy = Self.runsTool(under: pid, since: since, agent: s.agent, table: table)
+            if s.state == .working, !busy {
+                s.state = .waiting
+                s.guessed = true
+                s.message = nil
+            } else if s.state == .waiting, busy {
+                // Você aprovou e o comando começou
+                s.state = .working
+                s.guessed = false
+            } else { continue }
+            let before = sessions[i].state
+            sessions[i] = s
+            changed = true
+            announce(s, from: before, now: now)
+        }
+        if changed { NotchCenter.shared.update() }
+    }
+
+    /// Há um processo abaixo do agente que começou junto com a ferramenta ou depois (o comando que ela roda)?
+    /// Não contam os hooks do próprio Menew nem os ajudantes do agente (o Kiro roda `kiro-cli` de tempos em tempos).
+    nonisolated static func runsTool(under pid: pid_t, since: Date, agent: AgentKind, table: [ProcessTree.Entry]) -> Bool {
+        ProcessTree.descendants(of: pid, in: table).contains { p in
+            guard p.start >= since.addingTimeInterval(-1) else { return false }
+            let n = p.name
+            if n == "Menew" { return false }
+            if AgentProcesses.matches(n, agent: agent.rawValue), n != "node", n != "bun" { return false }
+            return true
+        }
     }
 
     /// Um evento de hook. Os nomes variam: SessionStart, UserPromptSubmit, PreToolUse, Notification, Stop (Claude e Codex);
@@ -345,9 +441,10 @@ final class AgentHub: ObservableObject {
             s.message = nil
             if let t = info["tool"] { s.tool = t; s.detail = info["detail"] }
         case "notification", "permissionrequest":
-            // "Esperando sua resposta" depois de um tempo parado não é um pedido novo
-            if ["idle_prompt", "agent_idle", "agent_complete"].contains(info["kind"] ?? "") || (s.state == .done && e == "notification") { break }
+            // "Esperando sua resposta" depois de um tempo parado não é um pedido novo; nem "o comando terminou"
+            if !Self.asksForYou(kind: info["kind"]) || (s.state == .done && e == "notification") { break }
             s.state = .waiting
+            s.guessed = false
             s.message = info["message"]
             if let t = info["tool"] { s.tool = t; s.detail = info["detail"] }
         case "stop", "afteragent", "agentstop":
@@ -356,9 +453,21 @@ final class AgentHub: ObservableObject {
         default:
             break
         }
+        // A ferramenta começou e ainda não terminou: se parar, é uma permissão (veja checkStalled)
+        if e == "pretooluse" || e == "beforetool" { s.toolSince = now } else if e != "notification" { s.toolSince = nil }
+        if s.state != .waiting { s.guessed = false }
         if let i = sessions.firstIndex(where: { $0.id == sid }) { sessions[i] = s } else { sessions.append(s) }
         if s.state != before { announce(s, from: before, now: now) }
         NotchCenter.shared.update()
+    }
+
+    /// O tipo do aviso pede você? Permissão e pergunta, sim; "parado esperando", "terminou", "login feito", não.
+    /// Claude: permission_prompt, idle_prompt, auth_success, elicitation_dialog. Copilot: permission_prompt,
+    /// elicitation_dialog, agent_idle, agent_completed, shell_completed, shell_detached_completed. Gemini: ToolPermission.
+    nonisolated static func asksForYou(kind: String?) -> Bool {
+        guard let k = kind?.lowercased(), !k.isEmpty else { return true }
+        if k.contains("permission") || k.contains("elicitation") { return true }
+        return !(k.contains("idle") || k.contains("complet") || k.contains("auth"))
     }
 
     private func announce(_ s: AgentSession, from: AgentSession.State, now: Date) {
@@ -494,6 +603,12 @@ enum AgentHooks {
         case .kiro: ["SessionStart", "UserPromptSubmit", "PreToolUse", "PostToolUse", "Stop", "SessionEnd"]
         default: []
         }
+    }
+
+    /// Os que avisam por hook quando pedem sua permissão. Nos outros (Kiro, Pi), o Menew deduz: a ferramenta começou e
+    /// parou sem nada rodando. Cursor e Amp não mandam o "antes da ferramenta" sem decidir por ele, então não dá para saber.
+    static func reportsPermission(_ a: AgentKind) -> Bool {
+        [.claude, .codex, .gemini, .qwen, .droid, .copilot, .opencode].contains(a)
     }
 
     static var executable: String { Bundle.main.executablePath ?? "/Applications/Menew.app/Contents/MacOS/Menew" }

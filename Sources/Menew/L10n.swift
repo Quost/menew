@@ -1973,6 +1973,8 @@ private let table: [String: [String]] = [
     "Sem.": ["Wk", "Wo.", "Sem.", "周"],
     "Pede permissão: %@": ["Needs permission: %@", "Braucht Freigabe: %@", "Pide permiso: %@", "需要权限：%@"],
     "Pede sua permissão": ["Needs your permission", "Braucht deine Freigabe", "Pide tu permiso", "需要你的授权"],
+    "Parece esperar sua aprovação: %@": ["Seems to need your approval: %@", "Wartet wohl auf deine Freigabe: %@", "Parece esperar tu aprobación: %@", "似乎在等你批准：%@"],
+    "Parece esperar sua aprovação": ["Seems to need your approval", "Wartet wohl auf deine Freigabe", "Parece esperar tu aprobación", "似乎在等你批准"],
     "Espera sua resposta": ["Waiting for your answer", "Wartet auf deine Antwort", "Espera tu respuesta", "等待你的回复"],
     "%@ precisa de você · %@": ["%@ needs you · %@", "%@ braucht dich · %@", "%@ te necesita · %@", "%@ 需要你 · %@"],
     "levou %@": ["took %@", "dauerte %@", "tardó %@", "用时 %@"],
