@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths: ["docs/**", "site/**", "scripts/build-site.py", "firebase.json", ".firebaserc", ".github/workflows/site.yml"]
   workflow_dispatch:
+  # A página /linux vem do repositório menew-linux: lá, um workflow dispara este evento a cada release publicada
+  # e a cada mudança em site/ ou docs/assets/ da main (Quost/menew-linux, .github/workflows/site-sync.yml)
+  repository_dispatch:
+    types: [menew-linux-site]
 
 permissions:
   contents: read
@@ -26,7 +30,9 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # a data de atualização do site vem do histórico (scripts/build-site.py)
-      # As páginas de docs/ são geradas a partir de site/; não publica se estiverem desatualizadas
+      # As páginas de docs/ são geradas a partir de site/; não publica se estiverem desatualizadas.
+      # A página /linux (docs/linux, docs/*/linux e docs/assets/linux) fica fora do git: o build a gera aqui,
+      # com um clone raso da main do menew-linux, e o deploy publica o que estiver em docs/ depois do build.
       - name: Conferir páginas geradas
         run: |
           python3 scripts/build-site.py

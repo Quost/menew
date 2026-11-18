@@ -2,12 +2,15 @@
 """Gera o site (docs/) em todos os idiomas a partir de site/template.html e site/i18n/*.json.
 
     python3 scripts/build-site.py
+    MENEW_LINUX_DIR=../menew-linux python3 scripts/build-site.py   # usa uma cópia local do menew-linux, sem rede
 
 Inglês fica em docs/index.html; os outros em docs/<idioma>/index.html.
 Edite o modelo e os textos, nunca os HTML gerados.
+A página /linux é a exceção: os textos (site/linux.json) e as capturas (docs/assets/) vêm do repositório
+Quost/menew-linux (clone raso da main, ou a pasta de MENEW_LINUX_DIR), e as páginas geradas ficam fora do git.
 As imagens de prévia de links (docs/assets/og) saem de: swift scripts/make-og.swift
 """
-import datetime, html as htmllib, json, re, shutil, subprocess
+import atexit, datetime, html as htmllib, json, os, re, shutil, subprocess, tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -288,7 +291,34 @@ print("docs/vs/ (" + str(len(COMPARE)) + " comparações)")
 
 # Página /linux (Menew para Linux), nos 5 idiomas: site/linux.html + site/linux.json
 # O CSS é o da página principal (lido do template); só o que é específico do Linux fica em site/linux.html
-LINUX = json.loads((ROOT / "site/linux.json").read_text())
+# Os textos e as capturas pertencem ao repositório menew-linux: clone raso da main, ou MENEW_LINUX_DIR (testes locais)
+LINUX_REPO = "https://github.com/Quost/menew-linux"
+
+def linux_source():
+    local = os.environ.get("MENEW_LINUX_DIR")
+    if local:
+        return Path(local).expanduser().resolve()
+    tmp = tempfile.mkdtemp(prefix="menew-linux-")
+    atexit.register(shutil.rmtree, tmp, True)
+    # MENEW_LINUX_REPO troca a origem do clone (um caminho ou URL), para testar sem mexer na main do menew-linux
+    subprocess.run(["git", "clone", "--quiet", "--depth", "1", "--branch", "main", os.environ.get("MENEW_LINUX_REPO", LINUX_REPO), tmp], check=True)
+    return Path(tmp)
+
+LINUX_SRC = linux_source()
+LINUX = json.loads((LINUX_SRC / "site/linux.json").read_text(encoding="utf-8"))
+# Versão que o texto estático mostra (sem JS ou com a API fora do ar); a página atualiza sozinha ao carregar
+LINUX_VERSION = re.search(r'^version = "([^"]+)"', (LINUX_SRC / "Cargo.toml").read_text(encoding="utf-8"), re.M).group(1)
+LINUX_PRE = "-" in LINUX_VERSION
+LINUX_RELEASE_URL = f"{LINUX_REPO}/releases/tag/v{LINUX_VERSION}"
+# Capturas do menew-linux (docs/assets/*.png em inglês, docs/assets/<idioma>/*.png) para docs/assets/linux/ (fora do git)
+LINUX_ASSETS = ROOT / "docs/assets/linux"
+shutil.rmtree(LINUX_ASSETS, ignore_errors=True)
+for png in sorted((LINUX_SRC / "docs/assets").glob("*.png")) + sorted((LINUX_SRC / "docs/assets").glob("*/*.png")):
+    if png.name == "icon.png":
+        continue
+    dest = LINUX_ASSETS / png.relative_to(LINUX_SRC / "docs/assets")
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(png, dest)
 linux_tpl = (ROOT / "site/linux.html").read_text()
 STYLE = re.search(r"<style>\n(.*?)</style>", template, re.S).group(1)
 
@@ -297,8 +327,8 @@ def linux_url(lang):
 
 linux_hreflang = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{linux_url(c)}">' for c in LANGS)
 linux_hreflang += f'\n<link rel="alternate" hreflang="x-default" href="{linux_url("en")}">'
-LINUX_REPO = "https://github.com/Quost/menew-linux"
 N_PC = N_CC = 8
+N_TOOLS = 6
 N_NEXT = 5
 
 def cards(texts, prefix, n):
@@ -312,18 +342,18 @@ for lang in LANGS:
     shots = "/assets/linux" if lang == "en" else f"/assets/linux/{lang}"
     page_url = linux_url(lang)
     feats = [plain(t[f"pc{i}_t"]) + ": " + plain(t[f"pc{i}_d"]) for i in range(1, N_PC + 1)] \
-          + [plain(t[f"cc{i}_t"]) + ": " + plain(t[f"cc{i}_d"]) for i in range(1, N_CC + 1)]
+          + [plain(t[f"cc{i}_t"]) + ": " + plain(t[f"cc{i}_d"]) for i in range(1, N_CC + 1)]           + [plain(t[f"tl{i}_t"]) + ": " + plain(t[f"tl{i}_d"]) for i in range(1, N_TOOLS + 1)]
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebPage", "name": plain(t["title"]), "url": page_url, "description": htmllib.unescape(t["meta_desc"]),
          "inLanguage": LANGS[lang][0], "dateModified": UPDATED,
          "isPartOf": {"@type": "WebSite", "name": "Menew", "url": url(lang)}},
         {"@type": "SoftwareApplication", "name": "Menew for Linux", "alternateName": ["Menew Linux", "Quost Menew for Linux"],
-         "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Quost. In development, no release yet. Not related to Linx Menew, a restaurant point-of-sale system.",
+         "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Quost. Early preview releases for testers. Not related to Linx Menew, a restaurant point-of-sale system.",
          "url": page_url, "description": htmllib.unescape(t["meta_desc"]), "inLanguage": LANGS[lang][0],
          "operatingSystem": "Linux", "applicationCategory": "UtilitiesApplication",
          "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
          "image": f"{SITE}/assets/og/{lang}.png",
-         "screenshot": [f"{SITE}{shots}/{n}-dark.png" for n in ("palette", "palette-conversion", "clipboard", "clipboard-images")],
+         "screenshot": [f"{SITE}{shots}/{n}-dark.png" for n in ("palette", "palette-conversion", "clipboard", "clipboard-images", "capture-editor", "monitor")],
          "featureList": feats, "license": "https://www.gnu.org/licenses/gpl-3.0.html", "isAccessibleForFree": True,
          "author": {"@type": "Person", "name": "Quost"},
          "sameAs": [LINUX_REPO], "isBasedOn": {"@type": "SoftwareApplication", "name": "Menew", "operatingSystem": "macOS", "url": url(lang)}},
@@ -340,7 +370,9 @@ for lang in LANGS:
         "lang_switch": switch(lang, lang_paths("linux")),
         "jsonld": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
         "analytics": ANALYTICS, "style": STYLE,
-        "palette_cards": cards(t, "pc", N_PC), "clipboard_cards": cards(t, "cc", N_CC), "next_cards": cards(t, "n", N_NEXT),
+        "palette_cards": cards(t, "pc", N_PC), "clipboard_cards": cards(t, "cc", N_CC), "tools_cards": cards(t, "tl", N_TOOLS),
+        "release_url": LINUX_RELEASE_URL, "release_version": "v" + LINUX_VERSION,
+        "badge_label": t["badge_pre"] if LINUX_PRE else t["badge_stable"], "next_cards": cards(t, "n", N_NEXT),
         **{k: home[k] for k in ("star", "license", "made_by", "site_stats", "sponsor_button", "coffee_text", "coffee_button",
                                 "footer_bug", "footer_contribute")},
     })
@@ -351,6 +383,10 @@ for lang in LANGS:
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page)
     print(f"linux {lang}: {out.relative_to(ROOT)}")
+    # Todo src/srcset/href local da página precisa existir em docs/ (as capturas vieram do menew-linux)
+    for ref in re.findall(r'(?:src|href)="(/(?!/)[^"#?]*)"', page):
+        target = ROOT / "docs" / ref.lstrip("/")
+        assert target.exists() or (target / "index.html").exists() or ref.rstrip("/") in ("", f"/{lang}"), f"linux {lang}: {ref} não existe em docs/"
 
 # Mapa do site (com as versões em cada idioma) e robots.txt para os buscadores
 alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}"/>' for c in LANGS)
@@ -397,7 +433,7 @@ lines = [
     "## Links", "",
     f"- Website: {SITE}/ (also in Portuguese, German, Spanish and Chinese: {SITE}/pt, {SITE}/de, {SITE}/es, {SITE}/zh)",
     "- Source code and README: https://github.com/Quost/menew",
-    f"- Menew for Linux (in development, no release yet: command palette and clipboard history for GNOME and KDE Plasma): {SITE}/linux (also {SITE}/pt/linux, {SITE}/de/linux, {SITE}/es/linux, {SITE}/zh/linux); source: https://github.com/Quost/menew-linux",
+    f"- Menew for Linux (early preview releases for testers: command palette, clipboard history, notes, screenshots, QR codes and system monitor for GNOME and KDE Plasma): {SITE}/linux (also {SITE}/pt/linux, {SITE}/de/linux, {SITE}/es/linux, {SITE}/zh/linux); source: https://github.com/Quost/menew-linux",
     *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}" for slug, c in COMPARE.items()],
     "- Releases and changelog: https://github.com/Quost/menew/releases",
 ]

@@ -56,6 +56,7 @@
     <div class="nav-links">
       <a class="text" href="#palette">{{nav_palette}}</a>
       <a class="text" href="#clipboard">{{nav_clipboard}}</a>
+      <a class="text" href="#tools">{{nav_tools}}</a>
       <a class="text" href="#requirements">{{nav_requirements}}</a>
       {{lang_switch}}
       <a class="btn small star-btn" data-goatcounter-click="linux-github-nav" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
@@ -70,13 +71,14 @@
   <div class="linux-top"></div>
   <div class="desk-body linux">
     <div>
-      <a class="badge" data-goatcounter-click="linux-status-badge" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">
-        <b>{{badge_new}}</b> {{badge}}
+      <a class="badge" id="rel-badge" data-goatcounter-click="linux-release-badge" data-rel-link href="{{release_url}}" target="_blank" rel="noopener" data-pre="{{badge_pre}}" data-stable="{{badge_stable}}">
+        <b>{{badge_label}}</b> <span data-rel-version>{{release_version}}</span>
       </a>
       <h1>{{h1}}</h1>
       <p class="lead">{{lead}}</p>
       <div class="cta">
-        <a class="btn primary" data-goatcounter-click="linux-github-hero" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+        <a class="btn primary" data-goatcounter-click="linux-download-hero" data-rel-link href="{{release_url}}" target="_blank" rel="noopener">{{cta_download}} <span data-rel-version>{{release_version}}</span></a>
+        <a class="btn ghost" data-goatcounter-click="linux-github-hero" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
           <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
           {{cta_github}}<span class="count" data-stars hidden></span>
         </a>
@@ -165,6 +167,43 @@
   </div>
 </section>
 
+<section id="tools">
+  <div class="wrap">
+    <div class="split">
+      <div class="copy reveal">
+        <div class="eyebrow">{{tools_eyebrow}}</div>
+        <h2>{{tools_h2}}</h2>
+        <p class="sub">{{tools_sub}}</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>S</kbd> {{key_capture}}</span>
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Shift</kbd><kbd>T</kbd> {{key_ocr}}</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <img class="shot light-only" src="{{shots}}/capture-editor-light.png" alt="{{alt_capture}}">
+        <img class="shot dark-only" src="{{shots}}/capture-editor-dark.png" alt="{{alt_capture}}">
+      </div>
+    </div>
+    <div class="lshots reveal">
+      <div>
+        <img class="shot light-only" src="{{shots}}/qr-code-light.png" alt="{{alt_qr}}">
+        <img class="shot dark-only" src="{{shots}}/qr-code-dark.png" alt="{{alt_qr}}">
+      </div>
+      <div>
+        <img class="shot light-only" src="{{shots}}/qr-wifi-light.png" alt="{{alt_wifi}}">
+        <img class="shot dark-only" src="{{shots}}/qr-wifi-dark.png" alt="{{alt_wifi}}">
+      </div>
+      <div>
+        <img class="shot light-only" src="{{shots}}/monitor-light.png" alt="{{alt_monitor}}">
+        <img class="shot dark-only" src="{{shots}}/monitor-dark.png" alt="{{alt_monitor}}">
+      </div>
+    </div>
+    <div class="grid">
+{{tools_cards}}
+    </div>
+  </div>
+</section>
+
 <section id="next">
   <div class="wrap">
     <div class="center reveal">
@@ -238,7 +277,8 @@
     <h2>{{final_h2}}</h2>
     <p class="sub" style="margin:0 auto">{{final_sub}}</p>
     <div class="cta" style="margin-top:28px;justify-content:center">
-      <a class="btn primary" data-goatcounter-click="linux-github-final" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">{{cta_github}}<span class="count" data-stars hidden></span></a>
+      <a class="btn primary" data-goatcounter-click="linux-download-final" data-rel-link href="{{release_url}}" target="_blank" rel="noopener">{{cta_download}} <span data-rel-version>{{release_version}}</span></a>
+      <a class="btn ghost" data-goatcounter-click="linux-github-final" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">{{cta_github}}<span class="count" data-stars hidden></span></a>
       <a class="btn ghost" data-goatcounter-click="linux-mac-final" href="{{home}}">{{cta_mac}}</a>
     </div>
     <div class="coffee on">
@@ -265,6 +305,15 @@
   fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
     if (!repo) return;
     document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+  // Versão mais recente (inclui pré-lançamentos), lida na hora; sem JS ou se a API falhar, fica o texto gerado no build
+  fetch(`https://api.github.com/repos/${REPO}/releases?per_page=5`).then(r => r.ok ? r.json() : null).then(list => {
+    const rel = Array.isArray(list) && list.find(x => !x.draft && x.tag_name && x.html_url);
+    if (!rel) return;
+    const badge = document.getElementById("rel-badge");
+    badge.querySelector("b").textContent = rel.prerelease ? badge.dataset.pre : badge.dataset.stable;
+    document.querySelectorAll("[data-rel-version]").forEach(el => { el.textContent = "v" + rel.tag_name.replace(/^v/, ""); });
+    document.querySelectorAll("[data-rel-link]").forEach(el => { el.href = rel.html_url; });
   }).catch(() => {});
   const io = new IntersectionObserver(entries => entries.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
