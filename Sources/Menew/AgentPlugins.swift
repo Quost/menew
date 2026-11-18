@@ -97,6 +97,7 @@ enum AgentPlugins {
               pi.on("session_start", () => send("SessionStart"));
               pi.on("input", (e) => { send("UserPromptSubmit", undefined, { prompt: text(e?.text ?? e?.input ?? e?.prompt ?? e) }); });
               pi.on("tool_execution_start", (e) => send("PreToolUse", undefined, { tool_name: e?.toolName ?? e?.name ?? e?.tool, tool_input: e?.args ?? e?.input ?? {} }));
+              pi.on("tool_execution_end", (e) => send("PostToolUse", undefined, { tool_name: e?.toolName ?? e?.name ?? e?.tool }));
               pi.on("agent_settled", () => send("Stop"));
               pi.on("session_shutdown", () => send("SessionEnd"));
             }
@@ -111,10 +112,15 @@ enum AgentPlugins {
               "tool.execute.before": async (input, output) => {
                 send("PreToolUse", input?.sessionID, { cwd: directory, tool_name: input?.tool, tool_input: output?.args ?? {} });
               },
+              "tool.execute.after": async (input) => {
+                send("PostToolUse", input?.sessionID, { cwd: directory, tool_name: input?.tool });
+              },
               event: async ({ event }) => {
                 const sid = event?.properties?.sessionID ?? event?.properties?.info?.sessionID;
                 if (event?.type === "session.idle") send("Stop", sid, { cwd: directory });
                 else if (event?.type === "permission.updated" || event?.type === "permission.asked") send("Notification", sid, { cwd: directory, message: "Needs your permission" });
+                // Você respondeu: volta a trabalhar (senão ficaria "esperando" até a próxima ferramenta)
+                else if (event?.type === "permission.replied") send("PostToolUse", sid, { cwd: directory });
                 else if (event?.type === "session.deleted") send("SessionEnd", sid, { cwd: directory });
               },
             });

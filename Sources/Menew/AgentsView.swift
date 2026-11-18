@@ -78,8 +78,8 @@ struct AgentsView: View {
                 }
                 if let b = usage.blocked(s) {
                     Label(b.text, systemImage: "xmark.octagon.fill").font(.system(size: 11.5, weight: .medium)).foregroundStyle(.red).lineLimit(1)
-                } else if let m = s.message, s.state == .waiting {
-                    Text(m).font(.system(size: 11.5)).foregroundStyle(.secondary).lineLimit(1)
+                } else if s.state == .waiting {
+                    Text(s.waitingText).font(.system(size: 11.5)).foregroundStyle(.secondary).lineLimit(1)
                 } else if let c = s.cwd {
                     Text(c.replacingOccurrences(of: NSHomeDirectory(), with: "~")).font(.system(size: 11)).foregroundStyle(.tertiary).lineLimit(1).truncationMode(.middle)
                 }
