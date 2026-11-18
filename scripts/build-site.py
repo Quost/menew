@@ -101,9 +101,13 @@ DETECT = """<script>
   })();
 </script>"""
 
-LANG_PATHS = "{" + ",".join(f"{c}:'" + ("/" if c == "en" else f"/{c}") + "'" for c in LANGS) + "}"
+def lang_paths(page=""):
+    """Endereço de cada idioma ('' = página principal, 'linux' = a página do Linux)"""
+    return "{" + ",".join(f"{c}:'" + (f"/{page}" if c == "en" else f"/{c}" + (f"/{page}" if page else "")) + "'" for c in LANGS) + "}"
 
-def switch(current):
+LANG_PATHS = lang_paths()
+
+def switch(current, paths=None):
     options = "".join(
         f'<option value="{code}"{" selected" if code == current else ""}>{name}</option>'
         for code, (_, name) in LANGS.items())
@@ -111,7 +115,7 @@ def switch(current):
             "try{localStorage.setItem('menew-lang',this.value)}catch(e){}"
             "try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}"
             # Endereços fixos: o valor do <select> nunca vira URL direto (alerta do CodeQL)
-            "var u=" + LANG_PATHS + "[this.value];if(u)location.href=u\">" + options + "</select>")
+            "var u=" + (paths or LANG_PATHS) + "[this.value];if(u)location.href=u\">" + options + "</select>")
 
 # "Alternativa a X" como as pessoas buscam em cada idioma
 ALT = {"en": "alternative", "pt": "alternativa", "de": "Alternative", "es": "alternativa", "zh": "替代"}
@@ -210,6 +214,7 @@ for lang in LANGS:
         "og_image": f"{SITE}/assets/og/{lang}.png",
         "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
         "lang_switch": switch(lang),
+        "linux_path": "/linux" if lang == "en" else f"/{lang}/linux",
         "jsonld": jsonld(lang, texts),
         **{f"f{i}_d_fold": fold(texts[f"f{i}_d"], texts["more"]) for i in range(1, 7)},
         **{f"act_l{i}_fold": "<div>" + fold(texts[f"act_l{i}"], texts["more"], "span") + "</div>" for i in range(1, 11)},
@@ -281,28 +286,85 @@ index += ('<main class="wrap"><header><div class="eyebrow">Comparisons</div><h1>
 (ROOT / "docs/vs/index.html").write_text(index)
 print("docs/vs/ (" + str(len(COMPARE)) + " comparações)")
 
+# Página /linux (Menew para Linux), nos 5 idiomas: site/linux.html + site/linux.json
+# O CSS é o da página principal (lido do template); só o que é específico do Linux fica em site/linux.html
+LINUX = json.loads((ROOT / "site/linux.json").read_text())
+linux_tpl = (ROOT / "site/linux.html").read_text()
+STYLE = re.search(r"<style>\n(.*?)</style>", template, re.S).group(1)
+
+def linux_url(lang):
+    return f"{SITE}/linux" if lang == "en" else f"{SITE}/{lang}/linux"
+
+linux_hreflang = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{linux_url(c)}">' for c in LANGS)
+linux_hreflang += f'\n<link rel="alternate" hreflang="x-default" href="{linux_url("en")}">'
+LINUX_REPO = "https://github.com/Quost/menew-linux"
+N_PC = N_CC = 8
+N_NEXT = 5
+
+def cards(texts, prefix, n):
+    return "\n".join(f'      <div class="feature reveal"><h3>{texts[f"{prefix}{i}_t"]}</h3><p>{texts[f"{prefix}{i}_d"]}</p></div>'
+                     for i in range(1, n + 1))
+
+for lang in LANGS:
+    t = LINUX[lang]
+    home = json.loads((ROOT / f"site/i18n/{lang}.json").read_text())
+    assert not (set(LINUX["en"]) - set(t)), f"linux {lang}: faltam {sorted(set(LINUX['en']) - set(t))}"
+    shots = "/assets/linux" if lang == "en" else f"/assets/linux/{lang}"
+    page_url = linux_url(lang)
+    feats = [plain(t[f"pc{i}_t"]) + ": " + plain(t[f"pc{i}_d"]) for i in range(1, N_PC + 1)] \
+          + [plain(t[f"cc{i}_t"]) + ": " + plain(t[f"cc{i}_d"]) for i in range(1, N_CC + 1)]
+    ld = {"@context": "https://schema.org", "@graph": [
+        {"@type": "WebPage", "name": plain(t["title"]), "url": page_url, "description": htmllib.unescape(t["meta_desc"]),
+         "inLanguage": LANGS[lang][0], "dateModified": UPDATED,
+         "isPartOf": {"@type": "WebSite", "name": "Menew", "url": url(lang)}},
+        {"@type": "SoftwareApplication", "name": "Menew for Linux", "alternateName": ["Menew Linux", "Quost Menew for Linux"],
+         "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Quost. In development, no release yet. Not related to Linx Menew, a restaurant point-of-sale system.",
+         "url": page_url, "description": htmllib.unescape(t["meta_desc"]), "inLanguage": LANGS[lang][0],
+         "operatingSystem": "Linux", "applicationCategory": "UtilitiesApplication",
+         "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+         "image": f"{SITE}/assets/og/{lang}.png",
+         "screenshot": [f"{SITE}{shots}/{n}-dark.png" for n in ("palette", "palette-conversion", "clipboard", "clipboard-images")],
+         "featureList": feats, "license": "https://www.gnu.org/licenses/gpl-3.0.html", "isAccessibleForFree": True,
+         "author": {"@type": "Person", "name": "Quost"},
+         "sameAs": [LINUX_REPO], "isBasedOn": {"@type": "SoftwareApplication", "name": "Menew", "operatingSystem": "macOS", "url": url(lang)}},
+        {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Menew", "item": url(lang)},
+            {"@type": "ListItem", "position": 2, "name": "Linux", "item": page_url}]},
+    ]}
+    values = dict(t)
+    values.update({
+        "html_lang": LANGS[lang][0], "url": page_url, "hreflang": linux_hreflang, "shots": shots,
+        "home": "/" if lang == "en" else f"/{lang}",
+        "og_image": f"{SITE}/assets/og/{lang}.png",
+        "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
+        "lang_switch": switch(lang, lang_paths("linux")),
+        "jsonld": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
+        "analytics": ANALYTICS, "style": STYLE,
+        "palette_cards": cards(t, "pc", N_PC), "clipboard_cards": cards(t, "cc", N_CC), "next_cards": cards(t, "n", N_NEXT),
+        **{k: home[k] for k in ("star", "license", "made_by", "site_stats", "sponsor_button", "coffee_text", "coffee_button",
+                                "footer_bug", "footer_contribute")},
+    })
+    page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], linux_tpl)
+    assert "{{" not in page, f"linux {lang}: marcador sem valor"
+    page = optimize_images(page)
+    out = ROOT / "docs" / ("linux/index.html" if lang == "en" else f"{lang}/linux/index.html")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(page)
+    print(f"linux {lang}: {out.relative_to(ROOT)}")
+
 # Mapa do site (com as versões em cada idioma) e robots.txt para os buscadores
 alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}"/>' for c in LANGS)
 entries = "".join(f"\n  <url>\n    <loc>{url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{alternates}\n  </url>" for c in LANGS)
 entries += "".join(f"\n  <url>\n    <loc>{SITE}/vs{p}</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
                    for p in [""] + [f"/{slug}" for slug in COMPARE])
-entries += f"\n  <url>\n    <loc>{SITE}/linux</loc>\n    <lastmod>{UPDATED}</lastmod>\n  </url>"
+linux_alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{linux_url(c)}"/>' for c in LANGS)
+entries += "".join(f"\n  <url>\n    <loc>{linux_url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{linux_alternates}\n  </url>" for c in LANGS)
 (ROOT / "docs/sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
     + entries + "\n</urlset>\n")
 (ROOT / "docs/robots.txt").write_text(f"User-agent: *\nAllow: /\n\nSitemap: {SITE}/sitemap.xml\n")
 print("docs/sitemap.xml, docs/robots.txt")
-
-# Página /linux (standalone, não usa o template multilíngue)
-linux_tpl = (ROOT / "site/linux.html").read_text()
-analytics_script = (f'<script data-goatcounter="https://{GOATCOUNTER}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>'
-                    if GOATCOUNTER else "")
-linux_page = linux_tpl.replace("{{analytics}}", ANALYTICS).replace("{{analytics_script}}", analytics_script)
-linux_out = ROOT / "docs/linux/index.html"
-linux_out.parent.mkdir(parents=True, exist_ok=True)
-linux_out.write_text(linux_page)
-print("docs/linux/index.html")
 
 # llms.txt (llmstxt.org): resumo em texto para assistentes de IA (ChatGPT, Claude, Perplexity…) lerem e citarem
 e = english
@@ -335,6 +397,7 @@ lines = [
     "## Links", "",
     f"- Website: {SITE}/ (also in Portuguese, German, Spanish and Chinese: {SITE}/pt, {SITE}/de, {SITE}/es, {SITE}/zh)",
     "- Source code and README: https://github.com/Quost/menew",
+    f"- Menew for Linux (in development, no release yet: command palette and clipboard history for GNOME and KDE Plasma): {SITE}/linux (also {SITE}/pt/linux, {SITE}/de/linux, {SITE}/es/linux, {SITE}/zh/linux); source: https://github.com/Quost/menew-linux",
     *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}" for slug, c in COMPARE.items()],
     "- Releases and changelog: https://github.com/Quost/menew/releases",
 ]

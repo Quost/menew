@@ -1,156 +1,275 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{html_lang}}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Menew for Linux — Coming soon</title>
-<meta name="description" content="Menew is coming to Linux. A native system-tray app with a command palette, clipboard history, system monitor and on-device AI. Free and open source.">
-<meta property="og:title" content="Menew for Linux — Coming soon">
-<meta property="og:description" content="Menew is coming to Linux. A native system-tray app with a command palette, clipboard history, system monitor and on-device AI. Free and open source.">
-<meta property="og:image" content="https://menew.web.app/assets/og/en.png">
+<title>{{title}}</title>
+<meta name="description" content="{{meta_desc}}">
+<meta property="og:title" content="{{title}}">
+<meta property="og:description" content="{{og_desc}}">
+<meta property="og:image" content="{{og_image}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Menew">
-<meta property="og:url" content="https://menew.web.app/linux">
+<meta property="og:locale" content="{{og_locale}}">
+<meta name="twitter:image" content="{{og_image}}">
+<meta property="og:url" content="{{url}}">
+<link rel="canonical" href="{{url}}">
+{{hreflang}}
+<meta name="google-site-verification" content="7nUa02yHHnURE0VIOnhThWTAFmDwuhQRcBlR5jfaB7E">
+<script type="application/ld+json">{{jsonld}}</script>
+{{analytics}}
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://menew.web.app/linux">
 <link rel="icon" type="image/png" href="/assets/icon.png">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Menew for Linux","url":"https://menew.web.app/linux","description":"Menew is coming to Linux. A native system-tray app built in Rust with GTK4.","about":{"@type":"SoftwareApplication","name":"Menew for Linux","operatingSystem":"Linux","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
-{{analytics}}
+<link rel="apple-touch-icon" href="/assets/icon.png">
+<meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
 <style>
-  :root {
-    --bg: #f6f6f9; --bg-elev: #fff; --text: #121218; --muted: #5a5a6b; --faint: #8b8b9c;
-    --line: rgba(20, 20, 40, .09); --card: rgba(255, 255, 255, .8);
-    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
-    --indigo: #5c6bff;
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
-      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045);
-    }
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Inter", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  a { color: inherit; }
-  .wrap { width: min(820px, 100% - 32px); margin: 0 auto; }
-  nav { border-bottom: 1px solid var(--line); }
-  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
-  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; text-decoration: none; }
-  .logo img { width: 28px; height: 28px; }
-  .crumbs { font-size: 14px; color: var(--muted); }
-  .crumbs a { color: var(--muted); text-decoration: none; }
-  .hero { padding: 64px 0 48px; }
-  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; margin-bottom: 12px; }
-  h1 { font-size: clamp(32px, 5.5vw, 54px); line-height: 1.07; letter-spacing: -.038em; font-weight: 800; margin-bottom: 20px; }
-  .lead { font-size: 19px; color: var(--muted); max-width: 640px; line-height: 1.55; }
-  .badge { display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; background: rgba(92, 107, 255, .12); color: var(--indigo); padding: 4px 10px; border-radius: 20px; margin-top: 20px; }
-  .cta-row { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
-  .btn { display: inline-flex; align-items: center; gap: 8px; font-weight: 600; font-size: 15px; padding: 12px 22px; border-radius: 12px; text-decoration: none; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text); }
-  .btn.primary { background: var(--brand); color: #fff; border: 0; }
-  .features { padding: 20px 0 60px; }
-  .features h2 { font-size: 26px; letter-spacing: -.022em; font-weight: 700; margin-bottom: 24px; }
-  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-  .card { padding: 22px 24px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
-  .card .icon { font-size: 22px; margin-bottom: 8px; }
-  .card h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
-  .card p { font-size: 14.5px; color: var(--muted); line-height: 1.5; }
-  .stack { margin-top: 48px; }
-  .stack h2 { font-size: 22px; font-weight: 700; letter-spacing: -.018em; margin-bottom: 16px; }
-  .tech-row { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-  .chip { display: inline-flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--line); background: var(--bg-elev); }
-  .stack p { color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 680px; }
-  .notify { margin-top: 56px; padding: 40px 32px; border-radius: 24px; text-align: center; border: 1px solid var(--line); background: var(--card); }
-  .notify h2 { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
-  .notify p { color: var(--muted); margin-bottom: 24px; font-size: 16px; }
-  footer { margin-top: 56px; padding: 28px 0 44px; border-top: 1px solid var(--line); color: var(--faint); font-size: 13.5px; }
-  footer a { color: var(--faint); }
-  @media (max-width: 600px) {
-    .grid { grid-template-columns: 1fr; }
+{{style}}
+  /* Página do Linux */
+  .desk-body.linux { grid-template-columns: 1fr 500px; padding-bottom: 20px; }
+  .desk-body.linux .pop { margin-top: 0; }
+  .desk-body.linux .pop img { border-radius: 14px; }
+  .linux-top { height: 28px; }
+  code { font: 12.5px ui-monospace, "SF Mono", Menlo, monospace; padding: 1px 6px; border-radius: 6px; background: var(--bg-elev); border: 1px solid var(--line); color: var(--text); }
+  .feature code { overflow-wrap: anywhere; }
+  .lshots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; align-items: start; }
+  .lshots.two { grid-template-columns: repeat(2, 1fr); }
+  .lshots img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .next-note { margin-top: 22px; text-align: center; color: var(--muted); font-size: 15px; }
+  .next-note a { color: var(--indigo); font-weight: 600; }
+  .conn li span { color: var(--muted); }
+  .conn li span b { color: var(--text); }
+  @media (max-width: 960px) {
+    .desk-body.linux { grid-template-columns: 1fr; }
+    .lshots, .lshots.two { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
+
 <nav>
   <div class="wrap">
-    <a class="logo" href="/"><img src="/assets/icon.png" alt="Menew" width="28" height="28"> Menew</a>
-    <span class="crumbs"><a href="/">menew.web.app</a> / linux</span>
+    <a class="logo" href="{{home}}"><img src="/assets/icon.png" alt="">Menew</a>
+    <div class="nav-links">
+      <a class="text" href="#palette">{{nav_palette}}</a>
+      <a class="text" href="#clipboard">{{nav_clipboard}}</a>
+      <a class="text" href="#requirements">{{nav_requirements}}</a>
+      {{lang_switch}}
+      <a class="btn small star-btn" data-goatcounter-click="linux-github-nav" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        {{star}}<span class="count" data-stars hidden></span>
+      </a>
+    </div>
   </div>
 </nav>
 
-<div class="wrap">
-  <section class="hero">
-    <div class="eyebrow">Coming to Linux</div>
-    <h1>Menew for Linux</h1>
-    <p class="lead">The free, open source menu bar app you use every day on the Mac — command palette, clipboard history, system monitor and local AI — coming to Linux, native and lightweight.</p>
-    <div class="badge">🛠 In development</div>
-    <div class="cta-row">
-      <a class="btn primary" href="https://github.com/Quost/menew-linux" data-goatcounter-click="linux-gh-star">⭐ Star on GitHub</a>
-      <a class="btn" href="/" data-goatcounter-click="linux-mac">Menew for Mac →</a>
+<header class="desk">
+  <div class="linux-top"></div>
+  <div class="desk-body linux">
+    <div>
+      <a class="badge" data-goatcounter-click="linux-status-badge" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">
+        <b>{{badge_new}}</b> {{badge}}
+      </a>
+      <h1>{{h1}}</h1>
+      <p class="lead">{{lead}}</p>
+      <div class="cta">
+        <a class="btn primary" data-goatcounter-click="linux-github-hero" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          {{cta_github}}<span class="count" data-stars hidden></span>
+        </a>
+        <a class="btn ghost" data-goatcounter-click="linux-parity-hero" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">{{cta_status}}</a>
+        <a class="btn ghost" data-goatcounter-click="linux-mac-hero" href="{{home}}">{{cta_mac}}</a>
+      </div>
+      <p class="meta">{{status_note}}</p>
+      <p class="meta">{{platforms}}</p>
     </div>
-  </section>
+    <div class="pop">
+      <img class="light-only" src="{{shots}}/palette-light.png" width="702" height="522" fetchpriority="high" alt="{{alt_palette}}">
+      <img class="dark-only" src="{{shots}}/palette-dark.png" width="702" height="522" fetchpriority="high" alt="{{alt_palette}}">
+    </div>
+  </div>
+  <div class="desk-foot"></div>
+</header>
 
-  <section class="features">
-    <h2>What's planned</h2>
+<section id="palette">
+  <div class="wrap">
+    <div class="split">
+      <div class="copy reveal">
+        <div class="eyebrow">{{pal_eyebrow}}</div>
+        <h2>{{pal_h2}}</h2>
+        <p class="sub">{{pal_sub}}</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Space</kbd> {{key_open}}</span>
+          <span><kbd>Ctrl</kbd><kbd>1–9</kbd> {{key_run}}</span>
+          <span><kbd>Tab</kbd> {{key_tab}}</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <img class="shot light-only" src="{{shots}}/palette-apps-light.png" alt="{{alt_palette}}">
+        <img class="shot dark-only" src="{{shots}}/palette-apps-dark.png" alt="{{alt_palette}}">
+      </div>
+    </div>
+    <div class="lshots reveal">
+      <div>
+        <img class="shot light-only" src="{{shots}}/palette-conversion-light.png" alt="{{alt_conv}}">
+        <img class="shot dark-only" src="{{shots}}/palette-conversion-dark.png" alt="{{alt_conv}}">
+      </div>
+      <div>
+        <img class="shot light-only" src="{{shots}}/palette-emoji-light.png" alt="{{alt_emoji}}">
+        <img class="shot dark-only" src="{{shots}}/palette-emoji-dark.png" alt="{{alt_emoji}}">
+      </div>
+      <div>
+        <img class="shot light-only" src="{{shots}}/palette-transform-light.png" alt="{{alt_transform}}">
+        <img class="shot dark-only" src="{{shots}}/palette-transform-dark.png" alt="{{alt_transform}}">
+      </div>
+    </div>
     <div class="grid">
-      <div class="card">
-        <div class="icon">⌨️</div>
-        <h3>Command palette</h3>
-        <p>Open any app, action, snippet or note with a global shortcut. Math, conversions, timers and your own scripts — from the keyboard.</p>
-      </div>
-      <div class="card">
-        <div class="icon">📋</div>
-        <h3>Clipboard history</h3>
-        <p>Every text, link and image you copy, searchable in one click. Password-safe by design; works on Wayland and X11.</p>
-      </div>
-      <div class="card">
-        <div class="icon">📊</div>
-        <h3>System monitor</h3>
-        <p>CPU, memory, disk and network in the system tray. Reads <code>/proc</code> and <code>/sys</code> — no daemons, no root.</p>
-      </div>
-      <div class="card">
-        <div class="icon">🤖</div>
-        <h3>Local AI</h3>
-        <p>Transcribe meetings offline with Whisper, summarize and rewrite text with a local model via Ollama or llama.cpp. No account, no cloud.</p>
-      </div>
-      <div class="card">
-        <div class="icon">🎙️</div>
-        <h3>Meeting minutes</h3>
-        <p>Record your mic and system audio separately via PipeWire, transcribe offline and generate minutes with tasks — all on your machine.</p>
-      </div>
-      <div class="card">
-        <div class="icon">📝</div>
-        <h3>Notes and snippets</h3>
-        <p>Quick notes with Markdown, reusable text snippets with abbreviations, and a search that understands what you mean.</p>
-      </div>
+{{palette_cards}}
     </div>
+  </div>
+</section>
 
-    <div class="stack">
-      <h2>Built with</h2>
-      <div class="tech-row">
-        <span class="chip">🦀 Rust</span>
-        <span class="chip">🖼 GTK4 + Libadwaita</span>
-        <span class="chip">🔊 PipeWire</span>
-        <span class="chip">🗄 SQLite (FTS5)</span>
-        <span class="chip">🌊 Wayland + X11</span>
-        <span class="chip">🤫 whisper.cpp</span>
+<section id="clipboard">
+  <div class="wrap">
+    <div class="split rev">
+      <div class="copy reveal">
+        <div class="eyebrow">{{clip_eyebrow}}</div>
+        <h2>{{clip_h2}}</h2>
+        <p class="sub">{{clip_sub}}</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>V</kbd> {{key_open}}</span>
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>N</kbd> {{key_paste_next}}</span>
+        </div>
       </div>
-      <p>Native Rust with GTK4 and Libadwaita: integrates with GNOME and KDE themes, respects dark/light mode, works on Wayland-first with an X11 fallback, and keeps memory usage around 25–40 MB. No Electron, no WebKitGTK, no web wrapper.</p>
+      <div class="reveal">
+        <img class="shot light-only" src="{{shots}}/clipboard-light.png" alt="{{alt_clip}}">
+        <img class="shot dark-only" src="{{shots}}/clipboard-dark.png" alt="{{alt_clip}}">
+      </div>
     </div>
+    <div class="lshots two reveal">
+      <div>
+        <img class="shot light-only" src="{{shots}}/clipboard-images-light.png" alt="{{alt_images}}">
+        <img class="shot dark-only" src="{{shots}}/clipboard-images-dark.png" alt="{{alt_images}}">
+      </div>
+      <div>
+        <img class="shot light-only" src="{{shots}}/clipboard-snippets-light.png" alt="{{alt_snippets}}">
+        <img class="shot dark-only" src="{{shots}}/clipboard-snippets-dark.png" alt="{{alt_snippets}}">
+      </div>
+    </div>
+    <div class="grid">
+{{clipboard_cards}}
+    </div>
+  </div>
+</section>
 
-    <div class="notify">
-      <h2>Get notified when it's ready</h2>
-      <p>Star the repository on GitHub and watch for releases — that's the best way to know when the first build is out.</p>
-      <a class="btn primary" href="https://github.com/Quost/menew-linux" data-goatcounter-click="linux-notify-gh">⭐ Watch the repo on GitHub</a>
+<section id="next">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{next_eyebrow}}</div>
+      <h2>{{next_h2}}</h2>
+      <p class="sub">{{next_sub}}</p>
     </div>
-  </section>
+    <div class="grid">
+{{next_cards}}
+    </div>
+    <p class="next-note">{{next_note}} <a data-goatcounter-click="linux-parity-next" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">{{next_link}}</a></p>
+  </div>
+</section>
+
+<section id="requirements">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{req_eyebrow}}</div>
+      <h2>{{req_h2}}</h2>
+      <p class="sub">{{req_sub}}</p>
+    </div>
+    <div class="conn reveal" style="max-width:760px;margin:40px auto 0">
+      <h3>{{req_t}}</h3>
+      <ul>
+        <li><span>{{r1}}</span></li>
+        <li><span>{{r2}}</span></li>
+        <li><span>{{r3}}</span></li>
+        <li><span>{{r4}}</span></li>
+        <li><span>{{r5}}</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{priv_eyebrow}}</div>
+      <h2>{{priv_h2}}</h2>
+      <p class="sub">{{priv_sub}}</p>
+    </div>
+    <div class="priv">
+      <div class="reveal">
+        <div class="stats">
+          <div class="stat"><b>0</b><span>{{priv_s1}}</span></div>
+          <div class="stat"><b>0</b><span>{{priv_s2}}</span></div>
+          <div class="stat"><b class="grad">100%</b><span>{{priv_s3}}</span></div>
+        </div>
+        <div class="priv-cards">
+          <div><h3>{{priv1_t}}</h3><p>{{priv1_d}}</p></div>
+          <div><h3>{{priv2_t}}</h3><p>{{priv2_d}}</p></div>
+          <div><h3>{{priv3_t}}</h3><p>{{priv3_d}}</p></div>
+        </div>
+      </div>
+      <div class="conn reveal">
+        <h3>{{priv_conn_t}}</h3>
+        <ul>
+          <li>{{priv_c1}}</li>
+          <li>{{priv_c2}}</li>
+          <li>{{priv_c3}}</li>
+          <li>{{priv_c4}}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="final reveal">
+    <img class="appicon" src="/assets/icon.png" alt="">
+    <h2>{{final_h2}}</h2>
+    <p class="sub" style="margin:0 auto">{{final_sub}}</p>
+    <div class="cta" style="margin-top:28px;justify-content:center">
+      <a class="btn primary" data-goatcounter-click="linux-github-final" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">{{cta_github}}<span class="count" data-stars hidden></span></a>
+      <a class="btn ghost" data-goatcounter-click="linux-mac-final" href="{{home}}">{{cta_mac}}</a>
+    </div>
+    <div class="coffee on">
+      <p class="sub" style="margin:0 auto 14px;font-size:15px">{{coffee_text}}</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn sponsor" data-goatcounter-click="sponsor" href="https://github.com/sponsors/Quost" target="_blank" rel="noopener">{{sponsor_button}}</a>
+        <a class="btn bmc" data-goatcounter-click="coffee" href="https://buymeacoffee.com/quost" target="_blank" rel="noopener">{{coffee_button}}</a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <footer>
   <div class="wrap">
-    Menew · <a href="/">menew.web.app</a> · <a href="https://github.com/Quost/menew">GitHub</a> · Free and open source · Not related to Linx Menew.
+    <span>Menew · <a href="https://github.com/Quost/menew-linux/blob/main/LICENSE">{{license}}</a> · {{made_by}} Quost</span>
+    <span><a href="{{home}}" data-goatcounter-click="linux-foot-mac">{{foot_mac}}</a> · <a href="https://github.com/Quost/menew-linux/issues/new/choose" data-goatcounter-click="linux-report-bug">{{footer_bug}}</a> · <a href="https://github.com/Quost/menew-linux/blob/main/CONTRIBUTING.md" data-goatcounter-click="linux-contribute">{{footer_contribute}}</a></span>
+    <span class="stats-note">{{site_stats}}</span>
   </div>
 </footer>
-{{analytics_script}}
+
+<script>
+  const REPO = "Quost/menew-linux";
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+  fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
+    if (!repo) return;
+    document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
 </body>
 </html>

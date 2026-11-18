@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="zh-Hans">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Linux 版 Menew：命令面板和剪贴板历史（开发中）</title>
+<meta name="description" content="Linux 版 Menew 是免费 Mac 菜单栏应用的移植版：命令面板、计算器、换算和剪贴板历史，适用于 Wayland 下的 GNOME 和 KDE Plasma。开发中，暂无正式版本。">
+<meta property="og:title" content="Linux 版 Menew：命令面板和剪贴板历史（开发中）">
+<meta property="og:description" content="Linux 版 Menew 是免费 Mac 菜单栏应用的移植版：命令面板、计算器、换算和剪贴板历史，适用于 GNOME 和 KDE Plasma。开发中，暂无正式版本。">
+<meta property="og:image" content="https://menew.web.app/assets/og/zh.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Menew">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:image" content="https://menew.web.app/assets/og/zh.png">
+<meta property="og:url" content="https://menew.web.app/zh/linux">
+<link rel="canonical" href="https://menew.web.app/zh/linux">
+<link rel="alternate" hreflang="en" href="https://menew.web.app/linux">
+<link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/linux">
+<link rel="alternate" hreflang="de" href="https://menew.web.app/de/linux">
+<link rel="alternate" hreflang="es" href="https://menew.web.app/es/linux">
+<link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/linux">
+<link rel="alternate" hreflang="x-default" href="https://menew.web.app/linux">
+<meta name="google-site-verification" content="7nUa02yHHnURE0VIOnhThWTAFmDwuhQRcBlR5jfaB7E">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "name": "Linux 版 Menew：命令面板和剪贴板历史（开发中）", "url": "https://menew.web.app/zh/linux", "description": "Linux 版 Menew 是免费 Mac 菜单栏应用的移植版：命令面板、计算器、换算和剪贴板历史，适用于 Wayland 下的 GNOME 和 KDE Plasma。开发中，暂无正式版本。", "inLanguage": "zh-Hans", "dateModified": "2026-11-17", "isPartOf": {"@type": "WebSite", "name": "Menew", "url": "https://menew.web.app/zh"}}, {"@type": "SoftwareApplication", "name": "Menew for Linux", "alternateName": ["Menew Linux", "Quost Menew for Linux"], "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Quost. In development, no release yet. Not related to Linx Menew, a restaurant point-of-sale system.", "url": "https://menew.web.app/zh/linux", "description": "Linux 版 Menew 是免费 Mac 菜单栏应用的移植版：命令面板、计算器、换算和剪贴板历史，适用于 Wayland 下的 GNOME 和 KDE Plasma。开发中，暂无正式版本。", "inLanguage": "zh-Hans", "operatingSystem": "Linux", "applicationCategory": "UtilitiesApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "image": "https://menew.web.app/assets/og/zh.png", "screenshot": ["https://menew.web.app/assets/linux/zh/palette-dark.png", "https://menew.web.app/assets/linux/zh/palette-conversion-dark.png", "https://menew.web.app/assets/linux/zh/clipboard-dark.png", "https://menew.web.app/assets/linux/zh/clipboard-images-dark.png"], "featureList": ["应用和最近的选择: 查找已安装的应用，并把你最近选过的排在前面。", "计算、单位和货币: 12*7.5、20% of 340、5 km to mi、72 f to c。货币（100 usd to brl）使用欧洲央行的汇率，只在你按下回车时获取。", "时区: 3pm ny to lisbon、time in Tokyo，或者只输入一个城市。粘贴的 Unix 时间戳会显示对应日期。", "文本转换: 对复制的文本做 20 种转换（大小写、重音、排序、JSON、Base64、URL、计数），带实时预览。", "快捷链接: g coffee、gh menew、maps paulista、yt、wiki，还可以添加你自己的。输入的网址会在浏览器中打开。", "表情和符号: emoji rocket、:fire、箭头、度数等，按名称查找，随时可以粘贴。", "计时器、闹钟和专注: timer 10m tea、alarm 7:30 meeting、focus 50。倒计时显示在托盘中，结束时有通知和提示音。", "脚本命令: 文件夹中的每个脚本（shell、Python、Node、Ruby）都会变成一条命令，Raycast 的脚本头部可以直接使用。脚本只在你选择时才会运行。", "搜索和固定: 即时搜索，固定项在前，然后是最近的内容，每项都有一行预览和时间。", "图片和文件: 同样会保存，带缩略图和预览面板。筛选包括全部、文本、链接、图片、文件、已固定和文本片段。", "图片中的文字: 复制的图片会在你的电脑上用 Tesseract 识别，所以搜索能找到图片里的文字。不会上传任何内容。", "智能操作: 拨打号码、写邮件、打开地址、追踪包裹、把颜色复制为 HEX、RGB 或 HSL，或加入会议。", "暂停和密码: 可以暂停记录 15 分钟、1 小时或直到你恢复：暂停期间不会读取任何内容。被密码管理器标记的复制内容会被跳过。", "文本片段: 带有 {date}、{clipboard}、{cursor} 和 {input:名称} 的文本，可在面板和“文本片段”筛选中使用。", "粘贴下一项: 打开粘贴队列，复制几项内容，然后每项运行一次“粘贴下一项”，按复制的顺序粘贴。", "经你允许后自动粘贴: 默认情况下，Menew 只复制该项并提示你按 Ctrl+V。如果有 /dev/uinput 的写入权限（默认关闭），它会替你按键。"], "license": "https://www.gnu.org/licenses/gpl-3.0.html", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Quost"}, "sameAs": ["https://github.com/Quost/menew-linux"], "isBasedOn": {"@type": "SoftwareApplication", "name": "Menew", "operatingSystem": "macOS", "url": "https://menew.web.app/zh"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Menew", "item": "https://menew.web.app/zh"}, {"@type": "ListItem", "position": 2, "name": "Linux", "item": "https://menew.web.app/zh/linux"}]}]}</script>
+<script data-goatcounter="https://menew.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="/assets/icon.png">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="apple-touch-icon" href="/assets/icon.png">
+<meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+<style>
+  :root {
+    --bg: #f6f6f9;
+    --bg-elev: #ffffff;
+    --text: #121218;
+    --muted: #5a5a6b;
+    --faint: #8b8b9c;
+    --line: rgba(20, 20, 40, .09);
+    --card: rgba(255, 255, 255, .8);
+    --indigo: #5c6bff;
+    --violet: #9e40f2;
+    --pink: #ff5ca8;
+    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
+    --glow: rgba(124, 92, 255, .22);
+    --shadow: 0 30px 80px -20px rgba(40, 30, 90, .28), 0 10px 30px -10px rgba(40, 30, 90, .18);
+    --radius: 20px;
+    --d-base: #f4f1ff; --d-text: #121218; --d-muted: rgba(18,18,24,.7); --d-faint: rgba(18,18,24,.5);
+    --d-line: rgba(18,18,24,.12); --d-fill: rgba(255,255,255,.6); --d-bar: rgba(255,255,255,.5);
+    --d-cta-bg: #121218; --d-cta-fg: #fff; --d-shadow: 0 40px 120px -50px rgba(90, 60, 200, .45);
+    --d-h1: linear-gradient(100deg, #4f5bff, #a24bff 50%, #ff3d96);
+    --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(140, 120, 255, .45), transparent 60%),
+      radial-gradient(700px 520px at 95% 15%, rgba(90, 170, 255, .4), transparent 62%),
+      radial-gradient(800px 500px at 60% 120%, rgba(255, 120, 190, .35), transparent 60%),
+      radial-gradient(500px 400px at 30% 90%, rgba(255, 190, 120, .3), transparent 60%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
+      --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
+    --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
+  .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: saturate(180%) blur(18px); -webkit-backdrop-filter: saturate(180%) blur(18px);
+    background: color-mix(in srgb, var(--bg) 72%, transparent); border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .logo img { width: 28px; height: 28px; }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+  .nav-links a.text:hover { color: var(--text); background: var(--card); }
+  .lang {
+    appearance: none; -webkit-appearance: none; cursor: pointer; font: 500 13.5px -apple-system, system-ui, sans-serif;
+    color: var(--muted); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b8b9c' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20'/%3E%3C/svg%3E") no-repeat 9px center / 14px;
+    border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px 7px 28px;
+  }
+  .lang:hover { color: var(--text); }
+
+  /* Botões */
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; letter-spacing: -.01em;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease; cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .btn.primary { background: var(--d-cta-bg); color: var(--d-cta-fg); border: 0; box-shadow: 0 10px 40px -8px rgba(160, 120, 255, .7); }
+  .btn.primary.brand { background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--d-fill); color: var(--d-text); border-color: var(--d-line); }
+  .btn.small { padding: 7px 12px; font-size: 13.5px; border-radius: 9px; }
+  .btn .count { font-variant-numeric: tabular-nums; font-weight: 600; opacity: .7; border-left: 1px solid currentColor; padding-left: 9px; margin-left: 1px; }
+
+  /* Hero: uma mesa de Mac de verdade (clara ou escura, como o sistema), com barra de menus e notch vivos */
+  .desk {
+    position: relative; margin: 14px auto 0; width: min(1240px, 100% - 24px); border-radius: 30px; overflow: hidden;
+    color: var(--d-text); background: var(--d-base); isolation: isolate; box-shadow: var(--d-shadow);
+  }
+  .desk::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall), var(--d-base);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: scale(1.12) translate(-2%, 2%); } }
+  .bar {
+    position: relative; height: 32px; display: flex; align-items: center; gap: 18px; padding: 0 16px;
+    font-size: 13px; background: var(--d-bar); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .bar .left { display: flex; gap: 18px; font-weight: 500; color: var(--d-text); opacity: .88; max-width: calc(50% - 210px); overflow: hidden; white-space: nowrap; }
+  .bar .left b { font-weight: 700; }
+  .bar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--d-text); }
+  .bar .status { height: 22px; padding: 0 6px; border-radius: 6px; background: var(--d-fill); display: flex; align-items: center; }
+  .bar .status img { height: 20px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bar .status img { filter: invert(1); } }
+  :root[data-theme="dark"] .bar .status img { filter: invert(1); }
+
+  .notch {
+    color: #fff;
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%); height: 32px; width: 190px;
+    background: #000; border-radius: 0 0 14px 14px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12.5px; font-weight: 600;
+    transition: width .5s cubic-bezier(.3, 1.4, .5, 1), height .5s cubic-bezier(.3, 1.4, .5, 1), border-radius .4s ease;
+  }
+  .notch.on { width: 380px; height: 40px; border-radius: 0 0 20px 20px; }
+  .notch > * { opacity: 0; transition: opacity .25s ease .15s; display: flex; align-items: center; gap: 8px; }
+  .notch.on > * { opacity: 1; }
+  .notch .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 10px #ff3b30; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .notch .pill { background: #30d158; color: #000; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; }
+  .notch .ico { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; }
+  .notch .t { color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+
+  .desk-body { display: grid; grid-template-columns: 1fr 360px; gap: 40px; padding: 70px 56px 0; align-items: start; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; padding: 5px 12px 5px 6px;
+    border-radius: 999px; border: 1px solid var(--d-line); background: var(--d-fill); color: var(--d-muted); margin-bottom: 24px;
+  }
+  .badge b { background: var(--d-cta-bg); color: var(--d-cta-fg); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  h1 { font-size: clamp(44px, 6.6vw, 84px); line-height: .98; letter-spacing: -.05em; font-weight: 800; }
+  h1 .grad { background: var(--d-h1); -webkit-background-clip: text; background-clip: text; }
+  .lead { font-size: clamp(17px, 2vw, 19.5px); color: var(--d-muted); max-width: 560px; margin: 24px 0 32px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta { margin-top: 16px; font-size: 13px; color: var(--d-faint); }
+  .pop { position: relative; margin-top: -40px; animation: drop .9s cubic-bezier(.2, 1.2, .4, 1) .2s both; }
+  .pop img { width: 100%; height: auto; border-radius: 18px; box-shadow: 0 40px 80px -20px rgba(40,20,90,.45), 0 0 0 1px var(--d-line); }
+  @keyframes drop { from { opacity: 0; transform: translateY(-24px) scale(.97); } }
+  .desk-foot { height: 60px; }
+
+  /* Seções */
+  section { padding: 110px 0 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .eyebrow { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; }
+  h2 { font-size: clamp(32px, 4.8vw, 54px); line-height: 1.04; letter-spacing: -.04em; font-weight: 800; margin: 10px 0 14px; }
+  .sub { color: var(--muted); font-size: 18px; max-width: 640px; }
+  .center { text-align: center; }
+  .center .sub { margin: 0 auto; }
+  .demo video { display: block; width: min(900px, 100%); aspect-ratio: 4 / 3; height: auto; margin: 34px auto 0; border-radius: 20px; box-shadow: var(--shadow); border: 1px solid var(--line); background: #2a1d5c; }
+
+  /* Destaques: grade em blocos */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
+  .tile {
+    position: relative; overflow: hidden; border-radius: 26px; border: 1px solid var(--line); background: var(--card);
+    padding: 30px 30px 0; display: flex; flex-direction: column; min-height: 420px;
+  }
+  .tile.w6 { grid-column: span 6; } .tile.w4 { grid-column: span 4; } .tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; }
+  .tile::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .9; }
+  .tile.mem::before { background: radial-gradient(500px 300px at 100% 0%, rgba(255, 92, 168, .18), transparent 70%); }
+  .tile.rec::before { background: radial-gradient(500px 300px at 0% 0%, rgba(255, 69, 58, .14), transparent 70%); }
+  .tile.pal::before { background: radial-gradient(500px 300px at 100% 0%, rgba(92, 107, 255, .2), transparent 70%); }
+  .tile.aitile::before { background: radial-gradient(400px 300px at 50% 100%, rgba(158, 64, 242, .25), transparent 70%); }
+  .tile { isolation: isolate; }
+  .tile .k { display: inline-flex; gap: 4px; margin-bottom: 14px; }
+  .tile h3 { font-size: 26px; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 8px; }
+  .tile p { color: var(--muted); font-size: 15.5px; max-width: 460px; }
+  .tile .shot { margin-top: auto; padding-top: 26px; }
+  .tile .shot img { border-radius: 14px 14px 0 0; border: 1px solid var(--line); border-bottom: 0; box-shadow: var(--shadow); width: 100%; }
+  .tile.mem .shot img { max-height: 330px; object-fit: cover; object-position: top left; }
+  .tile.rec .shot img, .tile.pal .shot img { max-height: 300px; object-fit: cover; object-position: top left; }
+  kbd {
+    font: 600 12.5px/1 -apple-system, system-ui, sans-serif; padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
+  }
+  .ask {
+    display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 11px 14px; border-radius: 14px;
+    background: var(--bg-elev); border: 1px solid var(--line); font-size: 14.5px; max-width: 460px; box-shadow: 0 10px 30px -18px rgba(0,0,0,.4);
+  }
+  .ask svg { width: 16px; height: 16px; flex: none; color: var(--violet); }
+  .flow { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; font-size: 13.5px; }
+  .flow span { padding: 7px 12px; border-radius: 12px; background: var(--bg-elev); border: 1px solid var(--line); }
+  .flow .arrow { border: 0; background: none; padding: 0; color: var(--faint); }
+  .flow .task { border-color: rgba(48, 209, 88, .45); background: rgba(48, 209, 88, .1); }
+  .prompts { margin-top: auto; padding: 26px 0 30px; display: grid; gap: 10px; }
+  .prompt {
+    padding: 11px 14px; border-radius: 14px; background: var(--bg-elev); border: 1px solid var(--line);
+    font: 500 14px ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: .45; transition: opacity .4s ease, transform .4s ease, border-color .4s ease;
+  }
+  .prompt.on { opacity: 1; transform: translateX(4px); border-color: rgba(158, 64, 242, .55); }
+
+  /* Recursos (textos completos, recolhidos) */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; align-items: start; }
+  .feature { padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); transition: border-color .2s ease; }
+  .feature:hover { border-color: rgba(124, 92, 255, .35); }
+  .icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; margin-bottom: 14px; }
+  .icon svg { width: 20px; height: 20px; color: #fff; }
+  .feature h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 6px; }
+  .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+
+  .split { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; }
+  .split.rev { grid-template-columns: 1.2fr 1fr; }
+  .split.rev .copy { order: 2; }
+  .split .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
+  .list li { display: flex; gap: 12px; color: var(--muted); font-size: 15.5px; }
+  .list li::before {
+    content: ""; flex: none; width: 20px; height: 20px; margin-top: 2px; border-radius: 6px;
+    background: var(--brand) center / 12px no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
+  }
+  .list b { color: var(--text); font-weight: 600; }
+  .list li > div { min-width: 0; }
+  .more { margin-top: 6px; }
+  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: var(--indigo); font-size: 13.5px; font-weight: 600; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary::after { content: "›"; transition: transform .2s ease; display: inline-block; }
+  .more[open] summary::after { transform: rotate(90deg); }
+  .more[open] summary { margin-bottom: 6px; }
+  .more ul { list-style: none; display: grid; gap: 6px; padding: 0; margin: 0; }
+  .more li { display: block; position: relative; padding-left: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
+  .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .keys span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; margin-right: 10px; }
+
+  /* Galeria em carrossel */
+  .rail-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+  .rail-nav { display: flex; gap: 8px; flex: none; }
+  .rail-nav button {
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font-size: 18px; cursor: pointer; transition: background .15s ease;
+  }
+  .rail-nav button:hover { background: var(--bg-elev); }
+  .rail {
+    display: grid; grid-auto-flow: column; grid-auto-columns: min(360px, 82%); gap: 16px; margin-top: 36px;
+    overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(16px, calc((100vw - 1160px) / 2)) 16px;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail figure { scroll-snap-align: center; margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .rail img { width: 100%; height: 230px; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); }
+  .rail h3 { font-size: 16px; margin: 14px 4px 4px; letter-spacing: -.01em; }
+  .rail p { font-size: 14px; color: var(--muted); margin: 0 4px 4px; }
+
+  /* Substitui */
+  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; }
+  .replaces div { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--faint); margin-bottom: 6px; text-decoration: line-through; text-decoration-color: rgba(255, 92, 168, .6); text-decoration-thickness: 2px; }
+  .replaces p { font-size: 14.5px; }
+  .rep-note { margin-top: 18px; text-align: center; font-size: 12.5px; color: var(--muted); }
+
+  /* Privacidade */
+  .priv { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 44px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { padding: 26px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .stat b { display: block; font-size: 52px; line-height: 1; letter-spacing: -.05em; font-weight: 800; }
+  .stat span { color: var(--muted); font-size: 14px; }
+  .priv-cards { display: grid; gap: 12px; margin-top: 12px; }
+  .priv-cards div { padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .priv-cards h3 { font-size: 15.5px; margin-bottom: 2px; }
+  .priv-cards p { color: var(--muted); font-size: 14.5px; }
+  .conn { padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .conn h3 { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+  .conn li { list-style: none; display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
+  .conn li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 10px rgba(48,209,88,.7); flex: none; }
+
+  .faq { max-width: 760px; margin: 40px auto 0; display: grid; gap: 10px; }
+  .faq details { padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .faq summary { font-weight: 600; font-size: 16px; cursor: pointer; }
+  .faq details p { color: var(--muted); font-size: 15px; margin-top: 8px; }
+
+  /* Final */
+  .final {
+    margin: 120px auto 0; padding: 70px 28px; border-radius: 30px; text-align: center; position: relative; overflow: hidden; color: var(--d-text); background: var(--d-base); isolation: isolate;
+  }
+  .final::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall);
+  }
+  .final .sub { color: var(--d-muted); }
+  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .55)); }
+  .install { margin: 34px auto 0; max-width: 600px; text-align: left; }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--d-fill); border: 1px solid var(--d-line); }
+  .tabs button { flex: 1; border: 0; background: transparent; color: var(--d-muted); cursor: pointer; font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px; }
+  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--d-text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .panel { display: none; margin-top: 14px; }
+  .panel.on { display: block; }
+  .steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
+  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--d-muted); font-size: 15px; counter-increment: s; }
+  .steps li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 -apple-system, system-ui, sans-serif; color: var(--d-cta-fg); background: var(--d-cta-bg); transform: translateY(-1px); }
+  .steps b { color: var(--d-text); }
+  .cmd { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px; border: 1px solid var(--d-line); background: var(--d-fill); }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--d-text); scrollbar-width: none; }
+  .cmd code::before { content: "$ "; color: var(--d-faint); }
+  .copy-btn { flex: none; border: 1px solid var(--d-line); background: transparent; color: var(--d-muted); cursor: pointer; font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease; }
+  .copy-btn:hover { color: var(--d-text); background: var(--d-fill); }
+  .copy-btn.done { color: #30d158; border-color: rgba(48,209,88,.5); }
+  .hint { margin-top: 10px; font-size: 13px; color: var(--d-faint); }
+  .ai { margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07); }
+  .ai p { flex: 1; font-size: 14px; color: var(--d-muted); }
+  .ai b { color: var(--d-text); }
+  .coffee { margin-top: 30px; display: none; }
+  .coffee.on { display: block; }
+  .btn.bmc { background: #ffdd00; color: #111; border: 0; }
+  .btn.sponsor { background: #ea4aaa; color: #fff; border: 0; }
+
+  footer { margin-top: 80px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a:hover { color: var(--text); }
+  footer .stats-note { flex-basis: 100%; font-size: 12px; }
+
+  /* Imagens claro/escuro */
+  .dark-only { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .dark-only { display: block; }
+    :root:not([data-theme="light"]) .light-only { display: none; }
+  }
+  :root[data-theme="dark"] .dark-only { display: block; }
+  :root[data-theme="dark"] .light-only { display: none; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .desk::before, .pop, .notch .dot { animation: none; }
+  }
+
+  @media (max-width: 960px) {
+    .desk-body { grid-template-columns: 1fr; padding: 56px 28px 0; }
+    .pop { margin: 0 auto; width: min(360px, 100%); }
+    .bar .left span:not(:first-child) { display: none; }
+    .tile.w4, .tile.w3, .tile.w2 { grid-column: span 6; }
+    .tile { min-height: 0; }
+    .grid, .replaces { grid-template-columns: 1fr 1fr; }
+    .split, .split.rev, .priv { grid-template-columns: 1fr; gap: 32px; }
+    .split.rev .copy { order: 0; }
+  }
+  @media (max-width: 640px) {
+    .desk { width: 100%; border-radius: 0; margin-top: 0; }
+    .desk-body { padding: 44px 16px 0; }
+    .bar .left, .bar .status { display: none; }
+    .notch { width: 120px; }
+    .notch.on { width: min(330px, 92vw); }
+    .grid, .replaces, .stats { grid-template-columns: 1fr; }
+    .tile { padding: 24px 20px 0; }
+    .nav-links a.text { display: none; }
+    h1 br { display: none; }
+    .rail-nav { display: none; }
+  }
+
+  /* Página do Linux */
+  .desk-body.linux { grid-template-columns: 1fr 500px; padding-bottom: 20px; }
+  .desk-body.linux .pop { margin-top: 0; }
+  .desk-body.linux .pop img { border-radius: 14px; }
+  .linux-top { height: 28px; }
+  code { font: 12.5px ui-monospace, "SF Mono", Menlo, monospace; padding: 1px 6px; border-radius: 6px; background: var(--bg-elev); border: 1px solid var(--line); color: var(--text); }
+  .feature code { overflow-wrap: anywhere; }
+  .lshots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; align-items: start; }
+  .lshots.two { grid-template-columns: repeat(2, 1fr); }
+  .lshots img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .next-note { margin-top: 22px; text-align: center; color: var(--muted); font-size: 15px; }
+  .next-note a { color: var(--indigo); font-weight: 600; }
+  .conn li span { color: var(--muted); }
+  .conn li span b { color: var(--text); }
+  @media (max-width: 960px) {
+    .desk-body.linux { grid-template-columns: 1fr; }
+    .lshots, .lshots.two { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/zh"><img src="/assets/icon.webp" alt="">Menew</a>
+    <div class="nav-links">
+      <a class="text" href="#palette">面板</a>
+      <a class="text" href="#clipboard">剪贴板</a>
+      <a class="text" href="#requirements">系统要求</a>
+      <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}var u={en:'/linux',pt:'/pt/linux',de:'/de/linux',es:'/es/linux',zh:'/zh/linux'}[this.value];if(u)location.href=u"><option value="en">English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es">Español</option><option value="zh" selected>中文</option></select>
+      <a class="btn small star-btn" data-goatcounter-click="linux-github-nav" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="desk">
+  <div class="linux-top"></div>
+  <div class="desk-body linux">
+    <div>
+      <a class="badge" data-goatcounter-click="linux-status-badge" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">
+        <b>开发中</b> 暂无正式版本
+      </a>
+      <h1><span class="grad">Linux</span> 版 Menew</h1>
+      <p class="lead">你的命令面板和剪贴板历史，在 Linux 上原生运行。免费、开源、无需账户、没有遥测。</p>
+      <div class="cta">
+        <a class="btn primary" data-goatcounter-click="linux-github-hero" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub 上的 Menew<span class="count" data-stars hidden></span>
+        </a>
+        <a class="btn ghost" data-goatcounter-click="linux-parity-hero" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">各功能的进度</a>
+        <a class="btn ghost" data-goatcounter-click="linux-mac-hero" href="/zh">Mac 版 Menew</a>
+      </div>
+      <p class="meta">目前只移植了命令面板和剪贴板历史。等 Mac 应用的核心功能移植完成后，才会发布第一个版本。</p>
+      <p class="meta">Wayland 下的 GNOME 和 KDE Plasma · English, Português, Deutsch, Español, 中文</p>
+    </div>
+    <div class="pop">
+      <img class="light-only" src="/assets/linux/zh/palette-light.png" width="702" height="522" fetchpriority="high" alt="命令面板查找应用、文本片段和操作">
+      <img class="dark-only" src="/assets/linux/zh/palette-dark.png" width="702" height="522" fetchpriority="high" alt="命令面板查找应用、文本片段和操作">
+    </div>
+  </div>
+  <div class="desk-foot"></div>
+</header>
+
+<section id="palette">
+  <div class="wrap">
+    <div class="split">
+      <div class="copy reveal">
+        <div class="eyebrow">命令面板</div>
+        <h2>一个输入框，搞定应用和快速答案。</h2>
+        <p class="sub">应用、Menew 操作、文本片段和计算都在一处。在你请求汇率之前，它不会访问网络。</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Space</kbd> 打开</span>
+          <span><kbd>Ctrl</kbd><kbd>1–9</kbd> 运行第 N 个结果</span>
+          <span><kbd>Tab</kbd> 应用或剪贴板</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/palette-apps-light.png" alt="命令面板查找应用、文本片段和操作">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/palette-apps-dark.png" alt="命令面板查找应用、文本片段和操作">
+      </div>
+    </div>
+    <div class="lshots reveal">
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/palette-conversion-light.png" alt="在面板中回答 5 km to mi">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/palette-conversion-dark.png" alt="在面板中回答 5 km to mi">
+      </div>
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/palette-emoji-light.png" alt="在面板中搜索表情">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/palette-emoji-dark.png" alt="在面板中搜索表情">
+      </div>
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/palette-transform-light.png" alt="预览复制文本的 snake_case 效果">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/palette-transform-dark.png" alt="预览复制文本的 snake_case 效果">
+      </div>
+    </div>
+    <div class="grid">
+      <div class="feature reveal"><h3>应用和最近的选择</h3><p>查找已安装的应用，并把你最近选过的排在前面。</p></div>
+      <div class="feature reveal"><h3>计算、单位和货币</h3><p><code>12*7.5</code>、<code>20% of 340</code>、<code>5 km to mi</code>、<code>72 f to c</code>。货币（<code>100 usd to brl</code>）使用欧洲央行的汇率，只在你按下回车时获取。</p></div>
+      <div class="feature reveal"><h3>时区</h3><p><code>3pm ny to lisbon</code>、<code>time in Tokyo</code>，或者只输入一个城市。粘贴的 Unix 时间戳会显示对应日期。</p></div>
+      <div class="feature reveal"><h3>文本转换</h3><p>对复制的文本做 20 种转换（大小写、重音、排序、JSON、Base64、URL、计数），带实时预览。</p></div>
+      <div class="feature reveal"><h3>快捷链接</h3><p><code>g coffee</code>、<code>gh menew</code>、<code>maps paulista</code>、<code>yt</code>、<code>wiki</code>，还可以添加你自己的。输入的网址会在浏览器中打开。</p></div>
+      <div class="feature reveal"><h3>表情和符号</h3><p><code>emoji rocket</code>、<code>:fire</code>、箭头、度数等，按名称查找，随时可以粘贴。</p></div>
+      <div class="feature reveal"><h3>计时器、闹钟和专注</h3><p><code>timer 10m tea</code>、<code>alarm 7:30 meeting</code>、<code>focus 50</code>。倒计时显示在托盘中，结束时有通知和提示音。</p></div>
+      <div class="feature reveal"><h3>脚本命令</h3><p>文件夹中的每个脚本（shell、Python、Node、Ruby）都会变成一条命令，Raycast 的脚本头部可以直接使用。脚本只在你选择时才会运行。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="clipboard">
+  <div class="wrap">
+    <div class="split rev">
+      <div class="copy reveal">
+        <div class="eyebrow">剪贴板历史</div>
+        <h2>再也不会丢失复制过的内容。</h2>
+        <p class="sub">文本、链接、图片和文件，支持即时搜索、筛选、固定和预览。密码管理器中的密码绝不会被保存。</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>V</kbd> 打开</span>
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>N</kbd> 粘贴下一项</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/clipboard-light.png" alt="带搜索、筛选和预览的剪贴板历史">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/clipboard-dark.png" alt="带搜索、筛选和预览的剪贴板历史">
+      </div>
+    </div>
+    <div class="lshots two reveal">
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/clipboard-images-light.png" alt="带缩略图和预览的复制图片">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/clipboard-images-dark.png" alt="带缩略图和预览的复制图片">
+      </div>
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/zh/clipboard-snippets-light.png" alt="带变量的文本片段">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/zh/clipboard-snippets-dark.png" alt="带变量的文本片段">
+      </div>
+    </div>
+    <div class="grid">
+      <div class="feature reveal"><h3>搜索和固定</h3><p>即时搜索，固定项在前，然后是最近的内容，每项都有一行预览和时间。</p></div>
+      <div class="feature reveal"><h3>图片和文件</h3><p>同样会保存，带缩略图和预览面板。筛选包括全部、文本、链接、图片、文件、已固定和文本片段。</p></div>
+      <div class="feature reveal"><h3>图片中的文字</h3><p>复制的图片会在你的电脑上用 Tesseract 识别，所以搜索能找到图片里的文字。不会上传任何内容。</p></div>
+      <div class="feature reveal"><h3>智能操作</h3><p>拨打号码、写邮件、打开地址、追踪包裹、把颜色复制为 HEX、RGB 或 HSL，或加入会议。</p></div>
+      <div class="feature reveal"><h3>暂停和密码</h3><p>可以暂停记录 15 分钟、1 小时或直到你恢复：暂停期间不会读取任何内容。被密码管理器标记的复制内容会被跳过。</p></div>
+      <div class="feature reveal"><h3>文本片段</h3><p>带有 <code>{date}</code>、<code>{clipboard}</code>、<code>{cursor}</code> 和 <code>{input:名称}</code> 的文本，可在面板和“文本片段”筛选中使用。</p></div>
+      <div class="feature reveal"><h3>粘贴下一项</h3><p>打开粘贴队列，复制几项内容，然后每项运行一次“粘贴下一项”，按复制的顺序粘贴。</p></div>
+      <div class="feature reveal"><h3>经你允许后自动粘贴</h3><p>默认情况下，Menew 只复制该项并提示你按 Ctrl+V。如果有 <code>/dev/uinput</code> 的写入权限（默认关闭），它会替你按键。</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">接下来</div>
+      <h2>还没有的部分。</h2>
+      <p class="sub">Mac 应用的这些部分，需要在第一个版本之前移植完成。不承诺日期：准备好了就会推出。</p>
+    </div>
+    <div class="grid">
+      <div class="feature reveal"><h3>截图</h3><p>截取区域、窗口或整个屏幕，进行标注，复制屏幕上的文字（OCR），并读取二维码。</p></div>
+      <div class="feature reveal"><h3>窗口管理</h3><p>把窗口吸附到一半、角落和三分之一，在 Wayland 允许的范围内。</p></div>
+      <div class="feature reveal"><h3>快捷操作</h3><p>麦克风静音、切换音频、深色模式、保持唤醒、锁定屏幕、清空回收站、取色器、占用的端口等。</p></div>
+      <div class="feature reveal"><h3>系统监控</h3><p>实时查看 CPU、GPU、内存、磁盘、网络和电池，以及最耗资源的进程。</p></div>
+      <div class="feature reveal"><h3>Menew 窗口</h3><p>笔记、设置和概览集中在独立的窗口中，另有从托盘打开的小窗口。</p></div>
+    </div>
+    <p class="next-note">每项 Mac 功能及其在 Linux 上的进度： <a data-goatcounter-click="linux-parity-next" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">GitHub 上的对照清单</a></p>
+  </div>
+</section>
+
+<section id="requirements">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Linux 系统要求</div>
+      <h2>你需要什么。</h2>
+      <p class="sub">Menew 为 Wayland 而做。到目前为止，只在无显示器的 GNOME Shell 46 和 KWin 5.27 会话（Ubuntu 24.04）中测试过，还没有在真实桌面上测试。</p>
+    </div>
+    <div class="conn reveal" style="max-width:760px;margin:40px auto 0">
+      <h3>设置说明</h3>
+      <ul>
+        <li><span><b>桌面：</b>Wayland 下的 GNOME 或 KDE Plasma。X11 仅尽力支持。</span></li>
+        <li><span><b>快捷键：</b>使用 GlobalShortcuts 门户（KDE Plasma 和 GNOME 48+）。在 GNOME 45 到 47 上需要自己创建两个自定义快捷键。</span></li>
+        <li><span><b>GNOME 上的剪贴板：</b>一个小型的 Menew GNOME Shell 扩展会把复制内容发送给 Menew。只需启用一次，然后注销并重新登录。KDE 无需额外操作。</span></li>
+        <li><span><b>GNOME 上的托盘图标：</b>请安装 AppIndicator 扩展。KDE Plasma 默认就会显示。</span></li>
+        <li><span><b>自动粘贴：</b>可选，默认关闭。需要 <code>/dev/uinput</code> 的写入权限。</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">隐私</div>
+      <h2>与 Mac 版相同的承诺。</h2>
+      <p class="sub">没有遥测，没有统计分析，无需账户。剪贴板历史只保存在你的电脑上。</p>
+    </div>
+    <div class="priv">
+      <div class="reveal">
+        <div class="stats">
+          <div class="stat"><b>0</b><span>遥测</span></div>
+          <div class="stat"><b>0</b><span>账户</span></div>
+          <div class="stat"><b class="grad">100%</b><span>在你的电脑上</span></div>
+        </div>
+        <div class="priv-cards">
+          <div><h3>保存在本地</h3><p>历史记录保存在本地的 SQLite 文件中，图片是你数据文件夹里的文件。不会上传任何内容。</p></div>
+          <div><h3>跳过密码</h3><p>被密码管理器标记的复制内容绝不会被读取，暂停记录期间也不会读取任何内容。</p></div>
+          <div><h3>图片在本地识别</h3><p>图片中的文字由 Tesseract 在你的电脑上识别。</p></div>
+        </div>
+      </div>
+      <div class="conn reveal">
+        <h3>唯一的网络请求</h3>
+        <ul>
+          <li>汇率，仅在你对换算结果按下回车时获取</li>
+          <li>向 api.frankfurter.app 发出一次 HTTPS 请求，只包含两个货币代码</li>
+          <li>输入时从不发送任何内容</li>
+          <li>快捷链接在你的浏览器中打开，Menew 不会访问这些网站</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="final reveal">
+    <img class="appicon" src="/assets/icon.webp" alt="">
+    <h2>关注 Linux 版的进展。</h2>
+    <p class="sub" style="margin:0 auto">在 GitHub 上关注这个仓库，第一个版本发布时你就会知道。Linux 版 Menew 免费且开源（GPL-3.0）。</p>
+    <div class="cta" style="margin-top:28px;justify-content:center">
+      <a class="btn primary" data-goatcounter-click="linux-github-final" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">GitHub 上的 Menew<span class="count" data-stars hidden></span></a>
+      <a class="btn ghost" data-goatcounter-click="linux-mac-final" href="/zh">Mac 版 Menew</a>
+    </div>
+    <div class="coffee on">
+      <p class="sub" style="margin:0 auto 14px;font-size:15px">Menew 是利用业余时间开发的。如果它每天为你节省几分钟：</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn sponsor" data-goatcounter-click="sponsor" href="https://github.com/sponsors/Quost" target="_blank" rel="noopener">♥ 在 GitHub 上赞助</a>
+        <a class="btn bmc" data-goatcounter-click="coffee" href="https://buymeacoffee.com/quost" target="_blank" rel="noopener">☕ 请我喝杯咖啡</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Menew · <a href="https://github.com/Quost/menew-linux/blob/main/LICENSE">GPLv3 许可证</a> · 作者 Quost</span>
+    <span><a href="/zh" data-goatcounter-click="linux-foot-mac">Mac 版 Menew</a> · <a href="https://github.com/Quost/menew-linux/issues/new/choose" data-goatcounter-click="linux-report-bug">报告问题</a> · <a href="https://github.com/Quost/menew-linux/blob/main/CONTRIBUTING.md" data-goatcounter-click="linux-contribute">参与贡献</a></span>
+    <span class="stats-note">本网站使用 GoatCounter 匿名统计访问量，不使用 Cookie。</span>
+  </div>
+</footer>
+
+<script>
+  const REPO = "Quost/menew-linux";
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+  fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
+    if (!repo) return;
+    document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
