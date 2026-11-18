@@ -1,0 +1,660 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Menew für Linux: Befehlspalette und Zwischenablage-Verlauf (in Entwicklung)</title>
+<meta name="description" content="Menew für Linux ist die Portierung der kostenlosen Mac-Menüleisten-App: Befehlspalette, Rechner, Umrechnungen und Zwischenablage-Verlauf für GNOME und KDE Plasma unter Wayland. In Entwicklung, noch keine Version.">
+<meta property="og:title" content="Menew für Linux: Befehlspalette und Zwischenablage-Verlauf (in Entwicklung)">
+<meta property="og:description" content="Menew für Linux ist die Portierung der kostenlosen Mac-Menüleisten-App: Befehlspalette, Rechner, Umrechnungen und Zwischenablage-Verlauf für GNOME und KDE Plasma. In Entwicklung, noch keine Version.">
+<meta property="og:image" content="https://menew.web.app/assets/og/de.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Menew">
+<meta property="og:locale" content="de_DE">
+<meta name="twitter:image" content="https://menew.web.app/assets/og/de.png">
+<meta property="og:url" content="https://menew.web.app/de/linux">
+<link rel="canonical" href="https://menew.web.app/de/linux">
+<link rel="alternate" hreflang="en" href="https://menew.web.app/linux">
+<link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/linux">
+<link rel="alternate" hreflang="de" href="https://menew.web.app/de/linux">
+<link rel="alternate" hreflang="es" href="https://menew.web.app/es/linux">
+<link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/linux">
+<link rel="alternate" hreflang="x-default" href="https://menew.web.app/linux">
+<meta name="google-site-verification" content="7nUa02yHHnURE0VIOnhThWTAFmDwuhQRcBlR5jfaB7E">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebPage", "name": "Menew für Linux: Befehlspalette und Zwischenablage-Verlauf (in Entwicklung)", "url": "https://menew.web.app/de/linux", "description": "Menew für Linux ist die Portierung der kostenlosen Mac-Menüleisten-App: Befehlspalette, Rechner, Umrechnungen und Zwischenablage-Verlauf für GNOME und KDE Plasma unter Wayland. In Entwicklung, noch keine Version.", "inLanguage": "de", "dateModified": "2026-11-17", "isPartOf": {"@type": "WebSite", "name": "Menew", "url": "https://menew.web.app/de"}}, {"@type": "SoftwareApplication", "name": "Menew for Linux", "alternateName": ["Menew Linux", "Quost Menew for Linux"], "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Quost. In development, no release yet. Not related to Linx Menew, a restaurant point-of-sale system.", "url": "https://menew.web.app/de/linux", "description": "Menew für Linux ist die Portierung der kostenlosen Mac-Menüleisten-App: Befehlspalette, Rechner, Umrechnungen und Zwischenablage-Verlauf für GNOME und KDE Plasma unter Wayland. In Entwicklung, noch keine Version.", "inLanguage": "de", "operatingSystem": "Linux", "applicationCategory": "UtilitiesApplication", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "image": "https://menew.web.app/assets/og/de.png", "screenshot": ["https://menew.web.app/assets/linux/de/palette-dark.png", "https://menew.web.app/assets/linux/de/palette-conversion-dark.png", "https://menew.web.app/assets/linux/de/clipboard-dark.png", "https://menew.web.app/assets/linux/de/clipboard-images-dark.png"], "featureList": ["Apps und letzte Auswahl: Findet deine installierten Apps und zeigt zuletzt Gewähltes zuerst.", "Rechnen, Einheiten und Währungen: 12*7.5, 20% von 340, 5 km nach mi, 72 f nach c. Währungen (100 usd nach brl) nutzen den Kurs der Europäischen Zentralbank, der nur bei Enter abgerufen wird.", "Zeitzonen: 15 Uhr in Lissabon, Zeit in Tokio oder nur eine Stadt. Ein eingefügter Unix-Zeitstempel zeigt sein Datum.", "Texttransformationen: 20 Transformationen für den kopierten Text (Schreibweise, Akzente, Sortieren, JSON, Base64, URL, Zählungen), mit Live-Vorschau.", "Schnelllinks: g kaffee, gh menew, maps paulista, yt, wiki und deine eigenen. Eine getippte Adresse öffnet sich im Browser.", "Emoji und Symbole: emoji rakete, :fire, Pfeile, Grad und mehr, per Namen gefunden und bereit zum Einfügen.", "Timer, Wecker und Fokus: timer 10m tee, alarm 7:30 meeting, focus 50. Der Countdown erscheint im Tray, am Ende gibt es eine Benachrichtigung und einen Ton.", "Skriptbefehle: Jedes Skript in einem Ordner (Shell, Python, Node, Ruby) wird zu einem Befehl, und Raycast-Skript-Header funktionieren unverändert. Skripte laufen nur, wenn du sie wählst.", "Suche und Angeheftetes: Sofortige Suche, Angeheftetes zuerst, dann das Neueste, jeweils mit einzeiliger Vorschau und Alter.", "Bilder und Dateien: Werden ebenfalls gespeichert, mit Miniatur und Vorschaubereich. Filter für Alle, Text, Links, Bilder, Dateien, Angeheftet und Textbausteine.", "Text in Bildern: Kopierte Bilder werden mit Tesseract auf deinem Computer gelesen, sodass die Suche die Wörter darin findet. Nichts wird hochgeladen.", "Intelligente Aktionen: Eine Nummer anrufen, eine E-Mail schreiben, eine Adresse öffnen, ein Paket verfolgen, eine Farbe als HEX, RGB oder HSL kopieren oder einem Meeting beitreten.", "Pause und Passwörter: Pausiere die Aufzeichnung für 15 Minuten, 1 Stunde oder bis du fortsetzt: Während der Pause wird nichts gelesen. Von Passwortmanagern markierte Kopien werden übersprungen.", "Textbausteine: Texte mit {date}, {clipboard}, {cursor} und {input:Name}, in der Palette und im Filter Textbausteine.", "Nächstes einfügen: Schalte die Einfüge-Warteschlange ein, kopiere mehrere Dinge und führe dann pro Eintrag einmal Nächstes einfügen aus, in der Reihenfolge des Kopierens.", "Fügt für dich ein, wenn du es erlaubst: Standardmäßig kopiert Menew den Eintrag und sagt dir, Strg+V zu drücken. Mit Schreibzugriff auf /dev/uinput (standardmäßig aus) drückt es die Tasten für dich."], "license": "https://www.gnu.org/licenses/gpl-3.0.html", "isAccessibleForFree": true, "author": {"@type": "Person", "name": "Quost"}, "sameAs": ["https://github.com/Quost/menew-linux"], "isBasedOn": {"@type": "SoftwareApplication", "name": "Menew", "operatingSystem": "macOS", "url": "https://menew.web.app/de"}}, {"@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Menew", "item": "https://menew.web.app/de"}, {"@type": "ListItem", "position": 2, "name": "Linux", "item": "https://menew.web.app/de/linux"}]}]}</script>
+<script data-goatcounter="https://menew.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="/assets/icon.png">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="apple-touch-icon" href="/assets/icon.png">
+<meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+<style>
+  :root {
+    --bg: #f6f6f9;
+    --bg-elev: #ffffff;
+    --text: #121218;
+    --muted: #5a5a6b;
+    --faint: #8b8b9c;
+    --line: rgba(20, 20, 40, .09);
+    --card: rgba(255, 255, 255, .8);
+    --indigo: #5c6bff;
+    --violet: #9e40f2;
+    --pink: #ff5ca8;
+    --brand: linear-gradient(120deg, #6a7bff, #a24bff 55%, #ff5ca8);
+    --glow: rgba(124, 92, 255, .22);
+    --shadow: 0 30px 80px -20px rgba(40, 30, 90, .28), 0 10px 30px -10px rgba(40, 30, 90, .18);
+    --radius: 20px;
+    --d-base: #f4f1ff; --d-text: #121218; --d-muted: rgba(18,18,24,.7); --d-faint: rgba(18,18,24,.5);
+    --d-line: rgba(18,18,24,.12); --d-fill: rgba(255,255,255,.6); --d-bar: rgba(255,255,255,.5);
+    --d-cta-bg: #121218; --d-cta-fg: #fff; --d-shadow: 0 40px 120px -50px rgba(90, 60, 200, .45);
+    --d-h1: linear-gradient(100deg, #4f5bff, #a24bff 50%, #ff3d96);
+    --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(140, 120, 255, .45), transparent 60%),
+      radial-gradient(700px 520px at 95% 15%, rgba(90, 170, 255, .4), transparent 62%),
+      radial-gradient(800px 500px at 60% 120%, rgba(255, 120, 190, .35), transparent 60%),
+      radial-gradient(500px 400px at 30% 90%, rgba(255, 190, 120, .3), transparent 60%);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+      --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
+      --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0a0a0f; --bg-elev: #15151c; --text: #f3f3f8; --muted: #a3a3b6; --faint: #74748a;
+    --line: rgba(255, 255, 255, .09); --card: rgba(255, 255, 255, .045); --glow: rgba(124, 92, 255, .32);
+    --shadow: 0 30px 90px -20px rgba(0, 0, 0, .7), 0 10px 30px -10px rgba(0, 0, 0, .5);
+      --d-base: #07070d; --d-text: #fff; --d-muted: rgba(255,255,255,.78); --d-faint: rgba(255,255,255,.55);
+      --d-line: rgba(255,255,255,.16); --d-fill: rgba(255,255,255,.08); --d-bar: rgba(0,0,0,.28);
+      --d-cta-bg: #fff; --d-cta-fg: #111; --d-shadow: 0 40px 120px -40px rgba(60, 30, 140, .55);
+      --d-h1: linear-gradient(100deg, #b9c2ff, #e0a8ff 45%, #ff9fcf);
+      --d-wall: radial-gradient(900px 520px at 12% -10%, rgba(118, 92, 255, .75), transparent 60%),
+        radial-gradient(700px 520px at 95% 15%, rgba(40, 120, 255, .55), transparent 62%),
+        radial-gradient(800px 500px at 60% 120%, rgba(255, 70, 160, .45), transparent 60%),
+        radial-gradient(500px 400px at 30% 90%, rgba(255, 150, 60, .25), transparent 60%);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--text);
+    font: 16px/1.6 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  .wrap { width: min(1160px, 100% - 32px); margin: 0 auto; }
+  .grad { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+  /* Nav */
+  nav {
+    position: sticky; top: 0; z-index: 20;
+    backdrop-filter: saturate(180%) blur(18px); -webkit-backdrop-filter: saturate(180%) blur(18px);
+    background: color-mix(in srgb, var(--bg) 72%, transparent); border-bottom: 1px solid var(--line);
+  }
+  nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -.01em; }
+  .logo img { width: 28px; height: 28px; }
+  .nav-links { display: flex; gap: 6px; align-items: center; }
+  .nav-links a.text { color: var(--muted); font-size: 14px; padding: 6px 10px; border-radius: 8px; }
+  .nav-links a.text:hover { color: var(--text); background: var(--card); }
+  .lang {
+    appearance: none; -webkit-appearance: none; cursor: pointer; font: 500 13.5px -apple-system, system-ui, sans-serif;
+    color: var(--muted); background: var(--card) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238b8b9c' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='10'/%3E%3Cpath d='M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20'/%3E%3C/svg%3E") no-repeat 9px center / 14px;
+    border: 1px solid var(--line); border-radius: 9px; padding: 7px 10px 7px 28px;
+  }
+  .lang:hover { color: var(--text); }
+
+  /* Botões */
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; letter-spacing: -.01em;
+    padding: 12px 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--bg-elev); color: var(--text);
+    transition: transform .15s ease, box-shadow .2s ease, background .2s ease; cursor: pointer;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn svg { width: 18px; height: 18px; flex: none; }
+  .btn.primary { background: var(--d-cta-bg); color: var(--d-cta-fg); border: 0; box-shadow: 0 10px 40px -8px rgba(160, 120, 255, .7); }
+  .btn.primary.brand { background: var(--brand); color: #fff; }
+  .btn.ghost { background: var(--d-fill); color: var(--d-text); border-color: var(--d-line); }
+  .btn.small { padding: 7px 12px; font-size: 13.5px; border-radius: 9px; }
+  .btn .count { font-variant-numeric: tabular-nums; font-weight: 600; opacity: .7; border-left: 1px solid currentColor; padding-left: 9px; margin-left: 1px; }
+
+  /* Hero: uma mesa de Mac de verdade (clara ou escura, como o sistema), com barra de menus e notch vivos */
+  .desk {
+    position: relative; margin: 14px auto 0; width: min(1240px, 100% - 24px); border-radius: 30px; overflow: hidden;
+    color: var(--d-text); background: var(--d-base); isolation: isolate; box-shadow: var(--d-shadow);
+  }
+  .desk::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall), var(--d-base);
+    animation: drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes drift { to { transform: scale(1.12) translate(-2%, 2%); } }
+  .bar {
+    position: relative; height: 32px; display: flex; align-items: center; gap: 18px; padding: 0 16px;
+    font-size: 13px; background: var(--d-bar); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .bar .left { display: flex; gap: 18px; font-weight: 500; color: var(--d-text); opacity: .88; max-width: calc(50% - 210px); overflow: hidden; white-space: nowrap; }
+  .bar .left b { font-weight: 700; }
+  .bar .right { margin-left: auto; display: flex; align-items: center; gap: 14px; color: var(--d-text); }
+  .bar .status { height: 22px; padding: 0 6px; border-radius: 6px; background: var(--d-fill); display: flex; align-items: center; }
+  .bar .status img { height: 20px; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .bar .status img { filter: invert(1); } }
+  :root[data-theme="dark"] .bar .status img { filter: invert(1); }
+
+  .notch {
+    color: #fff;
+    position: absolute; left: 50%; top: 0; transform: translateX(-50%); height: 32px; width: 190px;
+    background: #000; border-radius: 0 0 14px 14px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px; overflow: hidden; white-space: nowrap; font-size: 12.5px; font-weight: 600;
+    transition: width .5s cubic-bezier(.3, 1.4, .5, 1), height .5s cubic-bezier(.3, 1.4, .5, 1), border-radius .4s ease;
+  }
+  .notch.on { width: 380px; height: 40px; border-radius: 0 0 20px 20px; }
+  .notch > * { opacity: 0; transition: opacity .25s ease .15s; display: flex; align-items: center; gap: 8px; }
+  .notch.on > * { opacity: 1; }
+  .notch .dot { width: 8px; height: 8px; border-radius: 50%; background: #ff3b30; box-shadow: 0 0 10px #ff3b30; animation: blink 1.2s infinite; }
+  @keyframes blink { 50% { opacity: .35; } }
+  .notch .pill { background: #30d158; color: #000; padding: 3px 10px; border-radius: 999px; font-size: 11.5px; }
+  .notch .ico { width: 18px; height: 18px; border-radius: 5px; display: grid; place-items: center; font-size: 11px; }
+  .notch .t { color: rgba(255,255,255,.65); font-variant-numeric: tabular-nums; }
+
+  .desk-body { display: grid; grid-template-columns: 1fr 360px; gap: 40px; padding: 70px 56px 0; align-items: start; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; padding: 5px 12px 5px 6px;
+    border-radius: 999px; border: 1px solid var(--d-line); background: var(--d-fill); color: var(--d-muted); margin-bottom: 24px;
+  }
+  .badge b { background: var(--d-cta-bg); color: var(--d-cta-fg); padding: 2px 8px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }
+  h1 { font-size: clamp(44px, 6.6vw, 84px); line-height: .98; letter-spacing: -.05em; font-weight: 800; }
+  h1 .grad { background: var(--d-h1); -webkit-background-clip: text; background-clip: text; }
+  .lead { font-size: clamp(17px, 2vw, 19.5px); color: var(--d-muted); max-width: 560px; margin: 24px 0 32px; }
+  .cta { display: flex; gap: 12px; flex-wrap: wrap; }
+  .meta { margin-top: 16px; font-size: 13px; color: var(--d-faint); }
+  .pop { position: relative; margin-top: -40px; animation: drop .9s cubic-bezier(.2, 1.2, .4, 1) .2s both; }
+  .pop img { width: 100%; height: auto; border-radius: 18px; box-shadow: 0 40px 80px -20px rgba(40,20,90,.45), 0 0 0 1px var(--d-line); }
+  @keyframes drop { from { opacity: 0; transform: translateY(-24px) scale(.97); } }
+  .desk-foot { height: 60px; }
+
+  /* Seções */
+  section { padding: 110px 0 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+  .eyebrow { background: var(--brand); -webkit-background-clip: text; background-clip: text; color: transparent; display: inline-block; }
+  h2 { font-size: clamp(32px, 4.8vw, 54px); line-height: 1.04; letter-spacing: -.04em; font-weight: 800; margin: 10px 0 14px; }
+  .sub { color: var(--muted); font-size: 18px; max-width: 640px; }
+  .center { text-align: center; }
+  .center .sub { margin: 0 auto; }
+  .demo video { display: block; width: min(900px, 100%); aspect-ratio: 4 / 3; height: auto; margin: 34px auto 0; border-radius: 20px; box-shadow: var(--shadow); border: 1px solid var(--line); background: #2a1d5c; }
+
+  /* Destaques: grade em blocos */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; margin-top: 48px; }
+  .tile {
+    position: relative; overflow: hidden; border-radius: 26px; border: 1px solid var(--line); background: var(--card);
+    padding: 30px 30px 0; display: flex; flex-direction: column; min-height: 420px;
+  }
+  .tile.w6 { grid-column: span 6; } .tile.w4 { grid-column: span 4; } .tile.w3 { grid-column: span 3; } .tile.w2 { grid-column: span 2; }
+  .tile::before { content: ""; position: absolute; inset: 0; z-index: -1; opacity: .9; }
+  .tile.mem::before { background: radial-gradient(500px 300px at 100% 0%, rgba(255, 92, 168, .18), transparent 70%); }
+  .tile.rec::before { background: radial-gradient(500px 300px at 0% 0%, rgba(255, 69, 58, .14), transparent 70%); }
+  .tile.pal::before { background: radial-gradient(500px 300px at 100% 0%, rgba(92, 107, 255, .2), transparent 70%); }
+  .tile.aitile::before { background: radial-gradient(400px 300px at 50% 100%, rgba(158, 64, 242, .25), transparent 70%); }
+  .tile { isolation: isolate; }
+  .tile .k { display: inline-flex; gap: 4px; margin-bottom: 14px; }
+  .tile h3 { font-size: 26px; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 8px; }
+  .tile p { color: var(--muted); font-size: 15.5px; max-width: 460px; }
+  .tile .shot { margin-top: auto; padding-top: 26px; }
+  .tile .shot img { border-radius: 14px 14px 0 0; border: 1px solid var(--line); border-bottom: 0; box-shadow: var(--shadow); width: 100%; }
+  .tile.mem .shot img { max-height: 330px; object-fit: cover; object-position: top left; }
+  .tile.rec .shot img, .tile.pal .shot img { max-height: 300px; object-fit: cover; object-position: top left; }
+  kbd {
+    font: 600 12.5px/1 -apple-system, system-ui, sans-serif; padding: 6px 9px; border-radius: 8px;
+    border: 1px solid var(--line); border-bottom-width: 2px; background: var(--bg-elev); color: var(--text);
+  }
+  .ask {
+    display: flex; align-items: center; gap: 10px; margin-top: 18px; padding: 11px 14px; border-radius: 14px;
+    background: var(--bg-elev); border: 1px solid var(--line); font-size: 14.5px; max-width: 460px; box-shadow: 0 10px 30px -18px rgba(0,0,0,.4);
+  }
+  .ask svg { width: 16px; height: 16px; flex: none; color: var(--violet); }
+  .flow { display: flex; align-items: center; gap: 10px; margin-top: 18px; flex-wrap: wrap; font-size: 13.5px; }
+  .flow span { padding: 7px 12px; border-radius: 12px; background: var(--bg-elev); border: 1px solid var(--line); }
+  .flow .arrow { border: 0; background: none; padding: 0; color: var(--faint); }
+  .flow .task { border-color: rgba(48, 209, 88, .45); background: rgba(48, 209, 88, .1); }
+  .prompts { margin-top: auto; padding: 26px 0 30px; display: grid; gap: 10px; }
+  .prompt {
+    padding: 11px 14px; border-radius: 14px; background: var(--bg-elev); border: 1px solid var(--line);
+    font: 500 14px ui-monospace, "SF Mono", Menlo, monospace; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    opacity: .45; transition: opacity .4s ease, transform .4s ease, border-color .4s ease;
+  }
+  .prompt.on { opacity: 1; transform: translateX(4px); border-color: rgba(158, 64, 242, .55); }
+
+  /* Recursos (textos completos, recolhidos) */
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; align-items: start; }
+  .feature { padding: 24px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); transition: border-color .2s ease; }
+  .feature:hover { border-color: rgba(124, 92, 255, .35); }
+  .icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; margin-bottom: 14px; }
+  .icon svg { width: 20px; height: 20px; color: #fff; }
+  .feature h3 { font-size: 17px; letter-spacing: -.01em; margin-bottom: 6px; }
+  .feature p { color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+
+  .split { display: grid; grid-template-columns: 1fr 1.2fr; gap: 56px; align-items: center; }
+  .split.rev { grid-template-columns: 1.2fr 1fr; }
+  .split.rev .copy { order: 2; }
+  .split .shot { border-radius: 16px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .list { list-style: none; margin-top: 22px; display: grid; gap: 12px; }
+  .list li { display: flex; gap: 12px; color: var(--muted); font-size: 15.5px; }
+  .list li::before {
+    content: ""; flex: none; width: 20px; height: 20px; margin-top: 2px; border-radius: 6px;
+    background: var(--brand) center / 12px no-repeat;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12l5 5L20 7'/%3E%3C/svg%3E"), var(--brand);
+  }
+  .list b { color: var(--text); font-weight: 600; }
+  .list li > div { min-width: 0; }
+  .more { margin-top: 6px; }
+  .more summary { list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: var(--indigo); font-size: 13.5px; font-weight: 600; }
+  .more summary::-webkit-details-marker { display: none; }
+  .more summary::after { content: "›"; transition: transform .2s ease; display: inline-block; }
+  .more[open] summary::after { transform: rotate(90deg); }
+  .more[open] summary { margin-bottom: 6px; }
+  .more ul { list-style: none; display: grid; gap: 6px; padding: 0; margin: 0; }
+  .more li { display: block; position: relative; padding-left: 14px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .more li::before { content: ""; position: absolute; left: 2px; top: .62em; width: 5px; height: 5px; border-radius: 50%; background: var(--indigo); background-image: none; opacity: .55; margin: 0; }
+  .keys { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 24px; }
+  .keys span { display: inline-flex; align-items: center; gap: 6px; color: var(--muted); font-size: 14px; margin-right: 10px; }
+
+  /* Galeria em carrossel */
+  .rail-head { display: flex; align-items: end; justify-content: space-between; gap: 20px; }
+  .rail-nav { display: flex; gap: 8px; flex: none; }
+  .rail-nav button {
+    width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--card); color: var(--text);
+    font-size: 18px; cursor: pointer; transition: background .15s ease;
+  }
+  .rail-nav button:hover { background: var(--bg-elev); }
+  .rail {
+    display: grid; grid-auto-flow: column; grid-auto-columns: min(360px, 82%); gap: 16px; margin-top: 36px;
+    overflow-x: auto; scroll-snap-type: x mandatory; padding: 4px max(16px, calc((100vw - 1160px) / 2)) 16px;
+    scrollbar-width: none;
+  }
+  .rail::-webkit-scrollbar { display: none; }
+  .rail figure { scroll-snap-align: center; margin: 0; padding: 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .rail img { width: 100%; height: 230px; object-fit: cover; object-position: top; border-radius: 12px; border: 1px solid var(--line); }
+  .rail h3 { font-size: 16px; margin: 14px 4px 4px; letter-spacing: -.01em; }
+  .rail p { font-size: 14px; color: var(--muted); margin: 0 4px 4px; }
+
+  /* Substitui */
+  .replaces { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 40px; }
+  .replaces div { padding: 18px; border-radius: 16px; border: 1px solid var(--line); background: var(--card); }
+  .replaces h3 { font-size: 13px; font-weight: 600; color: var(--faint); margin-bottom: 6px; text-decoration: line-through; text-decoration-color: rgba(255, 92, 168, .6); text-decoration-thickness: 2px; }
+  .replaces p { font-size: 14.5px; }
+  .rep-note { margin-top: 18px; text-align: center; font-size: 12.5px; color: var(--muted); }
+
+  /* Privacidade */
+  .priv { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 44px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .stat { padding: 26px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .stat b { display: block; font-size: 52px; line-height: 1; letter-spacing: -.05em; font-weight: 800; }
+  .stat span { color: var(--muted); font-size: 14px; }
+  .priv-cards { display: grid; gap: 12px; margin-top: 12px; }
+  .priv-cards div { padding: 18px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .priv-cards h3 { font-size: 15.5px; margin-bottom: 2px; }
+  .priv-cards p { color: var(--muted); font-size: 14.5px; }
+  .conn { padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .conn h3 { font-size: 15px; color: var(--muted); font-weight: 600; margin-bottom: 14px; }
+  .conn li { list-style: none; display: flex; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line); font-size: 15.5px; }
+  .conn li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: #30d158; box-shadow: 0 0 10px rgba(48,209,88,.7); flex: none; }
+
+  .faq { max-width: 760px; margin: 40px auto 0; display: grid; gap: 10px; }
+  .faq details { padding: 16px 20px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .faq summary { font-weight: 600; font-size: 16px; cursor: pointer; }
+  .faq details p { color: var(--muted); font-size: 15px; margin-top: 8px; }
+
+  /* Final */
+  .final {
+    margin: 120px auto 0; padding: 70px 28px; border-radius: 30px; text-align: center; position: relative; overflow: hidden; color: var(--d-text); background: var(--d-base); isolation: isolate;
+  }
+  .final::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: var(--d-wall);
+  }
+  .final .sub { color: var(--d-muted); }
+  .final img.appicon { width: 92px; height: 92px; margin: 0 auto 20px; filter: drop-shadow(0 16px 30px rgba(124, 80, 255, .55)); }
+  .install { margin: 34px auto 0; max-width: 600px; text-align: left; }
+  .tabs { display: flex; gap: 4px; padding: 4px; border-radius: 12px; background: var(--d-fill); border: 1px solid var(--d-line); }
+  .tabs button { flex: 1; border: 0; background: transparent; color: var(--d-muted); cursor: pointer; font: 600 14px/1 -apple-system, system-ui, sans-serif; padding: 10px 8px; border-radius: 9px; }
+  .tabs button[aria-selected="true"] { background: var(--bg-elev); color: var(--d-text); box-shadow: 0 1px 3px rgba(0,0,0,.18); }
+  .panel { display: none; margin-top: 14px; }
+  .panel.on { display: block; }
+  .steps { list-style: none; display: grid; gap: 10px; counter-reset: s; }
+  .steps li { display: flex; gap: 12px; align-items: baseline; color: var(--d-muted); font-size: 15px; counter-increment: s; }
+  .steps li::before { content: counter(s); flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font: 700 12px/1 -apple-system, system-ui, sans-serif; color: var(--d-cta-fg); background: var(--d-cta-bg); transform: translateY(-1px); }
+  .steps b { color: var(--d-text); }
+  .cmd { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 6px 6px 6px 14px; border-radius: 10px; border: 1px solid var(--d-line); background: var(--d-fill); }
+  .cmd code { flex: 1; overflow-x: auto; white-space: nowrap; font: 13.5px ui-monospace, "SF Mono", Menlo, monospace; color: var(--d-text); scrollbar-width: none; }
+  .cmd code::before { content: "$ "; color: var(--d-faint); }
+  .copy-btn { flex: none; border: 1px solid var(--d-line); background: transparent; color: var(--d-muted); cursor: pointer; font: 600 12px/1 -apple-system, system-ui, sans-serif; padding: 8px 10px; border-radius: 8px; transition: all .15s ease; }
+  .copy-btn:hover { color: var(--d-text); background: var(--d-fill); }
+  .copy-btn.done { color: #30d158; border-color: rgba(48,209,88,.5); }
+  .hint { margin-top: 10px; font-size: 13px; color: var(--d-faint); }
+  .ai { margin-top: 18px; display: flex; align-items: center; gap: 14px; padding: 14px 16px; border-radius: 14px; border: 1px dashed rgba(124,92,255,.45); background: rgba(124,92,255,.07); }
+  .ai p { flex: 1; font-size: 14px; color: var(--d-muted); }
+  .ai b { color: var(--d-text); }
+  .coffee { margin-top: 30px; display: none; }
+  .coffee.on { display: block; }
+  .btn.bmc { background: #ffdd00; color: #111; border: 0; }
+  .btn.sponsor { background: #ea4aaa; color: #fff; border: 0; }
+
+  footer { margin-top: 80px; padding: 34px 0 50px; border-top: 1px solid var(--line); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer a:hover { color: var(--text); }
+  footer .stats-note { flex-basis: 100%; font-size: 12px; }
+
+  /* Imagens claro/escuro */
+  .dark-only { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .dark-only { display: block; }
+    :root:not([data-theme="light"]) .light-only { display: none; }
+  }
+  :root[data-theme="dark"] .dark-only { display: block; }
+  :root[data-theme="dark"] .light-only { display: none; }
+
+  .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .desk::before, .pop, .notch .dot { animation: none; }
+  }
+
+  @media (max-width: 960px) {
+    .desk-body { grid-template-columns: 1fr; padding: 56px 28px 0; }
+    .pop { margin: 0 auto; width: min(360px, 100%); }
+    .bar .left span:not(:first-child) { display: none; }
+    .tile.w4, .tile.w3, .tile.w2 { grid-column: span 6; }
+    .tile { min-height: 0; }
+    .grid, .replaces { grid-template-columns: 1fr 1fr; }
+    .split, .split.rev, .priv { grid-template-columns: 1fr; gap: 32px; }
+    .split.rev .copy { order: 0; }
+  }
+  @media (max-width: 640px) {
+    .desk { width: 100%; border-radius: 0; margin-top: 0; }
+    .desk-body { padding: 44px 16px 0; }
+    .bar .left, .bar .status { display: none; }
+    .notch { width: 120px; }
+    .notch.on { width: min(330px, 92vw); }
+    .grid, .replaces, .stats { grid-template-columns: 1fr; }
+    .tile { padding: 24px 20px 0; }
+    .nav-links a.text { display: none; }
+    h1 br { display: none; }
+    .rail-nav { display: none; }
+  }
+
+  /* Página do Linux */
+  .desk-body.linux { grid-template-columns: 1fr 500px; padding-bottom: 20px; }
+  .desk-body.linux .pop { margin-top: 0; }
+  .desk-body.linux .pop img { border-radius: 14px; }
+  .linux-top { height: 28px; }
+  code { font: 12.5px ui-monospace, "SF Mono", Menlo, monospace; padding: 1px 6px; border-radius: 6px; background: var(--bg-elev); border: 1px solid var(--line); color: var(--text); }
+  .feature code { overflow-wrap: anywhere; }
+  .lshots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 44px; align-items: start; }
+  .lshots.two { grid-template-columns: repeat(2, 1fr); }
+  .lshots img { width: 100%; height: auto; border-radius: 14px; border: 1px solid var(--line); box-shadow: var(--shadow); }
+  .next-note { margin-top: 22px; text-align: center; color: var(--muted); font-size: 15px; }
+  .next-note a { color: var(--indigo); font-weight: 600; }
+  .conn li span { color: var(--muted); }
+  .conn li span b { color: var(--text); }
+  @media (max-width: 960px) {
+    .desk-body.linux { grid-template-columns: 1fr; }
+    .lshots, .lshots.two { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="/de"><img src="/assets/icon.webp" alt="">Menew</a>
+    <div class="nav-links">
+      <a class="text" href="#palette">Palette</a>
+      <a class="text" href="#clipboard">Zwischenablage</a>
+      <a class="text" href="#requirements">Voraussetzungen</a>
+      <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}var u={en:'/linux',pt:'/pt/linux',de:'/de/linux',es:'/es/linux',zh:'/zh/linux'}[this.value];if(u)location.href=u"><option value="en">English</option><option value="pt">Português</option><option value="de" selected>Deutsch</option><option value="es">Español</option><option value="zh">中文</option></select>
+      <a class="btn small star-btn" data-goatcounter-click="linux-github-nav" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        Star<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="desk">
+  <div class="linux-top"></div>
+  <div class="desk-body linux">
+    <div>
+      <a class="badge" data-goatcounter-click="linux-status-badge" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">
+        <b>In Entwicklung</b> Noch keine Version
+      </a>
+      <h1>Menew für <span class="grad">Linux</span></h1>
+      <p class="lead">Deine Befehlspalette und dein Zwischenablage-Verlauf, nativ unter Linux. Kostenlos, Open Source, ohne Konto und ohne Telemetrie.</p>
+      <div class="cta">
+        <a class="btn primary" data-goatcounter-click="linux-github-hero" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Menew auf GitHub<span class="count" data-stars hidden></span>
+        </a>
+        <a class="btn ghost" data-goatcounter-click="linux-parity-hero" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">Status je Funktion</a>
+        <a class="btn ghost" data-goatcounter-click="linux-mac-hero" href="/de">Menew für Mac</a>
+      </div>
+      <p class="meta">Bisher sind nur die Befehlspalette und der Zwischenablage-Verlauf portiert. Die erste Version kommt, wenn der Kern der Mac-App portiert ist.</p>
+      <p class="meta">GNOME und KDE Plasma unter Wayland · English, Português, Deutsch, Español, 中文</p>
+    </div>
+    <div class="pop">
+      <img class="light-only" src="/assets/linux/de/palette-light.png" width="702" height="522" fetchpriority="high" alt="Die Befehlspalette findet Apps, Textbausteine und Aktionen">
+      <img class="dark-only" src="/assets/linux/de/palette-dark.png" width="702" height="522" fetchpriority="high" alt="Die Befehlspalette findet Apps, Textbausteine und Aktionen">
+    </div>
+  </div>
+  <div class="desk-foot"></div>
+</header>
+
+<section id="palette">
+  <div class="wrap">
+    <div class="split">
+      <div class="copy reveal">
+        <div class="eyebrow">Befehlspalette</div>
+        <h2>Ein Feld für Apps und schnelle Antworten.</h2>
+        <p class="sub">Apps, Menew-Aktionen, Textbausteine und Rechnungen an einem Ort. Sie nutzt das Netz erst, wenn du einen Wechselkurs abrufst.</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>Space</kbd> öffnen</span>
+          <span><kbd>Ctrl</kbd><kbd>1–9</kbd> N-tes Ergebnis ausführen</span>
+          <span><kbd>Tab</kbd> Apps oder Zwischenablage</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/palette-apps-light.png" alt="Die Befehlspalette findet Apps, Textbausteine und Aktionen">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/palette-apps-dark.png" alt="Die Befehlspalette findet Apps, Textbausteine und Aktionen">
+      </div>
+    </div>
+    <div class="lshots reveal">
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/palette-conversion-light.png" alt="5 km to mi in der Palette beantwortet">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/palette-conversion-dark.png" alt="5 km to mi in der Palette beantwortet">
+      </div>
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/palette-emoji-light.png" alt="Emoji-Suche in der Palette">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/palette-emoji-dark.png" alt="Emoji-Suche in der Palette">
+      </div>
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/palette-transform-light.png" alt="snake_case als Vorschau für den kopierten Text">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/palette-transform-dark.png" alt="snake_case als Vorschau für den kopierten Text">
+      </div>
+    </div>
+    <div class="grid">
+      <div class="feature reveal"><h3>Apps und letzte Auswahl</h3><p>Findet deine installierten Apps und zeigt zuletzt Gewähltes zuerst.</p></div>
+      <div class="feature reveal"><h3>Rechnen, Einheiten und Währungen</h3><p><code>12*7.5</code>, <code>20% von 340</code>, <code>5 km nach mi</code>, <code>72 f nach c</code>. Währungen (<code>100 usd nach brl</code>) nutzen den Kurs der Europäischen Zentralbank, der nur bei Enter abgerufen wird.</p></div>
+      <div class="feature reveal"><h3>Zeitzonen</h3><p><code>15 Uhr in Lissabon</code>, <code>Zeit in Tokio</code> oder nur eine Stadt. Ein eingefügter Unix-Zeitstempel zeigt sein Datum.</p></div>
+      <div class="feature reveal"><h3>Texttransformationen</h3><p>20 Transformationen für den kopierten Text (Schreibweise, Akzente, Sortieren, JSON, Base64, URL, Zählungen), mit Live-Vorschau.</p></div>
+      <div class="feature reveal"><h3>Schnelllinks</h3><p><code>g kaffee</code>, <code>gh menew</code>, <code>maps paulista</code>, <code>yt</code>, <code>wiki</code> und deine eigenen. Eine getippte Adresse öffnet sich im Browser.</p></div>
+      <div class="feature reveal"><h3>Emoji und Symbole</h3><p><code>emoji rakete</code>, <code>:fire</code>, Pfeile, Grad und mehr, per Namen gefunden und bereit zum Einfügen.</p></div>
+      <div class="feature reveal"><h3>Timer, Wecker und Fokus</h3><p><code>timer 10m tee</code>, <code>alarm 7:30 meeting</code>, <code>focus 50</code>. Der Countdown erscheint im Tray, am Ende gibt es eine Benachrichtigung und einen Ton.</p></div>
+      <div class="feature reveal"><h3>Skriptbefehle</h3><p>Jedes Skript in einem Ordner (Shell, Python, Node, Ruby) wird zu einem Befehl, und Raycast-Skript-Header funktionieren unverändert. Skripte laufen nur, wenn du sie wählst.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="clipboard">
+  <div class="wrap">
+    <div class="split rev">
+      <div class="copy reveal">
+        <div class="eyebrow">Zwischenablage-Verlauf</div>
+        <h2>Nie wieder verlieren, was du kopiert hast.</h2>
+        <p class="sub">Texte, Links, Bilder und Dateien mit sofortiger Suche, Filtern, Anheften und Vorschau. Passwörter aus Passwortmanagern werden nie gespeichert.</p>
+        <div class="keys">
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>V</kbd> öffnen</span>
+          <span><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>N</kbd> nächstes einfügen</span>
+        </div>
+      </div>
+      <div class="reveal">
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/clipboard-light.png" alt="Zwischenablage-Verlauf mit Suche, Filtern und Vorschau">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/clipboard-dark.png" alt="Zwischenablage-Verlauf mit Suche, Filtern und Vorschau">
+      </div>
+    </div>
+    <div class="lshots two reveal">
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/clipboard-images-light.png" alt="Kopierte Bilder mit Miniatur und Vorschau">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/clipboard-images-dark.png" alt="Kopierte Bilder mit Miniatur und Vorschau">
+      </div>
+      <div>
+        <img loading="lazy" decoding="async" class="shot light-only" src="/assets/linux/de/clipboard-snippets-light.png" alt="Textbausteine mit Variablen">
+        <img loading="lazy" decoding="async" class="shot dark-only" src="/assets/linux/de/clipboard-snippets-dark.png" alt="Textbausteine mit Variablen">
+      </div>
+    </div>
+    <div class="grid">
+      <div class="feature reveal"><h3>Suche und Angeheftetes</h3><p>Sofortige Suche, Angeheftetes zuerst, dann das Neueste, jeweils mit einzeiliger Vorschau und Alter.</p></div>
+      <div class="feature reveal"><h3>Bilder und Dateien</h3><p>Werden ebenfalls gespeichert, mit Miniatur und Vorschaubereich. Filter für Alle, Text, Links, Bilder, Dateien, Angeheftet und Textbausteine.</p></div>
+      <div class="feature reveal"><h3>Text in Bildern</h3><p>Kopierte Bilder werden mit Tesseract auf deinem Computer gelesen, sodass die Suche die Wörter darin findet. Nichts wird hochgeladen.</p></div>
+      <div class="feature reveal"><h3>Intelligente Aktionen</h3><p>Eine Nummer anrufen, eine E-Mail schreiben, eine Adresse öffnen, ein Paket verfolgen, eine Farbe als HEX, RGB oder HSL kopieren oder einem Meeting beitreten.</p></div>
+      <div class="feature reveal"><h3>Pause und Passwörter</h3><p>Pausiere die Aufzeichnung für 15 Minuten, 1 Stunde oder bis du fortsetzt: Während der Pause wird nichts gelesen. Von Passwortmanagern markierte Kopien werden übersprungen.</p></div>
+      <div class="feature reveal"><h3>Textbausteine</h3><p>Texte mit <code>{date}</code>, <code>{clipboard}</code>, <code>{cursor}</code> und <code>{input:Name}</code>, in der Palette und im Filter Textbausteine.</p></div>
+      <div class="feature reveal"><h3>Nächstes einfügen</h3><p>Schalte die Einfüge-Warteschlange ein, kopiere mehrere Dinge und führe dann pro Eintrag einmal Nächstes einfügen aus, in der Reihenfolge des Kopierens.</p></div>
+      <div class="feature reveal"><h3>Fügt für dich ein, wenn du es erlaubst</h3><p>Standardmäßig kopiert Menew den Eintrag und sagt dir, Strg+V zu drücken. Mit Schreibzugriff auf <code>/dev/uinput</code> (standardmäßig aus) drückt es die Tasten für dich.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="next">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Als Nächstes</div>
+      <h2>Was noch fehlt.</h2>
+      <p class="sub">Diese Teile der Mac-App müssen vor der ersten Version noch portiert werden. Ohne Termine: Sie kommen, wenn sie fertig sind.</p>
+    </div>
+    <div class="grid">
+      <div class="feature reveal"><h3>Bildschirmfotos</h3><p>Einen Bereich, ein Fenster oder den Bildschirm aufnehmen, annotieren, Text vom Bildschirm kopieren (OCR) und QR-Codes lesen.</p></div>
+      <div class="feature reveal"><h3>Fensterverwaltung</h3><p>Fenster auf Hälften, Ecken und Drittel einrasten, soweit Wayland es erlaubt.</p></div>
+      <div class="feature reveal"><h3>Schnellaktionen</h3><p>Mikrofon stummschalten, Audio wechseln, Dunkelmodus, Wachhalten, Bildschirm sperren, Papierkorb leeren, Farbpipette, belegte Ports und mehr.</p></div>
+      <div class="feature reveal"><h3>Systemmonitor</h3><p>CPU, GPU, Speicher, Festplatte, Netzwerk und Akku live, mit den aktivsten Prozessen.</p></div>
+      <div class="feature reveal"><h3>Das Menew-Fenster</h3><p>Notizen, Einstellungen und eine Übersicht in einem eigenen Fenster, dazu ein kleines Fenster aus dem Tray.</p></div>
+    </div>
+    <p class="next-note">Jede Mac-Funktion und ihr Linux-Status: <a data-goatcounter-click="linux-parity-next" href="https://github.com/Quost/menew-linux/blob/main/docs/parity.md" target="_blank" rel="noopener">die Paritätsliste auf GitHub</a></p>
+  </div>
+</section>
+
+<section id="requirements">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Voraussetzungen unter Linux</div>
+      <h2>Was du brauchst.</h2>
+      <p class="sub">Menew ist für Wayland gebaut. Bisher wurde es nur in Sitzungen ohne Bildschirm mit GNOME Shell 46 und KWin 5.27 (Ubuntu 24.04) getestet, noch nicht auf einem echten Desktop.</p>
+    </div>
+    <div class="conn reveal" style="max-width:760px;margin:40px auto 0">
+      <h3>Hinweise zur Einrichtung</h3>
+      <ul>
+        <li><span><b>Desktop:</b> GNOME oder KDE Plasma unter Wayland. X11 nur nach bestem Bemühen.</span></li>
+        <li><span><b>Tastenkürzel:</b> das GlobalShortcuts-Portal (KDE Plasma und GNOME 48+). Unter GNOME 45 bis 47 legst du zwei eigene Tastenkürzel an.</span></li>
+        <li><span><b>Zwischenablage unter GNOME:</b> eine kleine Menew-Erweiterung für die GNOME Shell schickt die Kopien an Menew. Du aktivierst sie einmal und meldest dich ab und wieder an. KDE braucht nichts Zusätzliches.</span></li>
+        <li><span><b>Tray-Symbol unter GNOME:</b> installiere die AppIndicator-Erweiterung. KDE Plasma zeigt es direkt an.</span></li>
+        <li><span><b>Automatisches Einfügen:</b> optional und standardmäßig aus. Es braucht Schreibzugriff auf <code>/dev/uinput</code>.</span></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="privacy">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Datenschutz</div>
+      <h2>Dasselbe Versprechen wie auf dem Mac.</h2>
+      <p class="sub">Keine Telemetrie, keine Analyse, kein Konto. Der Zwischenablage-Verlauf bleibt auf deinem Computer.</p>
+    </div>
+    <div class="priv">
+      <div class="reveal">
+        <div class="stats">
+          <div class="stat"><b>0</b><span>Telemetrie</span></div>
+          <div class="stat"><b>0</b><span>Konten</span></div>
+          <div class="stat"><b class="grad">100%</b><span>auf deinem Computer</span></div>
+        </div>
+        <div class="priv-cards">
+          <div><h3>Lokal gespeichert</h3><p>Der Verlauf liegt in einer lokalen SQLite-Datei, Bilder sind Dateien in deinem Datenordner. Nichts wird hochgeladen.</p></div>
+          <div><h3>Passwörter werden übersprungen</h3><p>Von Passwortmanagern markierte Kopien werden nie gelesen, und während der Pause wird nichts gelesen.</p></div>
+          <div><h3>Bilder werden hier gelesen</h3><p>Der Text in Bildern wird mit Tesseract auf deinem Computer gelesen.</p></div>
+        </div>
+      </div>
+      <div class="conn reveal">
+        <h3>Die einzige Netzwerkanfrage</h3>
+        <ul>
+          <li>Ein Wechselkurs, nur wenn du bei einer Umrechnung Enter drückst</li>
+          <li>Eine HTTPS-Anfrage an api.frankfurter.app mit den beiden Währungscodes und sonst nichts</li>
+          <li>Tippen sendet nie etwas</li>
+          <li>Schnelllinks öffnen sich im Browser; Menew kontaktiert diese Seiten nicht</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="final reveal">
+    <img class="appicon" src="/assets/icon.webp" alt="">
+    <h2>Verfolge die Linux-Version.</h2>
+    <p class="sub" style="margin:0 auto">Beobachte das Repository auf GitHub, um zu erfahren, wann die erste Version erscheint. Menew für Linux ist kostenlos und Open Source (GPL-3.0).</p>
+    <div class="cta" style="margin-top:28px;justify-content:center">
+      <a class="btn primary" data-goatcounter-click="linux-github-final" href="https://github.com/Quost/menew-linux" target="_blank" rel="noopener">Menew auf GitHub<span class="count" data-stars hidden></span></a>
+      <a class="btn ghost" data-goatcounter-click="linux-mac-final" href="/de">Menew für Mac</a>
+    </div>
+    <div class="coffee on">
+      <p class="sub" style="margin:0 auto 14px;font-size:15px">Menew entsteht in der Freizeit. Wenn es dir täglich ein paar Minuten spart:</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn sponsor" data-goatcounter-click="sponsor" href="https://github.com/sponsors/Quost" target="_blank" rel="noopener">♥ Auf GitHub sponsern</a>
+        <a class="btn bmc" data-goatcounter-click="coffee" href="https://buymeacoffee.com/quost" target="_blank" rel="noopener">☕ Spendier mir einen Kaffee</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Menew · <a href="https://github.com/Quost/menew-linux/blob/main/LICENSE">GPLv3-Lizenz</a> · Gemacht von Quost</span>
+    <span><a href="/de" data-goatcounter-click="linux-foot-mac">Menew für Mac</a> · <a href="https://github.com/Quost/menew-linux/issues/new/choose" data-goatcounter-click="linux-report-bug">Problem melden</a> · <a href="https://github.com/Quost/menew-linux/blob/main/CONTRIBUTING.md" data-goatcounter-click="linux-contribute">Mitmachen</a></span>
+    <span class="stats-note">Diese Website zählt Besuche anonym mit GoatCounter, ohne Cookies.</span>
+  </div>
+</footer>
+
+<script>
+  const REPO = "Quost/menew-linux";
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+  fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
+    if (!repo) return;
+    document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
