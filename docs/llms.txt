@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.104.1 (updated 2026-11-17). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.104.1 (updated 2026-11-18). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
 
 ## Highlights
 
@@ -166,7 +166,7 @@ Yes. The AI agents section reads the logs Claude Code, Codex, Gemini CLI, Cursor
 
 - Website: https://menew.web.app/ (also in Portuguese, German, Spanish and Chinese: https://menew.web.app/pt, https://menew.web.app/de, https://menew.web.app/es, https://menew.web.app/zh)
 - Source code and README: https://github.com/Quost/menew
-- Menew for Linux (in development, no release yet: command palette and clipboard history for GNOME and KDE Plasma): https://menew.web.app/linux (also https://menew.web.app/pt/linux, https://menew.web.app/de/linux, https://menew.web.app/es/linux, https://menew.web.app/zh/linux); source: https://github.com/Quost/menew-linux
+- Menew for Linux (early preview releases for testers: command palette, clipboard history, notes, screenshots, QR codes and system monitor for GNOME and KDE Plasma): https://menew.web.app/linux (also https://menew.web.app/pt/linux, https://menew.web.app/de/linux, https://menew.web.app/es/linux, https://menew.web.app/zh/linux); source: https://github.com/Quost/menew-linux
 - Menew vs Raycast: https://menew.web.app/vs/raycast
 - Menew vs Maccy and Paste: https://menew.web.app/vs/maccy
 - Menew vs Rectangle and Magnet: https://menew.web.app/vs/rectangle

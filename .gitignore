@@ -9,3 +9,7 @@ build/
 firebase-debug.log
 .agents/
 skills-lock.json
+# Página /linux: gerada no deploy a partir do repositório menew-linux (scripts/build-site.py)
+docs/linux/
+docs/*/linux/
+docs/assets/linux/
