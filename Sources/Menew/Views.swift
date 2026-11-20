@@ -1,6 +1,5 @@
 import SwiftUI
 import UniformTypeIdentifiers
-import ServiceManagement
 import ApplicationServices
 
 enum Tab: String, CaseIterable {
@@ -732,7 +731,7 @@ struct SettingsView: View {
     @AppStorage(DisplayController.ddcKey) private var ddcBrightness = true
     @AppStorage(DisplayController.followKey) private var followBuiltin = false
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @State private var launchAtLogin = LaunchAtLogin.isOn
     @State private var axTrusted = AXIsProcessTrusted()
     @State private var confirmClear = false
 
@@ -778,8 +777,8 @@ struct SettingsView: View {
                     RowDivider()
                     ToggleRow(title: L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
                         .onChange(of: launchAtLogin) { _, on in
-                            do { on ? try SMAppService.mainApp.register() : try SMAppService.mainApp.unregister() }
-                            catch { launchAtLogin = SMAppService.mainApp.status == .enabled }
+                            guard on != LaunchAtLogin.isOn else { return }
+                            do { try LaunchAtLogin.set(on) } catch { launchAtLogin = LaunchAtLogin.isOn }
                         }
                 }
                 }

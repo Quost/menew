@@ -209,7 +209,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         let existing = ["history.json", "notes.json", "notas.md"].contains {
             FileManager.default.fileExists(atPath: dir.appendingPathComponent($0).path)
         }
-        if !DemoMode.isOn { welcome.showIfNeeded(existingUser: existing) }
+        if !DemoMode.isOn {
+            LaunchAtLogin.applyDefault(newUser: !existing && !UserDefaults.standard.bool(forKey: WelcomeController.doneKey))
+            welcome.showIfNeeded(existingUser: existing)
+        }
 
         installEditMenu()
         // Notas protegidas pedem Touch ID de novo depois que o Mac trava ou dorme
