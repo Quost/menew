@@ -591,6 +591,7 @@ private let table: [String: [String]] = [
     "Arraste para levar os %d": ["Drag to take all %d", "Alle %d ziehen", "Arrastra para llevar los %d", "拖动带走全部 %d 个"],
     "Estante": ["Shelf", "Ablage", "Estantería", "暂存架"],
     "Esvaziar estante": ["Clear shelf", "Ablage leeren", "Vaciar estantería", "清空暂存架"],
+    "Compartilhar tudo (AirDrop, Mensagens, Mail…)": ["Share all (AirDrop, Messages, Mail…)", "Alle teilen (AirDrop, Nachrichten, Mail …)", "Compartir todo (AirDrop, Mensajes, Mail…)", "全部共享（隔空投送、信息、邮件…）"],
     "Fechar (os itens continuam aqui)": ["Close (items stay here)", "Schließen (Objekte bleiben hier)", "Cerrar (los elementos se quedan aquí)", "关闭（项目会保留）"],
     "Pasta": ["Folder", "Ordner", "Carpeta", "文件夹"],
     "Reunião de alinhamento movida para quinta às 14h": ["Sync meeting moved to Thursday at 2 PM", "Abstimmungsmeeting auf Donnerstag 14 Uhr verschoben", "Reunión de seguimiento movida al jueves a las 14 h", "同步会议改到周四下午 2 点"],

@@ -47,6 +47,14 @@ struct ShelfItem: Identifiable, Equatable {
 
     var isFile: Bool { if case .file = kind { true } else { false } }
 
+    /// O que vai para o menu Compartilhar (AirDrop, Mensagens, Mail…)
+    var shareable: Any {
+        switch kind {
+        case .file(let u), .link(let u): u
+        case .text(let t): t
+        }
+    }
+
     /// O que vai junto quando o item é arrastado para outro app
     var writer: NSPasteboardWriting {
         switch kind {
@@ -169,6 +177,12 @@ final class ShelfStore: ObservableObject {
         }
     }
 
+    /// Menu Compartilhar do macOS (AirDrop, Mensagens, Mail…) com os itens, aberto colado em `view`
+    func share(_ list: [ShelfItem], from view: NSView) {
+        guard !list.isEmpty else { return }
+        SharePicker.shared.show(list.map(\.shareable), from: view)
+    }
+
     func reveal(_ item: ShelfItem) {
         if case .file(let u) = item.kind { NSWorkspace.shared.activateFileViewerSelecting([u]) }
     }
@@ -180,7 +194,7 @@ final class ShelfStore: ObservableObject {
 final class ShelfDragView: NSView, NSDraggingSource {
     var items: () -> [ShelfItem] = { [] }
     var onDoubleClick: () -> Void = {}
-    var menuItems: () -> [NSMenuItem] = { [] }
+    var menuItems: (NSView) -> [NSMenuItem] = { _ in [] }
     private var downEvent: NSEvent?
 
     override func mouseDown(with event: NSEvent) {
@@ -209,7 +223,7 @@ final class ShelfDragView: NSView, NSDraggingSource {
     }
 
     override func menu(for event: NSEvent) -> NSMenu? {
-        let list = menuItems()
+        let list = menuItems(self)
         guard !list.isEmpty else { return nil }
         let menu = NSMenu()
         list.forEach(menu.addItem)
@@ -232,7 +246,7 @@ final class ClosureMenuItem: NSMenuItem {
 struct ShelfDragArea: NSViewRepresentable {
     let items: () -> [ShelfItem]
     var onDoubleClick: () -> Void = {}
-    var menuItems: () -> [NSMenuItem] = { [] }
+    var menuItems: (NSView) -> [NSMenuItem] = { _ in [] }
 
     func makeNSView(context: Context) -> ShelfDragView { ShelfDragView() }
 
@@ -249,6 +263,7 @@ struct ShelfView: View {
     @ObservedObject var store: ShelfStore
     var onClose: () -> Void
     @AppStorage("language") private var language = "auto"
+    private let shareAnchor = ViewAnchor.Ref()
 
     var body: some View {
         VStack(spacing: 0) {
@@ -291,18 +306,33 @@ struct ShelfView: View {
                 }
                 .scrollIndicators(.never)
 
-                // Puxa todos de uma vez
+                // Puxa todos de uma vez, ou manda todos por AirDrop, Mensagens, Mail…
                 HStack(spacing: 8) {
-                    Image(systemName: "hand.draw.fill")
-                    Text(store.items.count == 1 ? L("Arraste para levar") : L("Arraste para levar os %d", store.items.count))
+                    HStack(spacing: 8) {
+                        Image(systemName: "hand.draw.fill")
+                        Text(store.items.count == 1 ? L("Arraste para levar") : L("Arraste para levar os %d", store.items.count))
+                    }
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity, minHeight: 34)
+                    .background(Capsule().fill(Theme.indigo.gradient))
+                    .overlay(ShelfDragArea(items: { store.items }))
+                    .help(L("Arrasta todos os itens juntos para outro app ou pasta. Os originais ficam onde estão."))
+
+                    Button { if let v = shareAnchor.view { store.share(store.items, from: v) } } label: {
+                        Image(systemName: "square.and.arrow.up")
+                            .font(.system(size: 13, weight: .semibold))
+                            .foregroundStyle(Theme.indigo)
+                            .frame(width: 34, height: 34)
+                            .background(Circle().fill(Theme.indigo.opacity(0.15)))
+                            .contentShape(Circle())
+                    }
+                    .buttonStyle(.plain)
+                    .background(ViewAnchor(ref: shareAnchor))
+                    .help(L("Compartilhar tudo (AirDrop, Mensagens, Mail…)"))
+                    .accessibilityLabel(L("Compartilhar tudo (AirDrop, Mensagens, Mail…)"))
                 }
-                .font(.system(size: 12, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity).padding(.vertical, 9)
-                .background(Capsule().fill(Theme.indigo.gradient))
-                .overlay(ShelfDragArea(items: { store.items }))
                 .padding(10)
-                .help(L("Arrasta todos os itens juntos para outro app ou pasta. Os originais ficam onde estão."))
             }
         }
         .background(store.targeted ? Theme.indigo.opacity(0.08) : .clear)
@@ -329,7 +359,7 @@ struct ShelfRow: View {
                 Spacer(minLength: 0)
             }
             .contentShape(Rectangle())
-            .overlay(ShelfDragArea(items: { [item] }, onDoubleClick: { store.open(item) }, menuItems: { menu }))
+            .overlay(ShelfDragArea(items: { [item] }, onDoubleClick: { store.open(item) }, menuItems: { menu(from: $0) }))
             if hover {
                 Button { store.remove(item) } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
@@ -343,7 +373,7 @@ struct ShelfRow: View {
         .accessibilityElement(children: .combine)
     }
 
-    private var menu: [NSMenuItem] {
+    private func menu(from view: NSView) -> [NSMenuItem] {
         var list = [ClosureMenuItem(item.isFile ? L("Abrir") : L("Copiar")) { store.open(item) }]
         if item.isFile {
             list.append(ClosureMenuItem(L("Mostrar no Finder")) { store.reveal(item) })
@@ -351,6 +381,7 @@ struct ShelfRow: View {
         } else if case .link = item.kind {
             list.append(ClosureMenuItem(L("Copiar")) { store.copy(item) })
         }
+        list.append(ClosureMenuItem(L("Compartilhar…")) { [weak view] in if let view { store.share([item], from: view) } })
         list.append(ClosureMenuItem(L("Tirar da estante")) { store.remove(item) })
         return list
     }

@@ -147,7 +147,7 @@ Send it to the other display, or put it back the way it was. **Drag to snap**: d
 <details>
 <summary>📥 <b>Quick shelf</b> — Shake files while you drag them and a shelf pops up next to the cursor.</summary>
 
-Drop files, links, text or images there, then drag them all out together to another app or folder. Items are always copied, so the originals never move. Also from the right-click menu or the command palette. With photos on the shelf, its image menu converts them to JPG, PNG or HEIC, shrinks them in bulk (3000 to 800 px), rotates them, removes the background or location and metadata, or copies the text in all of them; results are new files next to the originals, ready to drag out. With PDFs, its PDF menu combines them, compresses them (the same “Reduce File Size” filter as Preview, keeping text selectable), rotates them, turns pages into PNG images, splits them into one PDF per page, extracts the text to a .txt (scanned pages are read on your Mac) or saves a password-protected copy; images can also be combined into one PDF. With audio or video files, **Transcribe** turns speech into text on your Mac (offline), saved as a note and copied.
+Drop files, links, text or images there, then drag them all out together to another app or folder, or press the share button next to it to send them by AirDrop, Messages or Mail (right-click an item to share just that one). Items are always copied, so the originals never move. Also from the right-click menu or the command palette. With photos on the shelf, its image menu converts them to JPG, PNG or HEIC, shrinks them in bulk (3000 to 800 px), rotates them, removes the background or location and metadata, or copies the text in all of them; results are new files next to the originals, ready to drag out. With PDFs, its PDF menu combines them, compresses them (the same “Reduce File Size” filter as Preview, keeping text selectable), rotates them, turns pages into PNG images, splits them into one PDF per page, extracts the text to a .txt (scanned pages are read on your Mac) or saves a password-protected copy; images can also be combined into one PDF. With audio or video files, **Transcribe** turns speech into text on your Mac (offline), saved as a note and copied.
 
 </details>
 
@@ -559,6 +559,7 @@ Recently shipped:
 - [x] Menew window with a sidebar, and Memory (capture with source, OCR and AI tags)
 - [x] Ask your memory in plain words, with sources, and memory in Spotlight
 - [x] Share passwords as encrypted files, to a contact or with a password
+- [x] Share from the shelf by AirDrop, Messages or Mail
 
 </details>
 
