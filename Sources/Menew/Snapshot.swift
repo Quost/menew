@@ -231,16 +231,17 @@ enum Snapshot {
                 hm.focusEnd = Date().addingTimeInterval(18 * 60)
                 hm.after = Meeting(id: "d3", title: L("Revisão do trimestre"), start: Date().addingTimeInterval(3 * 3600), end: Date().addingTimeInterval(4 * 3600),
                                    link: nil, color: .purple)
+                hm.track = NowPlaying.Track(source: .music, title: "Clair de lune", artist: "Claude Debussy", album: "Suite bergamasque", playing: true)
                 let dm = NotchHoverModel()
                 dm.shown = true
                 dm.mode = .drop
                 render(VStack(spacing: 18) {
-                    NotchHoverView(model: hm, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 172)
+                    NotchHoverView(model: hm, notch: CGSize(width: 200, height: 37)).frame(width: 480, height: 172 + hm.trackHeight)
                     NotchHoverView(model: dm, notch: CGSize(width: 200, height: 37)).frame(width: 360, height: 110)
                 }
                 .padding(.bottom, 18).frame(width: 560)
                 .background(LinearGradient(colors: [Color(red: 0.42, green: 0.45, blue: 0.62), Color(red: 0.62, green: 0.52, blue: 0.68)], startPoint: .topLeading, endPoint: .bottomTrailing)),
-                       size: NSSize(width: 560, height: 318), dark: dark, to: dir.appendingPathComponent("notch-hover-\(suffix).png"))
+                       size: NSSize(width: 560, height: 318 + hm.trackHeight), dark: dark, to: dir.appendingPathComponent("notch-hover-\(suffix).png"))
                 // Notch numa chamada: tempo, gravar com ata e legendas
                 let cm = NotchHoverModel()
                 cm.shown = true

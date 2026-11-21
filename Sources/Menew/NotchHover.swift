@@ -90,7 +90,8 @@ final class NotchHover: NSObject {
         model.refresh()
         // A linha "depois:" da reunião seguinte pede um pouco mais de altura
         // Cada agente ativo ganha uma linha, e cada ferramenta com limite ou uso hoje, outra
-        let size = m == .hover ? NSSize(width: model.agentsHeight > 0 ? 540 : 480, height: (model.after != nil ? 172 : 150) + model.agentsHeight)
+        // A música tocando ganha uma linha
+        let size = m == .hover ? NSSize(width: model.agentsHeight > 0 ? 540 : 480, height: (model.after != nil ? 172 : 150) + model.agentsHeight + model.trackHeight)
                                : NSSize(width: 360, height: 110)
         let frame = NSRect(x: s.frame.midX - size.width / 2, y: s.frame.maxY - size.height, width: size.width, height: size.height)
         let p = panel ?? makePanel()
@@ -148,6 +149,19 @@ final class NotchHoverModel: ObservableObject {
     @Published var moreAgents = 0
     /// Uma linha por ferramenta: as janelas do plano e o uso de hoje
     @Published var limitRows: [AgentLimitRow] = []
+    /// A música tocando no Spotify ou no Música
+    @Published var track: NowPlaying.Track?
+    private var trackWatch: Any?
+
+    init() {
+        // Tocar/pausar e trocar de faixa com o painel aberto. Aparecer ou sumir mudaria a altura, então isso só na próxima abertura.
+        trackWatch = NowPlaying.shared.$track.sink { [weak self] new in
+            guard let self, (self.track == nil) == (new == nil) else { return }
+            self.track = new
+        }
+    }
+
+    var trackHeight: CGFloat { track == nil ? 0 : 48 }
 
     /// A altura que os agentes acrescentam ao painel
     var agentsHeight: CGFloat {
@@ -172,6 +186,7 @@ final class NotchHoverModel: ObservableObject {
         moreAgents = max(0, active.count - 3)
         // Os limites e o uso de hoje ficam sempre, com ou sem sessão aberta
         limitRows = AgentLimitRow.current()
+        track = NowPlaying.isOn ? NowPlaying.shared.track : nil
     }
 }
 
@@ -423,6 +438,9 @@ struct NotchHoverView: View {
                     Label { Text(t.end, style: .timer).monospacedDigit() } icon: { Image(systemName: "hourglass").foregroundStyle(.blue) }
                         .font(.system(size: 12, weight: .semibold))
                 }
+            }
+            if let t = model.track {
+                NowPlayingRow(track: t, onOpen: { NotchHover.run { NowPlaying.shared.openApp() } }) { NowPlaying.shared.send($0) }
             }
             HStack(spacing: 8) {
                 button(model.micMuted ? "mic.slash.fill" : "mic.fill", model.micMuted ? L("Mudo") : L("Microfone"), model.micMuted ? .red : .white) {

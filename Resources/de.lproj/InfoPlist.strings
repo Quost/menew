@@ -1,4 +1,4 @@
-"NSAppleEventsUsageDescription" = "Menew verwendet Finder und System Events für Schnellaktionen (Dunkelmodus, Papierkorb leeren).";
+"NSAppleEventsUsageDescription" = "Menew verwendet Finder und System Events für Schnellaktionen (Dunkelmodus, Papierkorb leeren) sowie Spotify und Musik für die Wiedergabetasten in der Notch.";
 "NSCalendarsFullAccessUsageDescription" = "Menew zeigt dein nächstes Meeting und eine Taste zum Beitreten. Dein Kalender wird auf deinem Mac gelesen und verlässt ihn nie.";
 "NSCalendarsUsageDescription" = "Menew zeigt dein nächstes Meeting und eine Taste zum Beitreten. Dein Kalender wird auf deinem Mac gelesen und verlässt ihn nie.";
 "NSRemindersFullAccessUsageDescription" = "Menew erstellt die Erinnerungen, die du in der Befehlspalette eingibst, etwa „erinnern Rechnung zahlen morgen um 9“. Nichts verlässt deinen Mac.";

@@ -134,6 +134,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
         }
         shelf.startShakeDetection()
         NotchCenter.shared.refresh()
+        if !DemoMode.isOn { NowPlaying.shared.start() }
         if !DemoMode.isOn {
             AgentHub.shared.start()
             AgentUsageStore.shared.start()
