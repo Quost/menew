@@ -6,6 +6,7 @@ Each version's section is shown in the in-app update window and on the GitHub re
 
 ### New
 - **Share from the shelf.** A share button next to **Drag to take all** sends everything on the shelf by AirDrop, Messages, Mail or any app in the macOS share menu. Right-click an item to share just that one.
+- **Now playing in the notch.** Rest the pointer on the notch and the panel shows the song playing in Spotify or Music, with play/pause, previous and next. Click the song to bring the app forward. The first time you press a button, macOS asks to let Menew control the app. Turn it off in Settings › Notch › Now playing.
 
 ## 1.105.0
 

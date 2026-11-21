@@ -420,6 +420,7 @@ struct NotchSettingsSection: View {
     @State private var on = NotchCenter.shared.isOn
     @State private var hover = NotchHover.hoverOn
     @State private var drop = NotchHover.dropOn
+    @State private var nowPlaying = NowPlaying.isOn
     @State private var kinds: [NotchCenter.Kind: Bool] = Dictionary(uniqueKeysWithValues: NotchCenter.Kind.allCases.map { ($0, $0.isOn) })
     @AppStorage(NotchCenter.leadKey) private var lead = 2
     @State private var onlyReal = MeetingStore.onlyReal
@@ -451,6 +452,11 @@ struct NotchSettingsSection: View {
                     ToggleRow(title: L("Abrir ao passar o mouse"),
                               detail: L("Pare o mouse no notch: aparecem a próxima reunião, o timer e atalhos (microfone, captura, memória, clipboard, estante). Numa chamada, gravar com ata e legendas."),
                               isOn: Binding(get: { hover }, set: { hover = $0; UserDefaults.standard.set($0, forKey: NotchHover.hoverKey); NotchHover.shared.refresh() }))
+                    RowDivider()
+                    ToggleRow(title: L("Música tocando"),
+                              detail: L("Mostra o que está tocando no Spotify ou no Música, com tocar/pausar e faixa anterior e seguinte. Na primeira vez, o macOS pede para o Menew controlar o app."),
+                              isOn: Binding(get: { nowPlaying }, set: { nowPlaying = $0; UserDefaults.standard.set($0, forKey: NowPlaying.key) }))
+                        .disabled(!hover).opacity(hover ? 1 : 0.5)
                     RowDivider()
                     ToggleRow(title: L("Soltar arquivos no notch"),
                               detail: L("Arraste arquivos até o notch e solte: eles vão para a estante."),
