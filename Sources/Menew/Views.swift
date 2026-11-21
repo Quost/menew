@@ -732,6 +732,8 @@ struct SettingsView: View {
     @AppStorage(DisplayController.followKey) private var followBuiltin = false
     @AppStorage(ShelfController.shakeKey) private var shelfShake = true
     @State private var launchAtLogin = LaunchAtLogin.isOn
+    @AppStorage(MenuBarHider.key) private var hideIcons = false
+    @AppStorage(MenuBarHider.autoKey) private var hideIconsAuto = true
     @State private var axTrusted = AXIsProcessTrusted()
     @State private var confirmClear = false
 
@@ -774,6 +776,17 @@ struct SettingsView: View {
                     ToggleRow(title: L("Ícones separados"),
                               detail: L("Cada métrica ganha seu próprio ícone na barra, e clicar abre um painel só dela, com gráfico e detalhes."),
                               isOn: $menuBarSeparate)
+                    RowDivider()
+                    ToggleRow(title: L("Esconder ícones da barra de menus"),
+                              detail: L("Um ‹ e uma linha | aparecem ao lado do ícone do Menew. Segure ⌘ e arraste para a esquerda da linha os ícones que quer esconder; clique no ‹ para mostrar ou esconder."),
+                              isOn: $hideIcons)
+                        .onChange(of: hideIcons) { _, _ in MenuBarHider.shared.refresh() }
+                    if hideIcons {
+                        RowDivider()
+                        ToggleRow(title: L("Esconder de novo sozinho"),
+                                  detail: L("Depois de 10 segundos, quando o mouse sai da barra de menus."),
+                                  isOn: $hideIconsAuto)
+                    }
                     RowDivider()
                     ToggleRow(title: L("Abrir ao iniciar o Mac"), isOn: $launchAtLogin)
                         .onChange(of: launchAtLogin) { _, on in

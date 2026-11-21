@@ -38,7 +38,7 @@ Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost
 - Instead of Raycast or Alfred: Command palette: apps, actions, math, conversions, quick links and AI (⌃⌥Space).
 - Instead of Maccy or Paste: Clipboard history with search, preview, snippets and a paste queue (⌘⇧V).
 - Instead of Rectangle or Magnet: Snap windows to halves, corners and thirds with the same ⌃⌥ shortcuts.
-- Instead of iStat Menus or Stats: CPU, GPU, memory, disk, network and battery in the menu bar.
+- Instead of iStat Menus or Stats or Bartender: CPU, GPU, memory, disk, network and battery in the menu bar, and hide the icons you don't need behind a ‹.
 - Instead of CleanShot X: Screenshots with arrows, text, blur and pinning on screen (⌃⌥⌘S). Plus screen recording, GIFs and scrolling capture.
 - Instead of Amphetamine or Caffeine: Keep the Mac awake for a while, until a time or while an app is open.
 - Instead of CleanMyMac: Disk cleaner for caches, logs, big files and duplicates; files go to the Trash. Plus an app uninstaller that removes the leftovers too.

@@ -216,7 +216,7 @@ Screenshots, installers and archives are sorted by rule. Review and edit every n
 
 CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health, cycles and charger, a <b>battery health history</b> (how much health it lost and how many cycles you use a month, from one reading a day kept on your Mac), the battery of connected accessories (Magic Mouse, Keyboard, Trackpad and AirPods, left, right and case), a <b>history of the last 24 hours, 7 days and 30 days</b> of CPU, memory and battery with the apps that used the most of each, <b>temperatures in °C</b> (chip, SSD, battery and every sensor) and <b>fan speed</b>, <b>performance and efficiency cores</b> one by one, <b>power draw in watts</b> and real time remaining, <b>SSD health</b> (SMART), a <b>runaway app alert</b> and <b>Copy report</b> for support, <b>Wi-Fi details</b> (signal, noise, link speed, channel, band and Wi-Fi standard), <b>login and background items</b> (the launch agents and services apps installed, from the command palette), <b>Screen time</b> (off until you turn it on: time per app today, over 7 or 30 days, split into focus, neutral and distraction and by kind of app (Development, Office, Design, AI, Organizing, Communication, Browsing, Learning and reading, Utilities, Entertainment, Social media), with an hour-by-hour timeline; right-click an app to change its kind or how it counts, and choose how each kind counts; it counts only the front app while you are active and stays on your Mac), <b>“Why is my Mac slow?”</b> (checks memory, CPU, heat, disk, Low Power Mode and uptime, points at the apps to blame and, with Apple Intelligence, explains it in plain words; macOS system processes are never suggested for quitting), uptime, thermal state and the top processes (quit them in one click).
 
-Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery, temperature) with a live preview, all in one icon or with **separate icons**, each opening its own panel with details and a chart of the last 24 hours with the apps that used the most. **World clocks** for the cities you work with sit at the top (Settings → World clocks), and the command palette converts times: “3pm ny to lisbon”, “15h em Lisboa”, “time in Tokyo”.
+Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery, temperature) with a live preview, all in one icon or with **separate icons**, each opening its own panel with details and a chart of the last 24 hours with the apps that used the most. **Hide menu bar icons** (Settings › Menu bar, off by default): a ‹ and a | line appear next to the Menew icon; hold ⌘ and drag the icons you don't need to the left of the line, and click ‹ to show or hide them (they hide again by themselves after 10 seconds, unless you turn that off). Menew won't hide anything while the line is to the right of its own icon. **World clocks** for the cities you work with sit at the top (Settings → World clocks), and the command palette converts times: “3pm ny to lisbon”, “15h em Lisboa”, “time in Tokyo”.
 
 </details>
 
@@ -388,6 +388,7 @@ Menew covers the everyday features of these popular Mac utilities in one free, n
 | Amphetamine · Caffeine | Keep the Mac awake for a while, until a time or while an app is open. |
 | CleanMyMac | Disk cleaner for caches, logs, big files and duplicates, plus an app uninstaller with leftovers; files go to the Trash. |
 | Dropover · Yoink | A shelf for dragging files between apps, plus image and PDF tools. |
+| Bartender · Ice | Hide the menu bar icons you don't need behind a ‹ and bring them back with a click. |
 | ccusage · usage widgets | Usage of Claude Code, Codex, Gemini CLI, Cursor, Copilot CLI, Kiro, OpenCode and more, plan limits and who is waiting for you, plus an MCP server for your notes and minutes. |
 | Granola · Otter | Meeting recordings with transcript, minutes and tasks, made on your Mac (⌃⌥⌘G). |
 | TextSniper | Copy text from anywhere on screen, even from videos and images (⌃⌥⌘T). |
@@ -561,6 +562,7 @@ Recently shipped:
 - [x] Share passwords as encrypted files, to a contact or with a password
 - [x] Share from the shelf by AirDrop, Messages or Mail
 - [x] Now playing in the notch panel (Spotify and Music)
+- [x] Hide menu bar icons behind a ‹
 
 </details>
 
