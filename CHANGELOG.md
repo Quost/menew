@@ -2,6 +2,11 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### New
+- **Hide menu bar icons.** Turn it on in Settings › Menu bar and a ‹ with a | line appears next to the Menew icon. Hold ⌘ and drag the icons you don't need to the left of the line; click ‹ to hide or show them. They hide again by themselves 10 seconds after you're done, unless you turn that off.
+
 ## 1.105.0
 
 ### New

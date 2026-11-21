@@ -93,6 +93,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             button.sendAction(on: [.leftMouseUp, .rightMouseUp])
             button.setAccessibilityLabel("Menew")
         }
+        // Esconder ícones: o ‹ e a linha entram à esquerda do ícone do Menew, por isso depois dele
+        MenuBarHider.shared.menewButton = { [weak self] in self?.statusItem.button }
+        MenuBarHider.shared.refresh()
 
         popover.behavior = .transient
         popover.delegate = self
