@@ -55,6 +55,51 @@ UPDATED = datetime.date.today().isoformat() if _pending else (
     subprocess.run(["git", "log", "-1", "--format=%cs", "--", "site", "CHANGELOG.md"], cwd=ROOT,
                    capture_output=True, text=True).stdout.strip() or datetime.date.today().isoformat())
 
+# Pururucos (a empresa que faz o Menew) e os outros apps dela: cópia local de https://pururucos.com.br/products.json
+# (site/family.json + imagens em docs/assets/family/), atualizada à mão com scripts/sync-family.py; o build não usa a rede para isso
+FAMILY = json.loads((ROOT / "site/family.json").read_text(encoding="utf-8"))
+MAKER = FAMILY["maker"]
+PURURUCOS_ORG = {"@type": "Organization", "@id": MAKER["id"], "name": MAKER["name"], "url": MAKER["url"]}
+
+def family_img(remote):
+    """Imagem da Pururucos servida daqui (mesmo nome do arquivo remoto; scripts/sync-family.py baixa)"""
+    local = "/assets/family/" + remote.rsplit("/", 1)[-1]
+    assert (ROOT / "docs" / local.lstrip("/")).exists(), f"{local} não existe: rode scripts/sync-family.py"
+    return local
+
+def utm(link, medium):
+    if link.count("/") == 2:  # https://site.app -> https://site.app/
+        link += "/"
+    return link + ("&" if "?" in link else "?") + f"utm_source=menew&utm_medium={medium}"
+
+def maker_url(lang, medium):
+    """Site da Pururucos: a raiz é em português; os outros idiomas vão para /en/"""
+    return utm(MAKER["url"].rstrip("/") + ("/" if lang == "pt" else "/en/"), medium)
+
+def family_band(lang):
+    """Faixa "Outros apps da Pururucos", acima do rodapé de todas as páginas"""
+    esc = htmllib.escape
+    card = ('      <li><a class="family-card{cls}" href="{href}" data-goatcounter-click="{click}" target="_blank" rel="noopener">'
+            '<img src="{img}" width="44" height="44" alt="" loading="lazy" decoding="async">'
+            '<span><b>{name}</b><span>{text}</span></span></a></li>')
+    cards = [card.format(cls="", href=esc(utm(p["url"], "apps_band")), click=f"family-{p['id']}", img=family_img(p["icon"]),
+                         name=esc(p["name"]), text=esc(p["tagline"][lang]))
+             for p in FAMILY["products"] if p["id"] != "menew"]
+    idea = MAKER["yourIdea"]
+    cards.append(card.format(cls=" idea", href=esc(maker_url(lang, "apps_band")), click="family-your-idea", img=family_img(MAKER["logo"]),
+                             name=esc(idea["title"][lang]), text=esc(idea["body"][lang])))
+    title = esc(MAKER["othersTitle"][lang])
+    return (f'<aside class="family" aria-labelledby="family-title">\n  <div class="wrap">\n'
+            f'    <h2 id="family-title">{title}</h2>\n    <ul class="family-grid">\n' + "\n".join(cards)
+            + '\n    </ul>\n  </div>\n</aside>')
+
+def family_credit(lang):
+    """Crédito do rodapé: "Um produto Pururucos" com o logo, e o convite para falar com a empresa"""
+    esc = htmllib.escape
+    return (f'<a class="maker" href="{esc(maker_url(lang, "footer"))}" data-goatcounter-click="footer-pururucos">'
+            f'<img src="{family_img(MAKER["logo"])}" width="16" height="16" alt="">{esc(MAKER["credit"][lang])}</a>'
+            f' · <a href="{esc(maker_url(lang, "footer"))}" data-goatcounter-click="footer-pururucos-cta">{esc(MAKER["cta"][lang])}</a>')
+
 def plain(text):
     """Texto sem HTML, para os dados estruturados"""
     return htmllib.unescape(re.sub(r"<[^>]+>", "", text))
@@ -131,7 +176,7 @@ def jsonld(lang, texts):
         "name": "Menew",
         # O nome sozinho também é de um sistema de restaurantes (Linx Menew): estes deixam claro qual é qual
         "alternateName": ["Menew for Mac", "Menew Mac app", "Menew menu bar app", "Quost Menew"],
-        "disambiguatingDescription": "Free, open source macOS menu bar app by Quost (github.com/Quost/menew). Not related to Linx Menew, a restaurant point-of-sale system.",
+        "disambiguatingDescription": "Free, open source macOS menu bar app by Pururucos (pururucos.com.br; source at github.com/Quost/menew). Not related to Linx Menew, a restaurant point-of-sale system.",
         "url": url(lang),
         "description": htmllib.unescape(texts["meta_desc"]),
         "inLanguage": LANGS[lang][0],
@@ -154,7 +199,8 @@ def jsonld(lang, texts):
         "isAccessibleForFree": True,
         "keywords": ", ".join(plain(texts[k]) for k in ("b1_t", "b2_t", "b3_t", "b4_t", "f2_t", "f1_t", "f3_t"))
                     + ", " + ", ".join(f"{n} {ALT[lang]}" for i in range(1, N_REP + 1) for n in texts[f"rep{i}_t"].split(" · ")),
-        "author": {"@type": "Person", "name": "Quost", "url": "https://github.com/Quost"},
+        "author": PURURUCOS_ORG,
+        "publisher": PURURUCOS_ORG,
         "sameAs": ["https://github.com/Quost/menew"],
     }
     faq = {
@@ -225,6 +271,7 @@ for lang in LANGS:
         "faq_items": "\n".join(f'      <details class="reveal"><summary>{texts[f"faq{i}_q"]}</summary><p>{texts[f"faq{i}_a"]}</p></details>'
                                for i in range(1, N_FAQ + 1)),
         "compare_links": compare_links(texts["compare_label"]),
+        "family_band": family_band(lang), "family_credit": family_credit(lang),
         "analytics": ANALYTICS,
         "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt", "notch_meeting", "notch_join", "notch_focus")},
                                   "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
@@ -240,6 +287,9 @@ for lang in LANGS:
 
 # Páginas de comparação
 ctpl = (ROOT / "site/compare.html").read_text()
+# O CSS da faixa da Pururucos é o mesmo da página principal (entre os comentários "Pururucos: início/fim" do template)
+FAMILY_STYLE = re.search(r"  /\* Pururucos: início.*?/\* Pururucos: fim \*/\n", template, re.S).group(0)
+ctpl = ctpl.replace("{{family_style}}", FAMILY_STYLE.rstrip("\n"))
 MARK = {"yes": ("✓ Yes", "yes"), "partial": ("◐ Partly", "partial"), "no": ("— No", "no")}
 esc = htmllib.escape
 for slug, c in COMPARE.items():
@@ -252,7 +302,8 @@ for slug, c in COMPARE.items():
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebPage", "name": c["title"], "url": page_url, "description": c["description"], "inLanguage": "en",
          "about": {"@type": "SoftwareApplication", "name": "Menew", "alternateName": "Menew for Mac", "operatingSystem": "macOS",
-                   "url": SITE + "/", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}},
+                   "url": SITE + "/", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+                   "author": PURURUCOS_ORG, "publisher": PURURUCOS_ORG},
          "dateModified": UPDATED},
         {"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Menew", "item": SITE + "/"},
@@ -268,6 +319,7 @@ for slug, c in COMPARE.items():
         "others": " ".join(f'<a href="/vs/{s2}">{esc(c2["other"])}</a>' for s2, c2 in COMPARE.items() if s2 != slug),
         "jsonld": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
         "analytics": ANALYTICS,
+        "family_band": family_band("en"), "family_credit": family_credit("en"),
     }
     page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], ctpl)
     out = ROOT / "docs/vs" / slug / "index.html"
@@ -285,7 +337,8 @@ index += ('<main class="wrap"><header><div class="eyebrow">Comparisons</div><h1>
           '<p class="intro">Menew is one free, open source app for the Mac menu bar that covers the everyday part of several utilities. '
           'Here is how it compares, including where the specialized apps go further.</p></header><div style="margin-top:28px">'
           + cards + '</div><p class="disclaimer">Names are trademarks of their owners and appear only for comparison.</p></main>'
-          '<footer><div class="wrap">Menew · <a href="/">menew.web.app</a> · Not related to Linx Menew.</div></footer></body></html>\n')
+          + family_band("en") + '\n<footer><div class="wrap">' + family_credit("en") + '<br>Menew · <a href="/">menew.web.app</a> · '
+          '<a href="https://github.com/Quost/menew" data-goatcounter-click="footer-source">Source on GitHub</a> · Not related to Linx Menew.</div></footer></body></html>\n')
 (ROOT / "docs/vs/index.html").write_text(index)
 print("docs/vs/ (" + str(len(COMPARE)) + " comparações)")
 
@@ -348,14 +401,14 @@ for lang in LANGS:
          "inLanguage": LANGS[lang][0], "dateModified": UPDATED,
          "isPartOf": {"@type": "WebSite", "name": "Menew", "url": url(lang)}},
         {"@type": "SoftwareApplication", "name": "Menew for Linux", "alternateName": ["Menew Linux", "Quost Menew for Linux"],
-         "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Quost. Early preview releases for testers. Not related to Linx Menew, a restaurant point-of-sale system.",
+         "disambiguatingDescription": "Free, open source Linux port of the Menew menu bar app by Pururucos (pururucos.com.br). Early preview releases for testers. Not related to Linx Menew, a restaurant point-of-sale system.",
          "url": page_url, "description": htmllib.unescape(t["meta_desc"]), "inLanguage": LANGS[lang][0],
          "operatingSystem": "Linux", "applicationCategory": "UtilitiesApplication",
          "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
          "image": f"{SITE}/assets/og/{lang}.png",
          "screenshot": [f"{SITE}{shots}/{n}-dark.png" for n in ("palette", "palette-conversion", "clipboard", "clipboard-images", "capture-editor", "monitor")],
          "featureList": feats, "license": "https://www.gnu.org/licenses/gpl-3.0.html", "isAccessibleForFree": True,
-         "author": {"@type": "Person", "name": "Quost"},
+         "author": PURURUCOS_ORG, "publisher": PURURUCOS_ORG,
          "sameAs": [LINUX_REPO], "isBasedOn": {"@type": "SoftwareApplication", "name": "Menew", "operatingSystem": "macOS", "url": url(lang)}},
         {"@type": "BreadcrumbList", "itemListElement": [
             {"@type": "ListItem", "position": 1, "name": "Menew", "item": url(lang)},
@@ -373,7 +426,8 @@ for lang in LANGS:
         "palette_cards": cards(t, "pc", N_PC), "clipboard_cards": cards(t, "cc", N_CC), "tools_cards": cards(t, "tl", N_TOOLS),
         "release_url": LINUX_RELEASE_URL, "release_version": "v" + LINUX_VERSION,
         "badge_label": t["badge_pre"] if LINUX_PRE else t["badge_stable"], "next_cards": cards(t, "n", N_NEXT),
-        **{k: home[k] for k in ("star", "license", "made_by", "site_stats", "sponsor_button", "coffee_text", "coffee_button",
+        "family_band": family_band(lang), "family_credit": family_credit(lang),
+        **{k: home[k] for k in ("star", "license", "footer_source", "site_stats", "sponsor_button", "coffee_text", "coffee_button",
                                 "footer_bug", "footer_contribute")},
     })
     page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], linux_tpl)
@@ -408,7 +462,8 @@ lines = [
     "# Menew", "",
     f"> {plain(e['meta_desc'])}", "",
     f"Menew {VERSION} (updated {UPDATED}). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. "
-    "Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.", "",
+    "Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. "
+    "Made by Pururucos (https://pururucos.com.br), a software house in Brazil; the source code is at github.com/Quost/menew.", "",
     "## Highlights", "",
     *[f"- {plain(e[f'b{i}_t'])}: {plain(e[f'b{i}_d'])}" for i in range(1, 6)], "",
     "## Capabilities in detail", "",
@@ -416,7 +471,7 @@ lines = [
     "## Not included", "",
     NOT_INCLUDED, "",
     "## Name", "",
-    "Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost/menew. It is not related to Linx Menew, a restaurant point-of-sale system in Brazil.", "",
+    "Menew (also written Menew for Mac) is the macOS app by Pururucos, published at github.com/Quost/menew. It is not related to Linx Menew, a restaurant point-of-sale system in Brazil.", "",
     "## One app instead of many", "",
     *[f"- Instead of {e[f'rep{i}_t'].replace(' · ', ' or ')}: {plain(e[f'rep{i}_d'])}" for i in range(1, N_REP + 1)], "",
     "## Features", "",
@@ -436,6 +491,8 @@ lines = [
     f"- Menew for Linux (early preview releases for testers: command palette, clipboard history, notes, screenshots, QR codes and system monitor for GNOME and KDE Plasma): {SITE}/linux (also {SITE}/pt/linux, {SITE}/de/linux, {SITE}/es/linux, {SITE}/zh/linux); source: https://github.com/Quost/menew-linux",
     *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}" for slug, c in COMPARE.items()],
     "- Releases and changelog: https://github.com/Quost/menew/releases",
+    f"- Made by Pururucos: {MAKER['url']} (other apps: "
+    + ", ".join(f"{p['name']} {p['url']}" for p in FAMILY["products"] if p["id"] != "menew") + ")",
 ]
 (ROOT / "docs/llms.txt").write_text("\n".join(lines) + "\n")
 print("docs/llms.txt")
