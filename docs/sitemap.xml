@@ -118,4 +118,49 @@
     <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es/linux"/>
     <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/linux"/>
   </url>
+  <url>
+    <loc>https://menew.web.app/mac</loc>
+    <lastmod>2026-11-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/mac"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/mac"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de/mac"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es/mac"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/mac"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/pt/mac</loc>
+    <lastmod>2026-11-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/mac"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/mac"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de/mac"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es/mac"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/mac"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/de/mac</loc>
+    <lastmod>2026-11-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/mac"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/mac"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de/mac"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es/mac"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/mac"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/es/mac</loc>
+    <lastmod>2026-11-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/mac"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/mac"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de/mac"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es/mac"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/mac"/>
+  </url>
+  <url>
+    <loc>https://menew.web.app/zh/mac</loc>
+    <lastmod>2026-11-22</lastmod>
+    <xhtml:link rel="alternate" hreflang="en" href="https://menew.web.app/mac"/>
+    <xhtml:link rel="alternate" hreflang="pt-BR" href="https://menew.web.app/pt/mac"/>
+    <xhtml:link rel="alternate" hreflang="de" href="https://menew.web.app/de/mac"/>
+    <xhtml:link rel="alternate" hreflang="es" href="https://menew.web.app/es/mac"/>
+    <xhtml:link rel="alternate" hreflang="zh-Hans" href="https://menew.web.app/zh/mac"/>
+  </url>
 </urlset>
