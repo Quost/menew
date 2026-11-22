@@ -5,21 +5,39 @@
       "public": "docs",
       "cleanUrls": true,
       "trailingSlash": false,
-      "ignore": ["**/.*"],
+      "ignore": [
+        "**/.*"
+      ],
       "headers": [
         {
           "source": "**/*.@(png|jpg|jpeg|gif|svg|webp|ico)",
-          "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=604800"
+            }
+          ]
         },
         {
           "source": "**/*.html",
-          "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }]
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=300"
+            }
+          ]
         },
         {
           "source": "**",
           "headers": [
-            { "key": "X-Content-Type-Options", "value": "nosniff" },
-            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+            {
+              "key": "X-Content-Type-Options",
+              "value": "nosniff"
+            },
+            {
+              "key": "Referrer-Policy",
+              "value": "strict-origin-when-cross-origin"
+            }
           ]
         }
       ]
@@ -28,8 +46,32 @@
       "target": "menew-legacy",
       "public": "hosting-redirect",
       "redirects": [
-        { "source": "/", "destination": "https://menew.pururucos.com.br/", "type": 301 },
-        { "source": "/:path*", "destination": "https://menew.pururucos.com.br/:path", "type": 301 }
+        {
+          "source": "/",
+          "destination": "https://menew.pururucos.com.br/",
+          "type": 301
+        },
+        {
+          "source": "/:path*",
+          "destination": "https://menew.pururucos.com.br/:path",
+          "type": 301
+        }
+      ]
+    },
+    {
+      "target": "menew-legacy-prd",
+      "public": "hosting-redirect",
+      "redirects": [
+        {
+          "source": "/",
+          "destination": "https://menew.pururucos.com.br/",
+          "type": 301
+        },
+        {
+          "source": "/:path*",
+          "destination": "https://menew.pururucos.com.br/:path",
+          "type": 301
+        }
       ]
     }
   ]
