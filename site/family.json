@@ -1,0 +1,93 @@
+{
+  "version": 1,
+  "maker": {
+    "id": "https://pururucos.com.br/#organization",
+    "name": "Pururucos",
+    "legalName": "Pururucos Tech",
+    "url": "https://pururucos.com.br",
+    "logo": "https://pururucos.com.br/brand/pururucos-mark.svg",
+    "github": "https://github.com/Quost",
+    "credit": {
+      "en": "A Pururucos product",
+      "pt": "Um produto Pururucos",
+      "de": "Ein Produkt von Pururucos",
+      "es": "Un producto de Pururucos",
+      "zh": "Pururucos 出品"
+    },
+    "about": {
+      "en": "Custom software, apps and AI, made in Brazil",
+      "pt": "Software, apps e IA sob medida, de Jaraguá do Sul",
+      "de": "Software, Apps und KI nach Maß, aus Brasilien",
+      "es": "Software, apps e IA a medida, hechos en Brasil",
+      "zh": "来自巴西的定制软件、应用与 AI"
+    },
+    "cta": {
+      "en": "Need software like this? Talk to us",
+      "pt": "Precisa de um software assim? Fale com a gente",
+      "de": "Brauchen Sie so eine Software? Sprechen Sie uns an",
+      "es": "¿Necesitas un software así? Habla con nosotros",
+      "zh": "需要这样的软件？联系我们"
+    },
+    "othersTitle": {
+      "en": "More apps by Pururucos",
+      "pt": "Outros apps da Pururucos",
+      "de": "Weitere Apps von Pururucos",
+      "es": "Más apps de Pururucos",
+      "zh": "Pururucos 的其他应用"
+    },
+    "yourIdea": {
+      "title": {
+        "en": "Your idea here",
+        "pt": "Sua ideia aqui",
+        "de": "Ihre Idee hier",
+        "es": "Tu idea aquí",
+        "zh": "你的想法"
+      },
+      "body": {
+        "en": "We design and build apps, systems and AI for companies.",
+        "pt": "Criamos apps, sistemas e IA sob medida para empresas.",
+        "de": "Wir entwerfen und bauen Apps, Systeme und KI für Unternehmen.",
+        "es": "Diseñamos y construimos apps, sistemas e IA para empresas.",
+        "zh": "我们为企业设计和开发应用、系统与 AI。"
+      }
+    }
+  },
+  "products": [
+    {
+      "id": "menew",
+      "name": "Menew",
+      "url": "https://menew.web.app",
+      "icon": "https://pururucos.com.br/portfolio/menew-icon.webp",
+      "platforms": [
+        "macOS",
+        "Windows",
+        "Linux"
+      ],
+      "tagline": {
+        "en": "Free menu bar app: screen memory, clipboard, windows and local AI.",
+        "pt": "App grátis da barra de menus: memória da tela, área de transferência, janelas e IA local.",
+        "de": "Kostenlose Menüleisten-App: Bildschirmgedächtnis, Zwischenablage, Fenster und lokale KI.",
+        "es": "App gratis de la barra de menús: memoria de pantalla, portapapeles, ventanas e IA local.",
+        "zh": "免费菜单栏应用：屏幕记忆、剪贴板、窗口管理与本地 AI。"
+      }
+    },
+    {
+      "id": "crewreview",
+      "name": "Crewreview",
+      "url": "https://crewreview.web.app",
+      "icon": "https://pururucos.com.br/portfolio/crewreview-icon.webp",
+      "platforms": [
+        "macOS",
+        "Windows",
+        "Linux"
+      ],
+      "tagline": {
+        "en": "A free crew of AI agents that reviews your pull requests.",
+        "pt": "Uma equipe grátis de agentes de IA que revisa seus pull requests.",
+        "de": "Eine kostenlose Crew von KI-Agenten, die Ihre Pull Requests prüft.",
+        "es": "Un equipo gratis de agentes de IA que revisa tus pull requests.",
+        "zh": "一组免费的 AI 代理，为你审查 Pull Request。"
+      }
+    }
+  ]
+}

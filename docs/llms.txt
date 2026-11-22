@@ -2,7 +2,7 @@
 
 > Free, open source Mac menu bar app: command palette, clipboard history, windows, screenshots, meeting notes, screen memory and on-device AI. No account.
 
-Menew 1.106.0 (updated 2026-11-21). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Quost.
+Menew 1.106.0 (updated 2026-11-22). Native Swift/SwiftUI app for macOS 14 or later, Apple Silicon and Intel. Free and open source (GPL-3.0). Signed with an Apple Developer ID and notarized. Made by Pururucos (https://pururucos.com.br), a software house in Brazil; the source code is at github.com/Quost/menew.
 
 ## Highlights
 
@@ -31,7 +31,7 @@ Menew does not hide or rearrange other apps' menu bar icons (use Ice or Thaw), h
 
 ## Name
 
-Menew (also written Menew for Mac) is the macOS app by Quost at github.com/Quost/menew. It is not related to Linx Menew, a restaurant point-of-sale system in Brazil.
+Menew (also written Menew for Mac) is the macOS app by Pururucos, published at github.com/Quost/menew. It is not related to Linx Menew, a restaurant point-of-sale system in Brazil.
 
 ## One app instead of many
 
@@ -147,7 +147,7 @@ When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, r
 
 ### Is Menew related to Linx Menew?
 
-No. Menew is a free, open source app for the Mac menu bar, made by Quost and published at github.com/Quost/menew. Linx Menew is an unrelated point-of-sale system for restaurants in Brazil; the names are just alike.
+No. Menew is a free, open source app for the Mac menu bar, made by Pururucos (pururucos.com.br) and published at github.com/Quost/menew. Linx Menew is an unrelated point-of-sale system for restaurants in Brazil; the names are just alike.
 
 ### What doesn't Menew do?
 
@@ -174,3 +174,4 @@ Yes. The AI agents section reads the logs Claude Code, Codex, Gemini CLI, Cursor
 - Menew vs CleanShot X: https://menew.web.app/vs/cleanshot
 - Menew vs Otter and Granola: https://menew.web.app/vs/otter
 - Releases and changelog: https://github.com/Quost/menew/releases
+- Made by Pururucos: https://pururucos.com.br (other apps: Crewreview https://crewreview.web.app)

@@ -352,6 +352,28 @@
   footer a:hover { color: var(--text); }
   footer .stats-note { flex-basis: 100%; font-size: 12px; }
 
+  /* Pururucos: início (faixa "Outros apps" e crédito do rodapé; também vai para as páginas de comparação) */
+  .family { margin-top: 90px; }
+  .family + footer { margin-top: 44px; }
+  .family h2 { font-size: 20px; line-height: 1.3; letter-spacing: -.02em; font-weight: 700; margin: 0 0 16px; }
+  .family-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; list-style: none; margin: 0; padding: 0; }
+  .family-card {
+    display: flex; gap: 14px; align-items: flex-start; height: 100%; padding: 16px 18px; border-radius: 16px;
+    border: 1px solid var(--line); background: var(--card); color: var(--text); text-decoration: none;
+    transition: border-color .2s ease, transform .15s ease;
+  }
+  .family-card:hover { border-color: rgba(124, 92, 255, .4); transform: translateY(-1px); }
+  .family-card:focus-visible, .maker:focus-visible { outline: 2px solid var(--indigo, #5c6bff); outline-offset: 2px; }
+  .family-card img { width: 44px; height: 44px; flex: none; border-radius: 11px; }
+  .family-card b { display: block; font-size: 15.5px; letter-spacing: -.01em; }
+  .family-card span span { display: block; color: var(--muted); font-size: 14px; line-height: 1.45; margin-top: 2px; }
+  .family-card.idea { border-style: dashed; }
+  .family-card.idea b::after { content: " →"; color: var(--indigo, #5c6bff); }
+  .maker { display: inline-flex; align-items: center; gap: 7px; vertical-align: middle; }
+  .maker img { width: 16px; height: 16px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce) { .family-card { transition: none; } .family-card:hover { transform: none; } }
+  /* Pururucos: fim */
+
   /* Imagens claro/escuro */
   .dark-only { display: none; }
   @media (prefers-color-scheme: dark) {
@@ -763,10 +785,12 @@
   </div>
 </div>
 
+{{family_band}}
+
 <footer>
   <div class="wrap">
-    <span>Menew · <a href="https://github.com/Quost/menew/blob/main/LICENSE">{{license}}</a> · {{made_by}} <a href="https://github.com/Quost">Quost</a></span>
-    <span><a href="{{linux_path}}" data-goatcounter-click="footer-linux">{{footer_linux}}</a> · <a href="https://github.com/Quost/menew/releases" data-goatcounter-click="releases">{{footer_releases}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml" data-goatcounter-click="report-bug">{{footer_bug}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=feature_request.yml" data-goatcounter-click="suggest-idea">{{footer_idea}}</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md" data-goatcounter-click="contribute">{{footer_contribute}}</a></span>
+    <span>{{family_credit}}</span>
+    <span>Menew · <a href="https://github.com/Quost/menew/blob/main/LICENSE">{{license}}</a> · <a href="https://github.com/Quost/menew" data-goatcounter-click="footer-source">{{footer_source}}</a> · <a href="{{linux_path}}" data-goatcounter-click="footer-linux">{{footer_linux}}</a> · <a href="https://github.com/Quost/menew/releases" data-goatcounter-click="releases">{{footer_releases}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml" data-goatcounter-click="report-bug">{{footer_bug}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=feature_request.yml" data-goatcounter-click="suggest-idea">{{footer_idea}}</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md" data-goatcounter-click="contribute">{{footer_contribute}}</a></span>
     <span class="stats-note">{{site_stats}}</span>
   </div>
 </footer>
