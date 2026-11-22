@@ -5,7 +5,8 @@
   "targets": {
     "menew-prd": {
       "hosting": {
-        "menew": ["menew"]
+        "menew": ["menew-pururucos"],
+        "menew-legacy": ["menew", "menew-prd"]
       }
     }
   }

@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://menew.web.app/?ref=github"><b>Website</b></a> ·
+  <a href="https://menew.pururucos.com.br/?ref=github"><b>Website</b></a> ·
   <a href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg"><b>Download</b></a> ·
   <a href="CONTRIBUTING.md"><b>Contribute</b></a>
 </p>
@@ -32,7 +32,7 @@
   </picture>
 </p>
 
-<p align="center"><a href="https://menew.web.app/?ref=github#demo"><b>▶ Watch the 30-second demo</b></a></p>
+<p align="center"><a href="https://menew.pururucos.com.br/?ref=github#demo"><b>▶ Watch the 30-second demo</b></a></p>
 
 ## Highlights
 
@@ -395,7 +395,7 @@ Menew covers the everyday features of these popular Mac utilities in one free, n
 | PopClip | Actions on selected text in any app: rewrite, explain, reply, or turn it into a reminder or event (⌃⌥⌘R). |
 | Hazel | Tidy a folder like Downloads: names and folders suggested from each file's content, with review and undo. |
 
-Detailed comparisons, including where the specialized apps go further: [Raycast](https://menew.web.app/vs/raycast) · [Maccy and Paste](https://menew.web.app/vs/maccy) · [Rectangle and Magnet](https://menew.web.app/vs/rectangle) · [iStat Menus and Stats](https://menew.web.app/vs/istat-menus) · [CleanShot X](https://menew.web.app/vs/cleanshot) · [Otter and Granola](https://menew.web.app/vs/otter).
+Detailed comparisons, including where the specialized apps go further: [Raycast](https://menew.pururucos.com.br/vs/raycast) · [Maccy and Paste](https://menew.pururucos.com.br/vs/maccy) · [Rectangle and Magnet](https://menew.pururucos.com.br/vs/rectangle) · [iStat Menus and Stats](https://menew.pururucos.com.br/vs/istat-menus) · [CleanShot X](https://menew.pururucos.com.br/vs/cleanshot) · [Otter and Granola](https://menew.pururucos.com.br/vs/otter).
 
 <sub>Names are trademarks of their owners and appear only for comparison. Menew isn't affiliated with or endorsed by any of them.</sub>
 
@@ -430,7 +430,7 @@ Menew only reads what it shows. With the menu closed it uses about **0.5% CPU, 1
 
 The app has **no telemetry, no analytics and no account**. Clipboard history and notes are stored locally in `~/Library/Application Support/Menew`. Items marked as passwords by password managers (`org.nspasteboard.ConcealedType`) are never saved. Values copied from password notes are marked the same way and cleared from the clipboard after 30 seconds. Backups are files you save yourself; protected notes are never included in them. Shared passwords are encrypted on your Mac into a file you send yourself; your sharing key stays in the Keychain, and your contacts' public codes in `~/Library/Application Support/Menew/share-contacts.json`. The only network calls are the ones you can see: your public IP (`api.ipify.org`), the speed test you start yourself, a currency rate when you press ↩ on a conversion in the command palette (`api.frankfurter.app`, European Central Bank data), and a daily update check against this repo's releases (you can turn it off). The song in the notch panel is read from the notifications Spotify and Music already send on your Mac, and its buttons talk to those apps directly; there is no cover art, since Spotify's would have to be downloaded. Text recognition (copy text from screen or images) uses Apple's Vision framework on your Mac; nothing is uploaded, and the screen capture is deleted right after. AI text actions use only Apple's on-device model (never Private Cloud Compute), so the text stays on your Mac. The next meeting is read from the Calendar app through EventKit, only if you turn it on, and stays on your Mac. Notes you can search in Spotlight are indexed by macOS on your Mac (never protected or password notes, never the clipboard history). Live captions listen only while they are on and never record; speech is recognized and translated on your Mac. Recordings only happen when you start them; the audio, transcript and minutes are kept in `~/Library/Application Support/Menew/recordings`. Memory captures are only taken when you press the shortcut and are kept in `~/Library/Application Support/Menew/memory`; Automatic Memory is off until you turn on a source, reads screenshots, recordings, notes and agent logs on your Mac only (no network) and strips keys and tokens before saving. Widgets read a small file Menew rewrites every minute in its own shared container (`~/Library/Group Containers/9527N6XKKW.com.matheusquost.menew`); they run sandboxed and have no network access. AI agents: usage is read from the logs Claude Code, Codex and Gemini CLI already keep on your Mac (`~/.claude`, `~/.codex`, `~/.gemini`), and the daily totals for the long-term charts stay in `~/Library/Application Support/Menew/agent-usage.json` (no prompts or transcripts); agent hooks and the MCP server talk to Menew through local macOS notifications (if you turn on access for agents in Docker, Menew also listens on `127.0.0.1:47833`, never on your network, and only answers requests carrying a random key you can change), and loaded Ollama and LM Studio models are read from their local ports (`127.0.0.1`). The one optional network call here is **Claude limits**, off by default: when you turn it on, Menew reads the login Claude Code keeps in your Keychain (through the same `security` tool Claude Code uses to save it, so macOS doesn't ask for your password every time it renews) and checks `api.anthropic.com` every 5 minutes for the 5-hour and weekly usage; nothing else is sent.
 
-The website ([menew.web.app](https://menew.web.app/?ref=github)) counts visits and button clicks with [GoatCounter](https://www.goatcounter.com), which uses no cookies and stores no personal data. The app itself never does this.
+The website ([menew.pururucos.com.br](https://menew.pururucos.com.br/?ref=github)) counts visits and button clicks with [GoatCounter](https://www.goatcounter.com), which uses no cookies and stores no personal data. The app itself never does this.
 
 ## FAQ
 

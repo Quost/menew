@@ -6,7 +6,7 @@ cask "menew" do
   url "https://github.com/Quost/menew/releases/download/v#{version}/Menew.dmg"
   name "Menew"
   desc "Menu bar app with system monitor, clipboard history and quick actions"
-  homepage "https://menew.web.app/"
+  homepage "https://menew.pururucos.com.br/"
 
   livecheck do
     url :url

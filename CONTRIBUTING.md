@@ -40,7 +40,7 @@ You can also open `Package.swift` in Xcode and run the `Menew` scheme.
 
 ## Website
 
-The site (https://menew.web.app) is generated in 5 languages from `site/template.html` and `site/i18n/*.json`:
+The site (https://menew.pururucos.com.br) is generated in 5 languages from `site/template.html` and `site/i18n/*.json`:
 
 ```bash
 python3 scripts/build-site.py

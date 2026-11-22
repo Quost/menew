@@ -160,7 +160,7 @@ for f in 0..<Int(total * fps) {
         NSAttributedString(string: "Menew", attributes: [.font: NSFont.systemFont(ofSize: 64, weight: .bold), .paragraphStyle: p,
                                                          .foregroundColor: NSColor.white.withAlphaComponent(endA)])
             .draw(in: NSRect(x: 0, y: H / 2 - 100, width: W, height: 80))
-        NSAttributedString(string: "menew.web.app", attributes: [.font: NSFont.systemFont(ofSize: 30, weight: .medium), .paragraphStyle: p,
+        NSAttributedString(string: "menew.pururucos.com.br", attributes: [.font: NSFont.systemFont(ofSize: 30, weight: .medium), .paragraphStyle: p,
                                                                  .foregroundColor: NSColor.white.withAlphaComponent(0.85 * endA)])
             .draw(in: NSRect(x: 0, y: H / 2 - 150, width: W, height: 40))
     }

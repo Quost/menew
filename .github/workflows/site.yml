@@ -1,10 +1,11 @@
 name: Site
 
-# Publica docs/ no Firebase Hosting (menew.web.app) a cada push na main que mexa no site.
+# Publica docs/ no Firebase Hosting (site menew-pururucos, https://menew.pururucos.com.br) a cada push na main que mexa no site.
+# O site antigo (menew, https://menew.web.app) só redireciona (301) cada caminho para o mesmo caminho no domínio novo.
 on:
   push:
     branches: [main]
-    paths: ["docs/**", "site/**", "scripts/build-site.py", "firebase.json", ".firebaserc", ".github/workflows/site.yml"]
+    paths: ["docs/**", "site/**", "scripts/build-site.py", "hosting-redirect/**", "firebase.json", ".firebaserc", ".github/workflows/site.yml"]
   workflow_dispatch:
   # A página /linux vem do repositório menew-linux: lá, um workflow dispara este evento a cada release publicada
   # e a cada mudança em site/ ou docs/assets/ da main (Quost/menew-linux, .github/workflows/site-sync.yml)
@@ -37,18 +38,29 @@ jobs:
         run: |
           python3 scripts/build-site.py
           git diff --exit-code -- docs || { echo "::error::Rode python3 scripts/build-site.py e faça commit"; exit 1; }
-      - uses: FirebaseExtended/action-hosting-deploy@v0
+      # Conteúdo: alvo "menew" = site menew-pururucos (menew.pururucos.com.br), pasta docs/
+      - name: Publicar site (menew.pururucos.com.br)
+        uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENEW_PRD }}
           projectId: menew-prd
           target: menew
           channelId: live
+      # Endereço antigo: alvo "menew-legacy" = site menew (menew.web.app), só redirecionamentos 301 (hosting-redirect/)
+      - name: Publicar redirecionamento (menew.web.app)
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MENEW_PRD }}
+          projectId: menew-prd
+          target: menew-legacy
+          channelId: live
 
       # IndexNow: avisa o Bing (e Yandex, Naver, Seznam…) que o site mudou, para reindexar em horas em vez de semanas.
-      # O Bing alimenta a busca do ChatGPT. A chave é pública por definição (fica em docs/df850856e8360dcdd128c85eb1c159fd.txt).
+      # O Bing alimenta a busca do ChatGPT. A chave é pública por definição (fica em docs/df850856e8360dcdd128c85eb1c159fd.txt, servida em https://menew.pururucos.com.br/df850856e8360dcdd128c85eb1c159fd.txt).
       - name: Avisar buscadores (IndexNow)
         run: |
           curl -s -o /dev/null -w "IndexNow: HTTP %{http_code}\n" -X POST https://api.indexnow.org/indexnow \
             -H "Content-Type: application/json; charset=utf-8" \
-            -d '{"host":"menew.web.app","key":"df850856e8360dcdd128c85eb1c159fd","keyLocation":"https://menew.web.app/df850856e8360dcdd128c85eb1c159fd.txt","urlList":["https://menew.web.app/","https://menew.web.app/pt","https://menew.web.app/de","https://menew.web.app/es","https://menew.web.app/zh","https://menew.web.app/mac","https://menew.web.app/pt/mac","https://menew.web.app/llms.txt","https://menew.web.app/sitemap.xml"]}' || true
+            -d '{"host":"menew.pururucos.com.br","key":"df850856e8360dcdd128c85eb1c159fd","keyLocation":"https://menew.pururucos.com.br/df850856e8360dcdd128c85eb1c159fd.txt","urlList":["https://menew.pururucos.com.br/","https://menew.pururucos.com.br/pt","https://menew.pururucos.com.br/de","https://menew.pururucos.com.br/es","https://menew.pururucos.com.br/zh","https://menew.pururucos.com.br/mac","https://menew.pururucos.com.br/pt/mac","https://menew.pururucos.com.br/llms.txt","https://menew.pururucos.com.br/sitemap.xml"]}' || true

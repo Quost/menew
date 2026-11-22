@@ -16,7 +16,7 @@ import atexit, datetime, html as htmllib, json, os, re, shutil, subprocess, temp
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SITE = "https://menew.web.app"
+SITE = "https://menew.pururucos.com.br"
 LANGS = {  # código: (atributo lang, nome nativo)
     "en": ("en", "English"),
     "pt": ("pt-BR", "Português"),
@@ -359,7 +359,7 @@ index += ('<main class="wrap"><header><div class="eyebrow">Comparisons</div><h1>
           '<p class="intro">Menew is one free, open source app for the Mac menu bar that covers the everyday part of several utilities. '
           'Here is how it compares, including where the specialized apps go further.</p></header><div style="margin-top:28px">'
           + cards + '</div><p class="disclaimer">Names are trademarks of their owners and appear only for comparison.</p></main>'
-          + family_band("en") + '\n<footer><div class="wrap">' + family_credit("en") + '<br>Menew · <a href="/">menew.web.app</a> · '
+          + family_band("en") + '\n<footer><div class="wrap">' + family_credit("en") + '<br>Menew · <a href="/">menew.pururucos.com.br</a> · '
           '<a href="https://github.com/Quost/menew" data-goatcounter-click="footer-source">Source on GitHub</a> · Not related to Linx Menew.</div></footer></body></html>\n')
 (ROOT / "docs/vs/index.html").write_text(index)
 print("docs/vs/ (" + str(len(COMPARE)) + " comparações)")

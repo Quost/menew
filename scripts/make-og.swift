@@ -113,7 +113,7 @@ for lang in ["en", "pt", "de", "es", "zh"] {
     (badge as NSString).draw(at: NSPoint(x: left + 20, y: 189), withAttributes: pillAttrs)
 
     let url: [NSAttributedString.Key: Any] = [.font: NSFont.systemFont(ofSize: 22, weight: .medium), .foregroundColor: NSColor.white.withAlphaComponent(0.6)]
-    ("menew.web.app" as NSString).draw(at: NSPoint(x: left, y: 64), withAttributes: url)
+    ("menew.pururucos.com.br" as NSString).draw(at: NSPoint(x: left, y: 64), withAttributes: url)
 
     NSGraphicsContext.restoreGraphicsState()
     try! rep.representation(using: .png, properties: [:])!.write(to: out.appendingPathComponent("\(lang).png"))
