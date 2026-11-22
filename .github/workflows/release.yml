@@ -128,12 +128,37 @@ jobs:
           done
 
       # Mantém Casks/menew.rb (tap do Homebrew neste repo) na versão nova.
-      # O commit vai pela API do GitHub, que o assina: aparece como "Verified".
+      # Sem deploy key, o commit vai pela API do GitHub, que o assina: aparece como "Verified".
+      # Com RELEASE_DEPLOY_KEY (escrita só neste repositório), vai por git com ela: a main é protegida (PR, checks,
+      # assinatura) e, numa conta pessoal, só deploy keys passam por essa proteção.
       - name: Atualizar Homebrew
         env:
           GH_TOKEN: ${{ github.token }}
+          DEPLOY_KEY: ${{ secrets.RELEASE_DEPLOY_KEY }}
         run: |
           SHA256=$(shasum -a 256 build/Menew.dmg | cut -d' ' -f1)
+          if [ -n "$DEPLOY_KEY" ]; then
+            key="$RUNNER_TEMP/deploy_key"; (umask 077; printf '%s\n' "$DEPLOY_KEY" > "$key")
+            export GIT_SSH_COMMAND="ssh -i $key -o IdentitiesOnly=yes -o StrictHostKeyChecking=accept-new"
+            REMOTE="git@github.com:$GITHUB_REPOSITORY.git"
+            WT="$RUNNER_TEMP/menew-main"
+            for i in 1 2 3 4; do
+              ok=""
+              rm -rf "$WT"; git worktree prune
+              if git fetch -q "$REMOTE" main && git worktree add -q --detach "$WT" FETCH_HEAD; then
+                sed -E -i '' "s/^  version \".*\"/  version \"$VERSION\"/; s/^  sha256 .*/  sha256 \"$SHA256\"/" "$WT/Casks/menew.rb"
+                if git -C "$WT" diff --quiet; then ok=1
+                elif git -C "$WT" -c user.name="github-actions[bot]" -c user.email="41898282+github-actions[bot]@users.noreply.github.com" \
+                       commit -qam "chore(homebrew): bump cask to $VERSION" &&
+                     git -C "$WT" push -q "$REMOTE" HEAD:main; then ok=1
+                fi
+                git worktree remove -f "$WT" || true
+              fi
+              [ -n "$ok" ] && { rm -f "$key"; exit 0; }
+              [ "$i" = 4 ] && { rm -f "$key"; exit 1; }
+              echo "Nova tentativa em $((i * 10))s…"; sleep $((i * 10))
+            done
+          fi
           API="repos/$GITHUB_REPOSITORY/contents/Casks/menew.rb"
           # Lê de novo a cada tentativa: se a anterior gravou e só a resposta se perdeu, não há o que fazer
           for i in 1 2 3 4; do
