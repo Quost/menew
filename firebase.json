@@ -1,26 +1,36 @@
 {
-  "hosting": {
-    "target": "menew",
-    "public": "docs",
-    "cleanUrls": true,
-    "trailingSlash": false,
-    "ignore": ["**/.*"],
-    "headers": [
-      {
-        "source": "**/*.@(png|jpg|jpeg|gif|svg|webp|ico)",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
-      },
-      {
-        "source": "**/*.html",
-        "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }]
-      },
-      {
-        "source": "**",
-        "headers": [
-          { "key": "X-Content-Type-Options", "value": "nosniff" },
-          { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
-        ]
-      }
-    ]
-  }
+  "hosting": [
+    {
+      "target": "menew",
+      "public": "docs",
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "ignore": ["**/.*"],
+      "headers": [
+        {
+          "source": "**/*.@(png|jpg|jpeg|gif|svg|webp|ico)",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+        },
+        {
+          "source": "**/*.html",
+          "headers": [{ "key": "Cache-Control", "value": "public, max-age=300" }]
+        },
+        {
+          "source": "**",
+          "headers": [
+            { "key": "X-Content-Type-Options", "value": "nosniff" },
+            { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" }
+          ]
+        }
+      ]
+    },
+    {
+      "target": "menew-legacy",
+      "public": "hosting-redirect",
+      "redirects": [
+        { "source": "/", "destination": "https://menew.pururucos.com.br/", "type": 301 },
+        { "source": "/:path*", "destination": "https://menew.pururucos.com.br/:path", "type": 301 }
+      ]
+    }
+  ]
 }

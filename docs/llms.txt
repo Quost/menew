@@ -159,21 +159,21 @@ Yes. The AI agents section reads the logs Claude Code, Codex, Gemini CLI, Cursor
 
 ## Install
 
-- Mac download page (DMG, Homebrew, from source, requirements): https://menew.web.app/mac
+- Mac download page (DMG, Homebrew, from source, requirements): https://menew.pururucos.com.br/mac
 - Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg
 - Homebrew: `brew tap quost/menew https://github.com/Quost/menew && brew install --cask menew`
 
 ## Links
 
-- Website: https://menew.web.app/ (also in Portuguese, German, Spanish and Chinese: https://menew.web.app/pt, https://menew.web.app/de, https://menew.web.app/es, https://menew.web.app/zh)
+- Website: https://menew.pururucos.com.br/ (also in Portuguese, German, Spanish and Chinese: https://menew.pururucos.com.br/pt, https://menew.pururucos.com.br/de, https://menew.pururucos.com.br/es, https://menew.pururucos.com.br/zh)
 - Source code and README: https://github.com/Quost/menew
-- Menew for Linux (early preview releases for testers: command palette, clipboard history, notes, screenshots, QR codes and system monitor for GNOME and KDE Plasma): https://menew.web.app/linux (also https://menew.web.app/pt/linux, https://menew.web.app/de/linux, https://menew.web.app/es/linux, https://menew.web.app/zh/linux); source: https://github.com/Quost/menew-linux
-- Menew for Windows: in progress, no release yet (command palette, clipboard history and notes); watch https://github.com/Quost/menew-windows for releases (https://menew.web.app/windows)
-- Menew vs Raycast: https://menew.web.app/vs/raycast
-- Menew vs Maccy and Paste: https://menew.web.app/vs/maccy
-- Menew vs Rectangle and Magnet: https://menew.web.app/vs/rectangle
-- Menew vs iStat Menus and Stats: https://menew.web.app/vs/istat-menus
-- Menew vs CleanShot X: https://menew.web.app/vs/cleanshot
-- Menew vs Otter and Granola: https://menew.web.app/vs/otter
+- Menew for Linux (early preview releases for testers: command palette, clipboard history, notes, screenshots, QR codes and system monitor for GNOME and KDE Plasma): https://menew.pururucos.com.br/linux (also https://menew.pururucos.com.br/pt/linux, https://menew.pururucos.com.br/de/linux, https://menew.pururucos.com.br/es/linux, https://menew.pururucos.com.br/zh/linux); source: https://github.com/Quost/menew-linux
+- Menew for Windows: in progress, no release yet (command palette, clipboard history and notes); watch https://github.com/Quost/menew-windows for releases (https://menew.pururucos.com.br/windows)
+- Menew vs Raycast: https://menew.pururucos.com.br/vs/raycast
+- Menew vs Maccy and Paste: https://menew.pururucos.com.br/vs/maccy
+- Menew vs Rectangle and Magnet: https://menew.pururucos.com.br/vs/rectangle
+- Menew vs iStat Menus and Stats: https://menew.pururucos.com.br/vs/istat-menus
+- Menew vs CleanShot X: https://menew.pururucos.com.br/vs/cleanshot
+- Menew vs Otter and Granola: https://menew.pururucos.com.br/vs/otter
 - Releases and changelog: https://github.com/Quost/menew/releases
 - Made by Pururucos: https://pururucos.com.br (other apps: Crewreview https://crewreview.web.app)

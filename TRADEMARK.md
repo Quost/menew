@@ -1,6 +1,6 @@
 # Menew name and logo
 
-The Menew source code is free software under the [GNU General Public License v3](LICENSE). The **name “Menew”, the Menew icon and logo, and the website menew.web.app** are not covered by that license: they identify the official app made by Matheus Quost.
+The Menew source code is free software under the [GNU General Public License v3](LICENSE). The **name “Menew”, the Menew icon and logo, and the website menew.pururucos.com.br** are not covered by that license: they identify the official app made by Matheus Quost.
 
 ## You can
 
@@ -16,6 +16,6 @@ The Menew source code is free software under the [GNU General Public License v3]
 
 ## Official downloads
 
-The official app is published only on [GitHub Releases](https://github.com/Quost/menew/releases), through the Homebrew tap in this repository and on [menew.web.app](https://menew.web.app). Official builds are signed with the Developer ID of Matheus Quost (team 9527N6XKKW) and notarized by Apple.
+The official app is published only on [GitHub Releases](https://github.com/Quost/menew/releases), through the Homebrew tap in this repository and on [menew.pururucos.com.br](https://menew.pururucos.com.br). Official builds are signed with the Developer ID of Matheus Quost (team 9527N6XKKW) and notarized by Apple.
 
 Questions: open an issue on GitHub.

@@ -1,6 +1,6 @@
 # Menew: project rules for agents
 
-Native macOS menu bar app (Swift/SwiftUI, Swift Package). Public, GPL-3.0 (the name, icon and site are not covered: see `TRADEMARK.md`), distributed outside the App Store: signed with Developer ID, notarized, auto-updated with Sparkle, installable with Homebrew. Website: https://menew.web.app (Firebase Hosting, `docs/`).
+Native macOS menu bar app (Swift/SwiftUI, Swift Package). Public, GPL-3.0 (the name, icon and site are not covered: see `TRADEMARK.md`), distributed outside the App Store: signed with Developer ID, notarized, auto-updated with Sparkle, installable with Homebrew. Website: https://menew.pururucos.com.br (Firebase Hosting site `menew-pururucos`, target `menew`, `docs/`). The old addresses menew.web.app and menew-prd.web.app (target `menew-legacy`, `hosting-redirect/`) only 301 to it; never point links at them.
 
 ## Always keep these in sync
 
