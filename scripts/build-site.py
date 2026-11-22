@@ -5,6 +5,8 @@
     MENEW_LINUX_DIR=../menew-linux python3 scripts/build-site.py   # usa uma cópia local do menew-linux, sem rede
 
 Inglês fica em docs/index.html; os outros em docs/<idioma>/index.html.
+Páginas por plataforma, nos 5 idiomas: /mac (site/mac.html), /linux (site/linux.html) e /windows (site/windows.html, "em breve").
+A principal (site/template.html) apresenta o Menew e as três plataformas; a instalação detalhada do Mac fica em /mac.
 Edite o modelo e os textos, nunca os HTML gerados.
 A página /linux é a exceção: os textos (site/linux.json) e as capturas (docs/assets/) vêm do repositório
 Quost/menew-linux (clone raso da main, ou a pasta de MENEW_LINUX_DIR), e as páginas geradas ficam fora do git.
@@ -136,6 +138,25 @@ def fold(text, more, tag="p"):
 def url(lang):
     return SITE + "/" if lang == "en" else f"{SITE}/{lang}"
 
+def path(lang, page=""):
+    """Caminho local de uma página num idioma ('' = principal, 'mac', 'linux', 'windows')"""
+    if lang == "en":
+        return f"/{page}" if page else "/"
+    return f"/{lang}/{page}" if page else f"/{lang}"
+
+def page_link(lang, page):
+    return SITE + path(lang, page)
+
+def page_hreflang(page):
+    links = "\n".join(f'<link rel="alternate" hreflang="{LANGS[c][0]}" href="{page_link(c, page)}">' for c in LANGS)
+    return links + f'\n<link rel="alternate" hreflang="x-default" href="{page_link("en", page)}">'
+
+# Páginas que este script gera (as checagens de links aceitam todas, mesmo antes de serem escritas)
+PAGES = {path(c, pg) for c in LANGS for pg in ("", "mac", "linux", "windows")}
+
+# Menew para Windows ainda não tem versão: a página /windows fica com noindex e fora do sitemap até a primeira release
+WINDOWS_RELEASED = False
+
 # Só a página principal redireciona, e só quem ainda não escolheu um idioma no seletor
 DETECT = """<script>
   (function () {
@@ -263,7 +284,7 @@ for lang in LANGS:
         "og_image": f"{SITE}/assets/og/{lang}.png",
         "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
         "lang_switch": switch(lang),
-        "linux_path": "/linux" if lang == "en" else f"/{lang}/linux",
+        "linux_path": path(lang, "linux"), "mac_path": path(lang, "mac"), "windows_path": path(lang, "windows"),
         "jsonld": jsonld(lang, texts),
         **{f"f{i}_d_fold": fold(texts[f"f{i}_d"], texts["more"]) for i in range(1, 7)},
         **{f"act_l{i}_fold": "<div>" + fold(texts[f"act_l{i}"], texts["more"], "span") + "</div>" for i in range(1, 11)},
@@ -273,8 +294,9 @@ for lang in LANGS:
         "compare_links": compare_links(texts["compare_label"]),
         "family_band": family_band(lang), "family_credit": family_credit(lang),
         "analytics": ANALYTICS,
-        "js_strings": json.dumps({**{k: texts[k] for k in ("copied", "version", "ai_prompt", "notch_meeting", "notch_join", "notch_focus")},
-                                  "platforms": htmllib.unescape(texts["platforms"])}, ensure_ascii=False),
+        "js_strings": json.dumps({**{k: texts[k] for k in ("version", "notch_meeting", "notch_join", "notch_focus")},
+                                  **{k: htmllib.unescape(texts[k]) for k in ("platforms", "plat_linux_cta")}, "win_name": plain(texts["win_h1"]),
+                                  "linux_path": path(lang, "linux"), "windows_path": path(lang, "windows")}, ensure_ascii=False),
     })
     page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], template)
     assert "{{" not in page, f"{lang}: marcador sem valor"
@@ -302,7 +324,7 @@ for slug, c in COMPARE.items():
     ld = {"@context": "https://schema.org", "@graph": [
         {"@type": "WebPage", "name": c["title"], "url": page_url, "description": c["description"], "inLanguage": "en",
          "about": {"@type": "SoftwareApplication", "name": "Menew", "alternateName": "Menew for Mac", "operatingSystem": "macOS",
-                   "url": SITE + "/", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+                   "url": SITE + "/mac", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
                    "author": PURURUCOS_ORG, "publisher": PURURUCOS_ORG},
          "dateModified": UPDATED},
         {"@type": "BreadcrumbList", "itemListElement": [
@@ -417,7 +439,7 @@ for lang in LANGS:
     values = dict(t)
     values.update({
         "html_lang": LANGS[lang][0], "url": page_url, "hreflang": linux_hreflang, "shots": shots,
-        "home": "/" if lang == "en" else f"/{lang}",
+        "home": "/" if lang == "en" else f"/{lang}", "mac_path": path(lang, "mac"),
         "og_image": f"{SITE}/assets/og/{lang}.png",
         "og_locale": {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}[lang],
         "lang_switch": switch(lang, lang_paths("linux")),
@@ -440,7 +462,61 @@ for lang in LANGS:
     # Todo src/srcset/href local da página precisa existir em docs/ (as capturas vieram do menew-linux)
     for ref in re.findall(r'(?:src|href)="(/(?!/)[^"#?]*)"', page):
         target = ROOT / "docs" / ref.lstrip("/")
-        assert target.exists() or (target / "index.html").exists() or ref.rstrip("/") in ("", f"/{lang}"), f"linux {lang}: {ref} não existe em docs/"
+        assert target.exists() or (target / "index.html").exists() or (ref.rstrip("/") or "/") in PAGES, f"linux {lang}: {ref} não existe em docs/"
+
+# Páginas /mac e /windows, nos 5 idiomas: os textos ficam em site/i18n/<idioma>.json (mac_*, win_*, plat_*) junto com os da principal
+mac_tpl = (ROOT / "site/mac.html").read_text(encoding="utf-8")
+win_tpl = (ROOT / "site/windows.html").read_text(encoding="utf-8")
+OG_LOCALE = {"en": "en_US", "pt": "pt_BR", "de": "de_DE", "es": "es_ES", "zh": "zh_CN"}
+
+def platform_page(lang, page, tpl, ld, extra):
+    texts = json.loads((ROOT / f"site/i18n/{lang}.json").read_text(encoding="utf-8"))
+    values = dict(texts)
+    values.update({
+        "html_lang": LANGS[lang][0], "url": page_link(lang, page), "hreflang": page_hreflang(page),
+        "home": path(lang), "mac_path": path(lang, "mac"), "linux_path": path(lang, "linux"), "windows_path": path(lang, "windows"),
+        "shots": "/assets" if lang == "en" else f"/assets/{lang}",
+        "og_image": f"{SITE}/assets/og/{lang}.png", "og_locale": OG_LOCALE[lang],
+        "lang_switch": switch(lang, lang_paths(page)), "style": STYLE, "analytics": ANALYTICS,
+        "jsonld": json.dumps(ld, ensure_ascii=False).replace("</", "<\\/"),
+        "family_band": family_band(lang), "family_credit": family_credit(lang),
+        **extra(texts),
+    })
+    out_page = re.sub(r"\{\{(\w+)\}\}", lambda m: values[m.group(1)], tpl)
+    assert "{{" not in out_page, f"{page} {lang}: marcador sem valor"
+    out_page = optimize_images(out_page)
+    out = ROOT / "docs" / path(lang, page).lstrip("/") / "index.html"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(out_page, encoding="utf-8")
+    for ref in re.findall(r'(?:src|href)="(/(?!/)[^"#?]*)"', out_page):
+        target = ROOT / "docs" / ref.lstrip("/")
+        assert target.exists() or (target / "index.html").exists() or (ref.rstrip("/") or "/") in PAGES, f"{page} {lang}: {ref} não existe em docs/"
+    print(f"{page} {lang}: {out.relative_to(ROOT)}")
+
+for lang in LANGS:
+    texts = json.loads((ROOT / f"site/i18n/{lang}.json").read_text(encoding="utf-8"))
+    mac_url = page_link(lang, "mac")
+    platform_page(lang, "mac", mac_tpl, {"@context": "https://schema.org", "@graph": [
+        {"@type": "WebPage", "name": plain(texts["mac_title"]), "url": mac_url, "description": plain(texts["mac_meta_desc"]),
+         "inLanguage": LANGS[lang][0], "dateModified": UPDATED, "isPartOf": {"@type": "WebSite", "name": "Menew", "url": url(lang)},
+         "about": {"@type": "SoftwareApplication", "name": "Menew", "alternateName": "Menew for Mac", "url": mac_url,
+                   "operatingSystem": "macOS 14 or later", "applicationCategory": "UtilitiesApplication",
+                   "downloadUrl": "https://github.com/Quost/menew/releases/latest/download/Menew.dmg", "softwareVersion": VERSION,
+                   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "isAccessibleForFree": True,
+                   "license": "https://www.gnu.org/licenses/gpl-3.0.html", "author": PURURUCOS_ORG, "publisher": PURURUCOS_ORG}},
+        {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Menew", "item": url(lang)},
+            {"@type": "ListItem", "position": 2, "name": "Mac", "item": mac_url}]},
+    ]}, lambda tx: {"js_strings": json.dumps({"copied": tx["copied"], "version": tx["version"], "ai_prompt": tx["ai_prompt"],
+                                              "platforms": htmllib.unescape(tx["platforms"])}, ensure_ascii=False)})
+    win_url = page_link(lang, "windows")
+    platform_page(lang, "windows", win_tpl, {"@context": "https://schema.org", "@graph": [
+        {"@type": "WebPage", "name": plain(texts["win_title"]), "url": win_url, "description": plain(texts["win_meta_desc"]),
+         "inLanguage": LANGS[lang][0], "dateModified": UPDATED, "isPartOf": {"@type": "WebSite", "name": "Menew", "url": url(lang)}},
+        {"@type": "BreadcrumbList", "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Menew", "item": url(lang)},
+            {"@type": "ListItem", "position": 2, "name": "Windows", "item": win_url}]},
+    ]}, lambda tx: {"robots": "index, follow" if WINDOWS_RELEASED else "noindex, follow"})
 
 # Mapa do site (com as versões em cada idioma) e robots.txt para os buscadores
 alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{url(c)}"/>' for c in LANGS)
@@ -449,6 +525,9 @@ entries += "".join(f"\n  <url>\n    <loc>{SITE}/vs{p}</loc>\n    <lastmod>{UPDAT
                    for p in [""] + [f"/{slug}" for slug in COMPARE])
 linux_alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{linux_url(c)}"/>' for c in LANGS)
 entries += "".join(f"\n  <url>\n    <loc>{linux_url(c)}</loc>\n    <lastmod>{UPDATED}</lastmod>{linux_alternates}\n  </url>" for c in LANGS)
+for extra_page in ["mac"] + (["windows"] if WINDOWS_RELEASED else []):
+    page_alternates = "".join(f'\n    <xhtml:link rel="alternate" hreflang="{LANGS[c][0]}" href="{page_link(c, extra_page)}"/>' for c in LANGS)
+    entries += "".join(f"\n  <url>\n    <loc>{page_link(c, extra_page)}</loc>\n    <lastmod>{UPDATED}</lastmod>{page_alternates}\n  </url>" for c in LANGS)
 (ROOT / "docs/sitemap.xml").write_text(
     '<?xml version="1.0" encoding="UTF-8"?>\n'
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">'
@@ -483,12 +562,14 @@ lines = [
     "## FAQ", "",
     *[f"### {plain(e[f'faq{i}_q'])}\n\n{plain(e[f'faq{i}_a'])}\n" for i in range(1, N_FAQ + 1)],
     "## Install", "",
+    f"- Mac download page (DMG, Homebrew, from source, requirements): {SITE}/mac",
     "- Download: https://github.com/Quost/menew/releases/latest/download/Menew.dmg",
     "- Homebrew: `brew tap quost/menew https://github.com/Quost/menew && brew install --cask menew`", "",
     "## Links", "",
     f"- Website: {SITE}/ (also in Portuguese, German, Spanish and Chinese: {SITE}/pt, {SITE}/de, {SITE}/es, {SITE}/zh)",
     "- Source code and README: https://github.com/Quost/menew",
     f"- Menew for Linux (early preview releases for testers: command palette, clipboard history, notes, screenshots, QR codes and system monitor for GNOME and KDE Plasma): {SITE}/linux (also {SITE}/pt/linux, {SITE}/de/linux, {SITE}/es/linux, {SITE}/zh/linux); source: https://github.com/Quost/menew-linux",
+    f"- Menew for Windows: in progress, no release yet (command palette, clipboard history and notes); watch https://github.com/Quost/menew-windows for releases ({SITE}/windows)",
     *[f"- Menew vs {c['other']}: {SITE}/vs/{slug}" for slug, c in COMPARE.items()],
     "- Releases and changelog: https://github.com/Quost/menew/releases",
     f"- Made by Pururucos: {MAKER['url']} (other apps: "

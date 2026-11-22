@@ -367,6 +367,29 @@
   footer a:hover { color: var(--text); }
   footer .stats-note { flex-basis: 100%; font-size: 12px; }
 
+  /* Plataformas (Mac, Linux, Windows) */
+  .hero-more { margin-top: 12px; font-size: 14px; }
+  .hero-more a { color: var(--d-muted); text-decoration: underline; text-decoration-color: var(--d-line); text-underline-offset: 3px; }
+  .hero-more a:hover { color: var(--d-text); }
+  .plats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 44px; }
+  .plat { position: relative; display: flex; flex-direction: column; padding: 26px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); }
+  .plat.you { border-color: rgba(124, 92, 255, .6); box-shadow: 0 0 0 3px var(--glow), var(--shadow); }
+  .plat-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .plat-head svg { width: 30px; height: 30px; flex: none; }
+  .plat h3 { font-size: 21px; letter-spacing: -.02em; }
+  .plat p { color: var(--muted); font-size: 15px; margin-bottom: 20px; }
+  .plat .acts { margin-top: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .plat .acts a.link { color: var(--indigo); font-weight: 600; font-size: 14.5px; }
+  .tag { font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; letter-spacing: .01em; white-space: nowrap; }
+  .tag.stable { background: rgba(48, 209, 88, .15); color: #1f9d55; }
+  .tag.preview { background: rgba(255, 159, 10, .16); color: #b26b00; }
+  .tag.soon { background: var(--line); color: var(--muted); }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .tag.stable { color: #4cd964; } :root:not([data-theme="light"]) .tag.preview { color: #ffb340; } }
+  :root[data-theme="dark"] .tag.stable { color: #4cd964; } :root[data-theme="dark"] .tag.preview { color: #ffb340; }
+  .you-tag { display: none; margin-left: auto; font-size: 11.5px; font-weight: 700; padding: 3px 9px; border-radius: 999px; background: var(--brand); color: #fff; }
+  .plat.you .you-tag { display: inline-block; }
+  @media (max-width: 960px) { .plats { grid-template-columns: 1fr; } .plat.you { order: -1; } }
+
   /* Pururucos: início (faixa "Outros apps" e crédito do rodapé; também vai para as páginas de comparação) */
   .family { margin-top: 90px; }
   .family + footer { margin-top: 44px; }
@@ -437,8 +460,9 @@
     <div class="nav-links">
       <a class="text" href="#highlights">Highlights</a>
       <a class="text" href="#features">Features</a>
-      <a class="text" href="#privacy">Privacy</a>
+      <a class="text" href="/mac" data-goatcounter-click="nav-mac">Mac</a>
       <a class="text" href="/linux" data-goatcounter-click="nav-linux">Linux</a>
+      <a class="text" href="/windows" data-goatcounter-click="nav-windows">Windows</a>
       <select class="lang" aria-label="Language" onchange="try{localStorage.setItem('menew-lang',this.value)}catch(e){}try{goatcounter.count({path:'lang-'+this.value,event:true})}catch(e){}var u={en:'/',pt:'/pt',de:'/de',es:'/es',zh:'/zh'}[this.value];if(u)location.href=u"><option value="en" selected>English</option><option value="pt">Português</option><option value="de">Deutsch</option><option value="es">Español</option><option value="zh">中文</option></select>
       <a class="btn small star-btn" data-goatcounter-click="github-nav" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
@@ -465,9 +489,9 @@
       <h1>Your Mac's menu bar, <br><span class="grad">supercharged.</span></h1>
       <p class="lead">Memory, recordings with minutes, command palette, clipboard, windows, screenshots and system monitor, in one native app with AI running on your Mac. Free, no account, no telemetry.</p>
       <div class="cta">
-        <a class="btn primary" data-download data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
+        <a class="btn primary" data-download data-hero-cta data-goatcounter-click="download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
           <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
-          Download for Mac
+          <span>Download for Mac</span>
         </a>
         <a class="btn ghost" data-goatcounter-click="github-hero" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
@@ -475,6 +499,7 @@
         </a>
       </div>
       <p class="meta"><span data-meta>Universal · Apple Silicon &amp; Intel</span> · English, Português, Deutsch, Español, 中文</p>
+      <p class="hero-more"><a href="#platforms" data-goatcounter-click="hero-platforms">Also on Linux (preview) and Windows (coming soon)</a></p>
     </div>
     <div class="pop">
       <img class="light-only" src="/assets/popover-now-light.webp" width="800" height="1200" fetchpriority="high" alt="System monitor with CPU, memory, disk and battery rings">
@@ -483,6 +508,40 @@
   </div>
   <div class="desk-foot"></div>
 </header>
+
+<section id="platforms">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">Mac, Linux and Windows</div>
+      <h2>Pick your system</h2>
+      <p class="sub">Menew was born on the Mac, where it is complete. Linux has an early preview and Windows is on its way. Free, open source, no account and no telemetry on all of them.</p>
+    </div>
+    <div class="plats">
+      <div class="plat" data-platform="mac">
+        <div class="plat-head"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg><h3>macOS</h3><span class="tag stable">Stable</span><span class="you-tag">Your system</span></div>
+        <p>The complete app, signed and notarized by Apple, with automatic updates. macOS 14 or later, Apple Silicon and Intel.</p>
+        <div class="acts">
+          <a class="btn primary small" data-goatcounter-click="download-platforms" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">Download for Mac</a>
+          <a class="link" data-goatcounter-click="platforms-mac" href="/mac">Install options ›</a>
+        </div>
+      </div>
+      <div class="plat" data-platform="linux">
+        <div class="plat-head"><svg aria-hidden="true" viewBox="0 0 24 24"><ellipse cx="12" cy="13.5" rx="6.5" ry="8.5" fill="currentColor"/><ellipse cx="12" cy="15.5" rx="4.2" ry="6" fill="#fff"/><circle cx="10" cy="8.6" r="1.1" fill="#fff"/><circle cx="14" cy="8.6" r="1.1" fill="#fff"/><path d="M10.4 10.8h3.2L12 12.6z" fill="#f5a623"/><ellipse cx="8.3" cy="21.6" rx="2.6" ry="1.2" fill="#f5a623"/><ellipse cx="15.7" cy="21.6" rx="2.6" ry="1.2" fill="#f5a623"/></svg><h3>Linux</h3><span class="tag preview">Preview</span><span class="you-tag">Your system</span></div>
+        <p>Early preview for testers on GNOME and KDE Plasma: command palette, clipboard history, notes, screenshots and system monitor.</p>
+        <div class="acts">
+          <a class="btn small" data-goatcounter-click="platforms-linux" href="/linux">Menew for Linux</a>
+        </div>
+      </div>
+      <div class="plat" data-platform="windows">
+        <div class="plat-head"><svg aria-hidden="true" viewBox="0 0 24 24" fill="currentColor"><path d="M3 5.5l7.5-1v7H3zM11.5 4.3L21 3v8.5h-9.5zM3 12.5h7.5v7L3 18.5zM11.5 12.5H21V21l-9.5-1.3z"/></svg><h3>Windows</h3><span class="tag soon">Coming soon</span><span class="you-tag">Your system</span></div>
+        <p>Work in progress: command palette, clipboard history and notes. No version to download yet.</p>
+        <div class="acts">
+          <a class="btn small" data-goatcounter-click="platforms-windows" href="/windows">Follow progress</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <section id="demo" class="demo">
   <div class="wrap">
@@ -764,49 +823,16 @@
 </section>
 
 <div class="wrap">
-  <div class="final reveal">
+  <div class="final reveal" id="install">
     <img class="appicon" src="/assets/icon.webp" alt="">
     <h2>Make your menu bar work for you.</h2>
     <p class="sub" style="margin:0 auto">Free forever. Takes ten seconds to install.</p>
     <div class="cta" style="margin-top:28px;justify-content:center">
       <a class="btn primary" data-download data-goatcounter-click="download-install" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">Download Menew<span data-size></span></a>
+      <a class="btn ghost" data-goatcounter-click="install-options" href="/mac#install">Install options</a>
       <a class="btn ghost" data-goatcounter-click="github-install" href="https://github.com/Quost/menew" target="_blank" rel="noopener">View source</a>
     </div>
-    <div class="install" id="install">
-      <div class="tabs" role="tablist">
-        <button role="tab" aria-selected="true" data-tab="dmg">Download</button>
-        <button role="tab" aria-selected="false" data-tab="brew">Homebrew</button>
-        <button role="tab" aria-selected="false" data-tab="src">From source</button>
-      </div>
-
-      <div class="panel on" data-panel="dmg">
-        <ol class="steps">
-          <li><span>Download <b>Menew.dmg</b> with the button above.</span></li>
-          <li><span>Open it and drag <b>Menew</b> into <b>Applications</b>.</span></li>
-          <li><span>Open Menew. It lives in your <b>menu bar</b>; press <b>⌘⇧V</b> for the clipboard.</span></li>
-        </ol>
-        <p class="hint">macOS 14 or later · Apple Silicon &amp; Intel · Signed and notarized by Apple</p>
-      </div>
-
-      <div class="panel" data-panel="brew">
-        <div class="cmd"><code>brew tap quost/menew https://github.com/Quost/menew</code><button class="copy-btn">Copy</button></div>
-        <div class="cmd"><code>brew trust quost/menew</code><button class="copy-btn">Copy</button></div>
-        <div class="cmd"><code>brew install --cask menew</code><button class="copy-btn">Copy</button></div>
-        <p class="hint">Newer Homebrew versions ask you to trust third-party taps once.</p>
-      </div>
-
-      <div class="panel" data-panel="src">
-        <div class="cmd"><code>git clone https://github.com/Quost/menew</code><button class="copy-btn">Copy</button></div>
-        <div class="cmd"><code>cd menew</code><button class="copy-btn">Copy</button></div>
-        <div class="cmd"><code>./build.sh --install</code><button class="copy-btn">Copy</button></div>
-        <p class="hint">Needs Xcode 16 or the Swift 6 toolchain.</p>
-      </div>
-
-      <div class="ai">
-        <p>Using an AI assistant? <b>Copy a ready-made prompt</b> and paste it into ChatGPT, Claude or your terminal agent.</p>
-        <button class="copy-btn" data-ai>Copy prompt</button>
-      </div>
-    </div>
+    <p class="hero-more" style="margin-top:18px"><a href="#platforms" data-goatcounter-click="final-platforms">Also on Linux (preview) and Windows (coming soon)</a></p>
     <div class="coffee" data-coffee>
       <p class="sub" style="margin:0 auto 14px;font-size:15px">Menew is made in spare time. If it saves you a few minutes a day:</p>
       <div class="cta" style="justify-content:center">
@@ -836,7 +862,7 @@
 </footer>
 
 <script>
-  const T = {"copied": "Copied ✓", "version": "Version", "ai_prompt": "Install Menew on my Mac. It's a free, open source menu bar app (https://github.com/Quost/menew), signed and notarized by Apple, and it needs macOS 14 or later.\n\n1. If Homebrew is installed, run:\n   brew tap quost/menew https://github.com/Quost/menew\n   brew trust quost/menew\n   brew install --cask menew\n2. Otherwise, download the latest Menew.dmg from https://github.com/Quost/menew/releases/latest, open it and copy Menew.app into /Applications.\n3. Open Menew. It shows up in the menu bar; ⌘⇧V opens the clipboard history.\n\nExplain each command before running it.", "notch_meeting": "Meeting in 2 min", "notch_join": "Join", "notch_focus": "Focus", "platforms": "Universal · Apple Silicon & Intel"};
+  const T = {"version": "Version", "notch_meeting": "Meeting in 2 min", "notch_join": "Join", "notch_focus": "Focus", "platforms": "Universal · Apple Silicon & Intel", "plat_linux_cta": "Menew for Linux", "win_name": "Menew for Windows", "linux_path": "/linux", "windows_path": "/windows"};
   // Preencha com seu usuário do Buy Me a Coffee para mostrar o botão
   const BUY_ME_A_COFFEE = "quost";
   const REPO = "Quost/menew";
@@ -898,36 +924,27 @@
   document.querySelectorAll("[data-rail]").forEach(b => b.addEventListener("click", () =>
     rail.scrollBy({ left: Number(b.dataset.rail) * Math.min(760, rail.clientWidth * .8), behavior: "smooth" })));
 
-  // Instalação: abas
-  document.querySelectorAll("[data-tab]").forEach(tab => tab.addEventListener("click", () => {
-    document.querySelectorAll("[data-tab]").forEach(t => t.setAttribute("aria-selected", t === tab));
-    document.querySelectorAll("[data-panel]").forEach(p => p.classList.toggle("on", p.dataset.panel === tab.dataset.tab));
-    track("tab-" + tab.dataset.tab);
-  }));
-
-  const AI_PROMPT = T.ai_prompt;
-
-  async function copy(btn, text, name) {
-    track("copy-" + name);
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch {
-      // Reserva para navegadores que bloqueiam a API moderna
-      const ta = Object.assign(document.createElement("textarea"), { value: text });
-      ta.style.cssText = "position:fixed;opacity:0";
-      document.body.appendChild(ta);
-      ta.select();
-      const ok = document.execCommand("copy");
-      ta.remove();
-      if (!ok) return;
-    }
-    const label = btn.textContent;
-    btn.textContent = T.copied;
-    btn.classList.add("done");
-    setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1600);
+  // Sistema de quem visita: destaca a plataforma e, no Linux ou no Windows, o botão principal leva à página certa.
+  // Sem JS (ou num celular) fica tudo como está: Mac em destaque e as três plataformas na seção #platforms.
+  const os = (() => {
+    const ua = navigator.userAgent || "";
+    const p = ((navigator.userAgentData && navigator.userAgentData.platform) || navigator.platform || ua).toLowerCase();
+    if (/android|iphone|ipad|ipod/i.test(ua) || (/mac/.test(p) && navigator.maxTouchPoints > 1)) return "";
+    if (/mac/.test(p)) return "mac";
+    if (/win/.test(p)) return "windows";
+    if (/linux|x11/.test(p) && !/cros|chrome os/i.test(p + ua)) return "linux";
+    return "";
+  })();
+  const card = os && document.querySelector(`[data-platform="${os}"]`);
+  if (card) card.classList.add("you");
+  const hero = document.querySelector("[data-hero-cta]");
+  if (hero && (os === "linux" || os === "windows")) {
+    hero.href = os === "linux" ? T.linux_path : T.windows_path;
+    hero.querySelector("span").textContent = os === "linux" ? T.plat_linux_cta : T.win_name;
+    hero.querySelector("svg").remove();
+    hero.removeAttribute("data-download");
+    hero.dataset.goatcounterClick = "hero-" + os;
   }
-  document.querySelectorAll(".cmd .copy-btn").forEach(b => b.addEventListener("click", () => copy(b, b.previousElementSibling.textContent, b.previousElementSibling.textContent.trim().replace(/[^a-z0-9]+/gi, "-").slice(0, 40))));
-  document.querySelector("[data-ai]").addEventListener("click", e => copy(e.currentTarget, AI_PROMPT, "ai-prompt"));
 
   const io = new IntersectionObserver(entries => entries.forEach(e => {
     if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
