@@ -176,4 +176,4 @@ Yes. The AI agents section reads the logs Claude Code, Codex, Gemini CLI, Cursor
 - Menew vs CleanShot X: https://menew.pururucos.com.br/vs/cleanshot
 - Menew vs Otter and Granola: https://menew.pururucos.com.br/vs/otter
 - Releases and changelog: https://github.com/Quost/menew/releases
-- Made by Pururucos: https://pururucos.com.br (other apps: Crewreview https://crewreview.web.app)
+- Made by Pururucos: https://pururucos.com.br (other apps: Crewreview https://crewreview.pururucos.com.br)
