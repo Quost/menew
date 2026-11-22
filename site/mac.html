@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="{{html_lang}}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{mac_title}}</title>
+<meta name="description" content="{{mac_meta_desc}}">
+<meta property="og:title" content="{{mac_title}}">
+<meta property="og:description" content="{{mac_meta_desc}}">
+<meta property="og:image" content="{{og_image}}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Menew">
+<meta property="og:locale" content="{{og_locale}}">
+<meta name="twitter:image" content="{{og_image}}">
+<meta property="og:url" content="{{url}}">
+<link rel="canonical" href="{{url}}">
+{{hreflang}}
+<meta name="google-site-verification" content="7nUa02yHHnURE0VIOnhThWTAFmDwuhQRcBlR5jfaB7E">
+<script type="application/ld+json">{{jsonld}}</script>
+{{analytics}}
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" type="image/png" href="/assets/icon.png">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
+<link rel="apple-touch-icon" href="/assets/icon.png">
+<meta name="theme-color" content="#f6f6f9" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0f" media="(prefers-color-scheme: dark)">
+<style>
+{{style}}
+  /* Página do Mac */
+  .page-top { height: 28px; }
+  .req { grid-template-columns: repeat(4, 1fr); }
+  .others-row { margin-top: 70px; text-align: center; }
+  .others-row h2 { font-size: 22px; letter-spacing: -.02em; margin: 0 0 16px; }
+  .others-row .cta { justify-content: center; }
+  @media (max-width: 960px) { .req { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 640px) { .req { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <a class="logo" href="{{home}}"><img src="/assets/icon.png" alt="">Menew</a>
+    <div class="nav-links">
+      <a class="text" href="#install">{{mac_install_eyebrow}}</a>
+      <a class="text" href="#requirements">{{mac_req_eyebrow}}</a>
+      <a class="text" href="{{home}}#features">{{nav_features}}</a>
+      <a class="text" href="{{linux_path}}" data-goatcounter-click="mac-nav-linux">{{nav_linux}}</a>
+      <a class="text" href="{{windows_path}}" data-goatcounter-click="mac-nav-windows">{{nav_windows}}</a>
+      {{lang_switch}}
+      <a class="btn small star-btn" data-goatcounter-click="mac-github-nav" href="https://github.com/Quost/menew" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        {{star}}<span class="count" data-stars hidden></span>
+      </a>
+    </div>
+  </div>
+</nav>
+
+<header class="desk">
+  <div class="page-top"></div>
+  <div class="desk-body">
+    <div>
+      <a class="badge" data-goatcounter-click="mac-release-badge" href="https://github.com/Quost/menew/releases/latest" target="_blank" rel="noopener">
+        <b data-version>{{badge_new}}</b> {{mac_badge}} · macOS 14+
+      </a>
+      <h1>{{mac_h1}}</h1>
+      <p class="lead">{{mac_lead}}</p>
+      <div class="cta">
+        <a class="btn primary" data-goatcounter-click="mac-download-hero" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.37 12.6c-.02-2.3 1.88-3.4 1.96-3.46-1.07-1.56-2.73-1.78-3.32-1.8-1.41-.14-2.76.83-3.48.83-.72 0-1.82-.81-3-.79-1.54.02-2.96.9-3.76 2.27-1.6 2.78-.41 6.9 1.15 9.16.76 1.1 1.67 2.34 2.86 2.3 1.15-.05 1.58-.74 2.97-.74 1.38 0 1.77.74 2.98.72 1.23-.02 2.01-1.12 2.76-2.23.87-1.28 1.23-2.52 1.25-2.58-.03-.01-2.4-.92-2.42-3.65zM14.1 5.86c.63-.77 1.06-1.83.94-2.89-.91.04-2.01.61-2.67 1.37-.58.67-1.1 1.75-.96 2.79 1.02.08 2.05-.52 2.69-1.27z"/></svg>
+          {{download_mac}}
+        </a>
+        <a class="btn ghost" data-goatcounter-click="mac-brew-hero" data-open-tab="brew" href="#install">{{mac_brew}}</a>
+      </div>
+      <p class="meta"><span data-meta>{{platforms}}</span> · English, Português, Deutsch, Español, 中文</p>
+    </div>
+    <div class="pop">
+      <img class="light-only" src="{{shots}}/popover-actions-light.png" width="800" height="1200" fetchpriority="high" alt="{{alt_actions}}">
+      <img class="dark-only" src="{{shots}}/popover-actions-dark.png" width="800" height="1200" fetchpriority="high" alt="{{alt_actions}}">
+    </div>
+  </div>
+  <div class="desk-foot"></div>
+</header>
+
+<section id="requirements">
+  <div class="wrap">
+    <div class="center reveal">
+      <div class="eyebrow">{{mac_req_eyebrow}}</div>
+      <h2>{{mac_req_h2}}</h2>
+    </div>
+    <div class="grid req">
+      <div class="feature reveal"><h3>{{mac_req1_t}}</h3><p>{{mac_req1_d}}</p></div>
+      <div class="feature reveal"><h3>{{mac_req2_t}}</h3><p>{{mac_req2_d}}</p></div>
+      <div class="feature reveal"><h3>{{mac_req3_t}}</h3><p>{{mac_req3_d}}</p></div>
+      <div class="feature reveal"><h3>{{mac_req4_t}}</h3><p>{{mac_req4_d}}</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="final reveal" id="install">
+    <img class="appicon" src="/assets/icon.png" alt="">
+    <div class="eyebrow">{{mac_install_eyebrow}}</div>
+    <h2>{{mac_install_h2}}</h2>
+    <p class="sub" style="margin:0 auto">{{hint_dmg}}</p>
+    <div class="cta" style="margin-top:28px;justify-content:center">
+      <a class="btn primary" data-goatcounter-click="download-install" href="https://github.com/Quost/menew/releases/latest/download/Menew.dmg">{{download_menew}}</a>
+      <a class="btn ghost" data-goatcounter-click="github-install" href="https://github.com/Quost/menew" target="_blank" rel="noopener">{{view_source}}</a>
+    </div>
+    <div class="install">
+      <div class="tabs" role="tablist">
+        <button role="tab" aria-selected="true" data-tab="dmg">{{tab_dmg}}</button>
+        <button role="tab" aria-selected="false" data-tab="brew">Homebrew</button>
+        <button role="tab" aria-selected="false" data-tab="src">{{tab_src}}</button>
+      </div>
+
+      <div class="panel on" data-panel="dmg">
+        <ol class="steps">
+          <li><span>{{step1}}</span></li>
+          <li><span>{{step2}}</span></li>
+          <li><span>{{step3}}</span></li>
+        </ol>
+        <p class="hint">{{hint_dmg}}</p>
+      </div>
+
+      <div class="panel" data-panel="brew">
+        <div class="cmd"><code>brew tap quost/menew https://github.com/Quost/menew</code><button class="copy-btn">{{copy}}</button></div>
+        <div class="cmd"><code>brew trust quost/menew</code><button class="copy-btn">{{copy}}</button></div>
+        <div class="cmd"><code>brew install --cask menew</code><button class="copy-btn">{{copy}}</button></div>
+        <p class="hint">{{hint_brew}}</p>
+      </div>
+
+      <div class="panel" data-panel="src">
+        <div class="cmd"><code>git clone https://github.com/Quost/menew</code><button class="copy-btn">{{copy}}</button></div>
+        <div class="cmd"><code>cd menew</code><button class="copy-btn">{{copy}}</button></div>
+        <div class="cmd"><code>./build.sh --install</code><button class="copy-btn">{{copy}}</button></div>
+        <p class="hint">{{hint_src}}</p>
+      </div>
+
+      <div class="ai">
+        <p>{{ai_text}}</p>
+        <button class="copy-btn" data-ai>{{ai_button}}</button>
+      </div>
+    </div>
+    <div class="coffee on">
+      <p class="sub" style="margin:0 auto 14px;font-size:15px">{{coffee_text}}</p>
+      <div class="cta" style="justify-content:center">
+        <a class="btn sponsor" data-goatcounter-click="sponsor" href="https://github.com/sponsors/Quost" target="_blank" rel="noopener">{{sponsor_button}}</a>
+        <a class="btn bmc" data-goatcounter-click="coffee" href="https://buymeacoffee.com/quost" target="_blank" rel="noopener">{{coffee_button}}</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="wrap others-row reveal">
+  <h2>{{mac_other}}</h2>
+  <div class="cta">
+    <a class="btn" data-goatcounter-click="mac-features" href="{{home}}#features">{{mac_see_all}}</a>
+    <a class="btn" data-goatcounter-click="mac-linux" href="{{linux_path}}">{{plat_linux_cta}}</a>
+    <a class="btn" data-goatcounter-click="mac-windows" href="{{windows_path}}">{{plat_win_t}} · {{plat_win_badge}}</a>
+  </div>
+</div>
+
+{{family_band}}
+
+<footer>
+  <div class="wrap">
+    <span>{{family_credit}}</span>
+    <span>Menew · <a href="https://github.com/Quost/menew/blob/main/LICENSE">{{license}}</a> · <a href="https://github.com/Quost/menew" data-goatcounter-click="footer-source">{{footer_source}}</a> · <a href="{{linux_path}}" data-goatcounter-click="footer-linux">{{footer_linux}}</a> · <a href="https://github.com/Quost/menew/releases" data-goatcounter-click="releases">{{footer_releases}}</a> · <a href="https://github.com/Quost/menew/issues/new?template=bug_report.yml" data-goatcounter-click="report-bug">{{footer_bug}}</a> · <a href="https://github.com/Quost/menew/blob/main/CONTRIBUTING.md" data-goatcounter-click="contribute">{{footer_contribute}}</a></span>
+    <span class="stats-note">{{site_stats}}</span>
+  </div>
+</footer>
+
+<script>
+  const T = {{js_strings}};
+  const REPO = "Quost/menew";
+  const track = name => { try { window.goatcounter && window.goatcounter.count({ path: name, event: true }); } catch (e) {} };
+  const fmt = n => n >= 1000 ? (n / 1000).toFixed(1).replace(/\.0$/, "") + "k" : String(n);
+
+  fetch(`https://api.github.com/repos/${REPO}`).then(r => r.ok ? r.json() : null).then(repo => {
+    if (!repo) return;
+    document.querySelectorAll("[data-stars]").forEach(el => { el.textContent = fmt(repo.stargazers_count); el.hidden = false; });
+  }).catch(() => {});
+
+  fetch(`https://api.github.com/repos/${REPO}/releases/latest`).then(r => r.ok ? r.json() : null).then(rel => {
+    if (!rel) return;
+    const v = rel.tag_name.replace(/^v/, "");
+    document.querySelector("[data-version]").textContent = "v" + v;
+    const dmg = (rel.assets || []).find(a => a.name.endsWith(".dmg"));
+    const size = dmg ? ` · ${(dmg.size / 1048576).toFixed(1)} MB` : "";
+    document.querySelector("[data-meta]").textContent = `${T.version} ${v}${size} · ${T.platforms}`;
+  }).catch(() => {});
+
+  // Instalação: abas (e o botão "Homebrew" do topo abre a aba certa)
+  const openTab = name => {
+    document.querySelectorAll("[data-tab]").forEach(t => t.setAttribute("aria-selected", t.dataset.tab === name));
+    document.querySelectorAll("[data-panel]").forEach(p => p.classList.toggle("on", p.dataset.panel === name));
+  };
+  document.querySelectorAll("[data-tab]").forEach(tab => tab.addEventListener("click", () => { openTab(tab.dataset.tab); track("tab-" + tab.dataset.tab); }));
+  document.querySelectorAll("[data-open-tab]").forEach(a => a.addEventListener("click", () => openTab(a.dataset.openTab)));
+
+  async function copy(btn, text, name) {
+    track("copy-" + name);
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch {
+      // Reserva para navegadores que bloqueiam a API moderna
+      const ta = Object.assign(document.createElement("textarea"), { value: text });
+      ta.style.cssText = "position:fixed;opacity:0";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      if (!ok) return;
+    }
+    const label = btn.textContent;
+    btn.textContent = T.copied;
+    btn.classList.add("done");
+    setTimeout(() => { btn.textContent = label; btn.classList.remove("done"); }, 1600);
+  }
+  document.querySelectorAll(".cmd .copy-btn").forEach(b => b.addEventListener("click", () => copy(b, b.previousElementSibling.textContent, b.previousElementSibling.textContent.trim().replace(/[^a-z0-9]+/gi, "-").slice(0, 40))));
+  document.querySelector("[data-ai]").addEventListener("click", e => copy(e.currentTarget, T.ai_prompt, "ai-prompt"));
+
+  const io = new IntersectionObserver(entries => entries.forEach(e => {
+    if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }), { threshold: .12 });
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>
