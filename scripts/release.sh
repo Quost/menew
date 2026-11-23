@@ -1,5 +1,5 @@
 #!/bin/bash
-# Publica uma versão: confere o CHANGELOG, gera o site, faz os commits, espera a Release anterior,
+# Publica uma versão: confere o CHANGELOG, faz os commits, espera a Release anterior,
 # cria a tag e acompanha a Release até o fim (appcast e cask do Homebrew).
 #
 #   scripts/release.sh 1.2.3 "feat(scope): mensagem do commit"
@@ -14,12 +14,11 @@ T=$'\n\nCo-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>'
 grep -q "^## $V\$" CHANGELOG.md || { echo "CHANGELOG.md não tem a seção ## $V"; exit 1; }
 python3 scripts/check-changelog.py
 python3 scripts/check-l10n.py
-python3 scripts/build-site.py >/dev/null
 
 git add Sources Resources Tests build.sh scripts .github Package.swift 2>/dev/null || true
 git diff --cached --quiet || git commit -qS -m "$MSG$T"
 git add -A docs site README.md CHANGELOG.md CONTRIBUTING.md
-git diff --cached --quiet || git commit -qS -m "docs: readme, site and changelog for $V$T"
+git diff --cached --quiet || git commit -qS -m "docs: readme, site content and changelog for $V$T"
 
 # Uma Release por vez: duas em paralelo brigam pelo cask e pelo push
 until [ "$(gh run list -w Release -L1 --json status -q '.[0].status')" = completed ]; do sleep 15; done

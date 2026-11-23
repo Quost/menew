@@ -1,7 +1,7 @@
 name: CI
 
 # Em todo pull request (e em cada push na main): compila o app como na Release, roda os testes,
-# confere as traduções e se as páginas do site foram geradas. As mensagens de commit ficam no commitlint.yml.
+# confere as traduções e o conteúdo da página /mac do site. As mensagens de commit ficam no commitlint.yml.
 on:
   push:
     branches: [main]
@@ -43,15 +43,16 @@ jobs:
       - run: python3 scripts/check-changelog.py
 
   site:
-    name: Website pages
+    name: Website content
     runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
       - uses: actions/checkout@v4
+      # O site é montado e publicado pelo Quost/menew-site; daqui só sai o conteúdo da página /mac (site/content.json e
+      # as capturas em docs/assets). Confere esse conteúdo com o validador de lá: os 5 idiomas, as chaves, o HTML e as capturas.
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # a data de atualização vem do histórico (scripts/build-site.py)
-      # docs/ é gerado a partir de site/. As linhas de data mudam com qualquer commit no CHANGELOG, então não contam aqui.
-      - name: Conferir páginas geradas
-        run: |
-          python3 scripts/build-site.py
-          git diff --exit-code -I '<lastmod>' -I 'dateModified' -I 'updated 20[0-9]' -- docs \
-            || { echo "::error::Rode python3 scripts/build-site.py e faça commit de docs/"; exit 1; }
+          repository: Quost/menew-site
+          path: .menew-site
+          persist-credentials: false
+      - name: Conferir o conteúdo do site
+        run: python3 .menew-site/scripts/content.py mac site
