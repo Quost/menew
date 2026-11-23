@@ -1,5 +1,16 @@
 import SwiftUI
 
+/// A animação, ou nenhuma com "Reduzir movimento" ligado (Ajustes do Sistema › Acessibilidade › Tela)
+func motion(_ animation: Animation?) -> Animation? {
+    NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? nil : animation
+}
+
+/// withAnimation que respeita "Reduzir movimento"
+@discardableResult
+func withMotion<Result>(_ animation: Animation? = .default, _ body: () throws -> Result) rethrows -> Result {
+    try withAnimation(motion(animation), body)
+}
+
 enum Theme {
     static let indigo = Color(red: 0.36, green: 0.42, blue: 1.0)
     static let violet = Color(red: 0.62, green: 0.25, blue: 0.95)
