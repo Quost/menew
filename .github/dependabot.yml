@@ -1,0 +1,14 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    commit-message: { prefix: ci }
+    groups:
+      actions: { patterns: ["*"] }
+  - package-ecosystem: swift
+    directory: /
+    schedule: { interval: weekly }
+    commit-message: { prefix: "fix(deps)" }
+    groups:
+      minor-and-patch: { update-types: [minor, patch] }
