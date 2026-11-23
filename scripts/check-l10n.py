@@ -17,14 +17,26 @@ TABLE = ROOT / "Sources/Menew/L10n.swift"
 # Uma string Swift entre aspas, com escapes
 STRING = r'"((?:[^"\\]|\\.)*)"'
 
+# Especificadores de formato do printf (%d, %@, %ld, %.1f, %1$@, %%…)
+SPEC = re.compile(r'%(?:\d+\$)?[-+ #0]*\d*(?:\.\d+)?(?:hh|h|ll|l|q|z|t|j)?[@dDiuUxXoOfeEgGcCsSp%]')
+
+def specs(text):
+    """Os especificadores de um texto, ordenados (a ordem pode mudar de um idioma para outro; a contagem, não).
+    Posicionais (%1$@) valem como o especificador sem a posição."""
+    return sorted(re.sub(r'^%\d+\$', '%', m) for m in SPEC.findall(text))
+
+TRANSLATIONS = {}
+
 def table_entries(text):
     """Chave → quantidade de traduções, só das linhas `"chave": ["…", "…", …],` da tabela.
     Também devolve as chaves repetidas: num dicionário literal do Swift, elas derrubam o app ao abrir."""
     entries, repeated = {}, []
+    TRANSLATIONS.clear()
     for m in re.finditer(r'^\s*' + STRING + r'\s*:\s*\[(.*)\],?\s*$', text, re.M):
         if m.group(1) in entries:
             repeated.append(m.group(1))
         entries[m.group(1)] = len(re.findall(STRING, m.group(2)))
+        TRANSLATIONS[m.group(1)] = re.findall(STRING, m.group(2))
     return entries, repeated
 
 def used_keys():
@@ -32,14 +44,14 @@ def used_keys():
     for path in sorted((ROOT / "Sources").rglob("*.swift")):
         if path == TABLE:
             continue
-        for n, line in enumerate(path.read_text().splitlines(), 1):
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             # L("texto") ou L("texto %d", valor)
             for m in re.finditer(r'\bL\(\s*' + STRING, line):
                 keys.setdefault(m.group(1), f"{path.relative_to(ROOT)}:{n}")
     return keys
 
 def main():
-    entries, repeated = table_entries(TABLE.read_text())
+    entries, repeated = table_entries(TABLE.read_text(encoding="utf-8"))
     problems = [f"{TABLE.relative_to(ROOT)}: chave repetida (o app fecha ao abrir): {k!r}" for k in repeated]
     for key, where in sorted(used_keys().items(), key=lambda kv: kv[1]):
         if key not in entries:
