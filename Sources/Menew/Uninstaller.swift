@@ -239,7 +239,7 @@ struct UninstallerView: View {
 
     private func row(icon: String, title: String, size: Int64, selected: Binding<Bool>, fixed: Bool = false) -> some View {
         HStack(spacing: 10) {
-            Toggle("", isOn: selected).labelsHidden().disabled(fixed)
+            Toggle(title, isOn: selected).labelsHidden().disabled(fixed)
             Image(systemName: icon).foregroundStyle(.secondary).frame(width: 16)
             Text(title).font(.system(size: 12)).lineLimit(1).truncationMode(.middle)
             Spacer(minLength: 8)

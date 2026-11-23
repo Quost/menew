@@ -48,6 +48,8 @@ struct MemoryView: View {
                             ForEach(list) { item in
                                 RecallCard(item: item, image: store.image(for: item), on: item.id == current?.id)
                                     .onTapGesture { store.selectedID = item.id }
+                                    .accessibilityAddTraits(.isButton)
+                                    .accessibilityAction { store.selectedID = item.id }
                                     .contextMenu { Button(L("Apagar"), role: .destructive) { store.delete(item) } }
                             }
                         }

@@ -130,7 +130,7 @@ struct ActionsView: View {
         VStack(spacing: 0) {
             ForEach(Array(ActionGroup.allCases.enumerated()), id: \.element) { i, g in
                 if i > 0 { Rectangle().fill(Theme.cardStroke).frame(height: 0.5).padding(.leading, 52) }
-                Button { withAnimation(.snappy) { group = g } } label: {
+                Button { withMotion(.snappy) { group = g } } label: {
                     HStack(spacing: 10) {
                         Image(systemName: g.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
                             .frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(g.color.gradient))
@@ -157,7 +157,7 @@ struct ActionsView: View {
     @ViewBuilder private func groupPage(_ g: ActionGroup) -> some View {
         if showsBack {
         HStack(spacing: 8) {
-            IconButton(icon: "chevron.left", help: L("Voltar")) { withAnimation(.snappy) { group = nil } }
+            IconButton(icon: "chevron.left", help: L("Voltar")) { withMotion(.snappy) { group = nil } }
             Image(systemName: g.icon).font(.system(size: 12, weight: .semibold)).foregroundStyle(.white)
                 .frame(width: 26, height: 26).background(RoundedRectangle(cornerRadius: 7, style: .continuous).fill(g.color.gradient))
             Text(g.title).font(.system(size: 14, weight: .semibold))
@@ -559,7 +559,7 @@ struct ActionsView: View {
                 Button {
                     var set = openSet
                     if open { set.remove(title) } else { set.insert(title) }
-                    withAnimation(.snappy) { openRaw = set.sorted().joined(separator: "|") }
+                    withMotion(.snappy) { openRaw = set.sorted().joined(separator: "|") }
                 } label: {
                     HStack(spacing: 8) {
                         Text(title).font(.system(size: 12.5, weight: .semibold)).foregroundStyle(.primary)
@@ -684,7 +684,7 @@ struct ControlRow<Extra: View>: View {
         .contentShape(Rectangle())
         .onTapGesture { isOn.toggle() }
         .help(help)
-        .animation(.spring(duration: 0.3), value: isOn)
+        .animation(motion(.spring(duration: 0.3)), value: isOn)
     }
 }
 
@@ -735,8 +735,8 @@ struct ActionTile: View {
         .opacity(disabled ? 0.5 : 1)
         .onHover { hover = $0 }
         .help(help)
-        .animation(.spring(duration: 0.25), value: hover)
-        .animation(.spring(duration: 0.25), value: on)
+        .animation(motion(.spring(duration: 0.25)), value: hover)
+        .animation(motion(.spring(duration: 0.25)), value: on)
     }
 }
 

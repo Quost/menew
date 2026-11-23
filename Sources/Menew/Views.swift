@@ -96,7 +96,7 @@ struct MainView: View {
                     .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .animation(.spring(duration: 0.3), value: toolbox.toast)
+        .animation(motion(.spring(duration: 0.3)), value: toolbox.toast)
         .onChange(of: [clipboardOn, actionsOn, notesOn]) { _, _ in
             // Desligou o módulo da aba aberta: volta para o Sistema
             if let m = Module.allCases.first(where: { $0.tab == nav.tab }), !m.isOn { nav.tab = .now }
@@ -194,7 +194,7 @@ struct SystemView: View {
                 }
                 .buttonStyle(.plain).foregroundStyle(Color.accentColor)
                 HStack(spacing: 16) {
-                    Button(organizing ? L("Concluir") : L("Organizar cartões")) { withAnimation(.snappy) { organizing.toggle() } }
+                    Button(organizing ? L("Concluir") : L("Organizar cartões")) { withMotion(.snappy) { organizing.toggle() } }
                     Button(L("Copiar relatório")) { SystemReport.copy(m) }
                         .help(L("Modelo, macOS, memória, disco, bateria e tempo ligado, prontos para mandar ao suporte"))
                 }
@@ -294,7 +294,7 @@ struct SystemView: View {
         var list = order
         guard let i = list.firstIndex(of: id), list.indices.contains(i + delta) else { return }
         list.swapAt(i, i + delta)
-        withAnimation(.snappy) { orderRaw = list.joined(separator: ",") }
+        withMotion(.snappy) { orderRaw = list.joined(separator: ",") }
     }
 
     @ViewBuilder
@@ -347,7 +347,7 @@ struct SystemView: View {
         let toggle = {
             var set = openSet
             if open { set.remove(id) } else { set.insert(id) }
-            withAnimation(.snappy) { openRaw = set.sorted().joined(separator: ",") }
+            withMotion(.snappy) { openRaw = set.sorted().joined(separator: ",") }
         }
         if open {
             VStack(spacing: 2) {

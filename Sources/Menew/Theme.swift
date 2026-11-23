@@ -88,7 +88,7 @@ struct Ring: View {
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
                 .rotationEffect(.degrees(-90))
         }
-        .animation(.easeOut(duration: 0.6), value: fraction)
+        .animation(motion(.easeOut(duration: 0.6)), value: fraction)
     }
 }
 
@@ -106,7 +106,7 @@ struct UsageBar: View {
             }
         }
         .frame(height: height)
-        .animation(.easeOut(duration: 0.5), value: fraction)
+        .animation(motion(.easeOut(duration: 0.5)), value: fraction)
     }
 }
 
@@ -318,7 +318,7 @@ struct GlassSegmented<V: Hashable>: View {
                 let o = options[i]
                 let on = o.value == selection
                 Button {
-                    withAnimation(.spring(duration: 0.28)) { selection = o.value }
+                    withMotion(.spring(duration: 0.28)) { selection = o.value }
                 } label: {
                     // Sem espaço (palavras longas, como "Zwischenablage"), o ícone sai e fica só o nome
                     ViewThatFits(in: .horizontal) {
@@ -374,7 +374,7 @@ struct GlassChip: View {
             .glass(in: Capsule(), tint: on ? Theme.indigo : nil, interactive: true)
         }
         .buttonStyle(.plain)
-        .animation(.spring(duration: 0.25), value: on)
+        .animation(motion(.spring(duration: 0.25)), value: on)
     }
 }
 

@@ -132,7 +132,7 @@ struct AlertRulesSection: View {
             ForEach($store.rules) { $rule in
                 SettingRow(title: rule.summary, icon: rule.metric.icon) {
                     HStack(spacing: 8) {
-                        Toggle("", isOn: $rule.enabled).labelsHidden().toggleStyle(.switch).controlSize(.small)
+                        Toggle(rule.summary, isOn: $rule.enabled).labelsHidden().toggleStyle(.switch).controlSize(.small)
                         Button { store.rules.removeAll { $0.id == rule.id } } label: { Image(systemName: "trash") }
                             .buttonStyle(.plain).foregroundStyle(.secondary)
                             .accessibilityLabel(L("Apagar"))
@@ -142,17 +142,18 @@ struct AlertRulesSection: View {
             }
             VStack(alignment: .leading, spacing: 8) {
                 HStack(spacing: 8) {
-                    Picker("", selection: $metric) {
+                    Picker(L("Métrica"), selection: $metric) {
                         ForEach(AlertRule.Metric.allCases) { Text($0.title).tag($0) }
                     }
                     .labelsHidden().fixedSize()
                     .onChange(of: metric) { _, m in above = m.suggestion.above; threshold = m.suggestion.value }
-                    Picker("", selection: $above) {
+                    Picker(L("Condição"), selection: $above) {
                         Text(L("acima de")).tag(true)
                         Text(L("abaixo de")).tag(false)
                     }
                     .labelsHidden().fixedSize()
                     TextField("", value: $threshold, format: .number).textFieldStyle(.roundedBorder).frame(width: 56)
+                        .accessibilityLabel(L("Limite"))
                     Text(metric.unit).font(.system(size: 12)).foregroundStyle(.secondary)
                 }
                 HStack(spacing: 8) {

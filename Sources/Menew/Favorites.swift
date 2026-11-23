@@ -174,7 +174,7 @@ struct FavoritesSection: View {
             HStack {
                 Text(L("Favoritos")).font(.system(size: 11, weight: .semibold)).foregroundStyle(.secondary).padding(.leading, 4)
                 Spacer()
-                Button(editing ? L("Concluir") : L("Editar")) { withAnimation(.snappy) { editing.toggle() } }
+                Button(editing ? L("Concluir") : L("Editar")) { withMotion(.snappy) { editing.toggle() } }
                     .buttonStyle(.plain).font(.system(size: 11.5, weight: .semibold)).foregroundStyle(Color.accentColor)
             }
             GlassGroup {
@@ -183,7 +183,7 @@ struct FavoritesSection: View {
                         let on = f.isOn(tb) ?? false
                         ActionTile(icon: f.icon, color: f.color, title: f.title, subtitle: f.state(tb), on: on) {
                             if editing {
-                                withAnimation(.snappy) { favorites.removeAll { $0 == f } }
+                                withMotion(.snappy) { favorites.removeAll { $0 == f } }
                                 FavoriteAction.saved = favorites
                             } else {
                                 f.run(tb, clipboard: clipboard, openCleaner: openCleaner)
@@ -205,7 +205,7 @@ struct FavoritesSection: View {
                     FlowLayout(spacing: 6) {
                         ForEach(rest) { f in
                             Button {
-                                withAnimation(.snappy) { favorites.append(f) }
+                                withMotion(.snappy) { favorites.append(f) }
                                 FavoriteAction.saved = favorites
                             } label: {
                                 Label(f.title, systemImage: "plus").font(.system(size: 11, weight: .medium))

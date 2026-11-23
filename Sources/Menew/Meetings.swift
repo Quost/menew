@@ -362,7 +362,7 @@ struct MeetingBanner: View {
                     }
                     Spacer(minLength: 6)
                     if today.count > 1 {
-                        Button { withAnimation(.snappy) { expanded.toggle() } } label: {
+                        Button { withMotion(.snappy) { expanded.toggle() } } label: {
                             HStack(spacing: 3) {
                                 Text(L("Hoje · %d", today.count)).font(.system(size: 10.5, weight: .medium))
                                 Image(systemName: "chevron.down").font(.system(size: 8, weight: .bold))
@@ -443,10 +443,10 @@ struct MeetingsSection: View {
                 RowDivider()
                 SettingRow(title: L("Horário de trabalho"), detail: L("Para “Copiar meus horários livres”")) {
                     HStack(spacing: 4) {
-                        Picker("", selection: $workStart) { ForEach(5...12, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) } }
+                        Picker(L("Início do expediente"), selection: $workStart) { ForEach(5...12, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) } }
                             .labelsHidden().fixedSize()
                         Text("–").foregroundStyle(.secondary)
-                        Picker("", selection: $workEnd) { ForEach(13...23, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) } }
+                        Picker(L("Fim do expediente"), selection: $workEnd) { ForEach(13...23, id: \.self) { Text(String(format: "%02d:00", $0)).tag($0) } }
                             .labelsHidden().fixedSize()
                     }
                 }

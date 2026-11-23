@@ -71,12 +71,12 @@ struct ModuleToggle: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             Spacer(minLength: 8)
-            Toggle("", isOn: $on).toggleStyle(.switch).controlSize(.small).labelsHidden().tint(module.color)
+            Toggle(module.title, isOn: $on).toggleStyle(.switch).controlSize(.small).labelsHidden().tint(module.color)
         }
         .padding(.horizontal, 12).padding(.vertical, 8)
         .contentShape(Rectangle())
         .onTapGesture { on.toggle() }
-        .animation(.spring(duration: 0.3), value: on)
+        .animation(motion(.spring(duration: 0.3)), value: on)
     }
 }
 
@@ -262,7 +262,7 @@ struct WelcomeView: View {
             }
             .padding(14)
             .glass()
-            .animation(.spring(duration: 0.3), value: axTrusted)
+            .animation(motion(.spring(duration: 0.3)), value: axTrusted)
             Text(L("Prefere depois? Tudo bem: o Menew pede de novo quando precisar."))
                 .font(.system(size: 11)).foregroundStyle(.tertiary).padding(.horizontal, 4)
         }
@@ -334,7 +334,7 @@ struct WelcomeView: View {
                         .frame(width: i == step ? 16 : 6, height: 6)
                 }
             }
-            .animation(.spring(duration: 0.3), value: step)
+            .animation(motion(.spring(duration: 0.3)), value: step)
             Spacer()
             if step < steps - 1 {
                 PillButton(title: L("Continuar"), icon: "arrow.right", primary: true) { go(step + 1) }
@@ -346,7 +346,7 @@ struct WelcomeView: View {
     }
 
     private func go(_ s: Int) {
-        withAnimation(.spring(duration: 0.35)) { step = s }
+        withMotion(.spring(duration: 0.35)) { step = s }
     }
 }
 

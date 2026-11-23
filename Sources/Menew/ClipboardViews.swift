@@ -234,6 +234,8 @@ struct ClipList: View {
                             ClipRow(item: item, index: idx, selected: idx == state.selection, manager: manager)
                                 .id(item.id)
                                 .onTapGesture { onActivate(item, false) }
+                                .accessibilityAddTraits(.isButton)
+                                .accessibilityAction { onActivate(item, false) }
                                 .onHover { if $0 { state.selection = idx } }
                                 .contextMenu { ClipContextMenu(item: item, manager: manager, onActivate: onActivate) }
                         }

@@ -240,7 +240,7 @@ struct ShareSecretView: View {
             }.value
             working = false
             guard let env, let url = try? keys.write(env, title: title) else { failed = true; return }
-            withAnimation(.spring(duration: 0.3)) { file = url }
+            withMotion(.spring(duration: 0.3)) { file = url }
             pick(url)
         }
     }
@@ -603,7 +603,7 @@ struct ImportSecretView: View {
                     sender = k
                     contactName = s.sender ?? ""
                 }
-                withAnimation(.spring(duration: 0.3)) { secret = s }
+                withMotion(.spring(duration: 0.3)) { secret = s }
             case .failure(let e): problem = e
             }
         }

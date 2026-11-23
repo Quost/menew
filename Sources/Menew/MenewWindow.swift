@@ -345,6 +345,8 @@ struct HubOverview: View {
                             ForEach(memory.items.prefix(4)) { item in
                                 RecallCard(item: item, image: memory.image(for: item), on: false)
                                     .onTapGesture { open(.memory) }
+                                    .accessibilityAddTraits(.isButton)
+                                    .accessibilityAction { open(.memory) }
                             }
                         }
                     }
@@ -369,6 +371,8 @@ struct HubOverview: View {
         .card(padding: 16)
         .contentShape(Rectangle())
         .onTapGesture { action?() }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { action?() }
     }
 
     static func problems(_ m: SystemMonitor) -> [String] {

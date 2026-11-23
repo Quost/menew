@@ -189,7 +189,7 @@ struct SensorsCard: View {
                 }
             }
             if !sensors.all.isEmpty {
-                Button { withAnimation(.snappy) { showAll.toggle() } } label: {
+                Button { withMotion(.snappy) { showAll.toggle() } } label: {
                     HStack(spacing: 4) {
                         Text(showAll ? L("Esconder os %d sensores", sensors.all.count) : L("Ver os %d sensores", sensors.all.count))
                         Image(systemName: "chevron.down").rotationEffect(.degrees(showAll ? 180 : 0))

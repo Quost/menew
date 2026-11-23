@@ -98,7 +98,7 @@ final class NotchHover: NSObject {
         panel = p
         p.setFrame(frame, display: true)
         p.orderFrontRegardless()
-        withAnimation(.spring(duration: 0.3)) { model.shown = true }
+        withMotion(.spring(duration: 0.3)) { model.shown = true }
     }
 
     func close() {
@@ -247,6 +247,8 @@ struct NotchHoverView: View {
                 .background(RoundedRectangle(cornerRadius: 10).fill(.white.opacity(0.07)))
                 .contentShape(Rectangle())
                 .onTapGesture { NotchHover.run { MenewWindow.shared.show(.agents) } }
+                .accessibilityAddTraits(.isButton)
+                .accessibilityAction { NotchHover.run { MenewWindow.shared.show(.agents) } }
                 .help(L("Abrir Agentes de IA"))
                 .padding(.top, 6)
             }

@@ -7,12 +7,13 @@ We want Menew to work for everyone who uses a Mac. This page says honestly what 
 - **Native controls.** Menew is built with SwiftUI and AppKit, so text, buttons, switches and menus are standard macOS controls.
 - **Dark and light mode**, following your Mac or chosen in Settings. The glass and translucent backgrounds are drawn by macOS, so they follow its **Reduce transparency** setting.
 - **Keyboard.** The clipboard panel (⌘⇧V) works entirely from the keyboard: type to search, arrows to move, Return to paste, ⌘1–9, Tab to switch filters, Esc to close. The menu itself opens with a global shortcut (⌥⌘M by default), and both shortcuts can be changed.
+- **Reduce motion.** When **Reduce motion** is on in System Settings, Menew skips its sliding, spring and expanding animations (very short fades and live level meters aside).
 - **Five languages**: English, Portuguese, German, Spanish and Chinese.
 - **No time limits**, except the keyboard-cleaning lock, which you start yourself and which ends after 2 minutes or with a click.
 
 ## Known limitations
 
-- **VoiceOver hasn't been fully tested yet.** Some icon-only buttons and the menu bar item may not have a spoken label, and charts (CPU graph, sparklines, rings) have no text alternative beyond the numbers shown next to them.
+- **VoiceOver hasn't been fully tested yet.** Switches, pop-up menus and fields carry spoken labels and the menu bar item is named "Menew", but some icon-only buttons may still lack a label, and charts (CPU graph, sparklines, rings) have no text alternative beyond the numbers shown next to them.
 - **Dynamic Type**: text sizes are fixed and don't follow a larger system text size.
 - **Color**: usage warnings (orange and red) also show the number, but the memory and disk bars rely on color to tell the parts apart.
 

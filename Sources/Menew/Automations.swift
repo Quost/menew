@@ -444,7 +444,7 @@ struct AutomationEditor: View {
 
                 GlassSection(title: L("Quando")) {
                     SettingRow(title: L("Gatilho"), icon: rule.trigger.icon) {
-                        Picker("", selection: Binding(get: { rule.trigger.kind }, set: { rule.trigger = .make($0) })) {
+                        Picker(L("Gatilho"), selection: Binding(get: { rule.trigger.kind }, set: { rule.trigger = .make($0) })) {
                             ForEach(Automation.Trigger.Kind.allCases.filter { $0 == .time || $0 == .app || $0 == .display || SystemMonitorInfo.hasBattery },
                                     id: \.self) { k in Text(Automation.Trigger.kindTitle(k)).tag(k) }
                         }
@@ -503,7 +503,7 @@ struct AutomationEditor: View {
         switch rule.trigger {
         case .time(let h, let m, let days):
             SettingRow(title: L("Horário")) {
-                DatePicker("", selection: Binding(
+                DatePicker(L("Horário"), selection: Binding(
                     get: { Calendar.current.date(from: DateComponents(hour: h, minute: m)) ?? Date() },
                     set: { d in
                         let c = Calendar.current.dateComponents([.hour, .minute], from: d)
@@ -535,7 +535,7 @@ struct AutomationEditor: View {
             .padding(.horizontal, 12).padding(.vertical, 8)
         case .power(let plugged):
             SettingRow(title: L("Quando o carregador for")) {
-                Picker("", selection: Binding(get: { plugged }, set: { rule.trigger = .power(plugged: $0) })) {
+                Picker(L("Quando o carregador for"), selection: Binding(get: { plugged }, set: { rule.trigger = .power(plugged: $0) })) {
                     Text(L("conectado")).tag(true)
                     Text(L("desconectado")).tag(false)
                 }
@@ -559,7 +559,7 @@ struct AutomationEditor: View {
             }
             RowDivider()
             SettingRow(title: L("Quando ele")) {
-                Picker("", selection: Binding(get: { opened }, set: { rule.trigger = .app(bundleID: bundle, name: name, opened: $0) })) {
+                Picker(L("Quando ele"), selection: Binding(get: { opened }, set: { rule.trigger = .app(bundleID: bundle, name: name, opened: $0) })) {
                     Text(L("abrir")).tag(true)
                     Text(L("fechar")).tag(false)
                 }
@@ -567,7 +567,7 @@ struct AutomationEditor: View {
             }
         case .display(let connected):
             SettingRow(title: L("Quando um monitor for")) {
-                Picker("", selection: Binding(get: { connected }, set: { rule.trigger = .display(connected: $0) })) {
+                Picker(L("Quando um monitor for"), selection: Binding(get: { connected }, set: { rule.trigger = .display(connected: $0) })) {
                     Text(L("conectado")).tag(true)
                     Text(L("desconectado")).tag(false)
                 }
@@ -575,7 +575,7 @@ struct AutomationEditor: View {
             }
         case .meeting(let before):
             SettingRow(title: L("Quando")) {
-                Picker("", selection: Binding(get: { before }, set: { rule.trigger = .meeting(minutesBefore: $0) })) {
+                Picker(L("Quando"), selection: Binding(get: { before }, set: { rule.trigger = .meeting(minutesBefore: $0) })) {
                     Text(L("na hora")).tag(0)
                     ForEach([1, 5, 10, 15], id: \.self) { m in Text(L("%d min antes", m)).tag(m) }
                 }
@@ -590,7 +590,7 @@ struct AutomationEditor: View {
             }
         case .focus(let started):
             SettingRow(title: L("Quando o foco")) {
-                Picker("", selection: Binding(get: { started }, set: { rule.trigger = .focus(started: $0) })) {
+                Picker(L("Quando o foco"), selection: Binding(get: { started }, set: { rule.trigger = .focus(started: $0) })) {
                     Text(L("começar")).tag(true)
                     Text(L("terminar")).tag(false)
                 }
@@ -598,7 +598,7 @@ struct AutomationEditor: View {
             }
         case .presentation(let started):
             SettingRow(title: L("Quando o modo apresentação")) {
-                Picker("", selection: Binding(get: { started }, set: { rule.trigger = .presentation(started: $0) })) {
+                Picker(L("Quando o modo apresentação"), selection: Binding(get: { started }, set: { rule.trigger = .presentation(started: $0) })) {
                     Text(L("ligar")).tag(true)
                     Text(L("desligar")).tag(false)
                 }

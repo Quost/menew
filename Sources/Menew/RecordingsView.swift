@@ -79,7 +79,7 @@ struct RecordingsView: View {
                 Capsule().fill(Color.red.opacity(0.25)).frame(width: 60 * CGFloat(min(1, store.level * 3)) + 4, height: 6)
                     .animation(.linear(duration: 0.1), value: store.level)
             } else {
-                Picker("", selection: $sourceRaw) {
+                Picker(L("Origem"), selection: $sourceRaw) {
                     ForEach(RecordingStore.Source.allCases) { Label($0.title, systemImage: $0.icon).tag($0.rawValue) }
                 }
                 .labelsHidden().fixedSize().controlSize(.small)
@@ -130,6 +130,8 @@ struct RecordingsView: View {
         .background(RoundedRectangle(cornerRadius: 9).fill(on ? Color.accentColor.opacity(0.15) : .clear))
         .contentShape(Rectangle())
         .onTapGesture { store.selectedID = r.id }
+        .accessibilityAddTraits(.isButton)
+        .accessibilityAction { store.selectedID = r.id }
         .contextMenu { Button(L("Apagar"), role: .destructive) { store.delete(r.id) } }
     }
 

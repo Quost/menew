@@ -311,7 +311,7 @@ struct OrganizerView: View {
 
     private func row(_ item: OrganizerModel.Item) -> some View {
         HStack(spacing: 10) {
-            Toggle("", isOn: Binding(get: { item.include }, set: { _ in model.toggle(item.id) })).labelsHidden().toggleStyle(.checkbox)
+            Toggle(item.url.lastPathComponent, isOn: Binding(get: { item.include }, set: { _ in model.toggle(item.id) })).labelsHidden().toggleStyle(.checkbox)
             Image(nsImage: NSWorkspace.shared.icon(forFile: item.url.path)).resizable().frame(width: 26, height: 26)
             VStack(alignment: .leading, spacing: 3) {
                 Text(item.url.lastPathComponent).font(.system(size: 11)).foregroundStyle(.secondary).lineLimit(1)
@@ -319,6 +319,7 @@ struct OrganizerView: View {
                     Image(systemName: "arrow.turn.down.right").font(.system(size: 10)).foregroundStyle(.tertiary)
                     TextField("", text: Binding(get: { item.name }, set: { model.setName(item.id, $0) }))
                         .textFieldStyle(.plain).font(.system(size: 12.5, weight: .medium))
+                        .accessibilityLabel(L("Nome"))
                     Text("." + item.url.pathExtension).font(.system(size: 12)).foregroundStyle(.tertiary)
                 }
             }

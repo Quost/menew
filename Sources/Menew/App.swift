@@ -258,7 +258,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSPopoverDelegate {
             item.keyEquivalentModifierMask = mods
             edit.addItem(item)
         }
-        let editItem = NSMenuItem(title: "Edit", action: nil, keyEquivalent: "")
+        let editItem = NSMenuItem(title: L("Editar"), action: nil, keyEquivalent: "")
         editItem.submenu = edit
         let main = NSMenu()
         main.addItem(NSMenuItem(title: "Menew", action: nil, keyEquivalent: ""))
