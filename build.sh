@@ -134,12 +134,16 @@ for arg in "$@"; do
   case "$arg" in
     --dmg)
       # Janela de instalação com fundo, seta e ícones posicionados (Resources/dmg)
-      if [ ! -x .build/dmgvenv/bin/dmgbuild ]; then
-        python3 -m venv .build/dmgvenv
-        .build/dmgvenv/bin/pip install -q dmgbuild
+      # Versão fixa (o venv leva a versão no nome, então trocar a versão aqui recria o venv)
+      DMGBUILD_VERSION=1.6.7
+      DMGVENV=".build/dmgvenv-$DMGBUILD_VERSION"
+      if [ ! -x "$DMGVENV/bin/dmgbuild" ]; then
+        rm -rf "$DMGVENV"
+        python3 -m venv "$DMGVENV"
+        "$DMGVENV/bin/pip" install -q "dmgbuild==$DMGBUILD_VERSION"
       fi
       rm -f build/Menew.dmg
-      .build/dmgvenv/bin/dmgbuild -s Resources/dmg/settings.py -D app="$APP" Menew build/Menew.dmg > /dev/null
+      "$DMGVENV/bin/dmgbuild" -s Resources/dmg/settings.py -D app="$APP" Menew build/Menew.dmg > /dev/null
       [ -n "${SIGN_IDENTITY:-}" ] && codesign --force --timestamp --sign "$SIGN_IDENTITY" build/Menew.dmg
       echo "Pronto: build/Menew.dmg"
       ;;

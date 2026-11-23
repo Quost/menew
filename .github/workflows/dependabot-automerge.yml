@@ -25,4 +25,8 @@ jobs:
           risky=$(jq '[.[] | select(.updateType == "version-update:semver-major"
             or (.updateType == "version-update:semver-minor" and ((.prevVersion // "0.") | startswith("0."))))] | length' <<<"$DEPS")
           if [ "$risky" -gt 0 ]; then echo "Major, ou minor de uma versão 0.x: espera uma pessoa."; exit 0; fi
+          # O Sparkle instala as atualizações de todos os usuários e o CI não exercita o atualizador: sempre uma pessoa
+          if jq -e 'any(.[]; .dependencyName | ascii_downcase | contains("sparkle"))' <<<"$DEPS" >/dev/null; then
+            echo "Sparkle: espera uma pessoa."; exit 0
+          fi
           gh pr merge --auto --squash "$PR"
