@@ -1,7 +1,7 @@
 name: Dependabot auto-merge
 
 # Atualizações patch e minor do Dependabot entram sozinhas quando os checks obrigatórios passam (o main é protegido).
-# Major espera uma pessoa.
+# Major, e minor de versões 0.x, esperam uma pessoa.
 on: pull_request
 
 permissions:
@@ -15,8 +15,14 @@ jobs:
     steps:
       - id: meta
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
-      - if: steps.meta.outputs.update-type != 'version-update:semver-major'
-        run: gh pr merge --auto --squash "$PR"
+      # Antes da 1.0, uma minor pode quebrar a API (semver): 0.32 → 0.43 espera uma pessoa, como as major.
+      - name: Merge once the required checks pass
         env:
+          DEPS: ${{ steps.meta.outputs.updated-dependencies-json }}
           PR: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          risky=$(jq '[.[] | select(.updateType == "version-update:semver-major"
+            or (.updateType == "version-update:semver-minor" and ((.prevVersion // "0.") | startswith("0."))))] | length' <<<"$DEPS")
+          if [ "$risky" -gt 0 ]; then echo "Major, ou minor de uma versão 0.x: espera uma pessoa."; exit 0; fi
+          gh pr merge --auto --squash "$PR"
