@@ -38,6 +38,9 @@ final class LiveCaptions: NSObject, ObservableObject {
     private var request: SFSpeechAudioBufferRecognitionRequest?
     private var task: SFSpeechRecognitionTask?
     private var stream: SCStream?
+    private var streamDelegate: StreamStopDelegate?
+    /// Sobe a cada start/stop: um begin() que ficou esperando (download do modelo, permissão) vê que ficou velho e desiste
+    private var generation = 0
     private let output = CaptionAudioOutput()
     private var engine: AVAudioEngine?
     private var segmentStart = Date()
@@ -62,24 +65,27 @@ final class LiveCaptions: NSObject, ObservableObject {
     func start() {
         showPanel()
         status = L("Preparando…")
+        generation += 1
+        let gen = generation
         if #available(macOS 26, *) {
-            Task { await begin() }
+            Task { await begin(gen) }
             return
         }
         SFSpeechRecognizer.requestAuthorization { auth in
             DispatchQueue.main.async {
                 MainActor.assumeIsolated {
+                    guard gen == LiveCaptions.shared.generation else { return }
                     guard auth == .authorized else {
                         LiveCaptions.shared.status = L("Permita o reconhecimento de fala em Ajustes do Sistema › Privacidade.")
                         return
                     }
-                    Task { await LiveCaptions.shared.begin() }
+                    Task { await LiveCaptions.shared.begin(gen) }
                 }
             }
         }
     }
 
-    private func begin() async {
+    private func begin(_ gen: Int) async {
         original = ""
         translated = ""
         if #available(macOS 26, *) {
@@ -89,9 +95,11 @@ final class LiveCaptions: NSObject, ObservableObject {
                     Task { @MainActor in LiveCaptions.shared.show(text) }
                 }
                 try await engine.start(locale: Locale(identifier: from))
+                guard gen == generation else { engine.stop(); return }
                 modern = engine
                 output.feed = { [weak engine] in engine?.feed($0) }
             } catch {
+                guard gen == generation else { return }
                 status = L("Este idioma não está disponível para legendas.")
                 return
             }
@@ -105,9 +113,11 @@ final class LiveCaptions: NSObject, ObservableObject {
         }
         running = true
         do {
-            if source == .system { try await startSystemAudio() } else { try startMic() }
+            if source == .system { try await startSystemAudio(gen) } else { try startMic() }
+            guard gen == generation else { return }
             status = nil
         } catch {
+            guard gen == generation else { return }
             status = source == .system ? L("Permita a gravação de tela e áudio do sistema para o Menew em Ajustes do Sistema › Privacidade.")
                                        : L("Não deu para usar o microfone.")
             stop(keepPanel: true)
@@ -115,6 +125,7 @@ final class LiveCaptions: NSObject, ObservableObject {
     }
 
     func stop(keepPanel: Bool = false) {
+        generation += 1
         running = false
         output.feed = nil
         if #available(macOS 26, *) { (modern as? ModernCaptionEngine)?.stop() }
@@ -126,10 +137,18 @@ final class LiveCaptions: NSObject, ObservableObject {
         output.request = nil
         if let s = stream { Task { try? await s.stopCapture() } }
         stream = nil
+        streamDelegate = nil
         engine?.inputNode.removeTap(onBus: 0)
         engine?.stop()
         engine = nil
         if !keepPanel { panel?.orderOut(nil) }
+    }
+
+    /// O sistema parou a captura (tela desconectada, permissão revogada)
+    private func streamStopped(_ gen: Int) {
+        guard gen == generation, running else { return }
+        stop(keepPanel: true)
+        status = L("A gravação parou: a tela ou a permissão mudou.")
     }
 
     private func restart() {
@@ -184,7 +203,7 @@ final class LiveCaptions: NSObject, ObservableObject {
 
     // MARK: Áudio
 
-    private func startSystemAudio() async throws {
+    private func startSystemAudio(_ gen: Int) async throws {
         let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
         guard let display = content.displays.first else { throw CocoaError(.featureUnsupported) }
         let filter = SCContentFilter(display: display, excludingApplications: [], exceptingWindows: [])
@@ -197,10 +216,16 @@ final class LiveCaptions: NSObject, ObservableObject {
         config.width = 2
         config.height = 2
         config.minimumFrameInterval = CMTime(value: 1, timescale: 1)
-        let s = SCStream(filter: filter, configuration: config, delegate: nil)
+        let delegate = StreamStopDelegate {
+            DispatchQueue.main.async { MainActor.assumeIsolated { LiveCaptions.shared.streamStopped(gen) } }
+        }
+        let s = SCStream(filter: filter, configuration: config, delegate: delegate)
         try s.addStreamOutput(output, type: .audio, sampleHandlerQueue: output.queue)
         try await s.startCapture()
+        // Parou (ou reiniciou) enquanto a captura começava: desliga em vez de deixar ligada
+        guard gen == generation else { try? await s.stopCapture(); return }
         stream = s
+        streamDelegate = delegate
     }
 
     private func startMic() throws {
