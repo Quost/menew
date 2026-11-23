@@ -16,8 +16,14 @@ enum Backup {
 
     /// Coisas desta máquina ou do momento, que não fazem sentido em outro Mac
     private static func skipped(_ key: String) -> Bool {
-        key.hasPrefix("NSWindow Frame") || key.hasPrefix("NSStatusItem") || key.hasPrefix("SU")
+        sensitive(key) || key.hasPrefix("NSWindow Frame") || key.hasPrefix("NSStatusItem") || key.hasPrefix("SU")
             || ["migratedFromMeuMenu", "paused", "pausedUntil", "softwareDim"].contains(key)
+    }
+
+    /// Segurança e exposição na rede (servidor MCP, token, busca opcional dos limites do Claude): nunca saem num backup
+    /// nem são restauradas de um arquivo, para que um backup recebido de outra pessoa não ligue nada sozinho.
+    nonisolated static func sensitive(_ key: String) -> Bool {
+        key.hasPrefix("mcp.") || key == ClaudePlanLimits.key
     }
 
     // MARK: Exportar
