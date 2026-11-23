@@ -1,176 +1,176 @@
-# Roadmap do Menew
+# Menew roadmap
 
-Plano de longo prazo, escrito em novembro de 2026 a partir de um benchmark com os ~450 apps de [macmenubar.app](https://macmenubar.app/) e cruzado com o que o Menew já faz. É uma direção, não uma promessa: a ordem pode mudar conforme as issues e o que os usuários pedirem.
+A long-term plan, written in November 2026 from a benchmark of the ~450 apps on [macmenubar.app](https://macmenubar.app/) and compared with what Menew already does. It is a direction, not a promise: the order may change with issues and what users ask for.
 
-Esforço estimado: **P** pequeno, **M** médio, **G** grande. Em itálico, apps do site que inspiraram o item.
+Estimated effort: **S** small, **M** medium, **L** large. In italics, the apps from that site that inspired the item. Items marked ✅ have shipped; the version is in parentheses.
 
-Critérios para entrar: nativo, roda no Mac, sem conta, sem telemetria e sem chamadas de rede novas (ver [CLAUDE.md](CLAUDE.md)). O que exige rede está em [Depende de decisão](#depende-de-decisão).
+Criteria to get in: native, runs on the Mac, no account, no telemetry and no new network calls (see [CLAUDE.md](CLAUDE.md)). Anything that needs the network is under [Needs a decision](#needs-a-decision).
 
-## Primeiro ciclo (prioridade)
+## First cycle (priority)
 
-Muito valor com pouco esforço, reaproveitando o que já existe:
+A lot of value for little effort, reusing what already exists:
 
-1. **1.99, Agentes de IA** ✅ preparada: seção de agentes, avisos no notch, "esperando por você", custo, limites, previsão e servidor MCP.
-2. **2.0, Agentes, segunda parte**: aprovar ou negar permissões pelo notch (2.29) e manter o Mac acordado enquanto um agente trabalha. Notch, hooks e manter acordado já existem.
-3. **2.16, Clipboard mais seguro**: tirar UTM dos links, detectar chaves e tokens e apagá-los sozinho. Pequeno, para todo mundo, reforça a privacidade.
-4. **2.9, Lembretes na barra**: lista "Hoje" do app Lembretes, marcar como feito, fixar uma tarefa na barra.
-5. **2.6, Pausas inteligentes**: 20-20-20, alongar e levantar, adiadas sozinhas em reunião, gravação ou foco, coisa que os concorrentes não sabem.
-6. **2.14, Ditado em qualquer app**: segurar uma tecla e falar, processado no Mac, com limpeza por IA. Prepara o "falar com o agente" (2.32).
+1. **1.99, AI agents** ✅ (1.99): agents section, notch alerts, "waiting for you", cost, limits, forecast and MCP server.
+2. **2.0, Agents, part two**: approve or deny permissions from the notch (2.29) and keep the Mac awake while an agent works. The notch, hooks and keep awake already exist.
+3. **2.16, Safer clipboard**: strip UTM from links, detect keys and tokens and delete them automatically. Small, useful to everyone, and good for privacy.
+4. **2.9, Reminders in the menu bar**: the "Today" list from the Reminders app, mark as done, pin a task to the bar.
+5. **2.6, Smart breaks**: 20-20-20, stretch and stand up, postponed automatically during meetings, recording or focus, which competitors don't do.
+6. **2.14, Dictation in any app**: hold a key and speak, processed on the Mac, with AI cleanup. Prepares "talk to the agent" (2.32).
 
-Fora do primeiro ciclo de propósito: **esconder ícones (2.3)** é o pedido mais comum, mas é arriscado no macOS 26 (fazer um protótipo em paralelo antes de anunciar). **Volume por app (2.20)** e **presets de monitor (2.76)** são grandes demais.
+Left out of the first cycle on purpose: **hiding icons (2.3)** was the most common request but risky on macOS 26, so it was prototyped separately (it shipped in 1.106.0). **Volume per app (2.20)** and **monitor presets (2.76)** are too big.
 
-Como medir sem telemetria: downloads por release no GitHub, estrelas, issues e cliques no GoatCounter das páginas de cada feature.
+How to measure without telemetry: downloads per release on GitHub, stars, issues and GoatCounter clicks on each feature's page.
 
-## Fase 1 · Agentes e barra (1.99 → 2.5)
+## Phase 1 · Agents and menu bar (1.99 → 2.5)
 
-- **1.99** Agentes de IA: sessões, limites, MCP ✅ · *CodexBar, AIQuota, Burnrate*
-- **2.0** Agentes no notch: avisos e "esperando por você" ✅ na 1.99; falta manter acordado enquanto o agente trabalha (P) · *Vibe Island, Look Alive, Belay*
-- **2.1** Custo e previsão: custo por modelo e projeto, previsão de quando o limite estoura ✅ na 1.99 · *Tokenscope, ReserveGauge*
-- **2.2** Configurar agentes: ligar e desligar skills e servidores MCP, trocar conta ou provedor (M) · *Wasdy, Prism Switch, Quotio*
-- **2.3** Esconder ícones da barra: seção oculta, sempre ocultos, compatível com o notch (G) · *Ice, Bartender, Hidden Bar*
-- **2.4** Plugins da barra no formato SwiftBar/xbar (M) · *SwiftBar*
-- **2.5** Ícone com personalidade: CPU animada, temas sazonais opcionais (P) · *RunCat, Festivitas*
+- **1.99** AI agents: sessions, limits, MCP ✅ (1.99) · *CodexBar, AIQuota, Burnrate*
+- **2.0** Agents in the notch: alerts and "waiting for you" ✅ (1.99); still missing: keep awake while the agent works (S) · *Vibe Island, Look Alive, Belay*
+- **2.1** Cost and forecast: cost per model and project, a forecast of when the limit runs out ✅ (1.99) · *Tokenscope, ReserveGauge*
+- **2.2** Set up agents: turn skills and MCP servers on and off, switch account or provider (M) · *Wasdy, Prism Switch, Quotio*
+- **2.3** Hide menu bar icons: hidden section, always hidden, works with the notch ✅ (1.106.0) · *Ice, Bartender, Hidden Bar*
+- **2.4** Menu bar plugins in the SwiftBar/xbar format (M) · *SwiftBar*
+- **2.5** An icon with personality: animated CPU, optional seasonal themes (S) · *RunCat, Festivitas*
 
-## Fase 2 · Saúde e dia (2.6 → 2.13)
+## Phase 2 · Health and the day (2.6 → 2.13)
 
-- **2.6** Pausas inteligentes, adiadas em reunião, gravação ou tela cheia (M) · *LookAway, Pausebar, Recess*
-- **2.7** Postura pelo sensor dos AirPods, sem câmera (M) · *Poise*
-- **2.8** Água e hábitos: check-in com 1 clique, sequência que perdoa (P) · *Aqumi, Keystone, Tasktile*
-- **2.9** Lembretes na barra: "Hoje", marcar como feito, uma tarefa fixa (P) · *Barrie, One Thing, Satu*
-- **2.10** Planejar o dia: lembretes encaixados nos horários livres entre reuniões (M) · *Tideline, Nowline*
-- **2.11** Calendário do mês, aniversários dos Contatos, contagens regressivas (P) · *Itsycal, Honeyday, Await*
-- **2.12** Alerta de reunião em tela cheia, hora local de cada colega e horário em comum (M) · *Dato, Chime, There*
-- **2.13** Tempo por projeto: timer de 1 clique, tempo esquecido, "recibo" do dia (M) · *Dial, Punchcard*
+- **2.6** Smart breaks, postponed during meetings, recording or full screen (M) · *LookAway, Pausebar, Recess*
+- **2.7** Posture from the AirPods sensor, no camera (M) · *Poise*
+- **2.8** Water and habits: 1-click check-in, a streak that forgives (S) · *Aqumi, Keystone, Tasktile*
+- **2.9** Reminders in the menu bar: "Today", mark as done, one pinned task (S) · *Barrie, One Thing, Satu*
+- **2.10** Plan the day: reminders fitted into the free slots between meetings (M) · *Tideline, Nowline*
+- **2.11** Month calendar, birthdays from Contacts, countdowns (S) · *Itsycal, Honeyday, Await*
+- **2.12** Full-screen meeting alert, each colleague's local time and shared hours (M) · *Dato, Chime, There*
+- **2.13** Time per project: 1-click timer, forgotten time, a "receipt" for the day (M) · *Dial, Punchcard*
 
-## Fase 3 · Texto, captura, som e Mac (2.14 → 2.28)
+## Phase 3 · Text, capture, sound and Mac (2.14 → 2.28)
 
-- **2.14** Ditado segurando uma tecla, em qualquer app, no Mac (M) · *parrot, Handy, HoldSpeak*
-- **2.15** Bolha de ações ao selecionar texto, com as ações do ⌃⌥⌘R (M) · *PopClip, SwiftBiu*
-- **2.16** Clipboard mais seguro: sem UTM, segredos que expiram, Touch ID (P) · *UTMBeGone, Klipvault*
-- **2.17** Teclas e cliques na tela, holofote, zoom, desenhar na tela (M) · *KeyCastr, ClickLight, Presentify*
-- **2.18** Screenshot bonito: fundo, sombra, proporção fixa, régua de pixels (M) · *Tuji, Framéd, PixelSnap*
-- **2.19** Bordas da tela como ring light, espelho de câmera, tela de privacidade (P) · *DisplayFill, Hand Mirror, Shoji*
-- **2.20** Volume por app, prioridade de dispositivos, mudo ao tirar o fone (G) · *FineTune, AudioPriorityBar, Default0*
-- **2.21** Agora tocando: Music e Spotify no menu e no notch, HUD de volume e brilho (M) · *Boring Notch, Tuneful*. Usar AppleScript, já que o MediaRemote está restrito desde o macOS 15.4.
-- **2.22** Sons de foco gerados no Mac, ligados ao timer (P) · *Patter, CapyMuMu*
-- **2.23** AirPods por atalho, Bluetooth não reconecta com o Mac dormindo, o que o cabo USB-C suporta (M) · *Sharptooth, Bluesnooze, WhatCable*
-- **2.24** Modo vigia: alarme ao tirar o carregador ou fechar a tampa, travar quando o iPhone se afasta (M) · *Stealward, Peeku*
-- **2.25** Ajustes do macOS com desfazer: Dock, screenshots, arquivos ocultos (P) · *Mainspring, One Switch*
-- **2.26** Histórico de quedas da internet e do Wi-Fi, sem tráfego extra (P) · *NetCheck, Online Indicator*
-- **2.27** Atalho por app (⌥1 abre o Slack), alternador de janelas com miniaturas (G) · *Spring, DockDoor, cmdcmd*
-- **2.28** Navegador por domínio, links de reunião direto no app, favoritos de todos os navegadores na paleta (M) · *Portals, Bookmark Bar*
+- **2.14** Hold-a-key dictation, in any app, on the Mac (M) · *parrot, Handy, HoldSpeak*
+- **2.15** Action bubble when you select text, with the ⌃⌥⌘R actions (M) · *PopClip, SwiftBiu*
+- **2.16** Safer clipboard: no UTM, secrets that expire, Touch ID (S) · *UTMBeGone, Klipvault*
+- **2.17** Keys and clicks on screen, spotlight, zoom, draw on screen (M) · *KeyCastr, ClickLight, Presentify*
+- **2.18** Pretty screenshots: background, shadow, fixed aspect ratio, pixel ruler (M) · *Tuji, Framéd, PixelSnap*
+- **2.19** Screen edges as a ring light, camera mirror, privacy screen (S) · *DisplayFill, Hand Mirror, Shoji*
+- **2.20** Volume per app, device priority, mute when the headphones come off (L) · *FineTune, AudioPriorityBar, Default0*
+- **2.21** Now playing: Music and Spotify in the menu and the notch ✅ (1.106.0; the volume and brightness HUD is still open) (M) · *Boring Notch, Tuneful*
+- **2.22** Focus sounds generated on the Mac, tied to the timer (S) · *Patter, CapyMuMu*
+- **2.23** AirPods by shortcut, Bluetooth that doesn't reconnect while the Mac sleeps, what the USB-C cable supports (M) · *Sharptooth, Bluesnooze, WhatCable*
+- **2.24** Guard mode: alarm when the charger is unplugged or the lid is closed, lock when the iPhone moves away (M) · *Stealward, Peeku*
+- **2.25** macOS tweaks with undo: Dock, screenshots, hidden files (S) · *Mainspring, One Switch*
+- **2.26** History of internet and Wi-Fi drops, with no extra traffic (S) · *NetCheck, Online Indicator*
+- **2.27** Shortcut per app (⌥1 opens Slack), window switcher with thumbnails (L) · *Spring, DockDoor, cmdcmd*
+- **2.28** Browser per domain, meeting links straight into the app, bookmarks from every browser in the palette (M) · *Portals, Bookmark Bar*
 
-## Fase 4 · Agentes, segunda onda (2.29 → 2.36)
+## Phase 4 · Agents, second wave (2.29 → 2.36)
 
-- **2.29** Aprovar ou negar permissões do agente pelo notch (M) · *Vibe Island*
-- **2.30** Linha do tempo da sessão: o que o agente fez, arquivos e comandos (M)
-- **2.31** Continuar sozinho quando o limite zera, com fila de prompts (M) · *CodexReset*
-- **2.32** Falar com o agente: ditado direto na sessão ativa (P) · *Agent Bar*
-- **2.33** Mais ferramentas no MCP, com permissão a cada ação: janelas, apps, captura, lembretes, calendário (M) · *Macuse, Orchard*
-- **2.34** Comando `menew` para scripts: avisos, progresso no notch, clipboard, notas (M) · *Notchification*
-- **2.35** Progresso de builds no notch (xcodebuild, npm, testes) (P)
-- **2.36** Agentes como personagens flutuando, modo divertido opcional (P) · *Agenteam*
+- **2.29** Approve or deny agent permissions from the notch (M) · *Vibe Island*
+- **2.30** Session timeline: what the agent did, files and commands (M)
+- **2.31** Carry on by itself when the limit resets, with a prompt queue (M) · *CodexReset*
+- **2.32** Talk to the agent: dictation straight into the active session (S) · *Agent Bar*
+- **2.33** More MCP tools, with permission for each action: windows, apps, capture, reminders, calendar (M) · *Macuse, Orchard*
+- **2.34** A `menew` command for scripts: notices, progress in the notch, clipboard, notes (M) · *Notchification*
+- **2.35** Build progress in the notch (xcodebuild, npm, tests) (S)
+- **2.36** Agents as floating characters, an optional fun mode (S) · *Agenteam*
 
-## Fase 5 · Barra e notch do seu jeito (2.37 → 2.44)
+## Phase 5 · Menu bar and notch your way (2.37 → 2.44)
 
-- **2.37** Espaçamento entre os ícones da barra (P) · *Menu Bar Spacing*
-- **2.38** Relógio no canto quando a barra fica oculta (P) · *Corner Time*
-- **2.39** Buscar nos menus do app ativo pela paleta (M)
-- **2.40** Notch montável: escolher os blocos do painel (M) · *OmniNotch, NotchDodo*
-- **2.41** Cartões do clipboard saindo do notch (M) · *Just Copy, Supaste*
-- **2.42** Pastas favoritas como menus, links rápidos no notch (P) · *Folder Peek, LinkNotch*
-- **2.43** Qualquer app na barra, com não lidos do Slack ou do Mail (M) · *Badgeify*
-- **2.44** Uma pasta do app Atalhos como menu na barra (P) · *Short Run*
+- **2.37** Spacing between menu bar icons (S) · *Menu Bar Spacing*
+- **2.38** A clock in the corner when the bar is hidden (S) · *Corner Time*
+- **2.39** Search the active app's menus from the palette (M)
+- **2.40** Build-your-own notch: choose the blocks of the panel (M) · *OmniNotch, NotchDodo*
+- **2.41** Clipboard cards coming out of the notch (M) · *Just Copy, Supaste*
+- **2.42** Favorite folders as menus, quick links in the notch (S) · *Folder Peek, LinkNotch*
+- **2.43** Any app in the bar, with unread counts from Slack or Mail (M) · *Badgeify*
+- **2.44** A folder from the Shortcuts app as a menu in the bar (S) · *Short Run*
 
-## Fase 6 · Saúde, segunda onda (2.45 → 2.51)
+## Phase 6 · Health, second wave (2.45 → 2.51)
 
-- **2.45** Estatísticas de digitação, cliques e rolagem, só contagens (P) · *Mac Input Stats*
-- **2.46** Limites gentis por app ("30 min de YouTube por dia") (M) · *BalmyTime*
-- **2.47** Respiração guiada de 1 minuto no notch (P) · *Mysa*
-- **2.48** Filtro noturno mais forte que o Night Shift, com modo vermelho e horário (M) · *Nox, Sundown*
-- **2.49** Tela e luz do teclado abaixo do mínimo (P) · *Doze, Lowlight*
-- **2.50** Lembretes de movimento com exercícios curtos (P) · *DeskSquat, Standflow*
-- **2.51** Resumo semanal: pausas, postura, tempo de tela, horas tarde (P)
+- **2.45** Typing, click and scroll stats, counts only (S) · *Mac Input Stats*
+- **2.46** Gentle per-app limits ("30 min of YouTube a day") (M) · *BalmyTime*
+- **2.47** A guided 1-minute breathing exercise in the notch (S) · *Mysa*
+- **2.48** A night filter stronger than Night Shift, with a red mode and a schedule (M) · *Nox, Sundown*
+- **2.49** Screen and keyboard light below the system minimum (S) · *Doze, Lowlight*
+- **2.50** Movement reminders with short exercises (S) · *DeskSquat, Standflow*
+- **2.51** Weekly summary: breaks, posture, screen time, late hours (S)
 
-## Fase 7 · Ideias e escrita (2.52 → 2.59)
+## Phase 7 · Ideas and writing (2.52 → 2.59)
 
-- **2.52** Notas adesivas flutuantes ou presas na borda da tela (M) · *Tucky, FloatyDo*
-- **2.53** Notas por app ou por janela (M) · *Flip*
-- **2.54** Uma linha direto no fim de um .md escolhido (Obsidian) (P) · *Markie*
-- **2.55** Diário em formato de conversa, ligado à Memória (M) · *mynd*
-- **2.56** Salvar a aba do navegador na Memória com um atalho (P) · *Snaggy, Clipii*
-- **2.57** Mini planilha no menu (M) · *MenuSheet*
-- **2.58** Revisão do dia e da semana numa página só (M)
-- **2.59** Coleções no clipboard, "sempre colar sem formatação" por app (P) · *PastePal*
+- **2.52** Sticky notes floating or pinned to the screen edge (M) · *Tucky, FloatyDo*
+- **2.53** Notes per app or per window (M) · *Flip*
+- **2.54** Append a line straight to the end of a chosen .md file (Obsidian) (S) · *Markie*
+- **2.55** A journal in conversation form, tied to Memory (M) · *mynd*
+- **2.56** Save the browser tab to Memory with a shortcut (S) · *Snaggy, Clipii*
+- **2.57** A mini spreadsheet in the menu (M) · *MenuSheet*
+- **2.58** Review of the day and the week on one page (M)
+- **2.59** Clipboard collections, "always paste without formatting" per app (S) · *PastePal*
 
-## Fase 8 · Vídeo e demos (2.60 → 2.66)
+## Phase 8 · Video and demos (2.60 → 2.66)
 
-- **2.60** Câmera numa bolha na gravação de tela (M) · *FaceScreen*
-- **2.61** Kit de bug report: gravação, dados do sistema e logs num .zip (M) · *Jam*
-- **2.62** Comprimir imagens em lote, com WebP e AVIF (P) · *Zipic, Tinyowl*
-- **2.63** Cortar e acelerar gravações antes de exportar (M)
-- **2.64** Paleta de cores de uma imagem, histórico do conta-gotas (P) · *Sip*
-- **2.65** Legendas gravadas no vídeo a partir da transcrição (M)
-- **2.66** Traduzir a tela: a tradução aparece por cima da área (M) · *TrueDict, PinsGO*
+- **2.60** Camera in a bubble on the screen recording (M) · *FaceScreen*
+- **2.61** Bug report kit: recording, system data and logs in a .zip (M) · *Jam*
+- **2.62** Compress images in bulk, with WebP and AVIF (S) · *Zipic, Tinyowl*
+- **2.63** Trim and speed up recordings before exporting (M)
+- **2.64** Color palette from an image, eyedropper history (S) · *Sip*
+- **2.65** Captions burned into the video from the transcript (M)
+- **2.66** Translate the screen: the translation appears on top of the area (M) · *TrueDict, PinsGO*
 
-## Fase 9 · Arquivos e espaço (2.67 → 2.73)
+## Phase 9 · Files and space (2.67 → 2.73)
 
-- **2.67** Buscar qualquer arquivo pela paleta, com prévia (M) · *Everywhere*
-- **2.68** Regras automáticas para pastas como Downloads, com desfazer (M) · *DropSweep*
-- **2.69** Converter um arquivo trocando a extensão (P) · *Consul*
-- **2.70** Raio-X dos "Dados do Sistema": snapshots, backups do iPhone, simuladores (M) · *System Data*
-- **2.71** Enviar para o outro Mac pela rede local, sem nuvem (M) · *Sharee*
-- **2.72** Recortar e colar arquivos no Finder com ⌘X (M) · *FinderClip*
-- **2.73** Fotos parecidas (não idênticas) no limpador, sempre para o Lixo (M)
+- **2.67** Find any file from the palette, with a preview (M) · *Everywhere*
+- **2.68** Automatic rules for folders like Downloads, with undo (M) · *DropSweep*
+- **2.69** Convert a file by changing its extension (S) · *Consul*
+- **2.70** X-ray of "System Data": snapshots, iPhone backups, simulators (M) · *System Data*
+- **2.71** Send to your other Mac over the local network, no cloud (M) · *Sharee*
+- **2.72** Cut and paste files in Finder with ⌘X (M) · *FinderClip*
+- **2.73** Similar (not identical) photos in the cleaner, always to the Trash (M)
 
-## Fase 10 · Som, telas e entrada (2.74 → 2.81)
+## Phase 10 · Sound, displays and input (2.74 → 2.81)
 
-- **2.74** Equalizador do sistema por dispositivo (M) · *FineTune*
-- **2.75** Dois fones ou várias saídas ao mesmo tempo (P) · *PairPods, Cacophony*
-- **2.76** Presets de monitor (resolução, HiDPI, brilho) por perfil (G) · *BetterDisplay, Crisp*
-- **2.77** Janelas voltam ao lugar quando o monitor reconecta (M) · *ScreenPlace, Stay*
-- **2.78** Rolagem suave e sentido separado para mouse e trackpad (M) · *AirScroll*
-- **2.79** Idioma do teclado por app (P) · *LinguaX*
-- **2.80** Painel de privacidade: qual app usou câmera, microfone e localização, e quando (M)
-- **2.81** Ângulo da tampa, com ações (P) · *LidAngleSensor, Lid Plane*
+- **2.74** System equalizer per device (M) · *FineTune*
+- **2.75** Two headphones or several outputs at once (S) · *PairPods, Cacophony*
+- **2.76** Monitor presets (resolution, HiDPI, brightness) per profile (L) · *BetterDisplay, Crisp*
+- **2.77** Windows go back to their place when the monitor reconnects (M) · *ScreenPlace, Stay*
+- **2.78** Smooth scrolling and separate direction for mouse and trackpad (M) · *AirScroll*
+- **2.79** Keyboard language per app (S) · *LinguaX*
+- **2.80** Privacy panel: which app used the camera, microphone and location, and when (M)
+- **2.81** Lid angle, with actions (S) · *LidAngleSensor, Lid Plane*
 
-## Fase 11 · Dev, segunda onda (2.82 → 2.88)
+## Phase 11 · Dev, second wave (2.82 → 2.88)
 
-- **2.82** Servidores de dev agrupados por projeto (P) · *TidyPorts, Port Menu*
-- **2.83** Containers do Docker e do `container` da Apple: listar, parar, logs (M) · *Berthly*
-- **2.84** Simuladores iOS e emuladores Android: abrir, limpar, deep link (M) · *MiniSim, SimTag*
-- **2.85** Identidade do git por pasta, pessoal e trabalho (P) · *Switzy*
-- **2.86** Kit dev maior na paleta: JSON, Base64, hash, regex, cron (P)
-- **2.87** "Avise quando acabar" para comandos longos no terminal (P)
-- **2.88** Snippets de código com destaque de sintaxe (P) · *BearGist*
+- **2.82** Dev servers grouped by project (S) · *TidyPorts, Port Menu*
+- **2.83** Docker and Apple `container` containers: list, stop, logs (M) · *Berthly*
+- **2.84** iOS simulators and Android emulators: open, clean, deep link (M) · *MiniSim, SimTag*
+- **2.85** Git identity per folder, personal and work (S) · *Switzy*
+- **2.86** A bigger dev kit in the palette: JSON, Base64, hash, regex, cron (S)
+- **2.87** "Tell me when it's done" for long terminal commands (S)
+- **2.88** Code snippets with syntax highlighting (S) · *BearGist*
 
-## Fase 12 · Plataforma e acabamento (2.89 → 3.0)
+## Phase 12 · Platform and polish (2.89 → 3.0)
 
-- **2.89** Sincronizar notas, snippets e ajustes entre os seus Macs pelo iCloud, opcional e sem conta nova (G)
-- **2.90** Clipboard entre os seus Macs, opcional (M) · *CliperX*
-- **2.91** API de plugins do Menew, com painéis próprios (G)
-- **2.92** Mais idiomas no app e no site: francês, japonês, coreano, italiano (M)
-- **2.93** Calendário lunar chinês e feriados por país (P) · *LunarBar*
-- **2.94** Acessibilidade: VoiceOver completo, tudo pelo teclado (M)
-- **2.95** Modo economia: o Menew mede o próprio gasto de energia (M)
-- **2.96** Mascote opcional que reage à CPU e ao foco (P) · *CatPod, RunCat*
-- **2.97** Cara ou coroa, sorteio e dado na paleta (P) · *Flippr*
-- **3.0** **Painel do dia**: agenda, agentes, saúde, tarefas e Mac numa tela, com o "Agora" redesenhado em volta disso (G)
+- **2.89** Sync notes, snippets and settings between your Macs through iCloud, optional and with no new account (L)
+- **2.90** Clipboard across your Macs, optional (M) · *CliperX*
+- **2.91** A Menew plugin API, with their own panels (L)
+- **2.92** More languages in the app and the site: French, Japanese, Korean, Italian (M)
+- **2.93** Chinese lunar calendar and holidays by country (S) · *LunarBar*
+- **2.94** Accessibility: full VoiceOver, everything by keyboard (M)
+- **2.95** Low-power mode: Menew measures its own energy use (M)
+- **2.96** An optional mascot that reacts to CPU and focus (S) · *CatPod, RunCat*
+- **2.97** Coin flip, draw and dice in the palette (S) · *Flippr*
+- **3.0** **Day panel**: agenda, agents, health, tasks and Mac on one screen, with "Now" redesigned around it (L)
 
-## Depende de decisão
+## Needs a decision
 
-Criam chamadas de rede novas, que hoje não são permitidas. Só entram como opcionais e sob demanda, como o câmbio:
+These create new network calls, which are not allowed today. They only get in as optional and on demand, like the currency rate:
 
-- Clima (WeatherKit)
-- PRs e issues do GitHub (pelo `gh` instalado)
-- Aviso de atualização dos outros apps · *MacUpdater*
-- Cliente HTTP rápido · *Pingo*
-- Upload para um bucket seu · *Tinyowl*
+- Weather (WeatherKit)
+- GitHub PRs and issues (through the installed `gh`)
+- Update notices for other apps · *MacUpdater*
+- A fast HTTP client · *Pingo*
+- Upload to a bucket of your own · *Tinyowl*
 
-## Fora
+## Out
 
-- Limite de carga da bateria: precisa de helper com senha de admin, e o Menew promete não usar.
-- Firewall: é outro produto (o LuLu já faz).
-- Gravação contínua "para quando esqueceu de gravar": risco de privacidade.
-- Proxy para compartilhar assinaturas de IA: bate nos termos de uso.
-- Wallpapers baixados da internet, sons de teclado, Hue e controles de TV.
+- Battery charge limit: needs a helper with an admin password, which Menew promises not to use.
+- Firewall: that is another product (LuLu already does it).
+- Always-on recording "for when you forgot to record": a privacy risk.
+- A proxy to share AI subscriptions: against the terms of use.
+- Wallpapers downloaded from the internet, keyboard sounds, Hue and TV controls.
