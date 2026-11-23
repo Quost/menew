@@ -40,13 +40,15 @@ You can also open `Package.swift` in Xcode and run the `Menew` scheme.
 
 ## Website
 
-The site (https://menew.pururucos.com.br) is generated in 5 languages from `site/template.html` and `site/i18n/*.json`:
+The site (https://menew.pururucos.com.br) is built and deployed from [Quost/menew-site](https://github.com/Quost/menew-site), in 5 languages. This repository only holds the content of the `/mac` page: the texts in `site/content.json` and the screenshots in `docs/assets/` (see [site/README.md](site/README.md)). Layout, the overview page, comparisons and SEO are changed in menew-site.
+
+To preview the `/mac` page with your changes, from a checkout of menew-site next to this one:
 
 ```bash
-python3 scripts/build-site.py
+python3 scripts/build.py --content mac=../menew/site --serve
 ```
 
-Don't edit `docs/**/index.html` by hand; CI checks they match the template. Visitors are sent to their browser's language automatically, and the language menu remembers their choice.
+CI checks the content with menew-site's validator (`python3 ../menew-site/scripts/content.py mac site`). After a merge, the site picks it up by itself within about 30 minutes.
 
 ## Screenshots
 
@@ -57,7 +59,7 @@ Changed something visual? Regenerate the screenshots used by the README and webs
 build/Menew.app/Contents/MacOS/Menew --snapshot /tmp/menew-shots -language en
 ```
 
-This renders every screen in light and dark mode using fake data, never your real clipboard. Copy the ones you need into `docs/assets/`.
+This renders every screen in light and dark mode using fake data, never your real clipboard. Copy the ones you need into `docs/assets/` and refresh their WebP copies with `scripts/webp.sh` (needs `cwebp`: `brew install webp`).
 
 ### Recording a demo
 
@@ -110,7 +112,7 @@ python3 scripts/check-l10n.py     # every L("…") has en, de, es and zh, and no
 
 Tests live in `Tests/MenewTests` and only cover logic that needs no screen, network, permissions or user data. When you fix a bug in that kind of code, add a test that fails without the fix.
 
-Every pull request runs the same checks on GitHub (`.github/workflows/ci.yml`): it builds the app on macOS 26 like the release does, runs the tests, checks the translations and checks that `docs/` was regenerated after changing `site/`. Commit messages are checked separately. On a contributor's first pull request, GitHub waits for a maintainer to approve the run.
+Every pull request runs the same checks on GitHub (`.github/workflows/ci.yml`): it builds the app on macOS 26 like the release does, runs the tests, checks the translations and checks the website content in `site/`. Commit messages are checked separately. On a contributor's first pull request, GitHub waits for a maintainer to approve the run.
 
 ## Guidelines
 
