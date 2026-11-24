@@ -1304,6 +1304,7 @@ private let table: [String: [String]] = [
     "Rolando e capturando… esc para": ["Scrolling and capturing… esc stops", "Scrollen und aufnehmen … esc stoppt", "Desplazando y capturando… esc detiene", "正在滚动截图… 按 esc 停止"],
     "Não deu para capturar com rolagem": ["Couldn’t do the scrolling capture", "Scroll-Aufnahme fehlgeschlagen", "No se pudo hacer la captura con desplazamiento", "滚动截图失败"],
     "Não deu para gravar a tela": ["Couldn’t record the screen", "Bildschirmaufnahme fehlgeschlagen", "No se pudo grabar la pantalla", "无法录制屏幕"],
+    "A gravação parou: a tela ou a permissão mudou.": ["Recording stopped: the display or the permission changed.", "Aufnahme gestoppt: Bildschirm oder Berechtigung hat sich geändert.", "La grabación se detuvo: cambió la pantalla o el permiso.", "录制已停止：屏幕或权限发生了变化。"],
     "Gravação %@": ["Recording %@", "Aufnahme %@", "Grabación %@", "录屏 %@"],
     "Criando o GIF…": ["Making the GIF…", "GIF wird erstellt …", "Creando el GIF…", "正在生成 GIF…"],
     "GIF salvo na Mesa": ["GIF saved to Desktop", "GIF auf dem Schreibtisch gesichert", "GIF guardado en el Escritorio", "GIF 已保存到桌面"],

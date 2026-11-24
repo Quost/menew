@@ -147,6 +147,7 @@ final class ScreenRecorder: ObservableObject {
     var revealsInFinder = true
     private var stream: SCStream?
     private var sink: FrameSink?
+    private var streamDelegate: StreamStopDelegate?
     private var file: URL?
     private var gif = false
     private var control: NSPanel?
@@ -209,12 +210,16 @@ final class ScreenRecorder: ObservableObject {
             }
             audioFiles = (micAudio, sysAudio)
             let sink = try FrameSink(url: url, width: w, height: h, mic: wantsMic, system: wantsSystem, micCopy: micAudio, systemCopy: sysAudio)
-            let stream = SCStream(filter: filter, configuration: config, delegate: nil)
+            let delegate = StreamStopDelegate {
+                DispatchQueue.main.async { MainActor.assumeIsolated { ScreenRecorder.shared.streamStopped() } }
+            }
+            let stream = SCStream(filter: filter, configuration: config, delegate: delegate)
             try stream.addStreamOutput(sink, type: .screen, sampleHandlerQueue: sink.queue)
             if wantsSystem { try stream.addStreamOutput(sink, type: .audio, sampleHandlerQueue: sink.queue) }
             if wantsMic, #available(macOS 15, *) { try stream.addStreamOutput(sink, type: .microphone, sampleHandlerQueue: sink.queue) }
             try await stream.startCapture()
             self.stream = stream
+            self.streamDelegate = delegate
             self.sink = sink
             self.file = url
             self.gif = gif
@@ -245,11 +250,15 @@ final class ScreenRecorder: ObservableObject {
         control?.orderOut(nil)
         control = nil
         let gif = self.gif
+        // Guardados já: uma gravação nova pode começar enquanto esta ainda termina
+        let started = self.started
+        let audio = audioFiles
+        audioFiles = (nil, nil)
         Task {
             try? await stream.stopCapture()
             await sink.finish()
-            self.stream = nil
-            self.sink = nil
+            if self.stream === stream { self.stream = nil; self.streamDelegate = nil }
+            if self.sink === sink { self.sink = nil }
             let name = L("Gravação %@", Date().formatted(.dateTime.year().month(.twoDigits).day(.twoDigits).hour().minute().second())
                 .replacingOccurrences(of: "/", with: "-").replacingOccurrences(of: ":", with: "."))
             let dest = self.folder.appendingPathComponent(name + (gif ? ".gif" : ".mov"))
@@ -261,9 +270,7 @@ final class ScreenRecorder: ObservableObject {
             } else {
                 ok = (try? FileManager.default.moveItem(at: file, to: dest)) != nil
             }
-            let duration = Date().timeIntervalSince(self.started)
-            let audio = self.audioFiles
-            self.audioFiles = (nil, nil)
+            let duration = Date().timeIntervalSince(started)
             if ok, !gif, audio.mic != nil || audio.system != nil {
                 // O áudio do vídeo vira uma gravação com ata, ligada ao vídeo
                 RecordingStore.shared.importScreenRecording(mic: audio.mic, system: audio.system, video: dest, duration: duration)
@@ -275,6 +282,13 @@ final class ScreenRecorder: ObservableObject {
                 HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("Não deu para gravar a tela"), duration: 2.5)
             }
         }
+    }
+
+    /// O sistema parou a captura (tela desconectada, permissão revogada): fecha o arquivo e salva o que deu
+    fileprivate func streamStopped() {
+        guard isRecording else { return }
+        HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("A gravação parou: a tela ou a permissão mudou."), duration: 2.5)
+        stop()
     }
 
     /// Botão flutuante de parar, logo abaixo (ou acima) da área gravada; fica fora da gravação
@@ -320,6 +334,14 @@ private struct RecordingControl: View {
         .buttonStyle(.plain)
         .accessibilityLabel(L("Parar gravação"))
     }
+}
+
+/// Avisa quando o ScreenCaptureKit para sozinho (tela desconectada, permissão revogada). O SCStream não segura o delegate: quem cria guarda.
+final class StreamStopDelegate: NSObject, SCStreamDelegate, @unchecked Sendable {
+    private let onStop: @Sendable () -> Void
+    init(_ onStop: @escaping @Sendable () -> Void) { self.onStop = onStop }
+
+    func stream(_ stream: SCStream, didStopWithError error: Error) { onStop() }
 }
 
 /// Recebe os quadros (e o som) do ScreenCaptureKit e grava num .mov (H.264 + AAC)

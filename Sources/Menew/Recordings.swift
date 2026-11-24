@@ -147,6 +147,7 @@ final class RecordingStore: NSObject, ObservableObject {
     private var micWriter: AudioFileWriter?
     private var systemWriter: AudioFileWriter?
     private var stream: SCStream?
+    private var streamDelegate: StreamStopDelegate?
     private let systemOutput = RecordingSystemOutput()
     /// Só um símbolo de parar na barra de menus enquanto grava (nada no meio da tela, bom para compartilhar a tela)
     private var stopItem: NSStatusItem?
@@ -250,10 +251,17 @@ final class RecordingStore: NSObject, ObservableObject {
                 config.width = 2
                 config.height = 2
                 config.minimumFrameInterval = CMTime(value: 1, timescale: 1)
-                let s = SCStream(filter: SCContentFilter(display: display, excludingApplications: [], exceptingWindows: []), configuration: config, delegate: nil)
+                let id = rec.id
+                let delegate = StreamStopDelegate {
+                    DispatchQueue.main.async { MainActor.assumeIsolated { RecordingStore.shared.streamStopped(id) } }
+                }
+                let s = SCStream(filter: SCContentFilter(display: display, excludingApplications: [], exceptingWindows: []), configuration: config, delegate: delegate)
                 try s.addStreamOutput(systemOutput, type: .audio, sampleHandlerQueue: systemOutput.queue)
                 try await s.startCapture()
+                // Parou enquanto a captura ainda começava: desliga em vez de deixar ligada para sempre
+                guard recordingID == id else { try? await s.stopCapture(); return }
                 stream = s
+                streamDelegate = delegate
             } catch {
                 systemWriter = nil
                 systemOutput.writer = nil
@@ -280,6 +288,13 @@ final class RecordingStore: NSObject, ObservableObject {
         Task { await process(r.id) }
     }
 
+    /// O sistema parou a captura do som do Mac (tela desconectada, permissão revogada)
+    fileprivate func streamStopped(_ id: UUID) {
+        guard recordingID == id else { return }
+        HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("A gravação parou: a tela ou a permissão mudou."), duration: 2.5)
+        stop()
+    }
+
     func stop() {
         guard let id = recordingID else { return }
         engine?.inputNode.removeTap(onBus: 0)
@@ -292,6 +307,7 @@ final class RecordingStore: NSObject, ObservableObject {
         systemWriter = nil
         if let s = stream { Task { try? await s.stopCapture() } }
         stream = nil
+        streamDelegate = nil
         let duration = Date().timeIntervalSince(startedAt)
         recordingID = nil
         hideStopItem()
