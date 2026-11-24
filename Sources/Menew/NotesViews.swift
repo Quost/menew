@@ -70,6 +70,7 @@ struct NotesView: View {
                     if !query.isEmpty {
                         Button { query = "" } label: { Image(systemName: "xmark.circle.fill") }
                             .buttonStyle(.plain).foregroundStyle(.tertiary)
+                            .accessibilityLabel(L("Limpar busca"))
                     }
                 }
                 .font(.system(size: 13))
@@ -200,7 +201,8 @@ struct NotesView: View {
     private func copy(_ n: Note) {
         Task {
             if n.secure { guard await store.unlock(n.id) else { return } }
-            if n.isPasswords { SecretCopy.copy(store.text(of: n.id)); return }
+            // Nota protegida vai como confidencial: fora do histórico do clipboard e de outros aparelhos
+            if n.secure || n.isPasswords { SecretCopy.copy(store.text(of: n.id)); return }
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(store.text(of: n.id), forType: .string)
         }
@@ -243,7 +245,7 @@ private struct NoteEditor: View {
                 }
                 Menu {
                     Button(L("Copiar")) {
-                        if note?.isPasswords == true { SecretCopy.copy(store.text(of: id)); return }
+                        if note?.secure == true || note?.isPasswords == true { SecretCopy.copy(store.text(of: id)); return }
                         NSPasteboard.general.clearContents()
                         NSPasteboard.general.setString(store.text(of: id), forType: .string)
                     }

@@ -154,6 +154,7 @@ struct HubView: View {
                 TextField(L("Buscar"), text: $state.query).textFieldStyle(.plain).font(.system(size: 13))
                 if !state.query.isEmpty {
                     Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).foregroundStyle(.tertiary)
+                        .accessibilityLabel(L("Limpar busca"))
                 }
             }
             .padding(.horizontal, 8).padding(.vertical, 6)

@@ -32,14 +32,14 @@ def used_keys():
     for path in sorted((ROOT / "Sources").rglob("*.swift")):
         if path == TABLE:
             continue
-        for n, line in enumerate(path.read_text().splitlines(), 1):
+        for n, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
             # L("texto") ou L("texto %d", valor)
             for m in re.finditer(r'\bL\(\s*' + STRING, line):
                 keys.setdefault(m.group(1), f"{path.relative_to(ROOT)}:{n}")
     return keys
 
 def main():
-    entries, repeated = table_entries(TABLE.read_text())
+    entries, repeated = table_entries(TABLE.read_text(encoding="utf-8"))
     problems = [f"{TABLE.relative_to(ROOT)}: chave repetida (o app fecha ao abrir): {k!r}" for k in repeated]
     for key, where in sorted(used_keys().items(), key=lambda kv: kv[1]):
         if key not in entries:

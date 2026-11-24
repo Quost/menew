@@ -21,6 +21,7 @@ cask "menew" do
   zap trash: [
     "~/Library/Application Support/Menew",
     "~/Library/Caches/com.matheusquost.menew",
+    "~/Library/Group Containers/9527N6XKKW.com.matheusquost.menew",
     "~/Library/HTTPStorages/com.matheusquost.menew",
     "~/Library/Preferences/com.matheusquost.menew.plist",
   ]

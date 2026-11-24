@@ -8,6 +8,9 @@ import UniformTypeIdentifiers
 /// macOS 26: o transcritor novo da Apple (sem pedir permissão, ótimo com falas longas). Antes disso: o reconhecimento
 /// de fala clássico, no aparelho, que pede permissão na primeira vez.
 enum Transcriber {
+    /// O idioma não tem reconhecimento no Mac: a fala nunca é enviada para fora, então não há como transcrever
+    enum Failure: Error { case onDeviceUnavailable }
+
     static let languages: [(code: String, name: String)] = [
         ("pt-BR", "Português"), ("en-US", "English"), ("es-ES", "Español"), ("de-DE", "Deutsch"), ("zh-CN", "中文"),
         ("fr-FR", "Français"), ("it-IT", "Italiano"), ("ja-JP", "日本語"),
@@ -72,8 +75,10 @@ enum Transcriber {
         guard status == .authorized, let recognizer = SFSpeechRecognizer(locale: locale), recognizer.isAvailable else {
             throw CocoaError(.userCancelled)
         }
+        // A fala fica no Mac: sem modelo do idioma no aparelho, falha em vez de mandar o áudio para a Apple
+        guard recognizer.supportsOnDeviceRecognition else { throw Failure.onDeviceUnavailable }
         let request = SFSpeechURLRecognitionRequest(url: url)
-        request.requiresOnDeviceRecognition = recognizer.supportsOnDeviceRecognition
+        request.requiresOnDeviceRecognition = true
         request.shouldReportPartialResults = false
         return try await withCheckedThrowingContinuation { c in
             var done = false
@@ -98,6 +103,7 @@ extension ShelfStore {
         HUD.show(icon: "waveform", color: .secondary, text: L("Transcrevendo…"), duration: nil)
         Task {
             var texts: [String] = []
+            var offline = false
             for url in urls {
                 do {
                     let text = try await Task.detached { try await Transcriber.transcribe(url, locale: locale) }.value
@@ -106,11 +112,12 @@ extension ShelfStore {
                     _ = (NSApp.delegate as? AppDelegate)?.notes.create(text: title + "\n\n" + text)
                     texts.append(text)
                 } catch {
+                    if case Transcriber.Failure.onDeviceUnavailable = error { offline = true }
                     continue
                 }
             }
             guard !texts.isEmpty else {
-                HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: L("Não deu para transcrever"), duration: 2.5)
+                HUD.show(icon: "exclamationmark.triangle.fill", color: .orange, text: offline ? L("O reconhecimento de fala neste idioma não está disponível no Mac. Baixe o idioma em Ajustes do Sistema › Teclado › Ditado.") : L("Não deu para transcrever"), duration: 4)
                 return
             }
             NSPasteboard.general.clearContents()
