@@ -23,7 +23,7 @@ def version(v):
     return tuple(int(x) for x in v.split("."))
 
 def main():
-    lines = (ROOT / "CHANGELOG.md").read_text().splitlines()
+    lines = (ROOT / "CHANGELOG.md").read_text(encoding="utf-8").splitlines()
     problems, heads, current = [], [], None
     for n, line in enumerate(lines, 1):
         if line.startswith("## "):
