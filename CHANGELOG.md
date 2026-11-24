@@ -2,6 +2,12 @@
 
 Each version's section is shown in the in-app update window and on the GitHub release.
 
+## Unreleased
+
+### Fixed
+- **Protected notes stay out of the clipboard history.** Copying a protected note now marks it as a password, like password notes: it isn't saved in the clipboard history, and it's cleared from the clipboard after 30 seconds.
+- **VoiceOver labels.** The clear-search buttons, the ⋯ menus in Memory and Recordings, and the to-do checkboxes in meeting minutes now have names VoiceOver reads out.
+
 ## 1.106.0
 
 ### New

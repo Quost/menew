@@ -153,7 +153,11 @@ final class ClipboardManager: ObservableObject {
         timer = Timer.scheduledTimer(withTimeInterval: 0.4, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.poll() }
         }
-        timer?.tolerance = 0.15
+        timer?.tolerance = 0.25
+        // Grava na hora o que ainda estiver esperando o atraso do save() ao sair
+        NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.flushSave() }
+        }
         // Itens vencidos saem mesmo sem nada novo ser copiado
         cleanupTimer = Timer.scheduledTimer(withTimeInterval: 3600, repeats: true) { [weak self] _ in
             MainActor.assumeIsolated { self?.pruneAndSaveIfNeeded() }
@@ -183,25 +187,57 @@ final class ClipboardManager: ObservableObject {
         let front = NSWorkspace.shared.frontmostApplication
         if let bundle = front?.bundleIdentifier, ignoredApps.contains(bundle) { return }
         var item: ClipItem?
+        var imageData: Data?
 
         if let urls = pb.readObjects(forClasses: [NSURL.self], options: [.urlReadingFileURLsOnly: true]) as? [URL], !urls.isEmpty {
             item = ClipItem(kind: .file, text: urls.map(\.path).joined(separator: "\n"))
         } else if let s = pb.string(forType: .string), !s.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
                   !BinaryClip.looksBinary(s), !(pb.data(forType: .string).map(BinaryClip.isBinary) ?? false) {
+            // Texto gigante (log de dezenas de MB) não entra no histórico; cortar corromperia o que seria colado
+            guard s.utf16.count <= Self.maxTextLength else { return }
             item = ClipItem(kind: .text, text: s)
-        } else if let img = NSImage(pasteboard: pb), let tiff = img.tiffRepresentation, let rep = NSBitmapImageRep(data: tiff) {
-            item = storeImage(rep)
-            if item == nil { return }
+        } else if let data = Self.rawImageData(pb) {
+            imageData = data
         } else if let bytes = pb.data(forType: .string).flatMap({ BinaryClip.isBinary($0) ? $0 : nil })
                     ?? pb.string(forType: .string).flatMap(BinaryClip.bytes(fromText:)) {
             // Teams, Claude e outros põem os bytes da imagem num tipo de texto: vira imagem, não texto ilegível
-            guard let rep = BinaryClip.bitmap(from: bytes) else { return }
-            item = storeImage(rep)
+            imageData = bytes
+        }
+
+        let app = front?.localizedName
+        let bundle = front?.bundleIdentifier
+        if let data = imageData {
+            // Decodificar, gerar o PNG, o hash e gravar um print grande leva centenas de ms: fora da thread principal
+            let dir = imagesDir
+            Task {
+                let stored = await Task.detached(priority: .utility) { Self.makeImageItem(data: data, imagesDir: dir) }.value
+                guard var new = stored else { return }
+                // O usuário pode ter pausado ou desligado o módulo enquanto a imagem era processada
+                if !Module.clipboard.isOn || Self.isPaused { return }
+                new.sourceApp = app
+                new.sourceBundle = bundle
+                commit(new, types: types, concealed: concealed)
+            }
+            return
         }
 
         guard var new = item else { return }
-        new.sourceApp = front?.localizedName
-        new.sourceBundle = front?.bundleIdentifier
+        new.sourceApp = app
+        new.sourceBundle = bundle
+        commit(new, types: types, concealed: concealed)
+    }
+
+    /// Texto acima disto (em caracteres) não entra no histórico: o save() reescreveria tudo a cada cópia
+    private static let maxTextLength = 1_000_000
+
+    /// Só lê os bytes da imagem no pasteboard (rápido); a decodificação acontece em segundo plano
+    private static func rawImageData(_ pb: NSPasteboard) -> Data? {
+        if let d = pb.data(forType: .tiff) ?? pb.data(forType: .png) { return d }
+        guard let img = NSImage(pasteboard: pb) else { return nil }
+        return img.tiffRepresentation
+    }
+
+    private func commit(_ new: ClipItem, types: [String], concealed: Bool) {
         insert(new)
         PasteQueue.shared.captured(new)
         if new.kind == .image {
@@ -214,6 +250,15 @@ final class ClipboardManager: ObservableObject {
 
     /// Grava a imagem em PNG (nome pelo hash, então a mesma imagem não duplica) e devolve o item
     private func storeImage(_ rep: NSBitmapImageRep) -> ClipItem? {
+        Self.writeImage(rep, imagesDir: imagesDir)
+    }
+
+    nonisolated private static func makeImageItem(data: Data, imagesDir: URL) -> ClipItem? {
+        guard let rep = BinaryClip.bitmap(from: data) else { return nil }
+        return writeImage(rep, imagesDir: imagesDir)
+    }
+
+    nonisolated private static func writeImage(_ rep: NSBitmapImageRep, imagesDir: URL) -> ClipItem? {
         guard let png = rep.representation(using: .png, properties: [:]) else { return nil }
         let hash = SHA256.hash(data: png).prefix(10).map { String(format: "%02x", $0) }.joined()
         let name = "\(hash).png"
@@ -551,10 +596,29 @@ final class ClipboardManager: ObservableObject {
         DispatchQueue.main.asyncAfter(deadline: .now() + 10) { [weak self] in self?.queueOCR() }
     }
 
+    private var saveWork: DispatchWorkItem?
+    private static let writeQueue = DispatchQueue(label: "menew.clipboard.save", qos: .utility)
+
+    /// Junta várias mudanças seguidas numa gravação só, ~1 s depois da última
     private func save() {
         guard !isDemo else { return }
+        saveWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in
+            MainActor.assumeIsolated { self?.flushSave(wait: false) }
+        }
+        saveWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: work)
+    }
+
+    /// Grava já se há mudança pendente. `wait` espera o arquivo ser escrito (usado ao sair do app).
+    private func flushSave(wait: Bool = true) {
+        guard let work = saveWork else { return }
+        work.cancel()
+        saveWork = nil
         guard let data = try? JSONEncoder().encode(items) else { return }
-        try? data.write(to: historyURL, options: .atomic)
+        let url = historyURL
+        let write: () -> Void = { try? data.write(to: url, options: .atomic) }
+        if wait { Self.writeQueue.sync { write() } } else { Self.writeQueue.async { write() } }
     }
 }
 

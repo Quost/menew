@@ -15,6 +15,12 @@ jobs:
     # variável RELEASE_RUNNER do repositório aponta para o Mac do autor (["self-hosted","macOS","menew-release"]).
     # Só vai para o Mac quem está em SELF_HOSTED_AUTHORS (ex.: "Quost"); os demais ficam no GitHub.
     runs-on: ${{ fromJSON(vars.RELEASE_RUNNER != '' && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.RELEASE_RUNNER || '"macos-26"') }}
+    # Uma release por vez, sem cancelar a que está no meio (assinar/notarizar pela metade deixa a Release torta)
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    # A notarização sozinha pode levar até 2 h (--timeout 2h abaixo)
+    timeout-minutes: 180
     env:
       HAS_CERT: ${{ secrets.DEVELOPER_ID_P12 != '' }}
       HAS_NOTARY: ${{ secrets.APPLE_ID != '' }}

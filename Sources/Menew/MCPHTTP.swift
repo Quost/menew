@@ -29,8 +29,9 @@ final class MCPHTTP: @unchecked Sendable {
     static func resetToken() { UserDefaults.standard.set(newToken(), forKey: tokenKey) }
 
     private static func newToken() -> String {
-        var bytes = [UInt8](repeating: 0, count: 24)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        // Gerador do sistema (criptográfico no macOS) e que não falha: sem chance de um token de zeros
+        var rng = SystemRandomNumberGenerator()
+        let bytes = (0..<24).map { _ in UInt8.random(in: .min ... .max, using: &rng) }
         return bytes.map { String(format: "%02x", $0) }.joined()
     }
 

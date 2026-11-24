@@ -92,6 +92,7 @@ struct RecordingsView: View {
                 Button(L("Mostrar a pasta no Finder")) { if let d = store.dir { NSWorkspace.shared.open(d) } }
             } label: { Image(systemName: "ellipsis.circle") }
                 .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+                .accessibilityLabel(L("Mais ações"))
         }
     }
 
@@ -239,6 +240,8 @@ struct RecordingDetail: View {
                                     store.update(rec.id) { r in if let i = r.tasks.firstIndex(where: { $0.id == t.id }) { r.tasks[i].done.toggle() } }
                                 } label: { Image(systemName: t.done ? "checkmark.circle.fill" : "circle").foregroundStyle(t.done ? .green : .secondary) }
                                     .buttonStyle(.plain)
+                                    .accessibilityLabel(t.text)
+                                    .accessibilityValue(t.done ? L("Feita") : L("A fazer"))
                                 VStack(alignment: .leading, spacing: 1) {
                                     Text(t.text).font(.system(size: 12.5)).strikethrough(t.done)
                                     let meta = [t.owner, t.due].compactMap { $0 }.joined(separator: " · ")

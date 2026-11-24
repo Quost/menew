@@ -108,6 +108,10 @@ final class LiveCaptions: NSObject, ObservableObject {
                 status = L("Este idioma não está disponível para legendas.")
                 return
             }
+            guard r.supportsOnDeviceRecognition else {
+                status = L("O reconhecimento de fala neste idioma não está disponível no Mac. Baixe o idioma em Ajustes do Sistema › Teclado › Ditado.")
+                return
+            }
             recognizer = r
             newRequest()
         }
@@ -161,7 +165,7 @@ final class LiveCaptions: NSObject, ObservableObject {
         task?.cancel()
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
-        if recognizer?.supportsOnDeviceRecognition == true { req.requiresOnDeviceRecognition = true }
+        req.requiresOnDeviceRecognition = true
         req.addsPunctuation = true
         request = req
         output.request = req
