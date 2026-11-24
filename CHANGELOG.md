@@ -4,9 +4,17 @@ Each version's section is shown in the in-app update window and on the GitHub re
 
 ## Unreleased
 
+### Improved
+- **Copying big screenshots no longer stutters.** Images you copy are now processed in the background, so a large screenshot doesn't freeze Menew or the menu bar for a moment. Very long texts (over a million characters, like a huge log) are no longer kept in the clipboard history.
+- **Reduce motion.** With **Reduce motion** on in System Settings › Accessibility › Display, Menew skips its sliding, spring and expanding animations.
+
 ### Fixed
+- **Speech always stays on your Mac.** On macOS 14 and 15, transcribing or captioning a language without an on-device speech model could send the audio to Apple for recognition. Menew never does that now: it asks you to download the language in System Settings › Keyboard › Dictation instead.
+- **Backups don't carry the MCP server.** A `.menew` backup no longer includes the MCP server settings and key, or the Claude plan limits option, so restoring someone else's backup can't turn them on.
+- **Safer uninstaller.** Leftovers are only looked for inside your Library folder, by names that clearly belong to the app you dropped. A badly made app can no longer make it suggest unrelated folders.
+- **Recordings that stop on their own are saved.** If a display is disconnected or the screen recording permission is turned off while recording, Menew now stops, saves what it recorded and tells you why. Stopping right after starting no longer leaves the Mac's audio capture running.
 - **Protected notes stay out of the clipboard history.** Copying a protected note now marks it as a password, like password notes: it isn't saved in the clipboard history, and it's cleared from the clipboard after 30 seconds.
-- **VoiceOver labels.** The clear-search buttons, the ⋯ menus in Memory and Recordings, and the to-do checkboxes in meeting minutes now have names VoiceOver reads out.
+- **VoiceOver labels.** The clear-search buttons, the ⋯ menus in Memory and Recordings, and the to-do checkboxes in meeting minutes now have names VoiceOver reads out. So does every switch, pop-up menu and field, and clipboard rows, palette results and cards can be opened with VoiceOver. The **Edit** menu is now translated.
 
 ## 1.106.0
 
