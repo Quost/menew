@@ -118,8 +118,9 @@ enum SecretShare {
     /// `from`: a chave pública de quem manda, para quem recebe poder salvar o contato e da próxima vez dispensar a senha
     static func seal(_ secret: SecretPayload, passphrase: String, from: Curve25519.KeyAgreement.PublicKey? = nil,
                      rounds: Int = defaultRounds) throws -> SecretEnvelope {
-        var salt = Data(count: 16)
-        _ = salt.withUnsafeMutableBytes { SecRandomCopyBytes(kSecRandomDefault, 16, $0.baseAddress!) }
+        // Gerador do sistema (criptográfico no macOS) e que não falha: sem chance de um sal de zeros
+        var rng = SystemRandomNumberGenerator()
+        let salt = Data((0..<16).map { _ in UInt8.random(in: .min ... .max, using: &rng) })
         var env = SecretEnvelope(mode: .passphrase, from: from.map { base64url($0.rawRepresentation) },
                                  salt: base64url(salt), rounds: rounds, box: "")
         guard let key = pbkdf2(normalize(passphrase), salt: salt, rounds: rounds) else { throw SecretShareError.damaged }
