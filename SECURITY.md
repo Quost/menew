@@ -32,5 +32,14 @@ Good examples of things to report:
 - Passwords from password managers ending up in the history even with "Ignore passwords" on.
 - Protected notes readable without Touch ID or your password.
 - Problems with update signing (Sparkle, Developer ID, notarization).
+- The MCP servers (stdio and HTTP) answering without permission, or the HTTP server's key being guessable or reachable from outside `127.0.0.1`.
 
-Menew has no servers and no accounts. The only network calls are the update check, the public-IP lookup and the speed test you start yourself.
+Menew has no servers and no accounts. The only network calls are:
+
+- the update check;
+- the public-IP lookup;
+- the speed test you start yourself;
+- the currency rate, fetched when you press ↩ on a conversion in the command palette;
+- the Claude plan limits (`api.anthropic.com`), only if you turn them on (off by default).
+
+Ollama and LM Studio models are read on `127.0.0.1` only. The optional MCP-over-HTTP server (for agents in Docker) listens on `127.0.0.1` only, answers only requests with its key, and is off by default.

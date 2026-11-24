@@ -6,7 +6,7 @@ Please follow our [code of conduct](CODE_OF_CONDUCT.md). Found a security proble
 
 ## Getting started
 
-Requirements: macOS 14+ and Xcode 16+ (or the Swift 6 toolchain).
+Requirements: macOS 14+ and Xcode 16+ (or the Swift 6 toolchain). The on-device AI features need the FoundationModels SDK (`#if canImport(FoundationModels)`, see `AIAgent.swift`), which comes with Xcode 26+; with older tools the app still builds, without them. Releases are built with Xcode 27.
 
 ```bash
 git clone https://github.com/Quost/menew
@@ -20,23 +20,45 @@ You can also open `Package.swift` in Xcode and run the `Menew` scheme.
 
 ## Project layout
 
-| File | What lives there |
+The app is one flat Swift target, `Sources/Menew`, with one file per feature. By area:
+
+| Area | Main files |
 |---|---|
-| `App.swift` | Entry point, menu bar item, popover, global shortcuts |
-| `SystemMonitor.swift` | CPU, memory, disk, network, battery, processes |
-| `ClipboardManager.swift` | Clipboard capture, history, search, paste |
-| `ClipboardViews.swift` | ⌘⇧V panel, list, preview |
-| `Views.swift` | Popover tabs: System, Actions, Notes, Settings |
-| `Toolbox.swift` | Quick actions |
-| `Cleaning.swift` | Keyboard lock and screen cleaning |
-| `Extras.swift` | Bluetooth devices, public IP, speed test, notes |
-| `Cleaner.swift` | Free up space: scans and cleaning |
-| `Snippets.swift` | Saved texts and placeholders |
-| `Updater.swift` | Auto-updates (Sparkle) |
-| `L10n.swift` | All UI strings and translations |
-| `Theme.swift` | Colors and shared UI components |
-| `HotKey.swift` | Global shortcuts (Carbon) |
-| `Snapshot.swift` | Renders screenshots of every screen |
+| Entry point and launch flags | `App.swift` (menu bar item, popover, global shortcuts), `HotKey.swift` (Carbon shortcuts), `Migration.swift`, `DemoMode.swift` |
+| Clipboard | `ClipboardManager.swift`, `ClipboardViews.swift`, `SmartClip.swift`, `SmartClipSearch.swift`, `PasteQueue.swift`, `Snippets.swift`, `TextExpander.swift`, `Shelf.swift`, `SecretShare.swift` |
+| Notes | `Notes.swift`, `NotesViews.swift`, `Markdown.swift` |
+| System monitor | `SystemMonitor.swift`, `MonitorViews.swift`, `SystemHistory.swift`, `Sensors.swift`, `Hardware.swift`, `BatteryCare.swift`, `BatteryWear.swift`, `NetUsage.swift`, `Ports.swift`, `WiFi.swift`, `Diagnosis.swift`, `Alerts.swift`, `AlertRules.swift`, `RunawayWatch.swift` |
+| Command palette | `Palette.swift`, `Calculator.swift`, `TextTransforms.swift`, `QuickLinks.swift`, `QuickReminders.swift`, `Emoji.swift`, `Timers.swift`, `Translate.swift`, `ScriptCommands.swift`, `WorldClock.swift` |
+| Memory | `Memory.swift`, `MemoryAsk.swift`, `MemoryFeed.swift`, `MemoryGraph.swift`, `MemoryViews.swift`, `Spotlight.swift` |
+| Recordings and captions | `Recorder.swift`, `Recordings.swift`, `RecordingsView.swift`, `Transcribe.swift`, `LiveCaptions.swift`, `Meetings.swift`, `Capture.swift`, `ScrollCapture.swift`, `TextRecognizer.swift`, `LiveText.swift` |
+| On-device AI | `AIAgent.swift`, `AIFeatures.swift`, `AIText.swift`, `Rewriter.swift`, `ScreenAsk.swift` |
+| AI agents and MCP | `AgentHub.swift`, `AgentSources.swift`, `AgentUsage.swift`, `AgentHistory.swift`, `AgentPlugins.swift`, `AgentsView.swift`, `MCPServer.swift` (stdio), `MCPHTTP.swift` (HTTP, key-protected, `127.0.0.1` only) |
+| Notch and menu bar | `Notch.swift`, `NotchHover.swift`, `NowPlaying.swift`, `MenuBarPro.swift`, `MenuBarHider.swift`, `NowView.swift` |
+| Cleaner, uninstaller, organizer | `Cleaner.swift`, `Uninstaller.swift`, `Organizer.swift`, `StartupItems.swift`, `ImageTools.swift`, `PDFTools.swift` |
+| Windows and actions | `Windows.swift`, `DragSnap.swift`, `Profiles.swift`, `Toolbox.swift`, `ActionsView.swift`, `Favorites.swift`, `Automations.swift`, `Focus.swift`, `FocusFilter.swift`, `Cleaning.swift`, `Presentation.swift`, `Intents.swift`, `ShortcutActions.swift` |
+| Settings and windows | `SettingsWindow.swift`, `MenewWindow.swift`, `Views.swift` (popover tabs), `Onboarding.swift`, `Backup.swift`, `Feedback.swift`, `Updater.swift` (Sparkle), `LaunchAtLogin.swift`, `AccessibilityGrant.swift` |
+| Shared UI, theme and strings | `Theme.swift` (colors, shared components), `L10n.swift` (all UI strings and translations), `Extras.swift` |
+| Screenshots and demos | `Snapshot.swift` (renders every screen), `VideoFrames.swift` (promo video frames), `DemoMode.swift` |
+| Widgets | `Sources/MenewWidgets` (the widget extension), `Sources/MenewShared` (what the app and widgets share), `WidgetBridge.swift` (the app side) |
+| Tests | `Tests/MenewTests` |
+
+Not sure where something belongs? Search for its name: files are named after what they do.
+
+### Launch flags
+
+`App.swift` reads these. Most are for development; the normal app takes none.
+
+| Flag | What it does |
+|---|---|
+| `--snapshot <folder>` | Renders every screen with fake data into the folder, then quits (see Screenshots) |
+| `--preview <tab>` | Opens one tab for a quick look |
+| `--demo` | Runs the real app on fake data (see Recording a demo) |
+| `--video-frames <folder>` | Renders the promo video frames (see Promo video) |
+| `--mcp` | Runs Menew's MCP server over stdio and exits, without opening the app. Agents start it |
+| `--agent-hook <agent>` | Called by an AI agent's hook: reports the session state and exits |
+| `--hardware` | Prints a hardware report to the terminal |
+
+`Resources/Info.plist` holds a placeholder version. `build.sh` overwrites it with the latest git tag (or `VERSION=…`), so local builds show the right version in Settings.
 
 ## Website
 
@@ -97,7 +119,7 @@ Menew follows [Conventional Commits](https://www.conventionalcommits.org). A che
 | `ci` | GitHub Actions, release pipeline |
 | `chore` | Maintenance (dependencies, config, Homebrew bumps) |
 
-Common scopes: `ui`, `i18n`, `clipboard`, `snippets`, `notes`, `monitor`, `cleaner`, `actions`, `updates`, `installer`, `release`, `site`, `homebrew`.
+Common scopes: `ui`, `i18n`, `clipboard`, `snippets`, `notes`, `monitor`, `system`, `cleaner`, `actions`, `palette`, `agents`, `ai`, `notch`, `menubar`, `memory`, `recordings`, `shelf`, `displays`, `windows`, `settings`, `updates`, `installer`, `release`, `site`, `homebrew`.
 
 Examples: `feat(notes): add Markdown checklists`, `fix(clipboard): keep pinned items when clearing history`.
 
@@ -138,7 +160,7 @@ Before tagging, rename `## Unreleased` to the new version (or add a `## X.Y.Z` s
 Maintainers run `scripts/release.sh X.Y.Z "type(scope): message"`: it checks the changelog and translations, regenerates the site, commits, waits for any running release, tags and follows the `Release` workflow to the end. Under the hood it's just a tag, and GitHub Actions does the rest:
 
 ```bash
-git tag v1.2.0
+git tag -a v1.2.0 -m "Menew 1.2.0"   # annotated tag, after the changelog is updated and pushed
 git push origin v1.2.0
 ```
 

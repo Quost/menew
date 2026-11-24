@@ -67,7 +67,20 @@ Press ⌃⌥⌘G, or Record in the Now tab, to start and stop. Choose **Mac audi
   </picture>
 </p>
 
-Press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>Space</kbd> anywhere to find and run any app, Menew action, window layout, snippet, note or copied item. Type “brightness 60” or “awake 2h”, and your recent picks come first. It also does math and conversions: “12*7.5”, “20% of 340”, “5 km to mi”, “72 f to c” and currencies like “100 usd to brl”. It also transforms the text you copied: UPPERCASE, lowercase, Title Case, camelCase, snake_case, kebab-case, remove accents, sort or dedupe lines, format or minify JSON, Base64 and URL encode/decode, and count characters and words, with a live preview. **Quick links**: “g coffee”, “gh menew”, “maps paulista”, “yt …”, “wiki …”, plus your own in Settings → Quick links (say “jira ABC-123” with `https://company.atlassian.net/browse/{q}`); a typed address like “github.com/quost” opens directly, and anything else can be searched on the web. They open in your browser. **On-device AI** (Apple Intelligence, macOS 26+): summarize, rewrite clearer, more formal, friendlier or shorter, or fix spelling and grammar in the copied text, using only the model on your Mac. **Offline translation** (macOS 15+, no Apple Intelligence needed): “translate english” (or Portuguese, Spanish, German, French, Italian, Japanese, Chinese) uses Apple's translator on your Mac. Start with “ai” (or “ia”, “ki”, “?”) to **ask anything**; the answer streams into a small window you can copy from. For developers: decode a JWT,**Emoji and symbols**: “emoji rocket”, “emoji coração” or “:fire” for emoji, and words like “arrow”, “degree”, “euro” or “check” for →, °, €, ✓ and more; ↩ pastes it. **Timers and alarms**: “timer 10m tea”, “timer 1h30” or “alarm 7:30 meeting”, with a countdown in the menu bar and a sound and notice on time. **Quick reminders**: “remind pay the bill tomorrow at 9” (or “lembrar …”, “erinnern …”, “recordar …”) creates it in the Reminders app, with the date understood from what you typed.  generate a UUID, copy the Unix timestamp or paste one to see the date. **Script commands**: drop your own scripts (shell, Python, Node, Ruby, AppleScript) in the scripts folder (“Open scripts folder” in the palette) and each one becomes a command; Raycast script headers (title, icon, mode, argument) work as they are. **Natural-language commands**: start with “do” (or “faz”, “mach”, “haz”) and describe what you want, like “do dark mode, mute the mic and open Zoom”; the Mac’s on-device AI picks the matching Menew actions, window layouts and apps, shows the steps and runs them only when you confirm. Nothing that deletes or quits is ever chosen.
+Press <kbd>⌃</kbd><kbd>⌥</kbd><kbd>Space</kbd> anywhere to find and run any app, Menew action, window layout, snippet, note or copied item. Type “brightness 60” or “awake 2h”, and your recent picks come first. It also understands:
+
+- **Math and conversions**: “12*7.5”, “20% of 340”, “5 km to mi”, “72 f to c” and currencies like “100 usd to brl”.
+- **Text transforms** on what you copied, with a live preview: UPPERCASE, lowercase, Title Case, camelCase, snake_case, kebab-case, remove accents, sort or dedupe lines, format or minify JSON, Base64 and URL encode/decode, and count characters and words.
+- **Quick links**: “g coffee”, “gh menew”, “maps paulista”, “yt …”, “wiki …”, plus your own in Settings › Quick links (say “jira ABC-123” with `https://company.atlassian.net/browse/{q}`). A typed address like “github.com/quost” opens directly, and anything else can be searched on the web. They open in your browser.
+- **On-device AI** (Apple Intelligence, macOS 26+): summarize, rewrite clearer, more formal, friendlier or shorter, or fix spelling and grammar in the copied text, using only the model on your Mac.
+- **Offline translation** (macOS 15+, no Apple Intelligence needed): “translate english” (or Portuguese, Spanish, German, French, Italian, Japanese, Chinese) uses Apple's translator on your Mac.
+- **Ask anything**: start with “ai” (or “ia”, “ki”, “?”); the answer streams into a small window you can copy from.
+- **For developers**: decode a JWT, generate a UUID, copy the Unix timestamp or paste one to see the date.
+- **Emoji and symbols**: “emoji rocket”, “emoji coração” or “:fire” for emoji, and words like “arrow”, “degree”, “euro” or “check” for →, °, €, ✓ and more; ↩ pastes it.
+- **Timers and alarms**: “timer 10m tea”, “timer 1h30” or “alarm 7:30 meeting”, with a countdown in the menu bar and a sound and notice on time.
+- **Quick reminders**: “remind pay the bill tomorrow at 9” (or “lembrar …”, “erinnern …”, “recordar …”) creates it in the Reminders app, with the date understood from what you typed.
+- **Script commands**: drop your own scripts (shell, Python, Node, Ruby, AppleScript) in the scripts folder (“Open scripts folder” in the palette) and each one becomes a command; Raycast script headers (title, icon, mode, argument) work as they are.
+- **Natural-language commands**: start with “do” (or “faz”, “mach”, “haz”) and describe what you want, like “do dark mode, mute the mic and open Zoom”; the Mac’s on-device AI picks the matching Menew actions, window layouts and apps, shows the steps and runs them only when you confirm. Nothing that deletes or quits is ever chosen.
 
 ### ✨ On-device AI
 
@@ -216,7 +229,7 @@ Screenshots, installers and archives are sorted by rule. Review and edit every n
 
 CPU and GPU with live graphs, memory pressure and swap, disk space and read/write speed, battery health, cycles and charger, a <b>battery health history</b> (how much health it lost and how many cycles you use a month, from one reading a day kept on your Mac), the battery of connected accessories (Magic Mouse, Keyboard, Trackpad and AirPods, left, right and case), a <b>history of the last 24 hours, 7 days and 30 days</b> of CPU, memory and battery with the apps that used the most of each, <b>temperatures in °C</b> (chip, SSD, battery and every sensor) and <b>fan speed</b>, <b>performance and efficiency cores</b> one by one, <b>power draw in watts</b> and real time remaining, <b>SSD health</b> (SMART), a <b>runaway app alert</b> and <b>Copy report</b> for support, <b>Wi-Fi details</b> (signal, noise, link speed, channel, band and Wi-Fi standard), <b>login and background items</b> (the launch agents and services apps installed, from the command palette), <b>Screen time</b> (off until you turn it on: time per app today, over 7 or 30 days, split into focus, neutral and distraction and by kind of app (Development, Office, Design, AI, Organizing, Communication, Browsing, Learning and reading, Utilities, Entertainment, Social media), with an hour-by-hour timeline; right-click an app to change its kind or how it counts, and choose how each kind counts; it counts only the front app while you are active and stays on your Mac), <b>“Why is my Mac slow?”</b> (checks memory, CPU, heat, disk, Low Power Mode and uptime, points at the apps to blame and, with Apple Intelligence, explains it in plain words; macOS system processes are never suggested for quitting), uptime, thermal state and the top processes (quit them in one click).
 
-Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery, temperature) with a live preview, all in one icon or with **separate icons**, each opening its own panel with details and a chart of the last 24 hours with the apps that used the most. **Hide menu bar icons** (Settings › Menu bar, off by default): a ‹ and a | line appear next to the Menew icon; hold ⌘ and drag the icons you don't need to the left of the line, and click ‹ to show or hide them (they hide again by themselves after 10 seconds, unless you turn that off). Menew won't hide anything while the line is to the right of its own icon. **World clocks** for the cities you work with sit at the top (Settings → World clocks), and the command palette converts times: “3pm ny to lisbon”, “15h em Lisboa”, “time in Tokyo”.
+Pick what shows in the menu bar (CPU, CPU graph, memory, network, disk, battery, temperature) with a live preview, all in one icon or with **separate icons**, each opening its own panel with details and a chart of the last 24 hours with the apps that used the most. **Hide menu bar icons** (Settings › Menu bar, off by default): a ‹ and a | line appear next to the Menew icon; hold ⌘ and drag the icons you don't need to the left of the line, and click ‹ to show or hide them (they hide again by themselves after 10 seconds, unless you turn that off). Menew won't hide anything while the line is to the right of its own icon. **World clocks** for the cities you work with sit at the top (Settings › World clocks), and the command palette converts times: “3pm ny to lisbon”, “15h em Lisboa”, “time in Tokyo”.
 
 </details>
 
@@ -313,7 +326,7 @@ Recognition and translation run on your Mac; nothing is recorded or sent. Action
 <details>
 <summary>🧩 <b>Only what you need</b> — A short welcome tour on first launch helps you set things up.</summary>
 
-The menu opens on **Now**: a search box for the command palette, CPU, memory, disk and battery in one row with an “All good” or what needs attention, running timers, world clocks and your favorites; **Mac details** has every system card (reorder, fold or hide them). **Actions** has your **Favorites** on top and everything else in six groups (Screen and capture, Windows and displays, Sound and focus, Files and iPhone, AI on your Mac, System and cleanup), each opening its own page, and **Settings live in the Menew window** (the last item of its sidebar), with one search for sections and settings. Turn off Clipboard, Actions or Notes in Settings → General and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings → Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac.
+The menu opens on **Now**: a search box for the command palette, CPU, memory, disk and battery in one row with an “All good” or what needs attention, running timers, world clocks and your favorites; **Mac details** has every system card (reorder, fold or hide them). **Actions** has your **Favorites** on top and everything else in six groups (Screen and capture, Windows and displays, Sound and focus, Files and iPhone, AI on your Mac, System and cleanup), each opening its own page, and **Settings live in the Menew window** (the last item of its sidebar), with one search for sections and settings. Turn off Clipboard, Actions or Notes in Settings › General and they disappear completely (with Clipboard off, Menew doesn't even read it). Settings › Backup saves your settings, shortcuts, snippets, profiles and automations to a `.menew` file (notes and clipboard history optional) to restore later or on another Mac.
 
 </details>
 
@@ -371,7 +384,7 @@ cd menew
 | **Microphone** | Recordings and live captions from the microphone. Asked the first time you record. |
 | **Speech Recognition** | Transcribe recordings and captions on macOS 14 and 15 (macOS 26 transcribes without asking). |
 | **Reminders** | Create the reminders you type in the command palette. Only asked the first time you use it. |
-| **Calendars** | Show your next meeting with a Join button. Only asked if you turn it on in Settings → Calendar; read on your Mac, never uploaded. |
+| **Calendars** | Show your next meeting with a Join button. Only asked if you turn it on in Settings › Calendar; read on your Mac, never uploaded. |
 | **Automation** (Finder, System Events) | Empty the trash and toggle dark mode. Asked the first time you use them. |
 
 ## One app instead of many
@@ -450,7 +463,7 @@ Download the DMG and drag Menew to Applications, or use Homebrew: brew install -
 Menew is signed with an Apple Developer ID and notarized by Apple, and all of its source code is public on GitHub.
 
 **Can I turn off the parts I don't use?**  
-Yes. In Settings → Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.
+Yes. In Settings › General › Modules you can turn off Clipboard, Actions or Notes, and they disappear completely. With Clipboard off, Menew doesn't even read it.
 
 **Can Menew record meetings and write the minutes?**  
 Yes. Press ⌃⌥⌘G (or Record in the Now tab) and choose Mac audio and microphone, Mac audio only, or microphone only. Your Mac transcribes it, tells you apart from the others, and Apple’s on-device AI writes a summary, decisions and tasks you can send to Reminders. No bot joins the call, nothing is uploaded, and short or empty recordings don’t get invented minutes.
@@ -463,7 +476,7 @@ When you see it, press ⌃⌥⌘K to save it to Memory: Menew keeps the image, r
 
 ## Roadmap
 
-Recently shipped:
+What comes next is in [ROADMAP.md](ROADMAP.md). Recently shipped:
 
 - [x] AI agent usage history: 90 days, 12 months and all time, per tool and per app
 - [x] Automatic Memory: every screenshot, recording minutes, notes and a summary of each Claude Code, Codex and Gemini CLI session
@@ -478,7 +491,7 @@ Recently shipped:
 - [x] Battery wear: cycles per day, draining hours and apps, heat and full-charge time
 
 <details>
-<summary>Everything shipped before (79 items)</summary>
+<summary>Everything shipped before (83 items)</summary>
 
 - [x] Disk cleaner (quick and deep scans)
 - [x] Custom keyboard shortcuts
@@ -572,7 +585,7 @@ Ideas? [Open an issue](https://github.com/Quost/menew/issues/new).
 
 ## Feedback
 
-Found a bug or have an idea? Use **Report a problem…** or **Suggest an idea…** in Menew's right-click menu (or in Settings → Help). It opens a GitHub issue with your Menew and macOS versions already filled in.
+Found a bug or have an idea? Use **Report a problem…** or **Suggest an idea…** in Menew's right-click menu (or in Settings › Help). It opens a GitHub issue with your Menew and macOS versions already filled in.
 
 ## Contributing
 
