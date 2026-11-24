@@ -167,7 +167,7 @@ struct MemoryAnswerView: View {
                     Text(ask.question).font(.system(size: 12.5, weight: .semibold)).lineLimit(1)
                     Spacer()
                     Button { ask.clear() } label: { Image(systemName: "xmark") }.buttonStyle(.plain).foregroundStyle(.secondary)
-                        .help(L("Fechar"))
+                        .help(L("Fechar")).accessibilityLabel(L("Fechar"))
                 }
                 if ask.working {
                     HStack(spacing: 8) { ProgressView().controlSize(.small); Text(L("Procurando na sua memória…")).foregroundStyle(.secondary) }

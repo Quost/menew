@@ -1188,6 +1188,8 @@ private let table: [String: [String]] = [
     "Geral": ["General", "Allgemein", "General", "通用"],
     "Ler QR": ["Read QR", "QR lesen", "Leer QR", "读取二维码"],
     "Limpar busca": ["Clear search", "Suche löschen", "Borrar búsqueda", "清除搜索"],
+    "Feita": ["Done", "Erledigt", "Hecha", "已完成"],
+    "A fazer": ["To do", "Offen", "Pendiente", "待办"],
     "Lixeira": ["Trash", "Papierkorb", "Papelera", "废纸篓"],
     "Mais ações": ["More actions", "Weitere Aktionen", "Más acciones", "更多操作"],
     "Metades, cantos e terços": ["Halves, corners and thirds", "Hälften, Ecken und Drittel", "Mitades, esquinas y tercios", "半屏、角落和三分之一"],

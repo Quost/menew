@@ -29,6 +29,7 @@ struct SearchField: View {
             if !state.query.isEmpty {
                 Button { state.query = "" } label: { Image(systemName: "xmark.circle.fill") }
                     .buttonStyle(.plain).foregroundStyle(.tertiary)
+                    .accessibilityLabel(L("Limpar busca"))
             }
             // Fila e pausa são do histórico, não das senhas
             if state.filter != .passwords {
