@@ -5,7 +5,7 @@ updates:
     schedule: { interval: weekly }
     commit-message: { prefix: ci }
     groups:
-      actions: { patterns: ["*"] }
+      actions: { patterns: ["*"], update-types: [minor, patch] }
   - package-ecosystem: swift
     directory: /
     schedule: { interval: weekly }
