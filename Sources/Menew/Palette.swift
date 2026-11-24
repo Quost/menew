@@ -782,6 +782,8 @@ struct PaletteView: View {
                                     PaletteRow(item: item, index: i, selected: i == model.selection)
                                         .contentShape(Rectangle())
                                         .onTapGesture { model.run(i) }
+                                        .accessibilityAddTraits(.isButton)
+                                        .accessibilityAction { model.run(i) }
                                 }
                             }
                             .padding(8)

@@ -406,18 +406,18 @@ struct CaptionsView: View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Circle().fill(model.running ? Color.red : Color.gray).frame(width: 7, height: 7)
-                Picker("", selection: $model.source) {
+                Picker(L("Origem"), selection: $model.source) {
                     Label(L("Som do Mac"), systemImage: "speaker.wave.2.fill").tag(LiveCaptions.Source.system)
                     Label(L("Microfone"), systemImage: "mic.fill").tag(LiveCaptions.Source.mic)
                 }
                 .labelsHidden().fixedSize()
-                Picker("", selection: $model.from) {
+                Picker(L("Idioma falado"), selection: $model.from) {
                     ForEach(CaptionLanguages.spoken, id: \.code) { Text($0.name).tag($0.code) }
                 }
                 .labelsHidden().fixedSize()
                 if LiveCaptions.canTranslate {
                     Image(systemName: "arrow.right").font(.system(size: 10, weight: .bold)).foregroundStyle(.white.opacity(0.6))
-                    Picker("", selection: $model.to) {
+                    Picker(L("Traduzir para"), selection: $model.to) {
                         ForEach(CaptionLanguages.targets, id: \.code) { Text($0.code.isEmpty ? L("Sem tradução") : $0.name).tag($0.code) }
                     }
                     .labelsHidden().fixedSize()

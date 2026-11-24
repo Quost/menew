@@ -401,7 +401,7 @@ struct CleanerView: View {
     private func categoryCard(_ c: CleanCategory) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 10) {
-                Toggle("", isOn: Binding(get: { c.allSelected }, set: { _ in cleaner.toggle(category: c.id) }))
+                Toggle(c.title, isOn: Binding(get: { c.allSelected }, set: { _ in cleaner.toggle(category: c.id) }))
                     .toggleStyle(.checkbox).labelsHidden()
                 ZStack {
                     RoundedRectangle(cornerRadius: 8, style: .continuous).fill(c.color.gradient)
@@ -428,7 +428,7 @@ struct CleanerView: View {
                 VStack(spacing: 4) {
                     ForEach(c.items.prefix(30)) { item in
                         HStack(spacing: 8) {
-                            Toggle("", isOn: Binding(get: { item.selected }, set: { _ in cleaner.toggle(item: item.id, in: c.id) }))
+                            Toggle(item.url.lastPathComponent, isOn: Binding(get: { item.selected }, set: { _ in cleaner.toggle(item: item.id, in: c.id) }))
                                 .toggleStyle(.checkbox).labelsHidden().controlSize(.small)
                             VStack(alignment: .leading, spacing: 0) {
                                 Text(item.url.lastPathComponent).font(.system(size: 11.5)).lineLimit(1).truncationMode(.middle)

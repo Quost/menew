@@ -183,7 +183,7 @@ struct AgentsView: View {
         let w = h.window(range)
         let t = h.totals(since: w.start)
         return section(L("Uso"), trailing: AnyView(
-            Picker("", selection: Binding(get: { range }, set: { range = $0; if !usage.isDemo { UserDefaults.standard.set($0.rawValue, forKey: Self.rangeKey) } })) {
+            Picker(L("Período"), selection: Binding(get: { range }, set: { range = $0; if !usage.isDemo { UserDefaults.standard.set($0.rawValue, forKey: Self.rangeKey) } })) {
                 ForEach(UsageRange.allCases) { Text($0.title).tag($0) }
             }.pickerStyle(.segmented).labelsHidden().controlSize(.small).fixedSize()
         )) {
@@ -200,7 +200,7 @@ struct AgentsView: View {
                     stat(L("Respostas"), t.replies.formatted(.number.locale(L10n.locale)))
                     Spacer(minLength: 0)
                     if range != .today {
-                        Picker("", selection: $byTool) {
+                        Picker(L("Uso"), selection: $byTool) {
                             Text(L("Por ferramenta")).tag(true)
                             Text(L("Somado")).tag(false)
                         }.pickerStyle(.segmented).labelsHidden().controlSize(.small).fixedSize()
@@ -363,7 +363,7 @@ struct AgentsView: View {
                         Text(c.name).font(.system(size: 12.5, weight: .medium))
                         Spacer()
                         if mcpStatus.busy.contains(c) { ProgressView().controlSize(.mini) }
-                        Toggle("", isOn: Binding(get: { mcpStatus.installed[c] ?? false }, set: { mcpStatus.set(c, $0) }))
+                        Toggle(c.name, isOn: Binding(get: { mcpStatus.installed[c] ?? false }, set: { mcpStatus.set(c, $0) }))
                             .toggleStyle(.switch).controlSize(.small).labelsHidden().disabled(mcpStatus.busy.contains(c))
                     }
                     .padding(.horizontal, 10).padding(.vertical, 6)
@@ -407,7 +407,7 @@ struct AgentsView: View {
                         HStack {
                             Text(c.name).font(.system(size: 12.5, weight: .medium)).lineLimit(1)
                             Spacer()
-                            Toggle("", isOn: Binding(get: { c.isInstalled }, set: { v in
+                            Toggle(c.name, isOn: Binding(get: { c.isInstalled }, set: { v in
                                 mcpStatus.error = c.set(v); tick += 1
                             })).toggleStyle(.switch).controlSize(.small).labelsHidden()
                         }

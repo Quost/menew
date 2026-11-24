@@ -513,7 +513,7 @@ struct KindLevelsEditor: View {
                 HStack(spacing: 8) {
                     Image(systemName: k.icon).font(.system(size: 11)).frame(width: 18).foregroundStyle(st.level(k).color)
                     Text(k.title).font(.system(size: 12)).frame(width: 130, alignment: .leading)
-                    Picker("", selection: Binding(get: { st.level(k) }, set: { st.setLevel($0, for: k) })) {
+                    Picker(k.title, selection: Binding(get: { st.level(k) }, set: { st.setLevel($0, for: k) })) {
                         ForEach(ScreenTime.Category.allCases, id: \.self) { Text($0.title).tag($0) }
                     }
                     .labelsHidden().pickerStyle(.segmented).frame(width: 230)

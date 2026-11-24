@@ -107,7 +107,7 @@ final class NotchCenter: ObservableObject {
         }
         let next = Self.pick(now: now, flash: flash?.0, muted: muted, inCall: micBusy)
         if next != activity {
-            withAnimation(.spring(duration: 0.35)) { activity = next }
+            withMotion(.spring(duration: 0.35)) { activity = next }
         }
         place()
     }
@@ -403,7 +403,7 @@ extension NotchCenter {
     /// Mostra um exemplo no notch de verdade por alguns segundos
     func test(_ kind: Kind) {
         testUntil = Date().addingTimeInterval(4)
-        withAnimation(.spring(duration: 0.35)) { activity = kind.demo }
+        withMotion(.spring(duration: 0.35)) { activity = kind.demo }
         place()
         // Com o notch desligado não há timer: limpa sozinho
         if !isOn {
@@ -473,7 +473,7 @@ struct NotchSettingsSection: View {
                             Text(k.title).font(.system(size: 13))
                             Text(k.detail).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                             if k == .meeting {
-                                Picker("", selection: $lead) {
+                                Picker(L("Antecedência"), selection: $lead) {
                                     ForEach([1, 2, 5], id: \.self) { Text(L("%@ min antes", "\($0)")).tag($0) }
                                 }
                                 .labelsHidden().pickerStyle(.menu).fixedSize().padding(.top, 2)
@@ -502,7 +502,7 @@ struct NotchSettingsSection: View {
                         Spacer(minLength: 8)
                         Button(L("Testar")) { NotchCenter.shared.test(k) }
                             .buttonStyle(.borderless).font(.system(size: 11.5))
-                        Toggle("", isOn: Binding(get: { kinds[k] ?? true }, set: { kinds[k] = $0; UserDefaults.standard.set($0, forKey: k.key); NotchCenter.shared.update() }))
+                        Toggle(k.title, isOn: Binding(get: { kinds[k] ?? true }, set: { kinds[k] = $0; UserDefaults.standard.set($0, forKey: k.key); NotchCenter.shared.update() }))
                             .labelsHidden().toggleStyle(.switch).controlSize(.small)
                     }
                     .padding(.horizontal, 12).padding(.vertical, 8)
@@ -517,6 +517,6 @@ struct NotchSettingsSection: View {
     private func show() {
         let list = NotchCenter.Kind.allCases.filter { kinds[$0] ?? true }
         guard !list.isEmpty else { preview.showDemo(.flash(icon: "moon.zzz.fill", color: .gray, text: L("Nada ligado"))); return }
-        withAnimation(.spring(duration: 0.35)) { preview.showDemo(list[step % list.count].demo) }
+        withMotion(.spring(duration: 0.35)) { preview.showDemo(list[step % list.count].demo) }
     }
 }

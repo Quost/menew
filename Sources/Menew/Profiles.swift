@@ -365,7 +365,7 @@ struct ProfileEditor: View {
                     ToggleRow(title: L("Manter acordado"), icon: "cup.and.saucer.fill", isOn: $profile.keepAwake)
                     RowDivider()
                     SettingRow(title: L("Microfone"), icon: "mic.fill") {
-                        Picker("", selection: $profile.mic) {
+                        Picker(L("Microfone"), selection: $profile.mic) {
                             Text(L("Não mexer")).tag(WorkProfile.Mic.keep)
                             Text(L("Mutar")).tag(WorkProfile.Mic.mute)
                             Text(L("Desmutar")).tag(WorkProfile.Mic.unmute)
@@ -374,7 +374,7 @@ struct ProfileEditor: View {
                     }
                     RowDivider()
                     SettingRow(title: L("Aparência"), icon: "circle.lefthalf.filled") {
-                        Picker("", selection: $profile.look) {
+                        Picker(L("Aparência"), selection: $profile.look) {
                             Text(L("Não mexer")).tag(WorkProfile.Look.keep)
                             Text(L("Claro")).tag(WorkProfile.Look.light)
                             Text(L("Escuro")).tag(WorkProfile.Look.dark)

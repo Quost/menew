@@ -107,7 +107,7 @@ struct AISettingsSection: View {
                             Text(f.howTo).font(.system(size: 11)).foregroundStyle(.secondary).fixedSize(horizontal: false, vertical: true)
                         }
                         Spacer(minLength: 8)
-                        Toggle("", isOn: Binding(get: { states[f] ?? true }, set: { states[f] = $0; AIFeature.set(f, $0) }))
+                        Toggle(f.title, isOn: Binding(get: { states[f] ?? true }, set: { states[f] = $0; AIFeature.set(f, $0) }))
                             .labelsHidden().toggleStyle(.switch).controlSize(.small)
                     }
                     .padding(.horizontal, 12).padding(.vertical, 8)
