@@ -101,31 +101,54 @@ final class Uninstaller: ObservableObject {
         return nil
     }
 
+    /// O nome e o identificador vêm do Info.plist do app arrastado, que pode ser hostil: só entram em caminhos se forem
+    /// seguros. Nome: sem "/" nem "..", com 4+ letras (nomes curtos pegariam pastas de outros apps). Identificador: no
+    /// formato com.empresa.app (letras, números, ponto, hífen, sublinhado, ao menos um ponto, sem partes vazias).
+    nonisolated static func safeComponents(id: String, name: String) -> (id: String?, name: String?) {
+        func plain(_ s: String) -> Bool { !s.isEmpty && !s.contains("/") && !s.contains("\\") && !s.contains("..") }
+        let okName = plain(name) && name.count >= 4 ? name : nil
+        let allowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.-_")
+        let parts = id.split(separator: ".", omittingEmptySubsequences: false)
+        let okID = plain(id) && id.count >= 5 && parts.count >= 2 && parts.allSatisfy { !$0.isEmpty }
+            && id.unicodeScalars.allSatisfy { allowed.contains($0) } ? id : nil
+        return (okID, okName)
+    }
+
+    /// O caminho, já normalizado, tem de ficar dentro da Library: nada de sair dela por "..".
+    nonisolated static func isInside(_ url: URL, _ lib: URL) -> Bool {
+        url.standardizedFileURL.path.hasPrefix(lib.standardizedFileURL.path + "/")
+    }
+
     /// Onde os apps costumam deixar coisas, pelo identificador (com.empresa.app) ou pelo nome
-    nonisolated static func leftovers(id: String, name: String, home: URL) -> [Leftover] {
+    nonisolated static func leftovers(id rawID: String, name rawName: String, home: URL) -> [Leftover] {
         let lib = home.appendingPathComponent("Library")
         let fm = FileManager.default
+        let (id, name) = safeComponents(id: rawID, name: rawName)
         var urls: [URL] = []
-        let exact = [
-            "Application Support/\(id)", "Application Support/\(name)", "Caches/\(id)", "Caches/\(name)",
-            "Preferences/\(id).plist", "Containers/\(id)", "Saved Application State/\(id).savedState",
-            "Logs/\(id)", "Logs/\(name)", "HTTPStorages/\(id)", "HTTPStorages/\(id).binarycookies", "WebKit/\(id)",
-            "Cookies/\(id).binarycookies", "Application Scripts/\(id)", "Caches/SentryCrash/\(name)",
-        ]
-        for path in exact {
-            let u = lib.appendingPathComponent(path)
-            if fm.fileExists(atPath: u.path) { urls.append(u) }
-        }
-        // Grupos e agentes que levam o identificador no nome (TEAMID.com.empresa.app, com.empresa.app.helper.plist)
-        for dir in ["Group Containers", "LaunchAgents", "Preferences"] {
-            let base = lib.appendingPathComponent(dir)
-            for item in (try? fm.contentsOfDirectory(atPath: base.path)) ?? [] where item.contains(id) {
-                let u = base.appendingPathComponent(item)
-                if !urls.contains(u) { urls.append(u) }
-            }
+        var exact: [String] = []
+        if let id {
+            exact += [
+                "Application Support/\(id)", "Caches/\(id)", "Preferences/\(id).plist", "Containers/\(id)",
+                "Saved Application State/\(id).savedState", "Logs/\(id)", "HTTPStorages/\(id)",
+                "HTTPStorages/\(id).binarycookies", "WebKit/\(id)", "Cookies/\(id).binarycookies", "Application Scripts/\(id)",
+            ]
         }
         // Nomes curtos ("Notes", "Mail") pegariam pastas de outros apps: só pelo nome se ele for bem específico
-        if name.count < 4 { urls.removeAll { $0.lastPathComponent == name } }
+        if let name { exact += ["Application Support/\(name)", "Caches/\(name)", "Logs/\(name)", "Caches/SentryCrash/\(name)"] }
+        for path in exact {
+            let u = lib.appendingPathComponent(path)
+            if isInside(u, lib), fm.fileExists(atPath: u.path), !urls.contains(u) { urls.append(u) }
+        }
+        // Grupos e agentes que levam o identificador no nome (TEAMID.com.empresa.app, com.empresa.app.helper.plist)
+        if let id {
+            for dir in ["Group Containers", "LaunchAgents", "Preferences"] {
+                let base = lib.appendingPathComponent(dir)
+                for item in (try? fm.contentsOfDirectory(atPath: base.path)) ?? [] where item.contains(id) {
+                    let u = base.appendingPathComponent(item)
+                    if isInside(u, lib), !urls.contains(u) { urls.append(u) }
+                }
+            }
+        }
         return urls.map { Leftover(url: $0, size: size(of: $0)) }.sorted { $0.size > $1.size }
     }
 

@@ -80,6 +80,7 @@ struct MemoryView: View {
                     .onSubmit { if MemoryAsk.shared.available { MemoryAsk.shared.ask(store.query) } }
                 if !store.query.isEmpty {
                     Button { store.query = "" } label: { Image(systemName: "xmark.circle.fill") }.buttonStyle(.plain).foregroundStyle(.tertiary)
+                        .accessibilityLabel(L("Limpar busca"))
                 }
             }
             .font(.system(size: 13))
@@ -109,6 +110,7 @@ struct MemoryView: View {
                 Button(L("Apagar toda a memória…"), role: .destructive) { confirmErase = true }
             } label: { Image(systemName: "ellipsis.circle") }
                 .menuStyle(.button).buttonStyle(.plain).menuIndicator(.hidden).fixedSize()
+                .accessibilityLabel(L("Mais ações"))
         }
         .padding(.horizontal, 16).padding(.bottom, 4)
     }
