@@ -16,6 +16,7 @@ jobs:
       - id: meta
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
       # Antes da 1.0, uma minor pode quebrar a API (semver): 0.32 → 0.43 espera uma pessoa, como as major.
+      # O Sparkle nunca entra sozinho: o atualizador instala código no Mac de cada usuário, sempre revisado por uma pessoa.
       - name: Merge once the required checks pass
         env:
           DEPS: ${{ steps.meta.outputs.updated-dependencies-json }}
@@ -23,6 +24,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           risky=$(jq '[.[] | select(.updateType == "version-update:semver-major"
-            or (.updateType == "version-update:semver-minor" and ((.prevVersion // "0.") | startswith("0."))))] | length' <<<"$DEPS")
-          if [ "$risky" -gt 0 ]; then echo "Major, ou minor de uma versão 0.x: espera uma pessoa."; exit 0; fi
+            or (.updateType == "version-update:semver-minor" and ((.prevVersion // "0.") | startswith("0.")))
+            or (.dependencyName | ascii_downcase) == "sparkle")] | length' <<<"$DEPS")
+          if [ "$risky" -gt 0 ]; then echo "Major, minor de uma versão 0.x ou Sparkle: espera uma pessoa."; exit 0; fi
           gh pr merge --auto --squash "$PR"
