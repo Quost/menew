@@ -24,7 +24,7 @@ jobs:
     runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"macos-26"') }}
     timeout-minutes: 40
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Compilar o app (como na Release, assinatura ad-hoc)
         run: ./build.sh
       - name: Testes
@@ -34,7 +34,7 @@ jobs:
     name: Translations and changelog
     runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0  # as tags: toda versão publicada precisa da sua seção no CHANGELOG
       # Todo L("…") precisa de en, de, es e zh em L10n.swift; chave repetida derruba o app ao abrir
@@ -46,10 +46,10 @@ jobs:
     name: Website content
     runs-on: ${{ fromJSON(vars.CI_RUNNER != '' && !github.event.pull_request.head.repo.fork && (vars.SELF_HOSTED_AUTHORS == '' || (contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.triggering_actor)) && contains(format(',{0},', vars.SELF_HOSTED_AUTHORS), format(',{0},', github.event.pull_request.user.login || github.triggering_actor)))) && vars.CI_RUNNER || '"ubuntu-latest"') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       # O site é montado e publicado pelo Quost/menew-site; daqui só sai o conteúdo da página /mac (site/content.json e
       # as capturas em docs/assets). Confere esse conteúdo com o validador de lá: os 5 idiomas, as chaves, o HTML e as capturas.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           repository: Quost/menew-site
           path: .menew-site
